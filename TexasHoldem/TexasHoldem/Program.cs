@@ -10,7 +10,6 @@ namespace TexasHoldem
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Testing branching in GIT");
         }
     }
 }
