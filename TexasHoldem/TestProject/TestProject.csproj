@@ -54,6 +54,20 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BL\BL.csproj">
+      <Project>{99782cf7-8736-4c1e-949f-c0b962071b0c}</Project>
+      <Name>BL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SL\SL.csproj">
+      <Project>{1e852876-108e-4607-8897-4d50f83fb0c6}</Project>
+      <Name>SL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TexasHoldem\TexasHoldem.csproj">
+      <Project>{6809fa67-cd71-4df1-a6f9-92d38f023c6d}</Project>
+      <Name>TexasHoldem</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
