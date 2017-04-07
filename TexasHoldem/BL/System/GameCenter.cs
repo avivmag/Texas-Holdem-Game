@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TexasHoldem.User;
 
-namespace TexasHoldem.System
+namespace BL.System
 {
 	class GameCenter : Messages.Notification
 	{
