@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BL
+namespace TexasHoldem.Game
 {
-    public class Class1
-    {
-    }
+	class Spectator
+	{
+		public Spectator() { }
+	}
 }
