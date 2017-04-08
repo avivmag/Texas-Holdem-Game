@@ -1,0 +1,6 @@
+﻿namespace BL
+{
+	interface BLInterface
+	{
+	}
+}

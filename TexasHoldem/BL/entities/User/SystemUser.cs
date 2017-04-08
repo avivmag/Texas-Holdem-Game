@@ -6,7 +6,7 @@ namespace BL.User
 	public class SystemUser
 	{
 		private int money;
-		private String namel;
+		private String name;
 		private String password;
 		private String userImage;
 		private int rank;
