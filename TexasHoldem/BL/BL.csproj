@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BLInterface.cs" />
     <Compile Include="entities\Game\Card.cs" />
     <Compile Include="entities\Game\Deck.cs" />
     <Compile Include="entities\Game\GameLog.cs" />

@@ -1,0 +1,6 @@
+﻿namespace SL
+{
+	interface SLInterface
+	{
+	}
+}
