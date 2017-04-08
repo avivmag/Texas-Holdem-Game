@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BL.Game
+﻿namespace BL.Game
 {
-	class GamePreferences
+	public class GamePreferences
 	{
 		public enum GameTypePolicy { limit, no_limit, pot_limit };
 		public GameTypePolicy GamePolicy { get; }

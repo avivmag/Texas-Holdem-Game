@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TexasHoldem.User;
+﻿using System.Collections.Generic;
 
 namespace BL.Game
 {
-	class TexasHoldemGame : Messages.Notification
+	public class TexasHoldemGame : Messages.Notification
 	{
 		public int AvailableSeats { get => GamePreferences.MaxPlayers - players.Count; }
 		public int BuyInPolicy { get; }

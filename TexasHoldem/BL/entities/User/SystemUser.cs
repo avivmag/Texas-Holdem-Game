@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BL.User
 {
-	class SystemUser
+	public class SystemUser
 	{
 		private int money;
 		private String namel;

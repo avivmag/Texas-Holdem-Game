@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BL.Messages
 {
-	abstract class Notification
+	public abstract class Notification
 	{
 		private List<User.SystemUser> subscribers = new List<User.SystemUser>();
 		void subscribe(User.SystemUser systemUser)
