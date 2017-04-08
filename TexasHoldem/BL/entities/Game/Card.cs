@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BL.Game
+﻿namespace BL.Game
 {
-	class Card
+	public class Card
 	{
 		public const int NUMBER_OF_CARDS = 52;
 		public const int LOWEST_CARD = 1;

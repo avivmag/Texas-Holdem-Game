@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 
 namespace BL.Game
 {
-	class GameLog
+	public class GameLog
 	{
 		private static GameLog instance;
 		private Dictionary<string, StreamWriter> swList;
