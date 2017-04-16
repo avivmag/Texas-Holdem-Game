@@ -5,6 +5,7 @@ namespace BL.User
 {
 	public class SystemUser
 	{
+        public int id;
 		private int money;
 		private String name;
 		private String password;
@@ -16,5 +17,11 @@ namespace BL.User
 		{
 			// writeln(str);
 		}
+
+        public void addSpectatingGame(Game game)
+        {
+            if (!this.spectators.Contains(game))
+                this.spectators.Add(game);
+        }
 	}
 }
