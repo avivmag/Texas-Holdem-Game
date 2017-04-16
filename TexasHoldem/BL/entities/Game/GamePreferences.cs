@@ -4,7 +4,7 @@
 	{
 		public enum GameTypePolicy { limit, no_limit, pot_limit };
 		public GameTypePolicy GamePolicy { get; }
-		public int JoinCost { get; }
+		public int BuyInPolicy { get; }
 		public int StartingChipsAmount { get; }
 		public int MinimalBet { get; }
 		public int MinPlayers { get; }
@@ -14,7 +14,7 @@
 		public GamePreferences(GameTypePolicy gamePolicy, int joinCost, int startingChipsAmount, int minimalBet, int minPlayers, int maxPlayers, bool isSpectatingAllowed)
 		{
 			this.GamePolicy = gamePolicy;
-			this.JoinCost = joinCost;
+			this.BuyInPolicy = joinCost;
 			this.StartingChipsAmount = startingChipsAmount;
 			this.MinimalBet = minimalBet;
 			this.MinPlayers = minPlayers;
