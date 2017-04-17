@@ -1,4 +1,4 @@
-﻿namespace BL.Game
+﻿namespace Backend.Game
 {
 	public class Card
 	{

@@ -1,49 +1,88 @@
-﻿using System;
+﻿using Backend.User;
+using Backend.Game;
+using Backend;
+using DAL;
 
 public class BLImpl : BLInterface
 {
+    private DALInterface dal;
 	public BLImpl()
 	{
-	}
-
-    Game spectateActiveGame(SystemUser user, int gameID)
-    {
-        TexasHoldemGame existingGame = getGameById(id);
-        if (existingGame != null)
-        {
-            if (existingGame.canSpectate())
-            {
-                existingGame.addSpectator(new Spectator(user.id));
-                user.addSpectatingGame(existingGame);
-                return existingGame;
-            }
-            else throw new Exception("The game cant be spectated.");
-        }
-        else throw new Exception("Could not find the wanted game to spectate.");
+        dal = new DALDummy();
     }
 
-    Game joinActiveGame(SystemUser user, int gameID)
+    public Message spectateActiveGame(SystemUser user, int gameID)
     {
-        TexasHoldemGame existingGame = getGameById(id);
+        Message m = new Message();
+        TexasHoldemGame existingGame = dal.getGameById(gameID);
         if (existingGame != null)
         {
-            if (existingGame.canJoinGame())
+            Spectator spec = new Spectator(user.id);
+            if (existingGame.joinSpectate(spec))
             {
-                Player p = new Player(existingGame.GamePreferences.JoinCost);
-                existingGame.addPlayer(p);
+                user.addSpectatingGame(spec);
             }
-            else throw new Exception("The game is full - can't join the game");
+            else
+            {
+                m.success = false;
+                m.description = "Couldn't spectate the wanted game because the preferences doesn't allow to spectate.";
+            }
         }
-        else throw new Exception("Could not find the wanted game to join");
+        else
+        {
+            m.success = false;
+            m.description = "Couldn't find the wanted game with the id:" + gameID.ToString() + ".";
+        }
+        return m;
     }
 
-    void leaveGame(SystemUser user, Game game)
+    public Message joinActiveGame(SystemUser user, int gameID)
     {
-        TexasHoldemGame existingGame = getGameById(id);
+        Message m = new Message();
+        TexasHoldemGame existingGame = dal.getGameById(gameID);
         if (existingGame != null)
         {
-            existingGame.leaveGame(user);
+            Player p = new Player(user.id, existingGame.GamePreferences.BuyInPolicy, user.rank);
+            if (user.money < existingGame.GamePreferences.BuyInPolicy)
+            {
+                if (existingGame.joinGame(p))
+                {
+                    m.success = true;
+                }
+                else
+                {
+                    m.success = false;
+                    m.description = "Could not join the game because there are no seats.";
+                }
+            }
+            
         }
-        else throw new Exception("Could not find the wanted game to leave");
+        {
+            m.success = false;
+            m.description = "Couldn't find the wanted game with the id:" + gameID.ToString() + ".";
+        }
+        return m;
+    }
+
+   public Message leaveGame(Spectator spec, int gameID)
+    {
+        Message m = new Message();
+        TexasHoldemGame existingGame = dal.getGameById(gameID);
+        if (spec.GetType() == typeof(Player))
+        {
+            Player p = (Player)spec;
+            existingGame.leaveGame(p);
+            SystemUser user = dal.getUserById(spec.systemUserID);
+            //TODO: what is the rank changing policy.
+            if (p.Tokens > existingGame.GamePreferences.BuyInPolicy)
+                user.rank += 1;
+            else
+                user.rank -= 1;
+        }
+        else
+        {
+            existingGame.leaveGame((Player)spec);
+        }
+        return m;
     }
 }
