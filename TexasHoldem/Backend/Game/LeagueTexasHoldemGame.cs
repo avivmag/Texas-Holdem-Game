@@ -14,13 +14,21 @@ namespace Backend.Game
 			this.MaxRank = MaxRank;
 		}
 
-        public override bool joinGame(Player p)
+        public override Message joinGame(Player p)
         {
-            if (AvailableSeats == 0 || p.userRank<MinRank || p.userRank>MaxRank )
-                return false;
+            if (AvailableSeats == 0)
+                return new Message(false, "There are no available seats.");
+            if (p.userRank < MinRank || p.userRank > MaxRank)
+                return new Message(false, "The rank of the user is not standing in the league game policy.");
+            foreach (Player player in players)
+                if (player.systemUserID == p.systemUserID)
+                    return new Message(false, "The player is already taking part in the wanted game.");
+            foreach (Spectator spec in spectators)
+                if (spec.systemUserID == p.systemUserID)
+                    return new Message(false, "Couldn't join the game because the user is already spectating the game.");
 
             players.Add(p);
-            return true;
+            return new Message(true,"");
         }
     }
     

@@ -21,5 +21,14 @@
 			this.MaxPlayers = maxPlayers;
 			this.IsSpectatingAllowed = isSpectatingAllowed;
 		}
-	}
+
+        public override bool Equals(object obj)
+        {
+            if (obj.GetType() != typeof(GamePreferences))
+                return false;
+            GamePreferences pref = (GamePreferences)obj;
+            return (GamePolicy == pref.GamePolicy && BuyInPolicy == pref.BuyInPolicy && StartingChipsAmount == pref.StartingChipsAmount && MinimalBet == pref.MinimalBet
+                && MinPlayers == pref.MinPlayers && MaxPlayers == pref.MaxPlayers && IsSpectatingAllowed == pref.IsSpectatingAllowed);
+        }
+    }
 }
