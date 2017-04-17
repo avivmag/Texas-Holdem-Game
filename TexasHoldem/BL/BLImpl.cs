@@ -5,16 +5,16 @@ using DAL;
 
 public class BLImpl : BLInterface
 {
-    private DALInterface itsDal;
+    private DALInterface dal;
 	public BLImpl()
 	{
-        itsDal = new DALDummy();
+        dal = new DALDummy();
     }
 
     public Message spectateActiveGame(SystemUser user, int gameID)
     {
         Message m = new Message();
-        TexasHoldemGame existingGame = itsDal.getGameById(gameID);
+        TexasHoldemGame existingGame = dal.getGameById(gameID);
         if (existingGame != null)
         {
             Spectator spec = new Spectator(user.id);
@@ -39,7 +39,7 @@ public class BLImpl : BLInterface
     public Message joinActiveGame(SystemUser user, int gameID)
     {
         Message m = new Message();
-        TexasHoldemGame existingGame = itsDal.getGameById(gameID);
+        TexasHoldemGame existingGame = dal.getGameById(gameID);
         if (existingGame != null)
         {
             Player p = new Player(user.id, existingGame.GamePreferences.BuyInPolicy, user.rank);
@@ -67,12 +67,12 @@ public class BLImpl : BLInterface
    public Message leaveGame(Spectator spec, int gameID)
     {
         Message m = new Message();
-        TexasHoldemGame existingGame = itsDal.getGameById(gameID);
+        TexasHoldemGame existingGame = dal.getGameById(gameID);
         if (spec.GetType() == typeof(Player))
         {
             Player p = (Player)spec;
             existingGame.leaveGame(p);
-            SystemUser user = itsDal.getUserById(spec.systemUserID);
+            SystemUser user = dal.getUserById(spec.systemUserID);
             //TODO: what is the rank changing policy.
             if (p.Tokens > existingGame.GamePreferences.BuyInPolicy)
                 user.rank += 1;
