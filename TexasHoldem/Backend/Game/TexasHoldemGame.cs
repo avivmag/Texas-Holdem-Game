@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using Backend.User;
 
-namespace BL.Game
+namespace Backend.Game
 {
 	public class TexasHoldemGame : Messages.Notification
 	{
@@ -10,19 +11,21 @@ namespace BL.Game
 		private Player currentSmall;
 		public GamePreferences GamePreferences { get; }
 		private Deck deck;
-		private List<Player> players;
+		public List<Player> players;
 		private List<Spectator> spectators;
-        private int id;
+        private int gameCreatorUserId;
+        public int id { get; set; }
 
-		public TexasHoldemGame(Player gameCreator, GamePreferences gamePreferences)
+		public TexasHoldemGame(int gameCreatorUserId, GamePreferences gamePreferences)
 		{
-			GamePreferences = gamePreferences;
+            this.gameCreatorUserId = gameCreatorUserId;
+			this.GamePreferences = gamePreferences;
 			deck = new Deck();
 			players = new List<Player>();
 			spectators = new List<Spectator>();
 		}
 
-		public bool joinGame(Player p)
+		public virtual bool joinGame(Player p)
 		{
 			if (AvailableSeats == 0)
 				return false;
@@ -31,15 +34,14 @@ namespace BL.Game
 			return true;
 		}
 
-        public bool canSpectate()
+        public bool joinSpectate(Spectator s)
         {
-            return GamePreferences.IsSpectatingAllowed();
-        }
+            if (GamePreferences.IsSpectatingAllowed)
+                return false;
 
-        public void addSpectator(Spectator s)
-        {
             if (!spectators.Contains(s))
                 spectators.Add(s);
+            return true;
         }
 
         public void leaveGame(Player p)
@@ -49,7 +51,7 @@ namespace BL.Game
 
         public void leaveGame(Spectator spec)
         {
-            players.Remove(spec);
+            spectators.Remove(spec);
         }
 
 	}

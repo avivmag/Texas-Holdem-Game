@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BL.Game
+namespace Backend.Game
 {
 	public class Deck
 	{

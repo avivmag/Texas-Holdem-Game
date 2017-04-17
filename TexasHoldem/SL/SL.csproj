@@ -43,5 +43,15 @@
     <Compile Include="SLInterface.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Backend\Backend.csproj">
+      <Project>{9951a575-8f22-40e4-b7f9-f59a66494af1}</Project>
+      <Name>Backend</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BL\BL.csproj">
+      <Project>{99782cf7-8736-4c1e-949f-c0b962071b0c}</Project>
+      <Name>BL</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

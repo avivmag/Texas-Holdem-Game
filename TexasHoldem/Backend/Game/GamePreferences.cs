@@ -1,4 +1,4 @@
-﻿namespace BL.Game
+﻿namespace Backend.Game
 {
 	public class GamePreferences
 	{
@@ -11,10 +11,10 @@
 		public int MaxPlayers { get; }
 		public bool IsSpectatingAllowed { get; }
 
-		public GamePreferences(GameTypePolicy gamePolicy, int joinCost, int startingChipsAmount, int minimalBet, int minPlayers, int maxPlayers, bool isSpectatingAllowed)
+		public GamePreferences(GameTypePolicy gamePolicy, int BuyInPolicy, int startingChipsAmount, int minimalBet, int minPlayers, int maxPlayers, bool isSpectatingAllowed)
 		{
 			this.GamePolicy = gamePolicy;
-			this.BuyInPolicy = joinCost;
+			this.BuyInPolicy = BuyInPolicy;
 			this.StartingChipsAmount = startingChipsAmount;
 			this.MinimalBet = minimalBet;
 			this.MinPlayers = minPlayers;

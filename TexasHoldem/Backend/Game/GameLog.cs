@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace BL.Game
+namespace Backend.Game
 {
 	public class GameLog
 	{

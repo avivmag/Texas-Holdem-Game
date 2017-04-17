@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BL.Messages
+namespace Backend.Messages
 {
 	public abstract class Notification
 	{

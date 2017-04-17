@@ -1,9 +1,13 @@
-﻿namespace BL
+﻿using Backend;
+using Backend.Game;
+using Backend.User;
+
+namespace BL
 {
-	interface BLInterface
+	public interface BLInterface
 	{
-        void spectateActiveGame(SystemUser user, Game game);
-        void joinActiveGame(SystemUser user, Game game);
-        void leaveGame(SystemUser user, Game game);
+        Message spectateActiveGame(SystemUser user, int gameID);
+        Message joinActiveGame(SystemUser user, int gameID);
+        Message leaveGame(Spectator spec, int gameID);
 	}
 }

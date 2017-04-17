@@ -1,9 +1,12 @@
-﻿namespace SL
+﻿using Backend;
+using Backend.User;
+
+namespace SL
 {
 	interface SLInterface
 	{
-        void spectateActiveGame(SystemUser user, Game game);
-        void joinActiveGame(SystemUser user, Game game);
-        void leaveGame(SystemUser user, Game game);
+        Message spectateActiveGame(SystemUser user, int gameId);
+        Message joinActiveGame(SystemUser user, int gameId);
+        Message leaveGame(SystemUser user, int gameId);
 	}
 }
