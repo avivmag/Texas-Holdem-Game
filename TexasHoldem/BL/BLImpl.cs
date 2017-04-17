@@ -3,7 +3,7 @@ using Backend.Game;
 using Backend;
 using DAL;
 
-public class BLImpl : BL.BLInterface
+public class BLImpl : BLInterface
 {
     private DALInterface itsDal;
 	public BLImpl()
