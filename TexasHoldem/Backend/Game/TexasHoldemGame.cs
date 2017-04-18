@@ -12,36 +12,55 @@ namespace Backend.Game
 		public GamePreferences GamePreferences { get; }
 		private Deck deck;
 		public List<Player> players;
-		private List<Spectator> spectators;
+		public List<Spectator> spectators;
         private int gameCreatorUserId;
         public int id { get; set; }
+        public int pot { get; set; }
+        public bool active { get; set; }
 
 		public TexasHoldemGame(int gameCreatorUserId, GamePreferences gamePreferences)
 		{
             this.gameCreatorUserId = gameCreatorUserId;
 			this.GamePreferences = gamePreferences;
-			deck = new Deck();
+            pot = 0;
+            active = true;
+            deck = new Deck();
 			players = new List<Player>();
 			spectators = new List<Spectator>();
 		}
 
-		public virtual bool joinGame(Player p)
+		public virtual Message joinGame(Player p)
 		{
 			if (AvailableSeats == 0)
-				return false;
+				return new Message(false,"There are no available seats.");
+
+            foreach (Player player in players)
+                if (player.systemUserID == p.systemUserID)
+                    return new Message(false, "The player is already taking part in the wanted game.");
+
+            foreach (Spectator spec in spectators)
+                if (spec.systemUserID == p.systemUserID)
+                    return new Message(false, "Couldn't join the game because the user is already spectating the game.");
 
             players.Add(p);
-			return true;
+			return new Message(true,"");
 		}
 
-        public bool joinSpectate(Spectator s)
+        public Message joinSpectate(Spectator s)
         {
-            if (GamePreferences.IsSpectatingAllowed)
-                return false;
+            if (!GamePreferences.IsSpectatingAllowed)
+                return new Message(false, "Couldn't spectate the game because the game preferences is not alowing.");
+            
+            foreach (Player p in players)
+                if (p.systemUserID == s.systemUserID)
+                    return new Message(false, "Couldn't spectate the game because the user is already playing the game.");
 
-            if (!spectators.Contains(s))
-                spectators.Add(s);
-            return true;
+            foreach (Spectator spec in spectators)
+                if (spec.systemUserID == s.systemUserID)
+                    return new Message(false, "Couldn't spectate the game because the user is already spectating the game.");
+            
+            spectators.Add(s);
+            return new Message(true,"");
         }
 
         public void leaveGame(Player p)
