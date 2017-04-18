@@ -48,13 +48,18 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bridge\Bridge.cs" />
+    <Compile Include="Bridge\Driver.cs" />
+    <Compile Include="AcceptanceTests\ProjectTest.cs" />
+    <Compile Include="Bridge\ProxyBridge.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="AcceptanceTests\Tests.cs" />
     <Compile Include="UnitTest\FilterActiveGamesTest.cs" />
     <Compile Include="UnitTest\JoinActiveGameTest.cs" />
     <Compile Include="UnitTest\FindActiveAvailableGamesTest.cs" />
     <Compile Include="UnitTest\LeaveGameTest.cs" />
     <Compile Include="UnitTest\SpectateActiveGameTest.cs" />
     <Compile Include="UnitTest\EditUserProfileTest.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Backend\Backend.csproj">

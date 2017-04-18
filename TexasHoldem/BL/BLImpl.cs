@@ -2,6 +2,7 @@
 using Backend.Game;
 using Backend;
 using DAL;
+using BL;
 using System.Collections.Generic;
 using System;
 
@@ -78,7 +79,7 @@ public class BLImpl : BL.BLInterface
         Message m = new Message();
         SystemUser user = dal.getUserById(userId);
         List<SystemUser> allUsers = dal.getAllUsers();
-        if (name.Equals("") || passwordEquals(""))
+        if (name.Equals("") || password.Equals(""))
         {
             m.success = false;
             m.description = "Can't change to empty user name or password.";
