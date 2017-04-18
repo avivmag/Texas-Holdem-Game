@@ -37,7 +37,7 @@ public class BLImpl : BL.BLInterface
         TexasHoldemGame existingGame = dal.getGameById(gameID);
         if (existingGame != null)
         {
-            if (user.money > existingGame.GamePreferences.BuyInPolicy)
+            if (user.money >= existingGame.GamePreferences.BuyInPolicy)
             {
                 Player p = new Player(user.id, existingGame.GamePreferences.BuyInPolicy, user.rank);
                 return existingGame.joinGame(p);
