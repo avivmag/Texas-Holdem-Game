@@ -78,17 +78,17 @@ public class BLImpl : BL.BLInterface
         Message m = new Message();
         SystemUser user = dal.getUserById(userId);
         List<SystemUser> allUsers = dal.getAllUsers();
-        foreach (SystemUser u in allUsers) {
+        if (name.Equals("") || passwordEquals(""))
+        {
+            m.success = false;
+            m.description = "Can't change to empty user name or password.";
+            return m;
+        }
+	foreach (SystemUser u in allUsers) {
             if (u.name.Equals(name, StringComparison.OrdinalIgnoreCase) || u.email.Equals(email, StringComparison.OrdinalIgnoreCase)) //comparing two passwords including cases i.e AbC = aBc
             {
                 m.success = false;
                 m.description = "Username or email already exists.";
-                return m;
-            }
-            if (name == "" || password == "")
-            {
-                m.success = false;
-                m.description = "Can't change to empty user name or password.";
                 return m;
             }
         }
@@ -102,7 +102,6 @@ public class BLImpl : BL.BLInterface
     public List<TexasHoldemGame> findAllActiveAvailableGames()
     {
         List<TexasHoldemGame> ans = new List<TexasHoldemGame> { };
-        ans = new List<TexasHoldemGame> { };
         foreach (TexasHoldemGame g in dal.getAllGames())
         {
             if (g.active && g.AvailableSeats > 0)
