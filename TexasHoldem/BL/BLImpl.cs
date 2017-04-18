@@ -2,6 +2,7 @@
 using Backend.Game;
 using Backend;
 using DAL;
+using BL;
 
 public class BLImpl : BLInterface
 {
