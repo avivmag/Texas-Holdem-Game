@@ -9,21 +9,24 @@ namespace Backend.User
         public int id { get; set; }
 		public int money { get; set; }
         public int rank { get; set; }
-        private String name;
-		private String password;
-		private String userImage;
-				private List<Game.Spectator> spectators;
+        public String name { get; set; }
+		public String password { get; set; }
+        public String email { get; set; }
+		public String userImage { get; set; }
+		private List<Game.Spectator> spectators;
 
-        public SystemUser(string name, string password, int money)
+        public SystemUser(String name, String password, String email, String userImage, int money)
         {
             this.name = name;
             this.password = password;
+            this.email = email;
+            this.userImage = userImage;
             this.money = money;
             spectators = new List<Spectator> { };
             rank = 0;
         }
 
-		public void update(string str)
+		public void update(String str)
 		{
 			// writeln(str);
 		}
