@@ -6,11 +6,11 @@ namespace Backend.Game
 	public class Deck
 	{
 		private List<Card> cards;
-		private Random rand;
+        public static Random rand = new Random();
 
-		public Deck()
+        public Deck()
 		{
-			rand = new Random();
+			
 			Shuffle();
 		}
 		public Card Top()

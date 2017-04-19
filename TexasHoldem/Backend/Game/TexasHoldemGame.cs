@@ -1,22 +1,24 @@
 ﻿using System.Collections.Generic;
 using Backend.User;
+using System;
 
 namespace Backend.Game
 {
-	public class TexasHoldemGame : Messages.Notification
-	{
-		public int AvailableSeats { get => GamePreferences.MaxPlayers - players.Count; }
-		private Player currentDealer;
-		private Player currentBig;
-		private Player currentSmall;
-		public GamePreferences GamePreferences { get; }
-		private Deck deck;
-		public List<Player> players;
-		public List<Spectator> spectators;
+    public class TexasHoldemGame : Messages.Notification
+    {
+        private int availableSeats;
+        public int currentDealer { get; set; }
+        private int currentBig { get; set; }
+        private int currentSmall { get; set; }
+        public GamePreferences GamePreferences { get; }
+        private Deck deck;
+        public Player[] players { get; set; }
+        public List<Spectator> spectators;
         private int gameCreatorUserId;
         public int id { get; set; }
         public int pot { get; set; }
         public bool active { get; set; }
+        public int currentBlindBet { get; set; }
 
 		public TexasHoldemGame(int gameCreatorUserId, GamePreferences gamePreferences)
 		{
@@ -25,8 +27,13 @@ namespace Backend.Game
             pot = 0;
             active = true;
             deck = new Deck();
-			players = new List<Player>();
 			spectators = new List<Spectator>();
+            players = new Player[GamePreferences.MaxPlayers];
+
+            for (int i = 0; i < GamePreferences.MaxPlayers; i++)
+            {
+                players[i] = null;
+            }
 		}
 
 		public virtual Message joinGame(Player p)
@@ -34,17 +41,40 @@ namespace Backend.Game
 			if (AvailableSeats == 0)
 				return new Message(false,"There are no available seats.");
 
-            foreach (Player player in players)
-                if (player.systemUserID == p.systemUserID)
+            for (int i = 0; i < GamePreferences.MaxPlayers; i++)
+            {
+                if (players[i] != null && players[i].systemUserID == p.systemUserID)
                     return new Message(false, "The player is already taking part in the wanted game.");
+            }
 
             foreach (Spectator spec in spectators)
                 if (spec.systemUserID == p.systemUserID)
                     return new Message(false, "Couldn't join the game because the user is already spectating the game.");
 
-            players.Add(p);
+            for (int i = 0; i < GamePreferences.MaxPlayers; i++)
+            {
+                if (players[i] == null)
+                {
+                    players[i] = p;
+                    break;
+                }
+            }
 			return new Message(true,"");
 		}
+
+        public int AvailableSeats
+        {
+            get
+            {
+                int ans = 0;
+                for (int i = 0; i < GamePreferences.MaxPlayers; i++)
+                {
+                    if (players[i] == null)
+                        ans++;
+                }
+                return ans;
+            }
+        }
 
         public Message joinSpectate(Spectator s)
         {
@@ -65,7 +95,14 @@ namespace Backend.Game
 
         public void leaveGame(Player p)
         {
-            players.Remove(p);
+            for (int i = 0; i < GamePreferences.MaxPlayers; i++)
+            {
+                if (players[i] != null && players[i].id == p.id)
+                {
+                    players[i] = null;
+                    break;
+                }
+            }
         }
 
         public void leaveGame(Spectator spec)
@@ -73,5 +110,77 @@ namespace Backend.Game
             spectators.Remove(spec);
         }
 
-	}
+        private void playGame()
+        {
+            deck.Shuffle();
+            dealCards();
+            currentSmall = setSmallBlind();
+            currentBig = setBigBlind();
+            
+        }
+
+
+        private void dealCards()
+        {
+            for (int i = 0; i < GamePreferences.MaxPlayers; i++)
+            {
+                if (players[i] != null)
+                {
+                    List<Card> playerCards = new List<Card>();
+                    playerCards.Add(deck.Top());
+                    players[i].playerCards = playerCards;
+                }
+            }
+
+            for (int i = 0; i < GamePreferences.MaxPlayers; i++)
+            {
+                if (players[i] != null)
+                {
+                    List<Card> playerCards = new List<Card>();
+                    playerCards.Add(deck.Top());
+                    players[i].playerCards = playerCards;
+                }
+            }
+        }
+
+        public int setSmallBlind()
+        {
+            int i = currentDealer;
+            int j = (currentDealer + 1) % GamePreferences.MaxPlayers;
+            while (i != j)
+            {
+                if (players[j] != null)
+                    return j;
+                j = (j + 1) % GamePreferences.MaxPlayers;
+            }
+            return -1;
+        }
+
+        public int setBigBlind()
+        {
+            int i = currentDealer;
+            int j = (currentDealer + 1) % GamePreferences.MaxPlayers;
+            while (i != j)
+            {
+                if (players[j] != null)
+                    break;
+                j = (j + 1) % GamePreferences.MaxPlayers;
+            }
+            j = (j + 1) % GamePreferences.MaxPlayers;
+            while (i != j)
+            {
+                if (players[j] != null)
+                    return j;
+                j = (j + 1) % GamePreferences.MaxPlayers;
+            }
+            return -1;
+        }
+
+        public void betBlinds()
+        {
+            players[currentSmall].Tokens -= currentBlindBet / 2; 
+            players[currentBig].Tokens -= currentBlindBet;
+            pot += (currentBlindBet + (currentBlindBet / 2));
+        }
+    }
 }

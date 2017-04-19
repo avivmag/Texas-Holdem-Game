@@ -27,7 +27,7 @@ namespace Backend.Game
                 if (spec.systemUserID == p.systemUserID)
                     return new Message(false, "Couldn't join the game because the user is already spectating the game.");
 
-            players.Add(p);
+            //players.Add(p);
             return new Message(true,"");
         }
     }
