@@ -48,6 +48,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AcceptanceTests\TestSupportGame.cs" />
     <Compile Include="Bridge\Bridge.cs" />
     <Compile Include="Bridge\Driver.cs" />
     <Compile Include="AcceptanceTests\ProjectTest.cs" />
