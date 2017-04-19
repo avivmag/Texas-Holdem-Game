@@ -16,7 +16,12 @@ namespace BL
         List<TexasHoldemGame> filterActiveGamesByPotSize(int size);
         List<TexasHoldemGame> filterActiveGamesByGamePreferences(GamePreferences pref);
 
-        SystemUser getUserById(int userId);
+		Message Login(string user, string password);
+		Message Register(string user, string password, string email, string userImage);
+		Message Logout(string user);
+		SystemUser getUserByName(string name);
+
+		SystemUser getUserById(int userId);
         TexasHoldemGame getGameById(int gameId);
     }
 }
