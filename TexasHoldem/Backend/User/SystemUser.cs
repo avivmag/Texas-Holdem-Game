@@ -13,7 +13,7 @@ namespace Backend.User
 		public String password { get; set; }
         public String email { get; set; }
 		public String userImage { get; set; }
-		private List<Game.Spectator> spectators;
+		public List<Game.Spectator> spectators;
 
         public SystemUser(String name, String password, String email, String userImage, int money)
         {

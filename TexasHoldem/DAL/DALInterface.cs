@@ -1,6 +1,7 @@
 ﻿using Backend.Game;
 using Backend.User;
 using System.Collections.Generic;
+using Backend;
 
 namespace DAL
 {
@@ -8,12 +9,20 @@ namespace DAL
     {
         TexasHoldemGame getGameById(int gameID);
 
-        SystemUser getUserById(int userID);
+		SystemUser getUserById(int userID);
 
-        List<TexasHoldemGame> getAllGames();
+		SystemUser getUserByName(string name);
+
+		List<TexasHoldemGame> getAllGames();
 
         List<SystemUser> getAllUsers();
 
         void editUser(SystemUser user);
-    }
+
+		Message registerUser(SystemUser user);
+
+		Message logUser(string user);
+
+		Message logOutUser(string user);
+	}
 }

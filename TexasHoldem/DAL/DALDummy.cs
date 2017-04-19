@@ -2,28 +2,34 @@
 using Backend.User;
 using System.Collections.Generic;
 using System.Linq;
+using Backend;
+using System;
 
 namespace DAL
 {
     public class DALDummy : DALInterface
     {
-        private SystemUser[] userDummies;
-        private Player[] playerDummies;
+        private List<SystemUser> userDummies;
+		private List<SystemUser> loggedInUserDummies;
+		private Player[] playerDummies;
         private Spectator[] spectatorDummies;
         private TexasHoldemGame[] gameDummies;
         
 
         public DALDummy()
         {
-            userDummies = new SystemUser[4];
-            userDummies[0] = new SystemUser("Hadas","Aa123456","email0","image0",1000);
-            userDummies[1] = new SystemUser("Gili", "123123", "email1","image1", 0);
-            userDummies[2] = new SystemUser("Or", "111111", "email2", "image2", 700);
-            userDummies[3] = new SystemUser("Aviv", "Aa123456", "email3", "image3", 1500);
-            for (int i = 0; i < 4; i++)
+            userDummies = new List<SystemUser>();
+            userDummies.Add(new SystemUser("Hadas","Aa123456","email0","image0",1000));
+			userDummies.Add(new SystemUser("Gili", "123123", "email1","image1", 0));
+			userDummies.Add(new SystemUser("Or", "111111", "email2", "image2", 700));
+			userDummies.Add(new SystemUser("Aviv", "Aa123456", "email3", "image3", 1500));
+			
+			for (int i = 0; i < 4; i++)
                 userDummies[i].id = i;
 
-            gameDummies = new TexasHoldemGame[6];
+			loggedInUserDummies = new List<SystemUser>();
+
+			gameDummies = new TexasHoldemGame[6];
             gameDummies[0] = new TexasHoldemGame(0, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, true));
             gameDummies[1] = new TexasHoldemGame(0, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, false));
             gameDummies[2] = new TexasHoldemGame(1, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, true));
@@ -51,15 +57,23 @@ namespace DAL
             return null;
         }
 
-        public SystemUser getUserById(int userID)
-        {
-            for (int i = 0; i < userDummies.Length; i++)
-                if (userDummies[i].id == userID)
-                    return userDummies[i];
-            return null;
-        }
+		public SystemUser getUserById(int userID)
+		{
+			for (int i = 0; i < userDummies.Count; i++)
+				if (userDummies[i].id == userID)
+					return userDummies[i];
+			return null;
+		}
 
-        public List<TexasHoldemGame> getAllGames()
+		public SystemUser getUserByName(string name)
+		{
+			for (int i = 0; i < userDummies.Count; i++)
+				if (userDummies[i].name.Equals(name))
+					return userDummies[i];
+			return null;
+		}
+
+		public List<TexasHoldemGame> getAllGames()
         {
             return gameDummies.Cast<TexasHoldemGame>().ToList();
         }
@@ -71,8 +85,47 @@ namespace DAL
 
         public void editUser(SystemUser user)
         {
-            if (user.id < userDummies.Length)
+            if (user.id < userDummies.Count)
                 userDummies[user.id - 1] = user;
         }
-    }
+
+		public Message registerUser(SystemUser user)
+		{
+			foreach (SystemUser systemUser in userDummies)
+				if (systemUser.name.Equals(user.name))
+					return new Message(false, "This user name is already taken.");
+
+			userDummies.Add(user);
+			return new Message(true, null);
+		}
+
+		public Message logUser(string user)
+		{
+			foreach (SystemUser systemUser in loggedInUserDummies)
+				if (systemUser.name.Equals(user))
+					return new Message(false, "You are already logged in to the system");
+
+			int i = 0;
+			for (; i < userDummies.Count; i++)
+				if (userDummies[i].name.Equals(user))
+					break;
+
+			if (i == userDummies.Count)
+				return new Message(false, "You must be registered before attempting to log in.");
+
+			loggedInUserDummies.Add(getUserByName(user));
+			return new Message(true, null);
+		}
+		public Message logOutUser(string user)
+		{
+			foreach (SystemUser systemUser in loggedInUserDummies)
+				if (systemUser.name.Equals(user))
+				{
+					loggedInUserDummies.Remove(systemUser);
+					return new Message(true, null);
+				}
+			
+			return new Message(false, "you are not logged in");
+		}
+	}
 }

@@ -60,8 +60,13 @@
     <Compile Include="UnitTest\JoinActiveGameTest.cs" />
     <Compile Include="UnitTest\FindActiveAvailableGamesTest.cs" />
     <Compile Include="UnitTest\LeaveGameTest.cs" />
+    <Compile Include="UnitTest\LoginTest.cs" />
+    <Compile Include="UnitTest\Logout.cs" />
+    <Compile Include="UnitTest\RegisterTest.cs" />
     <Compile Include="UnitTest\SpectateActiveGameTest.cs" />
     <Compile Include="UnitTest\EditUserProfileTest.cs" />
+    <Compile Include="UnitTest\DeckTest.cs" />
+    <Compile Include="UnitTest\TestBlinds.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Backend\Backend.csproj">
