@@ -16,6 +16,16 @@
 			this.Value = value;
 		}
 
+        public override bool Equals(object obj)
+        {
+            if (!(obj.GetType().Equals(typeof(Card))))
+                return false;
 
-	}
+            Card card2 = (Card) obj;
+
+            if (card2.Type == this.Type && card2.Value.Equals(this.Value))
+                return true;
+            return false;
+        }
+    }
 }
