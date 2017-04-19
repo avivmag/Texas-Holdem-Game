@@ -7,30 +7,20 @@ namespace TestProject.AcceptanceTests
     public class TestSupportGame : ProjectTest
     {
         string username = "Hadas";
-        string usernameWrong = "Gil";
-        string password = "1234";
-        string statusGame = "Active";
-        string statusGame2 = "notActive";
-        string email = "gmail@gmail.com";
-        string img = "img";
         string game = "Texas1";
-        string game2 = "Texas1";
-        string seatsNotAv = "none";
-        string criteria = "points";
-        string highLeague = "league #1";
-        int points = 100;
-        int points2 = 0;
-        string lowLeague = "league #10";
         int amountToBet = 1000;
         string statePlayer = "Player Bet";
 
+        [TestInitialize]
+        public void Initialized()
+        {
+            Assert.IsFalse(this.isGameOver(game, username));
+            Assert.IsTrue(this.spectateActiveGame(game));
+        }
 
         [TestMethod]
         public void TestBet()
         {
-            //bet in an existing game
-            Assert.IsFalse(this.isGameOver(game, username));
-            Assert.IsTrue(this.spectateActiveGame(game));
             //enough chips to bet
             Assert.IsTrue(this.bet(amountToBet));
             //bet again in the current round
@@ -45,9 +35,6 @@ namespace TestProject.AcceptanceTests
         [TestMethod]
         public void TestRaise()
         {
-            //raise in an existing game
-            Assert.IsFalse(this.isGameOver(game, username));
-            Assert.IsTrue(this.spectateActiveGame(game));
             //one player already bet 
             Assert.IsTrue(this.bet(amountToBet) && this.raise(amountToBet));
             Assert.IsTrue(this.updatePot(amountToBet));
@@ -63,9 +50,6 @@ namespace TestProject.AcceptanceTests
         [TestMethod]
         public void TestCall()
         {
-            //call in an existing game
-            Assert.IsFalse(this.isGameOver(game, username));
-            Assert.IsTrue(this.spectateActiveGame(game));
             //request to call success
             Assert.IsTrue(this.call(amountToBet));
             Assert.IsTrue(this.updatePot(amountToBet));
@@ -79,9 +63,7 @@ namespace TestProject.AcceptanceTests
         [TestMethod]
         public void TestFold()
         {
-            //call in an existing game
-            Assert.IsFalse(this.isGameOver(game, username));
-            Assert.IsTrue(this.spectateActiveGame(game));
+
             //fold success
             Assert.IsTrue(this.fold());
             // update the amount to be the same as before the fold
@@ -92,9 +74,7 @@ namespace TestProject.AcceptanceTests
         [TestMethod]
         public void TestCheck()
         {
-            //call in an existing game
-            Assert.IsFalse(this.isGameOver(game, username));
-            Assert.IsTrue(this.spectateActiveGame(game));
+
             //check success
             Assert.IsTrue(this.check());
             Assert.IsTrue(this.updatePot(amountToBet));
@@ -107,9 +87,7 @@ namespace TestProject.AcceptanceTests
         [TestMethod]
         public void TestBlindBets()
         {
-            //bet in existing game
-            Assert.IsFalse(this.isGameOver(game, username));
-            Assert.IsTrue(this.spectateActiveGame(game));
+
             //check if can blind bet
             Assert.IsTrue(this.betSmallBlind(amountToBet));
             Assert.IsTrue(this.betBigBlind(amountToBet * 2));
@@ -119,6 +97,7 @@ namespace TestProject.AcceptanceTests
             Assert.IsFalse(this.betSmallBlind(0));
 
         }
+
 
     }
 }
