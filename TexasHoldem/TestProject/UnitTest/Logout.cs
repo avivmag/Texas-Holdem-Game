@@ -37,12 +37,6 @@ namespace TestProject.UnitTest
 			Assert.IsFalse(bl.Logout("rick roll").success);
 		}
 
-		[TestMethod]
-		public void logOutTwiceTest()
-		{
-			bl.Register("rick roll", "never gonna give you up", "never@gonna.let.you.down", "a picture of something completly not related to rick roll");
-			bl.Login("rick roll", "never gonna give you up");
-			Assert.IsFalse(bl.Logout("rick roll").success);
-		}
+
 	}
 }
