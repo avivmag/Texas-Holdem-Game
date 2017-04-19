@@ -15,7 +15,6 @@ namespace TestProject
         string game = "Texas1";
         string game2 = "Texas1";
         List<string> activeGames = new List<string>();
-        string criteria = "points";
         string highLeague = "league #1";
         int points = 100;
         int points2 = 0;

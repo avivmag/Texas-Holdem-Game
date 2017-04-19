@@ -19,12 +19,7 @@ namespace TestProject.AcceptanceTests
         string seatsNotAv = "none";
         List<string> activeGames = new List<string>();
         string criteria = "points";
-        string highLeague = "league #1";
-        int points = 100;
-        int points2 = 0;
-        string lowLeague = "league #10";
-        int amountToBet = 1000;
-        string statePlayer = "Player Bet";
+
 
         [TestInitialize]
         public void Initialized()
