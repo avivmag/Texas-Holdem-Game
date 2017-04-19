@@ -15,5 +15,9 @@ namespace SL
         List<TexasHoldemGame> filterActiveGamesByPlayerName(string name);
         List<TexasHoldemGame> filterActiveGamesByPotSize(int size);
         List<TexasHoldemGame> filterActiveGamesByGamePreferences(GamePreferences pref);
-    }
+
+		Message Login(string user, string password);
+		Message Register(string user, string password);
+		Message Logout();
+	}
 }
