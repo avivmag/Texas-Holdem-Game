@@ -87,7 +87,6 @@ namespace TestProject.AcceptanceTests
         [TestMethod]
         public void TestBlindBets()
         {
-
             //check if can blind bet
             Assert.IsTrue(this.betSmallBlind(amountToBet));
             Assert.IsTrue(this.betBigBlind(amountToBet * 2));
