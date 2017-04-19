@@ -153,5 +153,13 @@ namespace TestProject
         {
             return false;
         }
+        public bool betSmallBlind(int amount)
+        {
+            return false;
+        }
+        public bool betBigBlind(int amount)
+        {
+            return false;
+        }
     }
 }

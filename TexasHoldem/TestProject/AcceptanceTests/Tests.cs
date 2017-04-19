@@ -306,7 +306,20 @@ namespace TestProject
 
         }
 
+        [TestMethod]
+        public void TestBlindBets()
+        {
+            //bet in existing game
+            Assert.IsFalse(this.isGameOver(game,username));
+            Assert.IsTrue(this.spectateActiveGame(game));
+            //check if can blind bet
+            Assert.IsTrue(this.betSmallBlind(amountToBet));
+            Assert.IsTrue(this.betBigBlind(amountToBet*2));
+            //not enough to bet
+            Assert.IsFalse(this.betBigBlind(0));
+            Assert.IsFalse(this.betSmallBlind(0));
 
+        }
 
 
 
