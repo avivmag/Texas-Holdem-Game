@@ -8,8 +8,8 @@ namespace Backend.Game
     {
         private int availableSeats;
         public int currentDealer { get; set; }
-        private int currentBig { get; set; }
-        private int currentSmall { get; set; }
+        public int currentBig { get; set; }
+        public int currentSmall { get; set; }
         public GamePreferences GamePreferences { get; }
         private Deck deck;
         public Player[] players { get; set; }
@@ -17,29 +17,41 @@ namespace Backend.Game
         private int gameCreatorUserId;
         public int id { get; set; }
         public int pot { get; set; }
+        public int tempPot { get; set; }
+        public int currentBet { get; set; }
         public bool active { get; set; }
         public int currentBlindBet { get; set; }
+        public enum BetAction { fold, bet, call, check, raise }
+        public List<Card> flop { get; set; }
+        public Card turn { get; set; }
+        public Card river { get; set; }
+        public enum HandsRanks { HighCard, Pair, TwoPairs, ThreeOfAKind, Straight, Flush, FullHouse, FourOfAKind, StraightFlush, RoyalFlush }
 
-		public TexasHoldemGame(int gameCreatorUserId, GamePreferences gamePreferences)
-		{
+
+        public TexasHoldemGame(int gameCreatorUserId, GamePreferences gamePreferences)
+        {
             this.gameCreatorUserId = gameCreatorUserId;
-			this.GamePreferences = gamePreferences;
+            this.GamePreferences = gamePreferences;
             pot = 0;
             active = true;
             deck = new Deck();
-			spectators = new List<Spectator>();
+            spectators = new List<Spectator>();
             players = new Player[GamePreferences.MaxPlayers];
 
             for (int i = 0; i < GamePreferences.MaxPlayers; i++)
             {
                 players[i] = null;
             }
-		}
 
-		public virtual Message joinGame(Player p)
-		{
-			if (AvailableSeats == 0)
-				return new Message(false,"There are no available seats.");
+            flop = new List<Card>();
+
+            currentDealer = 0;
+        }
+
+        public virtual Message joinGame(Player p)
+        {
+            if (AvailableSeats == 0)
+                return new Message(false, "There are no available seats.");
 
             for (int i = 0; i < GamePreferences.MaxPlayers; i++)
             {
@@ -59,8 +71,8 @@ namespace Backend.Game
                     break;
                 }
             }
-			return new Message(true,"");
-		}
+            return new Message(true, "");
+        }
 
         public int AvailableSeats
         {
@@ -80,7 +92,7 @@ namespace Backend.Game
         {
             if (!GamePreferences.IsSpectatingAllowed)
                 return new Message(false, "Couldn't spectate the game because the game preferences is not alowing.");
-            
+
             foreach (Player p in players)
                 if (p.systemUserID == s.systemUserID)
                     return new Message(false, "Couldn't spectate the game because the user is already playing the game.");
@@ -88,9 +100,9 @@ namespace Backend.Game
             foreach (Spectator spec in spectators)
                 if (spec.systemUserID == s.systemUserID)
                     return new Message(false, "Couldn't spectate the game because the user is already spectating the game.");
-            
+
             spectators.Add(s);
-            return new Message(true,"");
+            return new Message(true, "");
         }
 
         public void leaveGame(Player p)
@@ -116,30 +128,98 @@ namespace Backend.Game
             dealCards();
             currentSmall = setSmallBlind();
             currentBig = setBigBlind();
-            
+            betBlinds();
+
+            //players sets their bets
+            for (int i = nextToSeat(currentBig); i < GamePreferences.MaxPlayers; i++)
+            {
+                if (players[i] != null && players[i].playerState == Player.PlayerState.in_round)
+                {
+                    chooseBetAction(players[i], BetAction.check, 0);
+                }
+            }
+
+            pot = tempPot;
+
+            //flop
+            for (int i = 0; i < 3; i++)
+            {
+                flop.Add(deck.Top());
+            }
+
+            //players sets their bets
+            for (int i = nextToSeat(currentDealer); i < GamePreferences.MaxPlayers; i++)
+            {
+                if (players[i] != null && players[i].playerState == Player.PlayerState.in_round)
+                {
+                    chooseBetAction(players[i], BetAction.check, 0);
+                }
+            }
+
+            pot = tempPot;
+
+            turn = deck.Top();
+
+            //players sets their bets
+            for (int i = nextToSeat(currentDealer); i < GamePreferences.MaxPlayers; i++)
+            {
+                if (players[i] != null && players[i].playerState == Player.PlayerState.in_round)
+                {
+                    chooseBetAction(players[i], BetAction.check, 0);
+                }
+            }
+
+            pot = tempPot;
+
+            river = deck.Top();
+
+            //players sets their bets
+            for (int i = nextToSeat(currentDealer); i < GamePreferences.MaxPlayers; i++)
+            {
+                if (players[i] != null && players[i].playerState == Player.PlayerState.in_round)
+                {
+                    chooseBetAction(players[i], BetAction.check, 0);
+                }
+            }
+
+            pot = tempPot;
+
+
         }
 
-
-        private void dealCards()
+        public void setInitialState()
         {
             for (int i = 0; i < GamePreferences.MaxPlayers; i++)
             {
                 if (players[i] != null)
-                {
-                    List<Card> playerCards = new List<Card>();
-                    playerCards.Add(deck.Top());
-                    players[i].playerCards = playerCards;
-                }
+                    players[i].playerState = Player.PlayerState.in_round;
             }
+        }
 
+
+        public void dealCards()
+        {
+            int index = nextToSeat(currentDealer);
+
+            //deal first card
             for (int i = 0; i < GamePreferences.MaxPlayers; i++)
             {
-                if (players[i] != null)
+                if (players[index] != null)
                 {
-                    List<Card> playerCards = new List<Card>();
-                    playerCards.Add(deck.Top());
-                    players[i].playerCards = playerCards;
+                    players[index].playerCards.Add(deck.Top());
                 }
+                index = (index + 1) % GamePreferences.MaxPlayers;
+            }
+
+            index = nextToSeat(currentDealer);
+            //deal second card
+            for (int i = 0; i < GamePreferences.MaxPlayers; i++)
+            {
+                if (players[index] != null)
+                {
+                    players[index].playerCards.Add(deck.Top());
+                }
+                index = (index + 1) % GamePreferences.MaxPlayers;
             }
         }
 
@@ -149,7 +229,7 @@ namespace Backend.Game
             int j = (currentDealer + 1) % GamePreferences.MaxPlayers;
             while (i != j)
             {
-                if (players[j] != null)
+                if (players[j] != null && players[j].playerState == Player.PlayerState.in_round)
                     return j;
                 j = (j + 1) % GamePreferences.MaxPlayers;
             }
@@ -162,14 +242,14 @@ namespace Backend.Game
             int j = (currentDealer + 1) % GamePreferences.MaxPlayers;
             while (i != j)
             {
-                if (players[j] != null)
+                if (players[j] != null && players[j].playerState == Player.PlayerState.in_round)
                     break;
                 j = (j + 1) % GamePreferences.MaxPlayers;
             }
             j = (j + 1) % GamePreferences.MaxPlayers;
             while (i != j)
             {
-                if (players[j] != null)
+                if (players[j] != null && players[j].playerState == Player.PlayerState.in_round)
                     return j;
                 j = (j + 1) % GamePreferences.MaxPlayers;
             }
@@ -178,9 +258,162 @@ namespace Backend.Game
 
         public void betBlinds()
         {
-            players[currentSmall].Tokens -= currentBlindBet / 2; 
+            players[currentSmall].Tokens -= currentBlindBet / 2;
             players[currentBig].Tokens -= currentBlindBet;
-            pot += (currentBlindBet + (currentBlindBet / 2));
+            tempPot += (currentBlindBet + (currentBlindBet / 2));
         }
+
+        public void bet(Player p, int amount)
+        {
+            p.Tokens -= amount;
+            tempPot += amount;
+            currentBet = amount;
+        }
+
+        public void call(Player p)
+        {
+            p.Tokens -= currentBet;
+            tempPot += currentBet;
+        }
+
+        public void fold(Player p)
+        {
+            p.playerState = Player.PlayerState.folded;
+        }
+
+        public void check(Player p)
+        {
+        }
+
+        public void raise(Player p, int amount)
+        {
+            p.Tokens -= (amount + currentBet);
+            tempPot += (amount + currentBet);
+        }
+
+        public void chooseBetAction(Player p, BetAction betAction, int amount)
+        {
+            switch (betAction)
+            {
+                case BetAction.bet:
+                    bet(p, amount);
+                    break;
+                case BetAction.call:
+                    call(p);
+                    break;
+                case BetAction.check:
+                    check(p);
+                    break;
+                case BetAction.fold:
+                    fold(p);
+                    break;
+                case BetAction.raise:
+                    raise(p, amount);
+                    break;
+            }
+        }
+
+        public int nextToSeat(int seat)
+        {
+            int i = seat;
+            int j = (i + 1) % GamePreferences.MaxPlayers;
+            while (i != j)
+            {
+                if (players[j] != null && players[j].playerState == Player.PlayerState.in_round)
+                    return j;
+                j = (j + 1) % GamePreferences.MaxPlayers;
+            }
+            return -1;
+        }
+
+
+        public HandsRanks checkHandRank(Player p)
+        {
+            List<Card> fullHand = new List<Card>();
+            for (int i = 0; i < 3; i++)
+            {
+                fullHand.Add(flop[0]);
+                flop.RemoveAt(0);
+            }
+
+            for (int i = 0; i < 2; i++)
+            {
+                fullHand.Add(p.playerCards[0]);
+                flop.RemoveAt(0);
+            }
+
+            fullHand.Add(turn);
+            fullHand.Add(river);
+
+            fullHand.Sort();
+
+            for (int i = 0; i < fullHand.Count; i++)
+            {
+                Console.Out.Write(fullHand[i].Value + "  ");
+                Console.Out.Write(fullHand[i].Type.ToString() + "  ");
+                Console.Out.WriteLine();
+            }
+
+
+            return HandsRanks.Flush;
+        }
+
+
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//for (int i = nextToBigBlind(); i<GamePreferences.MaxPlayers; i++)        //next to big
+//            {
+//                if (players[i] != null && players[i].playerState == Player.PlayerState.in_round)
+//                {
+//                    int amount = 0;
+//String betAction;
+//Console.Out.WriteLine("Player " + players[i].id + "choose what to do:");
+//                    betAction = Console.In.ReadLine();
+
+
+//                    switch (betAction)
+//                    {
+//                        case "bet":
+//                            Console.Out.WriteLine("Choose amount: ");
+//                            amount = Convert.ToInt32(Console.In.ReadLine());
+//                            chooseBetAction(players[i], BetAction.bet, amount);
+//                            break;
+//                        case "call":
+//                            chooseBetAction(players[i], BetAction.call, amount);
+//                            break;
+//                        case "check":
+//                            chooseBetAction(players[i], BetAction.check, amount);
+//                            break;
+//                        case "fold":
+//                            chooseBetAction(players[i], BetAction.fold, amount);
+//                            break;
+//                        case "raise":
+//                            Console.Out.WriteLine("Choose amount: ");
+//                            amount = Convert.ToInt32(Console.In.ReadLine());
+//                            chooseBetAction(players[i], BetAction.raise, amount);
+//                            break;
+//                    }
+//                }
+//            }

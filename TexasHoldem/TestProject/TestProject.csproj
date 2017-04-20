@@ -64,7 +64,7 @@
     <Compile Include="UnitTest\SpectateActiveGameTest.cs" />
     <Compile Include="UnitTest\EditUserProfileTest.cs" />
     <Compile Include="UnitTest\DeckTest.cs" />
-    <Compile Include="UnitTest\TestBlinds.cs" />
+    <Compile Include="UnitTest\PlayPoker.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Backend\Backend.csproj">
