@@ -21,9 +21,12 @@ namespace Backend.Game
             if (p.userRank < MinRank || p.userRank > MaxRank)
                 return new Message(false, "The rank of the user is not standing in the league game policy.");
             foreach (Player player in players)
-                if (player.systemUserID == p.systemUserID)
-                    return new Message(false, "The player is already taking part in the wanted game.");
-            foreach (Spectator spec in spectators)
+                if (player != null)
+                {
+                    if (player.systemUserID == p.systemUserID)
+                        return new Message(false, "The player is already taking part in the wanted game.");
+                }
+                    foreach (Spectator spec in spectators)
                 if (spec.systemUserID == p.systemUserID)
                     return new Message(false, "Couldn't join the game because the user is already spectating the game.");
 

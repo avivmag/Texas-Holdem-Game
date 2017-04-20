@@ -36,7 +36,5 @@ namespace TestProject.UnitTest
 			bl.Logout("rick roll");
 			Assert.IsFalse(bl.Logout("rick roll").success);
 		}
-
-
 	}
 }
