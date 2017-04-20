@@ -63,7 +63,7 @@ namespace TestProject
         public void joinFailsAlreadySpectatingTest()
         {
             SystemUser user = bl.getUserById(0);
-            bl.spectateActiveGame(user, 2);
+            var m = bl.spectateActiveGame(user, 2);
             Assert.IsFalse(bl.joinActiveGame(user, 2).success);
         }
 

@@ -119,11 +119,14 @@ public class BLImpl : BLInterface
 		{
 			foreach (Player p in g.players)
 			{
-				if (dal.getUserById(p.systemUserID).name.Equals(name, StringComparison.OrdinalIgnoreCase))
-				{
-					ans.Add(g);
-					break;
-				}
+                if (p != null)
+                {
+                    if (dal.getUserById(p.systemUserID).name.Equals(name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        ans.Add(g);
+                        break;
+                    }
+                }
 			}
 		}
 

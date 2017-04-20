@@ -18,7 +18,7 @@ namespace TestProject
         public void filterActiveGamesByPlayerNameSuccessTest()
         {
             SystemUser user2 = bl.getUserById(0);
-            bl.joinActiveGame(user2, 3);
+            var m = bl.joinActiveGame(user2, 3);
 
             CollectionAssert.AreNotEqual(bl.filterActiveGamesByPlayerName("Hadas"),new List<TexasHoldemGame>());
         }

@@ -80,7 +80,8 @@ namespace DAL
 
 		public List<TexasHoldemGame> getAllGames()
         {
-            return gameDummies.Cast<TexasHoldemGame>().ToList();
+            var gameList = gameDummies.Cast<TexasHoldemGame>().ToList();
+            return gameList;
         }
 
         public List<SystemUser> getAllUsers()

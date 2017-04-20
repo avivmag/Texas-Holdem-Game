@@ -80,11 +80,13 @@ namespace Backend.Game
         {
             if (!GamePreferences.IsSpectatingAllowed)
                 return new Message(false, "Couldn't spectate the game because the game preferences is not alowing.");
-            
-            foreach (Player p in players)
-                if (p.systemUserID == s.systemUserID)
-                    return new Message(false, "Couldn't spectate the game because the user is already playing the game.");
 
+            foreach (Player p in players)
+                if (p != null)
+                {
+                    if (p.systemUserID == s.systemUserID)
+                        return new Message(false, "Couldn't spectate the game because the user is already playing the game.");
+                }
             foreach (Spectator spec in spectators)
                 if (spec.systemUserID == s.systemUserID)
                     return new Message(false, "Couldn't spectate the game because the user is already spectating the game.");
