@@ -11,39 +11,44 @@ namespace DAL
     {
         private List<SystemUser> userDummies;
 		private List<SystemUser> loggedInUserDummies;
-		private Player[] playerDummies;
-        private Spectator[] spectatorDummies;
-        private TexasHoldemGame[] gameDummies;
+		private List<Player> playerDummies;
+        private List<Spectator> spectatorDummies;
+        private List<TexasHoldemGame> gameDummies;
         
 
         public DALDummy()
         {
-            userDummies = new List<SystemUser>();
-            userDummies.Add(new SystemUser("Hadas","Aa123456","email0","image0",1000));
-			userDummies.Add(new SystemUser("Gili", "123123", "email1","image1", 0));
-			userDummies.Add(new SystemUser("Or", "111111", "email2", "image2", 700));
-			userDummies.Add(new SystemUser("Aviv", "Aa123456", "email3", "image3", 1500));
-			
-			for (int i = 0; i < 4; i++)
+            userDummies = new List<SystemUser>
+            {
+                new SystemUser("Hadas", "Aa123456", "email0", "image0", 1000),
+                new SystemUser("Gili", "123123", "email1", "image1", 0),
+                new SystemUser("Or", "111111", "email2", "image2", 700),
+                new SystemUser("Aviv", "Aa123456", "email3", "image3", 1500)
+            };
+            for (int i = 0; i < 4; i++)
                 userDummies[i].id = i;
 
 			loggedInUserDummies = new List<SystemUser>();
 
-			gameDummies = new TexasHoldemGame[6];
-            gameDummies[0] = new TexasHoldemGame(0, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, true));
-            gameDummies[1] = new TexasHoldemGame(0, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, false));
-            gameDummies[2] = new TexasHoldemGame(1, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, true));
-            gameDummies[3] = new TexasHoldemGame(1, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false));
-            gameDummies[4] = new LeagueTexasHoldemGame(3, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false), 0, 5);
-            gameDummies[5] = new LeagueTexasHoldemGame(3, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false), 5, 10);
+            gameDummies = new List<TexasHoldemGame>
+            {
+                new TexasHoldemGame(0, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, true)),
+                new TexasHoldemGame(0, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, false)),
+                new TexasHoldemGame(1, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, true)),
+                new TexasHoldemGame(1, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false)),
+                new LeagueTexasHoldemGame(3, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false), 0, 5),
+                new LeagueTexasHoldemGame(3, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false), 5, 10)
+            };
             for (int i = 0; i < 6; i++)
                 gameDummies[i].id = i;
 
-            playerDummies = new Player[4];
-            playerDummies[0] = new Player(0,100,userDummies[0].rank);
-            playerDummies[1] = new Player(1, 0, userDummies[1].rank);
-            playerDummies[2] = new Player(2, 200, userDummies[2].rank);
-            playerDummies[3] = new Player(3, 200, userDummies[3].rank);
+            playerDummies = new List<Player>
+            {
+                new Player(0, 100, userDummies[0].rank),
+                new Player(1, 0, userDummies[1].rank),
+                new Player(2, 200, userDummies[2].rank),
+                new Player(3, 200, userDummies[3].rank)
+            };
             for (int i = 0; i < 4; i++)
                 playerDummies[i].id = i;
 
@@ -51,7 +56,7 @@ namespace DAL
 
         public TexasHoldemGame getGameById(int gameID)
         {
-            for (int i = 0; i < gameDummies.Length; i++)
+            for (int i = 0; i < gameDummies.Count(); i++)
                 if (gameDummies[i].id == gameID)
                     return gameDummies[i];
             return null;
