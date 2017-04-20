@@ -20,17 +20,19 @@ namespace Backend.Game
         public bool active { get; set; }
         public int currentBlindBet { get; set; }
 
-		public TexasHoldemGame(int gameCreatorUserId, GamePreferences gamePreferences)
+		public TexasHoldemGame(int gameCreatorId, GamePreferences gamePreferences)
 		{
-            this.gameCreatorUserId = gameCreatorUserId;
+            this.gameCreatorUserId = gameCreatorId;
 			this.GamePreferences = gamePreferences;
             pot = 0;
             active = true;
             deck = new Deck();
-			spectators = new List<Spectator>();
+			spectators = gamePreferences.IsSpectatingAllowed ? new List<Spectator>() : null;
             players = new Player[GamePreferences.MaxPlayers];
+            availableSeats = GamePreferences.MaxPlayers - 1;
+            players[0] = new Player(gameCreatorId, gamePreferences.StartingChipsAmount, 0);
 
-            for (int i = 0; i < GamePreferences.MaxPlayers; i++)
+            for (int i = 1; i < GamePreferences.MaxPlayers; i++)
             {
                 players[i] = null;
             }

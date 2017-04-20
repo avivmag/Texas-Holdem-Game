@@ -24,5 +24,7 @@ namespace DAL
 		Message logUser(string user);
 
 		Message logOutUser(string user);
+
+        Message addGame(TexasHoldemGame game);
 	}
 }

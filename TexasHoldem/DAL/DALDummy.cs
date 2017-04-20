@@ -133,5 +133,10 @@ namespace DAL
 			
 			return new Message(false, "you are not logged in");
 		}
+
+        public Message addGame(TexasHoldemGame game)
+        {
+            return new Message(true, null);
+        }
 	}
 }
