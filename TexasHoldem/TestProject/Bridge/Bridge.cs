@@ -39,6 +39,9 @@ namespace TestProject
         bool updatePot(int amount);
         //statePlayer = bet or raise or call or fold
         bool updateStatePlayer(string statePlayer, int amount);
+        bool betSmallBlind(int amount);
+        bool betBigBlind(int amount);
+
         
 
       

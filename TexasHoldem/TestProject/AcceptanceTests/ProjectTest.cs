@@ -149,7 +149,14 @@ namespace TestProject
         {
             return this.bridge.check();
         }
-
+        public bool betSmallBlind(int amount)
+        {
+            return this.bridge.betSmallBlind(amount);
+        }
+        public bool betBigBlind(int amount)
+        {
+            return this.bridge.betBigBlind(amount);
+        }
     } 
 
 }
