@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Backend;
 using System;
+using Backend.System;
 
 namespace DAL
 {
@@ -14,16 +15,18 @@ namespace DAL
 		private Player[] playerDummies;
         private Spectator[] spectatorDummies;
         private TexasHoldemGame[] gameDummies;
+        private List<League> leagues;
         
-
         public DALDummy()
         {
+            leagues.Add(new League(0, 1000));
+            leagues.Add(new League(1000, 2000));
             userDummies = new List<SystemUser>();
-            userDummies.Add(new SystemUser("Hadas","Aa123456","email0","image0",1000));
-			userDummies.Add(new SystemUser("Gili", "123123", "email1","image1", 0));
-			userDummies.Add(new SystemUser("Or", "111111", "email2", "image2", 700));
-			userDummies.Add(new SystemUser("Aviv", "Aa123456", "email3", "image3", 1500));
-			
+            userDummies.Add(new SystemUser("Hadas","Aa123456","email0","image0",1000, leagues.First().leagueId));
+			userDummies.Add(new SystemUser("Gili", "123123", "email1","image1", 0, leagues.First().leagueId));
+			userDummies.Add(new SystemUser("Or", "111111", "email2", "image2", 700, leagues.First().leagueId));
+			userDummies.Add(new SystemUser("Aviv", "Aa123456", "email3", "image3", 1500, leagues[1].leagueId));
+
 			for (int i = 0; i < 4; i++)
                 userDummies[i].id = i;
 
@@ -34,8 +37,8 @@ namespace DAL
             gameDummies[1] = new TexasHoldemGame(0, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, false));
             gameDummies[2] = new TexasHoldemGame(1, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, true));
             gameDummies[3] = new TexasHoldemGame(1, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false));
-            gameDummies[4] = new LeagueTexasHoldemGame(3, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false), 0, 5);
-            gameDummies[5] = new LeagueTexasHoldemGame(3, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false), 5, 10);
+            gameDummies[4] = new LeagueTexasHoldemGame(3, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false), leagues[0]);
+            gameDummies[5] = new LeagueTexasHoldemGame(3, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false), leagues[0]);
             for (int i = 0; i < 6; i++)
                 gameDummies[i].id = i;
 
