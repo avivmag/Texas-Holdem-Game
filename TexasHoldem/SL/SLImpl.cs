@@ -25,12 +25,18 @@ namespace SL
 			throw new NotImplementedException();
 		}
 
-		public List<TexasHoldemGame> filterActiveGamesByGamePreferences(GamePreferences pref)
+		public List<TexasHoldemGame> filterActiveGamesByGamePreferences(int? gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed)
 		{
 			throw new NotImplementedException();
 		}
 
-		public List<TexasHoldemGame> filterActiveGamesByPlayerName(string name)
+        public Message createGame(int gameCreator, int gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool isSpectatingAllowed)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public List<TexasHoldemGame> filterActiveGamesByPlayerName(string name)
 		{
 			throw new NotImplementedException();
 		}

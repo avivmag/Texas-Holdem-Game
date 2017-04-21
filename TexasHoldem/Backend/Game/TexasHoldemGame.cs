@@ -20,17 +20,18 @@ namespace Backend.Game
         public bool active { get; set; }
         public int currentBlindBet { get; set; }
 
-		public TexasHoldemGame(int gameCreatorUserId, GamePreferences gamePreferences)
+		public TexasHoldemGame(int gameCreatorId, GamePreferences gamePreferences)
 		{
-            this.gameCreatorUserId = gameCreatorUserId;
+            this.gameCreatorUserId = gameCreatorId;
 			this.GamePreferences = gamePreferences;
             pot = 0;
             active = true;
             deck = new Deck();
-			spectators = new List<Spectator>();
+			spectators = gamePreferences.IsSpectatingAllowed ? new List<Spectator>() : null;
             players = new Player[GamePreferences.MaxPlayers];
-
-            for (int i = 0; i < GamePreferences.MaxPlayers; i++)
+            availableSeats = GamePreferences.MaxPlayers - 1;
+            players[0] = new Player(gameCreatorId, gamePreferences.StartingChipsAmount, 0);
+            for (int i = 1; i < GamePreferences.MaxPlayers; i++)
             {
                 players[i] = null;
             }
@@ -47,10 +48,12 @@ namespace Backend.Game
                     return new Message(false, "The player is already taking part in the wanted game.");
             }
 
-            foreach (Spectator spec in spectators)
-                if (spec.systemUserID == p.systemUserID)
-                    return new Message(false, "Couldn't join the game because the user is already spectating the game.");
-
+            if (spectators != null)
+            {
+                foreach (Spectator spec in spectators)
+                    if (spec.systemUserID == p.systemUserID)
+                        return new Message(false, "Couldn't join the game because the user is already spectating the game.");
+            }
             for (int i = 0; i < GamePreferences.MaxPlayers; i++)
             {
                 if (players[i] == null)
@@ -80,11 +83,13 @@ namespace Backend.Game
         {
             if (!GamePreferences.IsSpectatingAllowed)
                 return new Message(false, "Couldn't spectate the game because the game preferences is not alowing.");
-            
-            foreach (Player p in players)
-                if (p.systemUserID == s.systemUserID)
-                    return new Message(false, "Couldn't spectate the game because the user is already playing the game.");
 
+            foreach (Player p in players)
+                if (p != null)
+                {
+                    if (p.systemUserID == s.systemUserID)
+                        return new Message(false, "Couldn't spectate the game because the user is already playing the game.");
+                }
             foreach (Spectator spec in spectators)
                 if (spec.systemUserID == s.systemUserID)
                     return new Message(false, "Couldn't spectate the game because the user is already spectating the game.");

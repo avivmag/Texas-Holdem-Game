@@ -16,7 +16,7 @@ namespace Backend.User
 		public List<Game.Spectator> spectators;
         public Guid leagueId;
 
-        public SystemUser(String name, String password, String email, String userImage, int money, Guid leagueId)
+        public SystemUser(String name, String password, String email, String userImage, int money)
         {
             this.name = name;
             this.password = password;
@@ -25,6 +25,10 @@ namespace Backend.User
             this.money = money;
             spectators = new List<Spectator> { };
             rank = 0;
+        }
+
+        public void setLeague(Guid leagueId)
+        {
             this.leagueId = leagueId;
         }
 

@@ -27,10 +27,12 @@ namespace Backend.Game
                     if (player.systemUserID == p.systemUserID)
                         return new Message(false, "The player is already taking part in the wanted game.");
                 }
-            foreach (Spectator spec in spectators)
-                if (spec.systemUserID == p.systemUserID)
-                    return new Message(false, "Couldn't join the game because the user is already spectating the game.");
-
+            if (spectators != null)
+            {
+                foreach (Spectator spec in spectators)
+                    if (spec.systemUserID == p.systemUserID)
+                        return new Message(false, "Couldn't join the game because the user is already spectating the game.");
+            }
             //players.Add(p);
             return new Message(true,"");
         }

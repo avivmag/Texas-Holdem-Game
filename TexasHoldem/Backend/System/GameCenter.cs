@@ -25,6 +25,7 @@ namespace Backend.System
             return leagueGame;
         }
 
+        // Maintain leagues for players. Should be invoked after each game ending, or new players register.
         public void maintainLeagues(List<User.SystemUser> users)
         {
             foreach(var u in users)
