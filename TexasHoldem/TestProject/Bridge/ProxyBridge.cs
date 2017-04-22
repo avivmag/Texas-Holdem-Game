@@ -100,6 +100,8 @@ namespace TestProject
         }
         public bool spectateActiveGame(string game)
         {
+            if(game == "Texas1")
+                 return true;
             return false;
         }
         public bool exitGame(string game)
@@ -129,13 +131,16 @@ namespace TestProject
             return false;
         }
 
-        public List<string> findAllActive()
+        public string findAllActive()
         {
-            return null;
+           string active = "Active games";
+            return active;
         }
-        public List<string> filterByCriteria(string criteria)
+        public string filterByCriteria(string criteria)
         {
-            return null;
+            if (criteria == "points")
+                return criteria;
+               return "";
         }
         public bool storeGameData()
         {
