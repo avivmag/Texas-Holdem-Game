@@ -24,6 +24,7 @@ namespace TestProject
         [TestMethod]
         public void TestRegister()
         {
+
             //User registared correctly
             Assert.AreEqual(this.register(username, password), this.getUserbyName(username));
             //check if User already registered
@@ -55,7 +56,7 @@ namespace TestProject
         {
             //If it is an active game than user can logout
             Assert.IsTrue(this.checkActiveGame(statusGame));
-            Assert.IsTrue(this.logoutUser(statusGame, username));
+            Assert.IsTrue(this.logoutUser(gameOver, username));
             //can't logout
             Assert.IsFalse(this.checkActiveGame(gameOver));
 
@@ -76,7 +77,6 @@ namespace TestProject
             Assert.IsFalse(this.removeUserFromGame(username, gameOver) < 0);
             Assert.IsFalse(this.checkActiveGame(gameOver));
             Assert.IsFalse(this.isLogin(usernameWrong));
-            Assert.IsFalse(this.exitGame(game));
         }
 
         [TestMethod]
@@ -84,7 +84,7 @@ namespace TestProject
         {
             //the game is not active and exist in the system
             Assert.IsFalse(this.checkActiveGame(gameOver));
-            Assert.AreNotEqual(this.selectGameToReplay(gameOver), null);
+            Assert.AreNotEqual(this.selectGameToReplay(gameOver), "");
             Assert.IsTrue(this.checkActiveGame(statusGame));
 
         }
@@ -97,9 +97,9 @@ namespace TestProject
             //save success
             Assert.IsTrue(this.saveTurn(game));
             //already saved the turn
-            Assert.IsFalse(this.saveTurn(game2));
-            //check if the replay can be saved
-            Assert.IsTrue(this.saveTurn((string)this.selectGameToReplay(statusGame)));
+            Assert.IsFalse(this.saveTurn("Texsa2"));
+            //check if the replay can be save
+            Assert.IsTrue(this.saveTurn((string)this.selectGameToReplay(gameOver)));
             //check if the turn can be replay
             Assert.IsTrue(this.saveTurn(game) && this.exitGame(game));
         }
@@ -117,8 +117,9 @@ namespace TestProject
         [TestMethod]
         public void TestMaintainLeagus()
         {
-            //check if the user added to correct league
+            //check if the game is finish (not just not active)
             Assert.IsTrue(this.isGameOver(game, username));
+            //check if the user added to correct league
             Assert.AreEqual(this.joinLeaguePerPoints(points), highLeague);
             Assert.AreNotEqual(this.joinLeaguePerPoints(points), lowLeague);
             //check if new user register is added to lower league
