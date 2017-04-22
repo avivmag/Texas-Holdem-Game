@@ -1,6 +1,9 @@
-﻿namespace Backend.Game
+﻿using System;
+using System.Collections.Generic;
+
+namespace Backend.Game
 {
-	public class Card
+	public class Card : Comparer<Card>
 	{
 		public const int NUMBER_OF_CARDS = 52;
 		public const int LOWEST_CARD = 1;
@@ -26,6 +29,16 @@
             if (card2.Type == this.Type && card2.Value.Equals(this.Value))
                 return true;
             return false;
+        }
+
+        public override string ToString()
+        {
+            return "Type: " + Type.ToString() + ",  Value: " + Value;
+        }
+
+        public override int Compare(Card x, Card y)
+        {
+            return x.Value - y.Value;
         }
     }
 }
