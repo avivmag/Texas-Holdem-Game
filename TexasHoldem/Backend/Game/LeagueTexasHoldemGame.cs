@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System;
 
 namespace Backend.Game
 {
@@ -7,11 +8,11 @@ namespace Backend.Game
 		public int MinRank { get; }
 		public int MaxRank { get; }
 
-		public LeagueTexasHoldemGame(int gameCreatorUserId, GamePreferences gamePreferences, int MinRank, int MaxRank) :
+		public LeagueTexasHoldemGame(int gameCreatorUserId, GamePreferences gamePreferences, League league) :
 				base(gameCreatorUserId, gamePreferences)
 		{
-			this.MinRank = MinRank;
-			this.MaxRank = MaxRank;
+            this.MinRank = league.minRank;
+			this.MaxRank = league.maxRank;
 		}
 
         public override Message joinGame(Player p)
@@ -21,12 +22,17 @@ namespace Backend.Game
             if (p.userRank < MinRank || p.userRank > MaxRank)
                 return new Message(false, "The rank of the user is not standing in the league game policy.");
             foreach (Player player in players)
-                if (player.systemUserID == p.systemUserID)
-                    return new Message(false, "The player is already taking part in the wanted game.");
-            foreach (Spectator spec in spectators)
-                if (spec.systemUserID == p.systemUserID)
-                    return new Message(false, "Couldn't join the game because the user is already spectating the game.");
-
+                if (player != null)
+                {
+                    if (player.systemUserID == p.systemUserID)
+                        return new Message(false, "The player is already taking part in the wanted game.");
+                }
+            if (spectators != null)
+            {
+                foreach (Spectator spec in spectators)
+                    if (spec.systemUserID == p.systemUserID)
+                        return new Message(false, "Couldn't join the game because the user is already spectating the game.");
+            }
             //players.Add(p);
             return new Message(true,"");
         }

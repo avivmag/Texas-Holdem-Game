@@ -119,18 +119,82 @@ public class BLImpl : BLInterface
 		{
 			foreach (Player p in g.players)
 			{
-				if (dal.getUserById(p.systemUserID).name.Equals(name, StringComparison.OrdinalIgnoreCase))
-				{
-					ans.Add(g);
-					break;
-				}
+                if (p != null)
+                {
+                    if (dal.getUserById(p.systemUserID).name.Equals(name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        ans.Add(g);
+                        break;
+                    }
+                }
 			}
 		}
 
 		return ans;
 	}
 
-	public List<TexasHoldemGame> filterActiveGamesByPotSize(int potSize)
+    public Message createGame(int gameCreatorId, GamePreferences pref)
+    {
+        if (dal.getUserById(gameCreatorId) == null)
+        {
+            return new Message(false, "Game creator is Not a user.");
+        }
+        Message m = checkGamePreferences(pref);
+        if (m.success)
+        {
+            TexasHoldemGame game = new TexasHoldemGame(gameCreatorId, pref);
+            dal.addGame(game);
+        }
+        return m;
+    }
+
+    private Message checkGamePreferences(GamePreferences pref)
+    {
+        // Check buy in policy.
+        if(pref.BuyInPolicy < 0)
+        {
+            return new Message(
+                false, 
+                String.Format("Buy in policy is {0}. Should be equal or higher than zero.", pref.BuyInPolicy));
+        }
+
+        // Check max players.
+        if(pref.MaxPlayers < 2 || pref.MaxPlayers > 9)
+        {
+            return new Message(
+                false,
+                String.Format("Max players is {0}. Has to be greater than 1 and lesser than 9", pref.MaxPlayers));
+        }
+
+        // Check minimal bet.
+        if(pref.MinimalBet <= 0)
+        {
+            return new Message(
+                false,
+                String.Format("Minimal bet is {0}. Has to be greater or equal to zero.", pref.MinimalBet));
+        }
+
+        // Check min players.
+        if(pref.MinPlayers > pref.MaxPlayers || pref.MinPlayers < 2)
+        {
+            return new Message(
+                false,
+                String.Format("Min players are {0}. Has to be greater than 1 and lesser than max players.", pref.MinPlayers));
+        }
+
+        // Check starting chips amount.
+        if(pref.StartingChipsAmount <= 0)
+        {
+            return new Message(
+                false,
+                String.Format("Starting chips are {0}. Has to be greater than zero.", pref.StartingChipsAmount));
+        }
+
+        // Return all checks have passed.
+        return new Message(true, null);
+    }
+
+    public List<TexasHoldemGame> filterActiveGamesByPotSize(int potSize)
 	{
 		List<TexasHoldemGame> ans = new List<TexasHoldemGame> { };
 		ans = dal.getAllGames();

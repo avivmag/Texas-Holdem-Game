@@ -14,7 +14,8 @@ namespace SL
         List<TexasHoldemGame> findAllActiveAvailableGames();
         List<TexasHoldemGame> filterActiveGamesByPlayerName(string name);
         List<TexasHoldemGame> filterActiveGamesByPotSize(int size);
-        List<TexasHoldemGame> filterActiveGamesByGamePreferences(GamePreferences pref);
+        List<TexasHoldemGame> filterActiveGamesByGamePreferences(int? gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed);
+        Message createGame(int gameCreator, int gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool isSpectatingAllowed);
 
 		Message Login(string user, string password);
 		Message Register(string user, string password);

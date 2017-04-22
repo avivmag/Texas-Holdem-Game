@@ -29,9 +29,9 @@ namespace TestProject
         {
             TexasHoldemGame game = bl.getGameById(0);
             Player p = new Player(0,100,2);
-            game.joinGame(p);
+            var m = game.joinGame(p);
             game.leaveGame(p);
-            CollectionAssert.AreEqual(game.players, new List<Player> { });
+            CollectionAssert.AreEqual(game.players, new Player[9]);
         }
     }
 }
