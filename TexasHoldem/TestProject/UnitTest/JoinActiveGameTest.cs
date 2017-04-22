@@ -14,14 +14,15 @@ namespace TestProject
         public void joinSuccessTest()
         {
             SystemUser user = bl.getUserById(0);
-            Assert.IsTrue(bl.joinActiveGame(user,0).success);
+            Assert.IsTrue(bl.joinActiveGame(user,2).success);
         }
 
         [TestMethod]
         public void joinSuccessLeagueGameTest()
         {
             SystemUser user = bl.getUserById(0);
-            Assert.IsTrue(bl.joinActiveGame(user, 4).success);
+            var m = bl.joinActiveGame(user, 4);
+            Assert.IsTrue(m.success);
         }
 
         [TestMethod]

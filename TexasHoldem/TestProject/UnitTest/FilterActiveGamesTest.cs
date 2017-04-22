@@ -17,7 +17,7 @@ namespace TestProject
         [TestMethod]
         public void filterActiveGamesByPlayerNameSuccessTest()
         {
-            SystemUser user2 = bl.getUserById(0);
+            SystemUser user2 = bl.getUserById(2);
             var m = bl.joinActiveGame(user2, 3);
 
             CollectionAssert.AreNotEqual(bl.filterActiveGamesByPlayerName("Hadas"),new List<TexasHoldemGame>());
@@ -26,10 +26,10 @@ namespace TestProject
         [TestMethod]
         public void filterActiveGamesByPlayerNameTwoGamesTest()
         {
-            SystemUser user2 = bl.getUserById(0);
-            bl.joinActiveGame(user2, 3);
+            SystemUser user2 = bl.getUserById(2);
+            var m = bl.joinActiveGame(user2, 3);
 
-            bl.joinActiveGame(user2, 0);
+            var m2 = bl.joinActiveGame(user2, 0);
 
             Assert.AreEqual(bl.filterActiveGamesByPlayerName("Hadas").Count, 2);
         }

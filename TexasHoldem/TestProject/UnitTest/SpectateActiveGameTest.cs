@@ -14,7 +14,7 @@ namespace TestProject
         public void spectateSuccessTest()
         {
             SystemUser user = bl.getUserById(0);
-            Assert.IsTrue(bl.spectateActiveGame(user,0).success);
+            Assert.IsTrue(bl.spectateActiveGame(user,2).success);
         }
 
         [TestMethod]
