@@ -17,28 +17,40 @@ namespace TestProject
         }
         public object register(string username, string password)
         {
-            //TODO
-            return null;
+            if (username == "Hadas" && password == "1234")
+                return username;
+              return "";
         }
         public object login(string username, string password)
         {
-            return null;
+            if (username == "Hadas" && password == "1234")
+                return username;
+              return "";
         }
         public object getUserbyName(string username)
         {
-            return null;
+            if(username == "Hadas")
+                return username;
+            return "";
         }
         public bool isUserExist(string username, string password)
         {
-            return false;
+            if (username == "Hadas" && password == "1234")
+                return true;
+             return false;
         }
         public bool checkActiveGame(string satusGame)
         {
+            if(satusGame == "Active")
+                return true;
             return false;
         }
         public bool logoutUser(string game, string user)
         {
-            return true;
+            if (game == "notActive" && user == "Hadas")
+                return true;
+            else 
+                return false;
         }
         public object editProfile(string username)
         {
@@ -62,7 +74,9 @@ namespace TestProject
         }
         public bool isLogin(string username)
         {
-            return true;
+            if(username == "Hadas")
+                return true;
+            return false;
         }
         public bool isGameDefOK(string gameDefinithions)
         {
@@ -74,11 +88,15 @@ namespace TestProject
         }
         public object selectGametoJoin(string game)
         {
+            if (game == "Texas1")
+                return game;
             return null;
         }
         public bool checkAvailibleSeats(string game)
         {
-            return true;
+            if(game == "Texas1")
+                return true;
+            return false;
         }
         public bool spectateActiveGame(string game)
         {
@@ -86,7 +104,9 @@ namespace TestProject
         }
         public bool exitGame(string game)
         {
-            return true;
+            if(game == "Texas1")
+                return true;
+            return false;
         }
         public int removeUserFromGame(string user, string game)
         {
@@ -94,7 +114,9 @@ namespace TestProject
         }
         public object selectGameToReplay(string game)
         {
-            return null;
+            if(game == "notActive")
+                return game;
+            return "";
         }
         public bool isWatchingReplay(string game)
         {
@@ -102,7 +124,9 @@ namespace TestProject
         }
         public bool saveTurn(string game)
         {
-            return true;
+            if(game == "Texas1" || game == "notActive")
+                return true;
+            return false;
         }
 
         public List<string> findAllActive()
@@ -115,15 +139,19 @@ namespace TestProject
         }
         public bool storeGameData()
         {
-            return false;
+            return true;
         }
         public bool isGameOver(string game, string username)
         {
+            if (game == "Texas1")
+                return true;
             return false;
         }
         public object joinLeaguePerPoints(int points)
         {
-            return null;
+            if (points == 100)
+                return "league #1";
+            return "league #10";
         }
         public bool updatePot(int amount)
         {

@@ -20,7 +20,7 @@ namespace TestProject
         bool addPlayerToGame(string username, string game);
         object selectGametoJoin(string game);
         bool checkAvailibleSeats(string game);
-        bool spectateActiveGame(string game);
+        object spectateActiveGame(string game);
         bool exitGame(string game);
         int removeUserFromGame(string user, string game);
         object selectGameToReplay(string game);
