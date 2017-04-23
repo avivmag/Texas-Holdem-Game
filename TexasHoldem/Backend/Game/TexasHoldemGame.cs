@@ -11,7 +11,7 @@ namespace Backend.Game
         public int currentBig { get; set; }
         public int currentSmall { get; set; }
         public GamePreferences GamePreferences { get; }
-        private Deck deck;
+        public Deck deck { get; }
         public Player[] players { get; set; }
         public List<Spectator> spectators;
         private int gameCreatorUserId;
@@ -211,6 +211,12 @@ namespace Backend.Game
             {
                 if (players[index] != null)
                 {
+                    Console.Out.WriteLine(" ggg    " + players[index].id);
+                    if (players[index].playerCards.Count == 2)
+                    {
+                        players[index].playerCards.RemoveAt(0);
+                        players[index].playerCards.RemoveAt(1);
+                    }
                     players[index].playerCards.Add(deck.Top());
                 }
                 index = (index + 1) % GamePreferences.MaxPlayers;
@@ -344,13 +350,48 @@ namespace Backend.Game
             for (int i = 0; i < 2; i++)
             {
                 fullHand.Add(p.playerCards[0]);
-                flop.RemoveAt(0);
             }
 
             fullHand.Add(turn);
             fullHand.Add(river);
 
             fullHand.Sort();
+
+            bool straight = false;
+            int counterStraight = 0;
+            
+            //Royal Flush
+            for (int i = 0; i < 7; i++)
+                if (fullHand[i].Value == 1 && fullHand[i].Type.Equals(Card.cardType.heart))
+                    counterStraight++;
+            for (int i = 0; i < 7; i++)
+                if (fullHand[i].Value == 10 && fullHand[i].Type.Equals(Card.cardType.heart))
+                    counterStraight++;
+            for (int i = 0; i < 7; i++)
+                if (fullHand[i].Value == 11 && fullHand[i].Type.Equals(Card.cardType.heart))
+                    counterStraight++;
+            for (int i = 0; i < 7; i++)
+                if (fullHand[i].Value == 12 && fullHand[i].Type.Equals(Card.cardType.heart))
+                    counterStraight++;
+            for (int i = 0; i < 7; i++)
+                if (fullHand[i].Value == 13 && fullHand[i].Type.Equals(Card.cardType.heart))
+                    counterStraight++;
+
+            if (counterStraight == 5)
+                return HandsRanks.RoyalFlush;
+
+
+            //Straight Flush
+            Card prev = fullHand[6];
+            counterStraight = 0;
+            int fiveCards = 0;
+            for (int i = 0; i < 6; i++)
+            {
+
+            }
+
+
+
 
             for (int i = 0; i < fullHand.Count; i++)
             {

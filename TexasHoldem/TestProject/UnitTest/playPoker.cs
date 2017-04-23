@@ -138,6 +138,23 @@ namespace TestProject.UnitTest
             Assert.AreEqual(game.tempPot, 90, "Not everybody raise the exact money, tempPot = " + game.tempPot);
         }
 
+        [TestMethod]
+        public void TestFullHandRank()
+        {
+            game.dealCards();
+
+            for (int i = 0; i < 3; i++)
+            {
+                game.flop.Add(game.deck.Top());
+            }
+
+            game.turn = game.deck.Top();
+            game.river = game.deck.Top();
+            
+            Assert.AreEqual(game.checkHandRank(game.players[0]), TexasHoldemGame.HandsRanks.Flush, "Rank does't match");
+        }
+
+
         [TestCleanup]
         public void TearDown()
         {
