@@ -28,7 +28,7 @@ namespace TestProject.AcceptanceTests
             Assert.IsTrue(this.updatePot(amountToBet));
             Assert.IsTrue(this.updateStatePlayer(statePlayer, amountToBet));
             //not enough chips
-            Assert.IsFalse(this.updatePot(365765436));
+            Assert.IsFalse(this.updatePot(0));
 
         }
 
@@ -43,7 +43,7 @@ namespace TestProject.AcceptanceTests
             //update to raise game
             Assert.IsTrue(this.updateStatePlayer(statePlayer, amountToBet));
             //not enough chips
-            Assert.IsFalse(this.updatePot(10000000));
+            Assert.IsFalse(this.updatePot(0));
 
         }
 
