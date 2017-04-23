@@ -2,6 +2,7 @@
 using Backend.Game;
 using Backend.User;
 using System.Collections.Generic;
+using System;
 
 namespace BL
 {
@@ -24,5 +25,11 @@ namespace BL
 
 		SystemUser getUserById(int userId);
         TexasHoldemGame getGameById(int gameId);
+
+        Message addLeague(int minRank, int maxRank, string name);
+        Message removeLeague(Guid leagueId);
+        League getLeagueByName(string name);
+        League getLeagueById(Guid leagueId);
+        Message setLeagueCriteria(int minRank, int maxRank, string leagueName, Guid leagueId, int userId);
     }
 }
