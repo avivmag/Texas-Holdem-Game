@@ -23,26 +23,26 @@ namespace Backend.Game
             leagueId = new Guid();
         }
 
-        public Message addUser(SystemUser u)
+        public ReturnMessage addUser(SystemUser u)
         {
             if (Users.Contains(u))
             {
-                return new Message(false, String.Format("User {0} is already in league {1}.", u.id, leagueId));
+                return new ReturnMessage(false, String.Format("User {0} is already in league {1}.", u.id, leagueId));
             }
 
             Users.Add(u);
-            return new Message(true, String.Format("User {0} was added to league {1}.", u.id, leagueId));
+            return new ReturnMessage(true, String.Format("User {0} was added to league {1}.", u.id, leagueId));
         }
 
-        public Message removeUser(SystemUser u)
+        public ReturnMessage removeUser(SystemUser u)
         {
             if (!Users.Contains(u))
             {
-                return new Message(false, String.Format("User {0} is not in league {1}.", u.id, leagueId));
+                return new ReturnMessage(false, String.Format("User {0} is not in league {1}.", u.id, leagueId));
             }
 
             Users.Remove(u);
-            return new Message(true, String.Format("User {0} was added to league {1}.", u.id, leagueId));
+            return new ReturnMessage(true, String.Format("User {0} was added to league {1}.", u.id, leagueId));
         }
 
         public Boolean isUserInLeague(SystemUser u)
@@ -50,26 +50,26 @@ namespace Backend.Game
             return Users.Contains(u);
         }
 
-        public Message addGame(LeagueTexasHoldemGame g)
+        public ReturnMessage addGame(LeagueTexasHoldemGame g)
         {
             if (Games.Contains(g))
             {
-                return new Message(false, String.Format("Game {0} is already in league {1}.", g.id, leagueId));
+                return new ReturnMessage(false, String.Format("Game {0} is already in league {1}.", g.id, leagueId));
             }
 
             Games.Add(g);
-            return new Message(true, String.Format("Game {0} was added to league {1}.", g.id, leagueId));
+            return new ReturnMessage(true, String.Format("Game {0} was added to league {1}.", g.id, leagueId));
         }
 
-        public Message removeGame(LeagueTexasHoldemGame g)
+        public ReturnMessage removeGame(LeagueTexasHoldemGame g)
         {
             if (!Games.Contains(g))
             {
-                return new Message(false, String.Format("Game {0} is not in league {1}.", g.id, leagueId));
+                return new ReturnMessage(false, String.Format("Game {0} is not in league {1}.", g.id, leagueId));
             }
 
             Games.Remove(g);
-            return new Message(true, String.Format("Game {0} was added to league {1}.", g.id, leagueId));
+            return new ReturnMessage(true, String.Format("Game {0} was added to league {1}.", g.id, leagueId));
         }
     }
 }

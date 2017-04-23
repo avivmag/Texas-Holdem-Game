@@ -102,21 +102,21 @@ namespace DAL
                 userDummies[user.id - 1] = user;
         }
 
-		public Message registerUser(SystemUser user)
+		public ReturnMessage registerUser(SystemUser user)
 		{
 			foreach (SystemUser systemUser in userDummies)
 				if (systemUser.name.Equals(user.name))
-					return new Message(false, "This user name is already taken.");
+					return new ReturnMessage(false, "This user name is already taken.");
 
 			userDummies.Add(user);
-			return new Message(true, null);
+			return new ReturnMessage(true, null);
 		}
 
-		public Message logUser(string user)
+		public ReturnMessage logUser(string user)
 		{
 			foreach (SystemUser systemUser in loggedInUserDummies)
 				if (systemUser.name.Equals(user))
-					return new Message(false, "You are already logged in to the system");
+					return new ReturnMessage(false, "You are already logged in to the system");
 
 			int i = 0;
 			for (; i < userDummies.Count; i++)
@@ -124,26 +124,26 @@ namespace DAL
 					break;
 
 			if (i == userDummies.Count)
-				return new Message(false, "You must be registered before attempting to log in.");
+				return new ReturnMessage(false, "You must be registered before attempting to log in.");
 
 			loggedInUserDummies.Add(getUserByName(user));
-			return new Message(true, null);
+			return new ReturnMessage(true, null);
 		}
-		public Message logOutUser(string user)
+		public ReturnMessage logOutUser(string user)
 		{
 			foreach (SystemUser systemUser in loggedInUserDummies)
 				if (systemUser.name.Equals(user))
 				{
 					loggedInUserDummies.Remove(systemUser);
-					return new Message(true, null);
+					return new ReturnMessage(true, null);
 				}
 			
-			return new Message(false, "you are not logged in");
+			return new ReturnMessage(false, "you are not logged in");
 		}
 
-        public Message addGame(TexasHoldemGame game)
+        public ReturnMessage addGame(TexasHoldemGame game)
         {
-            return new Message(true, null);
+            return new ReturnMessage(true, null);
         }
 	}
 }

@@ -15,9 +15,9 @@ public class BLImpl : BLInterface
 		dal = new DALDummy();
 	}
 
-	public Message spectateActiveGame(SystemUser user, int gameID)
+	public ReturnMessage spectateActiveGame(SystemUser user, int gameID)
 	{
-		Message m = new Message();
+		ReturnMessage m = new ReturnMessage();
 		TexasHoldemGame existingGame = dal.getGameById(gameID);
 		if (existingGame != null)
 		{
@@ -30,10 +30,10 @@ public class BLImpl : BLInterface
 			return m;
 		}
 		else
-			return new Message(false, "Couldn't find the wanted game with the id:" + gameID.ToString() + ".");
+			return new ReturnMessage(false, "Couldn't find the wanted game with the id:" + gameID.ToString() + ".");
 	}
 
-	public Message joinActiveGame(SystemUser user, int gameID)
+	public ReturnMessage joinActiveGame(SystemUser user, int gameID)
 	{
 		TexasHoldemGame existingGame = dal.getGameById(gameID);
 		if (existingGame != null)
@@ -44,15 +44,15 @@ public class BLImpl : BLInterface
 				return existingGame.joinGame(p);
 			}
 			else
-				return new Message(false, "Could not join the game because the user dont have enough money to join.");
+				return new ReturnMessage(false, "Could not join the game because the user dont have enough money to join.");
 		}
 		else
-			return new Message(false, "Couldn't find the wanted game with the id:" + gameID.ToString() + ".");
+			return new ReturnMessage(false, "Couldn't find the wanted game with the id:" + gameID.ToString() + ".");
 	}
 
-	public Message leaveGame(Spectator spec, int gameID)
+	public ReturnMessage leaveGame(Spectator spec, int gameID)
 	{
-		Message m = new Message();
+		ReturnMessage m = new ReturnMessage();
 		TexasHoldemGame existingGame = dal.getGameById(gameID);
 		if (spec.GetType() == typeof(Player))
 		{
@@ -74,9 +74,9 @@ public class BLImpl : BLInterface
 		return m;
 	}
 
-	public Message editUserProfile(int userId, string name, string password, string email, string avatar)
+	public ReturnMessage editUserProfile(int userId, string name, string password, string email, string avatar)
 	{
-		Message m = new Message();
+		ReturnMessage m = new ReturnMessage();
 		SystemUser user = dal.getUserById(userId);
 		List<SystemUser> allUsers = dal.getAllUsers();
 		if (name.Equals("") || password.Equals(""))
@@ -133,13 +133,13 @@ public class BLImpl : BLInterface
 		return ans;
 	}
 
-    public Message createGame(int gameCreatorId, GamePreferences pref)
+    public ReturnMessage createGame(int gameCreatorId, GamePreferences pref)
     {
         if (dal.getUserById(gameCreatorId) == null)
         {
-            return new Message(false, "Game creator is Not a user.");
+            return new ReturnMessage(false, "Game creator is Not a user.");
         }
-        Message m = checkGamePreferences(pref);
+        ReturnMessage m = checkGamePreferences(pref);
         if (m.success)
         {
             TexasHoldemGame game = new TexasHoldemGame(gameCreatorId, pref);
@@ -148,12 +148,12 @@ public class BLImpl : BLInterface
         return m;
     }
 
-    private Message checkGamePreferences(GamePreferences pref)
+    private ReturnMessage checkGamePreferences(GamePreferences pref)
     {
         // Check buy in policy.
         if(pref.BuyInPolicy < 0)
         {
-            return new Message(
+            return new ReturnMessage(
                 false, 
                 String.Format("Buy in policy is {0}. Should be equal or higher than zero.", pref.BuyInPolicy));
         }
@@ -161,7 +161,7 @@ public class BLImpl : BLInterface
         // Check max players.
         if(pref.MaxPlayers < 2 || pref.MaxPlayers > 9)
         {
-            return new Message(
+            return new ReturnMessage(
                 false,
                 String.Format("Max players is {0}. Has to be greater than 1 and lesser than 9", pref.MaxPlayers));
         }
@@ -169,7 +169,7 @@ public class BLImpl : BLInterface
         // Check minimal bet.
         if(pref.MinimalBet <= 0)
         {
-            return new Message(
+            return new ReturnMessage(
                 false,
                 String.Format("Minimal bet is {0}. Has to be greater or equal to zero.", pref.MinimalBet));
         }
@@ -177,7 +177,7 @@ public class BLImpl : BLInterface
         // Check min players.
         if(pref.MinPlayers > pref.MaxPlayers || pref.MinPlayers < 2)
         {
-            return new Message(
+            return new ReturnMessage(
                 false,
                 String.Format("Min players are {0}. Has to be greater than 1 and lesser than max players.", pref.MinPlayers));
         }
@@ -185,13 +185,13 @@ public class BLImpl : BLInterface
         // Check starting chips amount.
         if(pref.StartingChipsAmount <= 0)
         {
-            return new Message(
+            return new ReturnMessage(
                 false,
                 String.Format("Starting chips are {0}. Has to be greater than zero.", pref.StartingChipsAmount));
         }
 
         // Return all checks have passed.
-        return new Message(true, null);
+        return new ReturnMessage(true, null);
     }
 
     public List<TexasHoldemGame> filterActiveGamesByPotSize(int potSize)
@@ -238,45 +238,45 @@ public class BLImpl : BLInterface
 		return dal.getGameById(gameId);
 	}
 
-	public Message Login(string user, string password)
+	public ReturnMessage Login(string user, string password)
 	{
 		if(user == null || password == null || user.Equals("") || password.Equals(""))
-			return new Message(false, "all attributes must be filled.");
+			return new ReturnMessage(false, "all attributes must be filled.");
 
 		SystemUser systemUser = dal.getUserByName(user);
 		if (systemUser == null)
-			return new Message(false, "user does not exists\\incorrect password mismatched");
+			return new ReturnMessage(false, "user does not exists\\incorrect password mismatched");
 
 		if (systemUser.password.Equals(password))
 			return dal.logUser(user);
 		else
-			return new Message(false, "user does not exists\\incorrect password mismatched");
+			return new ReturnMessage(false, "user does not exists\\incorrect password mismatched");
 
 	}
-	public Message Register(string user, string password, string email, string userImage)
+	public ReturnMessage Register(string user, string password, string email, string userImage)
 	{
 		if (user == null || password == null || email == null || userImage == null || user.Equals("") || password.Equals("") || email.Equals("") || userImage.Equals(""))
-			return new Message(false, "all attributes must be filled.");
+			return new ReturnMessage(false, "all attributes must be filled.");
 
 		SystemUser systemUser = dal.getUserByName(user);
 		if (systemUser != null)
-			return new Message(false, "user name already taken");
+			return new ReturnMessage(false, "user name already taken");
 
 		return dal.registerUser(new SystemUser(user, password, email, userImage, 0));
 		
 	}
 
-	public Message Logout(string user)
+	public ReturnMessage Logout(string user)
 	{
 		if (user == null || user.Equals(""))
-			return new Message(false, "all attributes must be filled.");
+			return new ReturnMessage(false, "all attributes must be filled.");
 
 		SystemUser systemUser = dal.getUserByName(user);
 		if (systemUser == null)
-			return new Message(false, "User does not exists");
+			return new ReturnMessage(false, "User does not exists");
 
 		if (systemUser.spectators.Count > 0)
-			return new Message(false, "you are active in some games, leave them and then log out.");
+			return new ReturnMessage(false, "you are active in some games, leave them and then log out.");
 
 		return dal.logOutUser(user);
 	}

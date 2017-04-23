@@ -19,12 +19,12 @@ namespace DAL
 
         void editUser(SystemUser user);
 
-		Message registerUser(SystemUser user);
+		ReturnMessage registerUser(SystemUser user);
 
-		Message logUser(string user);
+		ReturnMessage logUser(string user);
 
-		Message logOutUser(string user);
+		ReturnMessage logOutUser(string user);
 
-        Message addGame(TexasHoldemGame game);
+        ReturnMessage addGame(TexasHoldemGame game);
 	}
 }
