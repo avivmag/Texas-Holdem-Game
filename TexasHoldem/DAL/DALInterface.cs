@@ -22,21 +22,21 @@ namespace DAL
 
         void editUser(SystemUser user);
 
-		Message registerUser(SystemUser user);
+		ReturnMessage registerUser(SystemUser user);
 
-		Message logUser(string user);
+		ReturnMessage logUser(string user);
 
-		Message logOutUser(string user);
+		ReturnMessage logOutUser(string user);
+		
+        ReturnMessage addGame(TexasHoldemGame game);
 
-        Message addGame(TexasHoldemGame game);
+		ReturnMessage addLeague(int minRank, int maxRank, string leagueName);
 
-        Message addLeague(int minRank, int maxRank, string leagueName);
-
-        Message removeLeague(Guid leagueId);
+		ReturnMessage removeLeague(Guid leagueId);
 
         int getHighestUserId();
 
-        Message setLeagueCriteria(int minRank, int maxRank, string leagueName, Guid leagueId, int userId);
+		ReturnMessage setLeagueCriteria(int minRank, int maxRank, string leagueName, Guid leagueId, int userId);
 
     }
 }

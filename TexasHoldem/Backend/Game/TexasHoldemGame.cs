@@ -49,22 +49,22 @@ namespace Backend.Game
             currentDealer = 0;
         }
 
-        public virtual Message joinGame(Player p)
+        public virtual ReturnMessage joinGame(Player p)
         {
             if (AvailableSeats == 0)
-                return new Message(false, "There are no available seats.");
+                return new ReturnMessage(false, "There are no available seats.");
 
             for (int i = 0; i < GamePreferences.MaxPlayers; i++)
             {
                 if (players[i] != null && players[i].systemUserID == p.systemUserID)
-                    return new Message(false, "The player is already taking part in the wanted game.");
+                    return new ReturnMessage(false, "The player is already taking part in the wanted game.");
             }
 
             if (spectators != null)
             {
                 foreach (Spectator spec in spectators)
                     if (spec.systemUserID == p.systemUserID)
-                        return new Message(false, "Couldn't join the game because the user is already spectating the game.");
+                        return new ReturnMessage(false, "Couldn't join the game because the user is already spectating the game.");
             }
             for (int i = 0; i < GamePreferences.MaxPlayers; i++)
             {
@@ -74,7 +74,7 @@ namespace Backend.Game
                     break;
                 }
             }
-            return new Message(true, "");
+            return new ReturnMessage(true, "");
         }
 
         public int AvailableSeats
@@ -91,23 +91,23 @@ namespace Backend.Game
             }
         }
 
-        public Message joinSpectate(Spectator s)
+        public ReturnMessage joinSpectate(Spectator s)
         {
             if (!GamePreferences.IsSpectatingAllowed)
-                return new Message(false, "Couldn't spectate the game because the game preferences is not alowing.");
+                return new ReturnMessage(false, "Couldn't spectate the game because the game preferences is not alowing.");
 
             foreach (Player p in players)
                 if (p != null)
                 {
                     if (p.systemUserID == s.systemUserID)
-                        return new Message(false, "Couldn't spectate the game because the user is already playing the game.");
+                        return new ReturnMessage(false, "Couldn't spectate the game because the user is already playing the game.");
                 }
             foreach (Spectator spec in spectators)
                 if (spec.systemUserID == s.systemUserID)
-                    return new Message(false, "Couldn't spectate the game because the user is already spectating the game.");
+                    return new ReturnMessage(false, "Couldn't spectate the game because the user is already spectating the game.");
             
             spectators.Add(s);
-            return new Message(true,"");
+            return new ReturnMessage(true,"");
         }
 
         public void leaveGame(Player p)
