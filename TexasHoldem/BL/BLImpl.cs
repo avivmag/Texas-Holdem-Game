@@ -174,8 +174,15 @@ public class BLImpl : BLInterface
                 String.Format("Minimal bet is {0}. Has to be greater or equal to zero.", pref.MinimalBet));
         }
 
+        // Check minimal bet lower than chips count.
+        if (pref.MinimalBet > pref.StartingChipsAmount)
+        {
+            return new Message(
+                false,
+                String.Format("Minimal bet is {0}. Has to be lower or equal to starting chips amount {1}.", pref.MinimalBet, pref.StartingChipsAmount));
+        }
         // Check min players.
-        if(pref.MinPlayers > pref.MaxPlayers || pref.MinPlayers < 2)
+        if (pref.MinPlayers > pref.MaxPlayers || pref.MinPlayers < 2)
         {
             return new Message(
                 false,
@@ -266,6 +273,38 @@ public class BLImpl : BLInterface
 		
 	}
 
+    public League getLeagueById(Guid leagueId) {
+        var leagues = dal.getAllLeagues();
+
+        if (leagues.Exists(l => l.leagueId == leagueId)) {
+            return leagues.Find(l => l.leagueId == leagueId);
+        }
+
+        else
+        {
+            return null;
+        }
+    }
+
+    public League getLeagueByName(string leagueName)
+    {
+        var leagues = dal.getAllLeagues();
+
+        if (leagues.Exists(l => l.leagueName == leagueName))
+        {
+            return leagues.Find(l => l.leagueName == leagueName);
+        }
+
+        else
+        {
+            return null;
+        }
+    }
+
+    public Message removeLeague(Guid leagueId)
+    {
+        return dal.removeLeague(leagueId);
+    }
 	public Message Logout(string user)
 	{
 		if (user == null || user.Equals(""))
@@ -280,4 +319,54 @@ public class BLImpl : BLInterface
 
 		return dal.logOutUser(user);
 	}
+
+    public Message addLeague(int minRank, int maxRank, string leagueName)
+    {
+        var ranksMessage = isRanksLegal(minRank, maxRank);
+        if (ranksMessage.success)
+        {
+            var leagues = dal.getAllLeagues();
+            foreach (var l in leagues)
+            {
+                if (l.minRank == minRank && l.maxRank == maxRank)
+                {
+                    return new Message(false, String.Format("Cannot create league. leagueId {0} has matching ranks, minRank {1}, maxRank {2}.", l.leagueId, minRank, maxRank));
+                }
+
+                if(l.leagueName == leagueName)
+                {
+                    return new Message(false, String.Format("Cannot create league. leagueId {0} has matching name {1}.", l.leagueId, leagueName));
+                }
+            }
+            
+            return dal.addLeague(minRank, maxRank, leagueName);
+        }
+        else return ranksMessage;
+    }
+
+    public Message setLeagueCriteria(int minRank, int maxRank, string leagueName, Guid leagueId, int userId)
+    {
+        var ranksMessage = isRanksLegal(minRank, maxRank);
+        if (ranksMessage.success)
+        {
+            return dal.setLeagueCriteria(minRank, maxRank, leagueName, leagueId, userId);
+        }
+
+        else return ranksMessage;
+    }
+
+    private Message isRanksLegal(int minRank, int maxRank)
+    {
+        if (minRank < 0)
+        {
+            return new Message(false, String.Format("Cannot create league with minRank {0}. invalid minRank.", minRank));
+        }
+
+        if (maxRank <= minRank)
+        {
+            return new Message(false, String.Format("Cannot create league with minRank {0}, maxRank {1}. maxRank has to be bigger than minRank.", minRank, maxRank));
+        }
+
+        return new Message(true, null);
+    }
 }
