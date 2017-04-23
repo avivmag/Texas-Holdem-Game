@@ -387,7 +387,7 @@ namespace Backend.Game
             int fiveCards = 0;
             for (int i = 0; i < 6; i++)
             {
-
+                return HandsRanks.Flush;
             }
 
 
