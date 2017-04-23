@@ -182,5 +182,18 @@ namespace TestProject
         {
             return (amount >0);
         }
+        public bool isLeagueExist(string criteria)
+        {
+            return (criteria.Equals("Points"));
+        }
+
+        public bool setCriteriaForNewLeague(string criteria)
+        {
+            return (criteria.Equals("new league"));
+        }
+        public bool PlayersWithCriteria(string criteria, string players)
+        {
+            return (!criteria.Equals("Points") && players.Equals("Alufim"));
+        }
     }
 }

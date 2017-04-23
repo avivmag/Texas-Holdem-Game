@@ -11,16 +11,18 @@ namespace Backend.Game
     {
         private List<SystemUser> Users;
         private List<LeagueTexasHoldemGame> Games;
-        public int minRank { get; }
-        public int maxRank { get; }
+        public int minRank { get; set; }
+        public int maxRank { get; set; }
         public Guid leagueId { get; }
-        public League(int minRank, int maxRank)
+        public string leagueName { get; set; }
+        public League(int minRank, int maxRank, string name)
         {
             this.minRank = minRank;
             this.maxRank = maxRank;
+            this.leagueName = name;
             this.Users = new List<SystemUser>();
             this.Games = new List<LeagueTexasHoldemGame>();
-            leagueId = new Guid();
+            leagueId = Guid.NewGuid();
         }
 
         public ReturnMessage addUser(SystemUser u)
