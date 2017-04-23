@@ -17,76 +17,89 @@ namespace TestProject
         }
         public object register(string username, string password)
         {
-            //TODO
-            return null;
+            if (username.Equals("Hadas") && password.Equals("1234"))
+                return username;
+              return "";
         }
         public object login(string username, string password)
         {
-            return null;
+            if (username.Equals("Hadas") && password.Equals("1234"))
+                return username;
+              return "";
         }
         public object getUserbyName(string username)
         {
-            return null;
+            if(username.Equals("Hadas"))
+                return username;
+            return "";
         }
         public bool isUserExist(string username, string password)
         {
-            return false;
+            return (username.Equals("Hadas") && password.Equals("1234"));
+            
         }
         public bool checkActiveGame(string satusGame)
         {
-            return false;
+            return (satusGame.Equals("Active"));
         }
         public bool logoutUser(string game, string user)
         {
-            return true;
+            return (game.Equals("notActive") && user.Equals("Hadas"));
         }
         public object editProfile(string username)
         {
+            if (username.Equals("Hadas"))
+                return username;
             return null;
         }
         public bool editImage(string img)
         {
-            return true;
+            return (img.Equals("img"));
         }
         public bool editName(string name)
         {
-            return true;
+            return (name.Equals("Hadas"));
         }
         public bool editEmail(string email)
         {
-            return true;
+            return (email.Equals("gmail@gmail.com"));          
         }
-        public object creatGame(string gameDefinitions)
+        public object creatGame(string game)
         {
-            return null;
+            if (game.Equals("Texas1"))
+                return game;
+            return "can't create";
         }
         public bool isLogin(string username)
         {
-            return true;
+            return (username.Equals("Hadas"));
         }
         public bool isGameDefOK(string gameDefinithions)
         {
-            return true;
+            return (gameDefinithions.Equals("def"));
+         
         }
         public bool addPlayerToGame(string username, string game)
         {
-            return true;
+            return (username.Equals("Hadas") && game.Equals("Texas1"));
         }
         public object selectGametoJoin(string game)
         {
+            if (game.Equals("Texas1"))
+                return game;
             return null;
         }
         public bool checkAvailibleSeats(string game)
         {
-            return true;
+            return (game.Equals("Texas1"));
         }
         public bool spectateActiveGame(string game)
         {
-            return false;
+            return (game.Equals("Texas1"));
         }
         public bool exitGame(string game)
         {
-            return true;
+            return (game.Equals("Texas1"));
         }
         public int removeUserFromGame(string user, string game)
         {
@@ -94,7 +107,9 @@ namespace TestProject
         }
         public object selectGameToReplay(string game)
         {
-            return null;
+            if(game.Equals("notActive"))
+                return game;
+            return "";
         }
         public bool isWatchingReplay(string game)
         {
@@ -102,48 +117,53 @@ namespace TestProject
         }
         public bool saveTurn(string game)
         {
-            return true;
+            return (game.Equals("Texas1") || game.Equals("notActive"));
         }
 
-        public List<string> findAllActive()
+        public string findAllActive()
         {
-            return null;
+           string active = "Active games";
+            return active;
         }
-        public List<string> filterByCriteria(string criteria)
+        public string filterByCriteria(string criteria)
         {
-            return null;
+            if (criteria.Equals("points"))
+                return criteria;
+               return "";
         }
         public bool storeGameData()
         {
-            return false;
+            return true;
         }
         public bool isGameOver(string game, string username)
         {
-            return false;
+            return (game.Equals("Texas1"));
         }
         public object joinLeaguePerPoints(int points)
         {
-            return null;
+            if (points == 100)
+                return "league #1";
+            return "league #10";
         }
         public bool updatePot(int amount)
         {
-            return true;
+            return (amount < 300000);
         }
         public bool updateStatePlayer(string statePlayer, int amount)
         {
-            return false;
+            return (statePlayer.Equals("Player Bet") && amount > 0);
         }
         public bool bet(int amount)
         {
-            return false;
+            return (amount > 0);
         }
         public bool raise(int amount)
         {
-            return false;
+            return (amount > 0);
         }
         public bool call(int amount)
         {
-            return false;
+            return (amount > 0);
         }
         public bool fold()
         {
@@ -151,15 +171,16 @@ namespace TestProject
         }
         public bool check()
         {
-            return false;
+            return true;
+            
         }
         public bool betSmallBlind(int amount)
         {
-            return false;
+            return (amount >0);
         }
         public bool betBigBlind(int amount)
         {
-            return false;
+            return (amount >0);
         }
     }
 }

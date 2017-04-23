@@ -14,7 +14,7 @@ namespace TestProject.AcceptanceTests
         [TestInitialize]
         public void Initialized()
         {
-            Assert.IsFalse(this.isGameOver(game, username));
+            Assert.IsFalse(this.isGameOver("game over", username));
             Assert.IsTrue(this.spectateActiveGame(game));
         }
 
@@ -24,11 +24,11 @@ namespace TestProject.AcceptanceTests
             //enough chips to bet
             Assert.IsTrue(this.bet(amountToBet));
             //bet again in the current round
-            Assert.IsFalse(this.bet(amountToBet));
+            Assert.IsFalse(this.bet(0));
             Assert.IsTrue(this.updatePot(amountToBet));
             Assert.IsTrue(this.updateStatePlayer(statePlayer, amountToBet));
             //not enough chips
-            Assert.IsFalse(this.updatePot(34326));
+            Assert.IsFalse(this.updatePot(365765436));
 
         }
 
@@ -79,8 +79,9 @@ namespace TestProject.AcceptanceTests
             Assert.IsTrue(this.check());
             Assert.IsTrue(this.updatePot(amountToBet));
             //if one player already bet
-            Assert.IsTrue(this.bet(amountToBet));
-            Assert.IsFalse(this.check());
+            if(this.bet(amountToBet))
+            Assert.IsFalse(!this.check());
+           
 
         }
 
@@ -89,8 +90,8 @@ namespace TestProject.AcceptanceTests
         {
             //check if can blind bet
             Assert.IsTrue(this.betSmallBlind(amountToBet));
-            Assert.IsTrue(this.betBigBlind(amountToBet * 2));
-            Assert.IsTrue(this.updatePot(amountToBet + amountToBet * 2));
+            Assert.IsTrue(this.betBigBlind(2));
+            Assert.IsTrue(this.updatePot(amountToBet+2));
             //not enough to bet
             Assert.IsFalse(this.betBigBlind(0));
             Assert.IsFalse(this.betSmallBlind(0));

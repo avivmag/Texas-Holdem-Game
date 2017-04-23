@@ -101,11 +101,11 @@ namespace TestProject
             return this.bridge.saveTurn(game);
         }
        
-        public List<string> findAllActive()
+        public string findAllActive()
         {
             return this.bridge.findAllActive();
         }
-        public List<string> filterByCriteria(string criteria)
+        public string filterByCriteria(string criteria)
         {
             return this.bridge.filterByCriteria(criteria);
         }
