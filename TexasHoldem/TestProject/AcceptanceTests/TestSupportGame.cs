@@ -89,11 +89,11 @@ namespace TestProject.AcceptanceTests
         public void TestBlindBets()
         {
             //check if can blind bet
-            Assert.IsTrue(this.betSmallBlind(amountToBet));
-            Assert.IsTrue(this.betBigBlind(2));
-            Assert.IsTrue(this.updatePot(amountToBet+2));
+            Assert.IsTrue(this.betSmallBlind(amountToBet/2));
+            Assert.IsTrue(this.betBigBlind(amountToBet));
+            Assert.IsTrue(this.updatePot(amountToBet+(amountToBet/2)));
             //not enough to bet
-            Assert.IsFalse(this.betBigBlind(0));
+            Assert.IsFalse(this.betBigBlind(1));
             Assert.IsFalse(this.betSmallBlind(0));
 
         }

@@ -147,7 +147,7 @@ namespace TestProject
         }
         public bool updatePot(int amount)
         {
-            return (amount < 300000);
+            return (amount!=0 );
         }
         public bool updateStatePlayer(string statePlayer, int amount)
         {
@@ -176,11 +176,11 @@ namespace TestProject
         }
         public bool betSmallBlind(int amount)
         {
-            return (amount >0);
+            return (amount > 0);
         }
         public bool betBigBlind(int amount)
         {
-            return (amount >0);
+            return ((amount % 2) == 0);
         }
         public bool isLeagueExist(string criteria)
         {
