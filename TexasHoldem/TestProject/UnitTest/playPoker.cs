@@ -151,7 +151,7 @@ namespace TestProject.UnitTest
             game.turn = game.deck.Top();
             game.river = game.deck.Top();
             
-            Assert.AreEqual(game.checkHandRank(game.players[0]), TexasHoldemGame.HandsRanks.FourOfAKind, "Rank does't match");
+            Assert.AreEqual(game.checkHandRank(game.players[0]), TexasHoldemGame.HandsRanks.Flush, "Rank does't match");
         }
 
 

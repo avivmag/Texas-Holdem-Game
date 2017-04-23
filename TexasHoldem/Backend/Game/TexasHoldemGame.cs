@@ -359,35 +359,39 @@ namespace Backend.Game
 
             bool straight = false;
             int counterStraight = 0;
+            
+            //Royal Flush
+            for (int i = 0; i < 7; i++)
+                if (fullHand[i].Value == 1 && fullHand[i].Type.Equals(Card.cardType.heart))
+                    counterStraight++;
+            for (int i = 0; i < 7; i++)
+                if (fullHand[i].Value == 10 && fullHand[i].Type.Equals(Card.cardType.heart))
+                    counterStraight++;
+            for (int i = 0; i < 7; i++)
+                if (fullHand[i].Value == 11 && fullHand[i].Type.Equals(Card.cardType.heart))
+                    counterStraight++;
+            for (int i = 0; i < 7; i++)
+                if (fullHand[i].Value == 12 && fullHand[i].Type.Equals(Card.cardType.heart))
+                    counterStraight++;
+            for (int i = 0; i < 7; i++)
+                if (fullHand[i].Value == 13 && fullHand[i].Type.Equals(Card.cardType.heart))
+                    counterStraight++;
 
-            if (fullHand[0].Value == 1 && fullHand[0].Type.Equals(Card.cardType.heart))
-                counterStraight++;
-
-            if (fullHand[3].Value == 10 && fullHand[3].Type.Equals(Card.cardType.heart))
-            {
-                for (int j = 3; j < 7; j++)
-                {
-                    if (fullHand[j].Value < (fullHand[j + 1].Value + 1) && fullHand[j].Type.Equals(fullHand[j + 1].Type))//////////////////////////////////
-                }
-            }
-
-
-
-
-            int fiveCards = 0;
-            for (int i = 0; i < 3; i++)
-            {
-                for (int j = i; fiveCards < 4; j++)
-                {
-                    if (fullHand[j].Value < (fullHand[j + 1].Value + 1) && fullHand[j].Type.Equals(fullHand[j + 1].Type))
-                        counterStraight++;
-                    fiveCards++;
-                }
-                if (counterStraight == 4)
-                    straight = true;
-            }
-            if (straight)
+            if (counterStraight == 5)
                 return HandsRanks.RoyalFlush;
+
+
+            //Straight Flush
+            Card prev = fullHand[6];
+            counterStraight = 0;
+            int fiveCards = 0;
+            for (int i = 0; i < 6; i++)
+            {
+
+            }
+
+
+
 
             for (int i = 0; i < fullHand.Count; i++)
             {
