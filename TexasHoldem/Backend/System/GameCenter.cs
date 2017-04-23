@@ -49,9 +49,9 @@ namespace Backend.System
 			return null;
 		}
 
-        public Game.League createLeague(int minRank, int maxRank)
+        public Game.League createLeague(int minRank, int maxRank, String leagueName)
         {
-            return new Game.League(minRank, maxRank);
+            return new Game.League(minRank, maxRank, leagueName);
         }
 	}
 }

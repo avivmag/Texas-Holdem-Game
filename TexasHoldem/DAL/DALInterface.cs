@@ -2,6 +2,7 @@
 using Backend.User;
 using System.Collections.Generic;
 using Backend;
+using System;
 
 namespace DAL
 {
@@ -17,14 +18,25 @@ namespace DAL
 
         List<SystemUser> getAllUsers();
 
+        List<League> getAllLeagues();
+
         void editUser(SystemUser user);
 
-		Message registerUser(SystemUser user);
+		ReturnMessage registerUser(SystemUser user);
 
-		Message logUser(string user);
+		ReturnMessage logUser(string user);
 
-		Message logOutUser(string user);
+		ReturnMessage logOutUser(string user);
+		
+        ReturnMessage addGame(TexasHoldemGame game);
 
-        Message addGame(TexasHoldemGame game);
-	}
+		ReturnMessage addLeague(int minRank, int maxRank, string leagueName);
+
+		ReturnMessage removeLeague(Guid leagueId);
+
+        int getHighestUserId();
+
+		ReturnMessage setLeagueCriteria(int minRank, int maxRank, string leagueName, Guid leagueId, int userId);
+
+    }
 }
