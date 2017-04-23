@@ -177,7 +177,7 @@ public class BLImpl : BLInterface
         // Check minimal bet lower than chips count.
         if (pref.MinimalBet > pref.StartingChipsAmount)
         {
-            return new Message(
+            return new ReturnMessage(
                 false,
                 String.Format("Minimal bet is {0}. Has to be lower or equal to starting chips amount {1}.", pref.MinimalBet, pref.StartingChipsAmount));
         }
@@ -272,10 +272,7 @@ public class BLImpl : BLInterface
 		return dal.registerUser(new SystemUser(user, password, email, userImage, 0));
 		
 	}
-
-<<<<<<< HEAD
-	public ReturnMessage Logout(string user)
-=======
+	
     public League getLeagueById(Guid leagueId) {
         var leagues = dal.getAllLeagues();
 
@@ -304,12 +301,12 @@ public class BLImpl : BLInterface
         }
     }
 
-    public Message removeLeague(Guid leagueId)
+    public ReturnMessage removeLeague(Guid leagueId)
     {
         return dal.removeLeague(leagueId);
     }
-	public Message Logout(string user)
->>>>>>> master
+
+	public ReturnMessage Logout(string user)
 	{
 		if (user == null || user.Equals(""))
 			return new ReturnMessage(false, "all attributes must be filled.");
@@ -324,7 +321,7 @@ public class BLImpl : BLInterface
 		return dal.logOutUser(user);
 	}
 
-    public Message addLeague(int minRank, int maxRank, string leagueName)
+    public ReturnMessage addLeague(int minRank, int maxRank, string leagueName)
     {
         var ranksMessage = isRanksLegal(minRank, maxRank);
         if (ranksMessage.success)
@@ -334,12 +331,12 @@ public class BLImpl : BLInterface
             {
                 if (l.minRank == minRank && l.maxRank == maxRank)
                 {
-                    return new Message(false, String.Format("Cannot create league. leagueId {0} has matching ranks, minRank {1}, maxRank {2}.", l.leagueId, minRank, maxRank));
+                    return new ReturnMessage(false, String.Format("Cannot create league. leagueId {0} has matching ranks, minRank {1}, maxRank {2}.", l.leagueId, minRank, maxRank));
                 }
 
                 if(l.leagueName == leagueName)
                 {
-                    return new Message(false, String.Format("Cannot create league. leagueId {0} has matching name {1}.", l.leagueId, leagueName));
+                    return new ReturnMessage(false, String.Format("Cannot create league. leagueId {0} has matching name {1}.", l.leagueId, leagueName));
                 }
             }
             
@@ -348,7 +345,7 @@ public class BLImpl : BLInterface
         else return ranksMessage;
     }
 
-    public Message setLeagueCriteria(int minRank, int maxRank, string leagueName, Guid leagueId, int userId)
+    public ReturnMessage setLeagueCriteria(int minRank, int maxRank, string leagueName, Guid leagueId, int userId)
     {
         var ranksMessage = isRanksLegal(minRank, maxRank);
         if (ranksMessage.success)
@@ -359,18 +356,18 @@ public class BLImpl : BLInterface
         else return ranksMessage;
     }
 
-    private Message isRanksLegal(int minRank, int maxRank)
+    private ReturnMessage isRanksLegal(int minRank, int maxRank)
     {
         if (minRank < 0)
         {
-            return new Message(false, String.Format("Cannot create league with minRank {0}. invalid minRank.", minRank));
+            return new ReturnMessage(false, String.Format("Cannot create league with minRank {0}. invalid minRank.", minRank));
         }
 
         if (maxRank <= minRank)
         {
-            return new Message(false, String.Format("Cannot create league with minRank {0}, maxRank {1}. maxRank has to be bigger than minRank.", minRank, maxRank));
+            return new ReturnMessage(false, String.Format("Cannot create league with minRank {0}, maxRank {1}. maxRank has to be bigger than minRank.", minRank, maxRank));
         }
 
-        return new Message(true, null);
+        return new ReturnMessage(true, null);
     }
 }

@@ -101,8 +101,7 @@ namespace DAL
             if (user.id < userDummies.Count)
                 userDummies[user.id - 1] = user;
         }
-
-<<<<<<< HEAD
+		
 		public ReturnMessage registerUser(SystemUser user)
 		{
 			foreach (SystemUser systemUser in userDummies)
@@ -141,96 +140,56 @@ namespace DAL
 			
 			return new ReturnMessage(false, "you are not logged in");
 		}
-=======
-        public Message registerUser(SystemUser user)
-        {
-            foreach (SystemUser systemUser in userDummies)
-                if (systemUser.name.Equals(user.name))
-                    return new Message(false, "This user name is already taken.");
-
-            userDummies.Add(user);
-            return new Message(true, null);
-        }
-
-        public Message logUser(string user)
-        {
-            foreach (SystemUser systemUser in loggedInUserDummies)
-                if (systemUser.name.Equals(user))
-                    return new Message(false, "You are already logged in to the system");
-
-            int i = 0;
-            for (; i < userDummies.Count; i++)
-                if (userDummies[i].name.Equals(user))
-                    break;
-
-            if (i == userDummies.Count)
-                return new Message(false, "You must be registered before attempting to log in.");
-
-            loggedInUserDummies.Add(getUserByName(user));
-            return new Message(true, null);
-        }
-
-        public Message addLeague(int minRank, int maxRank, string name)
+		
+        public ReturnMessage addLeague(int minRank, int maxRank, string name)
         {
             leagues.Add(new League(minRank, maxRank, name));
 
-            return new Message(true, null);
+            return new ReturnMessage(true, null);
         }
 
-        public Message removeLeague(Guid leagueId)
+        public ReturnMessage removeLeague(Guid leagueId)
         {
             var league = leagues.Where(l => l.leagueId == leagueId).SingleOrDefault();
 
             if(league == null)
             {
-                return new Message(false, String.Format("Cannot Remove league. no such league exists with Id {0}", leagueId));
+                return new ReturnMessage(false, String.Format("Cannot Remove league. no such league exists with Id {0}", leagueId));
             }
             leagues.Remove(league);
 
-            return new Message(true, null);
+            return new ReturnMessage(true, null);
         }
 
-        public Message logOutUser(string user)
-        {
-            foreach (SystemUser systemUser in loggedInUserDummies)
-                if (systemUser.name.Equals(user))
-                {
-                    loggedInUserDummies.Remove(systemUser);
-                    return new Message(true, null);
-                }
-
-            return new Message(false, "you are not logged in");
-        }
-
+        
         public List<League> getAllLeagues()
         {
             return leagues;
         }
 
-        public Message setLeagueCriteria(int minRank, int maxRank, string leagueName, Guid leagueId, int userId)
+        public ReturnMessage setLeagueCriteria(int minRank, int maxRank, string leagueName, Guid leagueId, int userId)
         {
             if (getHighestUserId() != userId)
             {
-                return new Message(false, String.Format("Cannot set criteria. user {0} is not highest ranking in system.", userId));
+                return new ReturnMessage(false, String.Format("Cannot set criteria. user {0} is not highest ranking in system.", userId));
             }
 
             if(leagues.Any(l => (l.leagueName == leagueName && (l.leagueId != leagueId))))
             {
-                return new Message(false, String.Format("League name {0} already taken.", leagueName));
+                return new ReturnMessage(false, String.Format("League name {0} already taken.", leagueName));
             }
 
             var league = leagues.Where(l => l.leagueId == leagueId).FirstOrDefault();
 
             if (league == null)
             {
-                return new Message(false, String.Format("No such league with ID: {0}", leagueId));
+                return new ReturnMessage(false, String.Format("No such league with ID: {0}", leagueId));
             }
 
             league.minRank = minRank;
             league.maxRank = maxRank;
-            return new Message(true, null);
+            return new ReturnMessage(true, null);
         }
->>>>>>> master
 
         public ReturnMessage addGame(TexasHoldemGame game)
         {

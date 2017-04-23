@@ -27,21 +27,16 @@ namespace DAL
 		ReturnMessage logUser(string user);
 
 		ReturnMessage logOutUser(string user);
-
-<<<<<<< HEAD
+		
         ReturnMessage addGame(TexasHoldemGame game);
-	}
-=======
-        Message addGame(TexasHoldemGame game);
 
-        Message addLeague(int minRank, int maxRank, string leagueName);
+		ReturnMessage addLeague(int minRank, int maxRank, string leagueName);
 
-        Message removeLeague(Guid leagueId);
+		ReturnMessage removeLeague(Guid leagueId);
 
         int getHighestUserId();
 
-        Message setLeagueCriteria(int minRank, int maxRank, string leagueName, Guid leagueId, int userId);
+		ReturnMessage setLeagueCriteria(int minRank, int maxRank, string leagueName, Guid leagueId, int userId);
 
     }
->>>>>>> master
 }
