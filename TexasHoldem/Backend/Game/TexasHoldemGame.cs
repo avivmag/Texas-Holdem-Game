@@ -11,7 +11,7 @@ namespace Backend.Game
         public int currentBig { get; set; }
         public int currentSmall { get; set; }
         public GamePreferences GamePreferences { get; }
-        private Deck deck;
+        public Deck deck { get; }
         public Player[] players { get; set; }
         public List<Spectator> spectators;
         private int gameCreatorUserId;
@@ -211,6 +211,12 @@ namespace Backend.Game
             {
                 if (players[index] != null)
                 {
+                    Console.Out.WriteLine(" ggg    " + players[index].id);
+                    if (players[index].playerCards.Count == 2)
+                    {
+                        players[index].playerCards.RemoveAt(0);
+                        players[index].playerCards.RemoveAt(1);
+                    }
                     players[index].playerCards.Add(deck.Top());
                 }
                 index = (index + 1) % GamePreferences.MaxPlayers;
@@ -344,13 +350,44 @@ namespace Backend.Game
             for (int i = 0; i < 2; i++)
             {
                 fullHand.Add(p.playerCards[0]);
-                flop.RemoveAt(0);
             }
 
             fullHand.Add(turn);
             fullHand.Add(river);
 
             fullHand.Sort();
+
+            bool straight = false;
+            int counterStraight = 0;
+
+            if (fullHand[0].Value == 1 && fullHand[0].Type.Equals(Card.cardType.heart))
+                counterStraight++;
+
+            if (fullHand[3].Value == 10 && fullHand[3].Type.Equals(Card.cardType.heart))
+            {
+                for (int j = 3; j < 7; j++)
+                {
+                    if (fullHand[j].Value < (fullHand[j + 1].Value + 1) && fullHand[j].Type.Equals(fullHand[j + 1].Type))//////////////////////////////////
+                }
+            }
+
+
+
+
+            int fiveCards = 0;
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = i; fiveCards < 4; j++)
+                {
+                    if (fullHand[j].Value < (fullHand[j + 1].Value + 1) && fullHand[j].Type.Equals(fullHand[j + 1].Type))
+                        counterStraight++;
+                    fiveCards++;
+                }
+                if (counterStraight == 4)
+                    straight = true;
+            }
+            if (straight)
+                return HandsRanks.RoyalFlush;
 
             for (int i = 0; i < fullHand.Count; i++)
             {
