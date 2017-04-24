@@ -5,6 +5,7 @@ using DAL;
 using BL;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 
 public class BLImpl : BLInterface
 {
@@ -15,6 +16,10 @@ public class BLImpl : BLInterface
 		dal = new DALDummy();
 	}
 
+    public BLImpl(DALInterface dal)
+    {
+        this.dal = dal;
+    }
 	public ReturnMessage spectateActiveGame(SystemUser user, int gameID)
 	{
 		ReturnMessage m = new ReturnMessage();
@@ -274,6 +279,7 @@ public class BLImpl : BLInterface
 	}
 	
     public League getLeagueById(Guid leagueId) {
+
         var leagues = dal.getAllLeagues();
 
         if (leagues.Exists(l => l.leagueId == leagueId)) {
@@ -301,9 +307,11 @@ public class BLImpl : BLInterface
         }
     }
 
-    public ReturnMessage removeLeague(Guid leagueId)
+    public ReturnMessage removeLeague(League league)
     {
-        return dal.removeLeague(leagueId);
+        if(league!= null)
+         return dal.removeLeague(league.leagueId);
+        return new ReturnMessage(false, "leagueId is NULL");
     }
 
 	public ReturnMessage Logout(string user)
@@ -350,6 +358,23 @@ public class BLImpl : BLInterface
         var ranksMessage = isRanksLegal(minRank, maxRank);
         if (ranksMessage.success)
         {
+            if (dal.getHighestUserId() != userId)
+            {
+                return new ReturnMessage(false, String.Format("Cannot set criteria. user {0} is not highest ranking in system.", userId));
+            }
+
+            if (dal.getAllLeagues().Any(l => (l.leagueName == leagueName && (l.leagueId != leagueId))))
+            {
+                return new ReturnMessage(false, String.Format("League name {0} already taken.", leagueName));
+            }
+
+            var league = dal.getAllLeagues().Where(l => l.leagueId == leagueId).FirstOrDefault();
+
+            if (league == null)
+            {
+                return new ReturnMessage(false, String.Format("No such league with ID: {0}", leagueId));
+            }
+
             return dal.setLeagueCriteria(minRank, maxRank, leagueName, leagueId, userId);
         }
 

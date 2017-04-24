@@ -27,7 +27,7 @@ namespace BL
         TexasHoldemGame getGameById(int gameId);
 
 		ReturnMessage addLeague(int minRank, int maxRank, string name);
-		ReturnMessage removeLeague(Guid leagueId);
+		ReturnMessage removeLeague(League league);
         League getLeagueByName(string name);
         League getLeagueById(Guid leagueId);
 		ReturnMessage setLeagueCriteria(int minRank, int maxRank, string leagueName, Guid leagueId, int userId);

@@ -2,24 +2,56 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using BL;
 using Backend.Game;
+using DAL;
+using Moq;
+using Backend;
+using Backend.User;
+using System.Collections.Generic;
 
 namespace TestProject.UnitTest
 {
     [TestClass]
     public class TestLeagues
     {
+       
         BLInterface bl = new BLImpl();
-        
+        [TestInitialize]
+        public void setUp()
+        {
+            var leagues = new System.Collections.Generic.List<League>();
+            leagues.Add(new League(0, 1000, "Starter League"));
+            leagues.Add(new League(1000, 2000, "Experienced League"));
+            var userDummies = new List<SystemUser>
+            {
+                new SystemUser("Hadas", "Aa123456", "email0", "image0", 1000),
+                new SystemUser("Gili", "123123", "email1", "image1", 0),
+                new SystemUser("Or", "111111", "email2", "image2", 700),
+                new SystemUser("Aviv", "Aa123456", "email3", "image3", 1500)
+            };
+            Mock <DALInterface> dalMock = new Mock<DALInterface>();
+            dalMock.Setup(x => x.addLeague(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>())).Returns(new ReturnMessage(true,null));
+            dalMock.Setup(x => x.getAllLeagues()).Returns(leagues);
+            dalMock.Setup(x => x.removeLeague(It.IsAny<Guid>())).Returns(new ReturnMessage(true,null));
+            dalMock.Setup(x => x.setLeagueCriteria(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<int>())).Returns(new ReturnMessage(true, null));
+            dalMock.Setup(x => x.getUserById(It.IsAny<int>())).Returns(userDummies[0]);
+            dalMock.Setup(x => x.getHighestUserId()).Returns(userDummies[3].id);
+            this.bl = new BLImpl(dalMock.Object);
+            
+        }
         [TestMethod]
-        public void TestAddAndRemoveNewLeague()
+        public void TestAddNewLeague()
         {
             var addMessage = bl.addLeague(3000, 4000, "Test League for experienced Players.");
 
             Assert.IsTrue(addMessage.success);
 
-            var leagueToRemove = bl.getLeagueByName("Test League for experienced Players.");
+        }
+        [TestMethod]
+        public void RemoveNewLeague()
+        { 
+            var leagueToRemove = bl.getLeagueByName("Experienced League");
 
-            var removeMessage = bl.removeLeague(leagueToRemove.leagueId);
+            var removeMessage = bl.removeLeague(leagueToRemove);
 
             Assert.IsTrue(removeMessage.success);
 
@@ -28,18 +60,10 @@ namespace TestProject.UnitTest
         [TestMethod]
         public void TestAddNewLeagueWithSameName()
         {
-            bl.addLeague(30, 40, "Test League for experienced Players.");
-            var duplicateRemoveMessage = bl.addLeague(300, 400, "Test League for experienced Players.");
+            
+            var duplicateRemoveMessage = bl.addLeague(300, 400, "Starter League");
 
             Assert.IsFalse(duplicateRemoveMessage.success);
-        }
-
-        [TestMethod]
-        public void TestRemoveLeagueThatDoesntExists()
-        {
-            var notExistsRemovalMessage = bl.removeLeague(new Guid());
-
-            Assert.IsFalse(notExistsRemovalMessage.success);
         }
 
         [TestMethod]
