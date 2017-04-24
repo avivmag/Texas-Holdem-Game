@@ -280,4 +280,122 @@ public class BLImpl : BLInterface
 
 		return dal.logOutUser(user);
 	}
+
+    public void replayGame(int gameId)
+    {
+        String line = GameLog.readLine(gameId);
+        var lineOptions = parseLine(line);
+
+        if (lineOptions[0] == GameLog.Actions.Action_Bet.ToString())
+        {
+            var playerId = lineOptions[1];
+            var betAmount = lineOptions[2];
+            Console.WriteLine("Player {0} has bet amount of {1}.", playerId, betAmount);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Action_Call.ToString())
+        {
+            var playerId = lineOptions[1];
+            var betAmount = lineOptions[2];
+            Console.WriteLine("Player {0} has called amount of {1}.", playerId, betAmount);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Action_Check.ToString())
+        {
+            var playerId = lineOptions[1];
+            Console.WriteLine("Player {0} has checked.", playerId);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Action_Fold.ToString())
+        {
+            var playerId = lineOptions[1];
+            Console.WriteLine("Player {0} has folded.", playerId);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Action_Raise.ToString())
+        {
+            var playerId = lineOptions[1];
+            var betAmount = lineOptions[2];
+            Console.WriteLine("Player {0} has raised amount of {1}", playerId, betAmount);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Big_Blind.ToString())
+        {
+            var playerId = lineOptions[1];
+            Console.WriteLine("Player {0} has placed big blind.", playerId);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Small_Blind.ToString())
+        {
+            var playerId = lineOptions[1];
+            Console.WriteLine("Player {0} has placed small blind.", playerId);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Deal_Card.ToString())
+        {
+            var card = lineOptions[1];
+            Console.WriteLine("A card was dealt: {0}.", card);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Flop.ToString())
+        {
+            var flop = lineOptions[1];
+            Console.WriteLine("The flop is: {0}.", flop);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Game_Start.ToString())
+        {
+            var gameDate = lineOptions[1];
+            Console.WriteLine("Game started at {0}.", gameDate);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Player_Join.ToString())
+        {
+            var playerId = lineOptions[1];
+            Console.WriteLine("Player {0} has joined the game.", playerId);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Player_Left.ToString())
+        {
+            var playerId = lineOptions[1];
+            Console.WriteLine("Player {0} has left the game.", playerId);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Pot_Changed.ToString())
+        {
+            var amountChanged = lineOptions[1];
+            var newPot = lineOptions[2];
+            Console.WriteLine("Pot was changed by {0} and is now {1}!.", amountChanged, newPot);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.River.ToString())
+        {
+            var river = lineOptions[1];
+            Console.WriteLine("The river is: {0}.", river);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Spectate_Join.ToString())
+        {
+            var playerId = lineOptions[1];
+            Console.WriteLine("Player {0} has started spectating the game.", playerId);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Spectate_Left.ToString())
+        {
+            var playerId = lineOptions[1];
+            Console.WriteLine("Player {0} has stopped spectating the game.", playerId);
+        }
+
+    }
+
+    private string [] parseLine(string line)
+    {
+        var lineOptions = line.Split(new string[] { "][" }, StringSplitOptions.None);
+        lineOptions[0].Substring(1);
+        if (lineOptions.Length > 1) {
+            var lastOption = lineOptions[lineOptions.Length - 1];
+            lineOptions[lineOptions.Length - 1].Substring(0, lastOption.Length - 1);
+        }
+        return lineOptions;
+    }
 }

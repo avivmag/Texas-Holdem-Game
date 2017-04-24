@@ -24,5 +24,6 @@ namespace BL
 
 		SystemUser getUserById(int userId);
         TexasHoldemGame getGameById(int gameId);
+        void replayGame(int gameId);
     }
 }
