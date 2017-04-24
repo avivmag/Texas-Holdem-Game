@@ -11,10 +11,10 @@ public class BLImpl : BLInterface
 {
 	private DALInterface dal;
 
-	public BLImpl()
-	{
-		dal = new DALDummy();
-	}
+    public BLImpl()
+    {
+        dal = new DALDummy();
+    }
 
     public BLImpl(DALInterface dal)
     {
@@ -234,6 +234,11 @@ public class BLImpl : BLInterface
 
 		return ans;
 	}
+
+    public List<TexasHoldemGame> getAllGames()
+    {
+        return dal.getAllGames();
+    }
 
 	public SystemUser getUserById(int userId)
 	{

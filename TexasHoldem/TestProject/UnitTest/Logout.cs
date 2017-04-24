@@ -1,19 +1,42 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using BL;
+using System.Collections.Generic;
+using Moq;
+using DAL;
+using Backend.User;
+using Backend;
 
 namespace TestProject.UnitTest
 {
 	[TestClass]
 	public class LogOutTest
 	{
-		BLInterface bl = new BLImpl();
+        BLInterface bl;
 
-		[TestMethod]
+        [TestInitialize]
+        public void SetUp()
+        {
+            var usersList = new List<SystemUser>
+            {
+                new SystemUser("Hadas", "Aa123456", "email0", "image0", 1000),
+                new SystemUser("Gili", "123123", "email1", "image1", 0),
+                new SystemUser("Or", "111111", "email2", "image2", 700),
+                new SystemUser("Aviv", "Aa123456", "email3", "image3", 1500)
+            };
+
+            Mock<DALInterface> dalMock = new Mock<DALInterface>();
+            dalMock.Setup(x => x.registerUser(It.IsAny<SystemUser>())).Returns(new ReturnMessage(true, null));
+            dalMock.Setup(x => x.logUser(It.IsAny<string>())).Returns(new ReturnMessage(true, null));
+            dalMock.Setup(x => x.logOutUser(It.IsAny<string>())).Returns(new ReturnMessage(true, null));
+            dalMock.Setup(x => x.getUserByName(It.IsAny<string>())).Returns((string name) => usersList.Find(u => u.name == name));
+            this.bl = new BLImpl(dalMock.Object);
+        }
+
+        [TestMethod]
 		public void successTest()
 		{
-			bl.Register("piter pen", "staying young forever", "neverland@never.getting.bigger", "some kid with cape in front of a fan");
-			bl.Login("piter pen", "staying young forever");
-			Assert.IsTrue(bl.Logout("piter pen").success);
+			bl.Login("Or", "111111");
+			Assert.IsTrue(bl.Logout("Or").success);
 		}
 
 		[TestMethod]
