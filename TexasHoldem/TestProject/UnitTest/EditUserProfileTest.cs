@@ -24,7 +24,7 @@ namespace TestProject
 
             Mock<DALInterface> dalMock = new Mock<DALInterface>();
             dalMock.Setup(x => x.getAllUsers()).Returns(userList);
-            dalMock.Setup(x => x.getUserById(0)).Returns(userList[0]);
+            dalMock.Setup(x => x.getUserById(It.IsAny<int>())).Returns((int i) => userList[i]);
             this.bl = new BLImpl(dalMock.Object);
         }
 

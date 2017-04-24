@@ -16,6 +16,7 @@ namespace BL
         List<TexasHoldemGame> filterActiveGamesByPlayerName(string name);
         List<TexasHoldemGame> filterActiveGamesByPotSize(int size);
         List<TexasHoldemGame> filterActiveGamesByGamePreferences(GamePreferences pref);
+        List<TexasHoldemGame> getAllGames();
         ReturnMessage createGame(int gameCreatorId, GamePreferences pref);
 
         ReturnMessage Login(string user, string password);

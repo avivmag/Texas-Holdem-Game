@@ -19,18 +19,10 @@ namespace DAL
 
         public DALDummy()
         {
-<<<<<<< HEAD
-            leagues = new List<League>
-            {
-                new League(0, 1000),
-                new League(1000, 2000)
-            };
-=======
             leagues = new List<League>();
             leagues.Add(new League(0, 1000, "Starter League"));
             leagues.Add(new League(1000, 2000, "Experienced League"));
 
->>>>>>> 2c70684078e09caef395bfc2a824df3989fda0dd
             userDummies = new List<SystemUser>
             {
                 new SystemUser("Hadas", "Aa123456", "email0", "image0", 1000),

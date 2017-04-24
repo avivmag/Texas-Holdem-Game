@@ -234,6 +234,11 @@ public class BLImpl : BLInterface
 		return ans;
 	}
 
+    public List<TexasHoldemGame> getAllGames()
+    {
+        return dal.getAllGames();
+    }
+
 	public SystemUser getUserById(int userId)
 	{
 		return dal.getUserById(userId);

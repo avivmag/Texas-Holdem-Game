@@ -26,8 +26,8 @@ namespace TestProject
 
             var leagues = new List<League>
             {
-                new League(0, 1000),
-                new League(1000, 2000)
+                new League(0, 1000, "hi"),
+                new League(1000, 2000, "bye")
             };
 
             var gamesList = new List<TexasHoldemGame>
