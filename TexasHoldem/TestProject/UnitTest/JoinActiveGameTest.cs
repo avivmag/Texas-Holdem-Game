@@ -45,7 +45,7 @@ namespace TestProject
             Mock<DALInterface> dalMock = new Mock<DALInterface>();
             dalMock.Setup(x => x.getAllUsers()).Returns(userList);
             dalMock.Setup(x => x.getUserById(It.IsAny<int>())).Returns((int i) => userList[i]);
-            dalMock.Setup(x => x.getGameById(It.IsAny<int>())).Returns((int i) => gamesList.Find(g => (g.id == i)));
+            dalMock.Setup(x => x.getGameById(It.IsAny<int>())).Returns((int i) => gamesList.Find(g => (g.gameId == i)));
             dalMock.Setup(x => x.getAllGames()).Returns(gamesList);
             this.bl = new BLImpl(dalMock.Object);
         }
@@ -54,14 +54,15 @@ namespace TestProject
         public void joinSuccessTest()
         {
             SystemUser user = bl.getUserById(0);
-            Assert.IsTrue(bl.joinActiveGame(user,2).success);
+
+            Assert.IsTrue(bl.joinActiveGame(user, bl.getAllGames()[4].gameId).success);
         }
 
         [TestMethod]
         public void joinSuccessLeagueGameTest()
         {
             SystemUser user = bl.getUserById(2);
-            var m = bl.joinActiveGame(user, bl.getAllGames()[4].id);
+            var m = bl.joinActiveGame(user, bl.getAllGames()[4].gameId);
             Assert.IsTrue(m.success);
         }
 

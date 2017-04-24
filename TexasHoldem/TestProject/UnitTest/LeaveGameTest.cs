@@ -44,14 +44,15 @@ namespace TestProject
             };
 
             Mock<DALInterface> dalMock = new Mock<DALInterface>();
-            dalMock.Setup(x => x.getGameById(It.IsAny<int>())).Returns((int i) => gamesList.Find(g => (g.id == i)));
+            dalMock.Setup(x => x.getGameById(It.IsAny<int>())).Returns((int i) => gamesList.Find(g => (g.gameId == i)));
+            dalMock.Setup(x => x.getAllGames()).Returns(gamesList);
             this.bl = new BLImpl(dalMock.Object);
         }
 
         [TestMethod]
         public void LeaveSpectatorSuccessTest()
         {
-            TexasHoldemGame game = bl.getGameById(0);
+            TexasHoldemGame game = bl.getGameById(bl.getAllGames()[3].gameId);
             Spectator spec = new Spectator(0);
             game.joinSpectate(spec);
             game.leaveGame(spec);
@@ -61,11 +62,12 @@ namespace TestProject
         [TestMethod]
         public void LeavePlayerSuccessTest()
         {
-            TexasHoldemGame game = bl.getGameById(0);
+            TexasHoldemGame game = bl.getGameById(bl.getAllGames()[3].gameId);
             Player p = new Player(0,100,2);
+            var actualPlayers = game.players.ToString();
             var m = game.joinGame(p);
             game.leaveGame(p);
-            CollectionAssert.AreEqual(game.players, new Player[9]);
+            Assert.AreEqual(game.players.ToString(), actualPlayers);
         }
     }
 }
