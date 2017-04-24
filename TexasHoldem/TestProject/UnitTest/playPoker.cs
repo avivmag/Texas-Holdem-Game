@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Backend.Game;
+using System.Collections.Generic;
 
 namespace TestProject.UnitTest
 {
@@ -139,19 +140,148 @@ namespace TestProject.UnitTest
         }
 
         [TestMethod]
-        public void TestFullHandRank()
+        public void TestRoyalFlush()
         {
-            game.dealCards();
+            List<Card> fullHand = new List<Card>();
+            fullHand.Add(new Card(Card.cardType.club, 1));
+            fullHand.Add(new Card(Card.cardType.club, 2));
+            fullHand.Add(new Card(Card.cardType.club, 3));
+            fullHand.Add(new Card(Card.cardType.club, 10));
+            fullHand.Add(new Card(Card.cardType.club, 11));
+            fullHand.Add(new Card(Card.cardType.club, 12));
+            fullHand.Add(new Card(Card.cardType.club, 13));
+            Assert.AreEqual(game.checkRoyalFlush(fullHand), true, "Rank does't match, need to be RoyalFlush");
 
-            for (int i = 0; i < 3; i++)
-            {
-                game.flop.Add(game.deck.Top());
-            }
+            fullHand = new List<Card>();
 
-            game.turn = game.deck.Top();
-            game.river = game.deck.Top();
-            
-            Assert.AreEqual(game.checkHandRank(game.players[0]), TexasHoldemGame.HandsRanks.Flush, "Rank does't match");
+            fullHand.Add(new Card(Card.cardType.club, 1));
+            fullHand.Add(new Card(Card.cardType.club, 2));
+            fullHand.Add(new Card(Card.cardType.club, 3));
+            fullHand.Add(new Card(Card.cardType.diamond, 10));
+            fullHand.Add(new Card(Card.cardType.club, 11));
+            fullHand.Add(new Card(Card.cardType.club, 12));
+            fullHand.Add(new Card(Card.cardType.club, 13));
+            Assert.AreNotEqual(game.checkRoyalFlush(fullHand), true, "Rank not to be RoyalFlush");
+        }
+
+
+        [TestMethod]
+        public void TestStraightFlush()
+        {
+            List<Card> fullHand = new List<Card>();
+            fullHand.Add(new Card(Card.cardType.club, 1));
+            fullHand.Add(new Card(Card.cardType.club, 2));
+            fullHand.Add(new Card(Card.cardType.club, 6));
+            fullHand.Add(new Card(Card.cardType.club, 4));
+            fullHand.Add(new Card(Card.cardType.club, 5));
+            fullHand.Add(new Card(Card.cardType.club, 7));
+            fullHand.Add(new Card(Card.cardType.club, 8));
+            Assert.AreEqual(game.checkStraightFlush(fullHand), 8, "Rank does't match, need to be StraightFlush");
+
+            fullHand = new List<Card>();
+
+            fullHand.Add(new Card(Card.cardType.club, 1));
+            fullHand.Add(new Card(Card.cardType.club, 2));
+            fullHand.Add(new Card(Card.cardType.club, 3));
+            fullHand.Add(new Card(Card.cardType.diamond, 10));
+            fullHand.Add(new Card(Card.cardType.club, 11));
+            fullHand.Add(new Card(Card.cardType.club, 12));
+            fullHand.Add(new Card(Card.cardType.club, 13));
+            Assert.AreEqual(game.checkStraightFlush(fullHand), -1, "Rank not to be StraightFlush");
+        }
+
+        [TestMethod]
+        public void TestFourOfAKind()
+        {
+            List<Card> fullHand = new List<Card>();
+            fullHand.Add(new Card(Card.cardType.club, 2));
+            fullHand.Add(new Card(Card.cardType.club, 3));
+            fullHand.Add(new Card(Card.cardType.heart, 4));
+            fullHand.Add(new Card(Card.cardType.club, 4));
+            fullHand.Add(new Card(Card.cardType.spade, 4));
+            fullHand.Add(new Card(Card.cardType.diamond, 4));
+            fullHand.Add(new Card(Card.cardType.club, 13));
+            Assert.AreEqual(game.checkFourOfAKind(fullHand), 4, "Rank does't match, need to be four of a kind");
+
+            fullHand = new List<Card>();
+
+            fullHand.Add(new Card(Card.cardType.club, 1));
+            fullHand.Add(new Card(Card.cardType.club, 2));
+            fullHand.Add(new Card(Card.cardType.club, 3));
+            fullHand.Add(new Card(Card.cardType.diamond, 10));
+            fullHand.Add(new Card(Card.cardType.club, 11));
+            fullHand.Add(new Card(Card.cardType.club, 12));
+            fullHand.Add(new Card(Card.cardType.club, 13));
+            Assert.AreEqual(game.checkFourOfAKind(fullHand), -1, "Rank not to be four of a kind");
+        }
+
+        [TestMethod]
+        public void TestFullHouse()
+        {
+            List<Card> fullHand = new List<Card>();
+            fullHand.Add(new Card(Card.cardType.club, 2));
+            fullHand.Add(new Card(Card.cardType.club, 3));
+            fullHand.Add(new Card(Card.cardType.heart, 4));
+            fullHand.Add(new Card(Card.cardType.club, 4));
+            fullHand.Add(new Card(Card.cardType.spade, 4));
+            fullHand.Add(new Card(Card.cardType.diamond, 2));
+            fullHand.Add(new Card(Card.cardType.club, 13));
+            Assert.AreEqual(game.checkFullHouse(fullHand, 3), 4, "Rank does't match, need to be full house");
+
+            fullHand = new List<Card>();
+            fullHand.Add(new Card(Card.cardType.club, 2));
+            fullHand.Add(new Card(Card.cardType.club, 3));
+            fullHand.Add(new Card(Card.cardType.heart, 4));
+            fullHand.Add(new Card(Card.cardType.club, 4));
+            fullHand.Add(new Card(Card.cardType.spade, 4));
+            fullHand.Add(new Card(Card.cardType.diamond, 2));
+            fullHand.Add(new Card(Card.cardType.club, 13));
+            Assert.AreEqual(game.checkFullHouse(fullHand, 2), 2, "Rank does't match, need to be full house");
+
+            fullHand = new List<Card>();
+            fullHand.Add(new Card(Card.cardType.club, 1));
+            fullHand.Add(new Card(Card.cardType.club, 2));
+            fullHand.Add(new Card(Card.cardType.club, 3));
+            fullHand.Add(new Card(Card.cardType.diamond, 10));
+            fullHand.Add(new Card(Card.cardType.club, 11));
+            fullHand.Add(new Card(Card.cardType.club, 12));
+            fullHand.Add(new Card(Card.cardType.club, 13));
+            Assert.AreEqual(game.checkFullHouse(fullHand, 2), -1, "Rank not to be full house");
+        }
+
+        [TestMethod]
+        public void TestStraight()
+        {
+            List<Card> fullHand = new List<Card>();
+            fullHand.Add(new Card(Card.cardType.club, 7));
+            fullHand.Add(new Card(Card.cardType.club, 8));
+            fullHand.Add(new Card(Card.cardType.heart, 4));
+            fullHand.Add(new Card(Card.cardType.club, 9));
+            fullHand.Add(new Card(Card.cardType.spade, 10));
+            fullHand.Add(new Card(Card.cardType.diamond, 11));
+            fullHand.Add(new Card(Card.cardType.club, 13));
+            Assert.AreEqual(game.checkStraight(fullHand), 11, "Rank does't match, need to be straight");
+
+            fullHand = new List<Card>();
+            fullHand.Add(new Card(Card.cardType.club, 1));
+            fullHand.Add(new Card(Card.cardType.club, 2));
+            fullHand.Add(new Card(Card.cardType.club, 3));
+            fullHand.Add(new Card(Card.cardType.diamond, 10));
+            fullHand.Add(new Card(Card.cardType.club, 11));
+            fullHand.Add(new Card(Card.cardType.club, 12));
+            fullHand.Add(new Card(Card.cardType.club, 13));
+            Assert.AreEqual(game.checkStraight(fullHand), 1 , "Rank not to be straight");
+
+
+            fullHand = new List<Card>();
+            fullHand.Add(new Card(Card.cardType.club, 1));
+            fullHand.Add(new Card(Card.cardType.club, 2));
+            fullHand.Add(new Card(Card.cardType.club, 3));
+            fullHand.Add(new Card(Card.cardType.diamond, 10));
+            fullHand.Add(new Card(Card.cardType.club, 11));
+            fullHand.Add(new Card(Card.cardType.club, 12));
+            fullHand.Add(new Card(Card.cardType.club, 7));
+            Assert.AreEqual(game.checkStraight(fullHand), -1, "Rank not to be straight");
         }
 
 
