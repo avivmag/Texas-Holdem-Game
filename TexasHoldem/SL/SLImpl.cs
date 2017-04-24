@@ -20,46 +20,45 @@ namespace SL
 			bl = new BLImpl();
 		}
 
-		public ReturnMessage editUserProfile(int userId, string name, string password, string email, string avatar)
-		{
-			throw new NotImplementedException();
-		}
-
-		public List<TexasHoldemGame> filterActiveGamesByGamePreferences(int? gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed)
-		{
-			throw new NotImplementedException();
-		}
-
         public ReturnMessage createGame(int gameCreator, int gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool isSpectatingAllowed)
+        {
+            return null;
+        }
+
+        public ReturnMessage editUserProfile(int userId, string name, string password, string email, string avatar)
+		{
+            return bl.editUserProfile(userId, name, password, email, avatar);
+		}
+
+        public List<TexasHoldemGame> filterActiveGamesByGamePreferences(int? gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed)
         {
             throw new NotImplementedException();
         }
 
-
         public List<TexasHoldemGame> filterActiveGamesByPlayerName(string name)
 		{
-			throw new NotImplementedException();
-		}
+            return null;
+        }
 
 		public List<TexasHoldemGame> filterActiveGamesByPotSize(int size)
 		{
-			throw new NotImplementedException();
-		}
+            return null;
+        }
 
 		public List<TexasHoldemGame> findAllActiveAvailableGames()
 		{
-			throw new NotImplementedException();
-		}
+            return null;
+        }
 
 		public ReturnMessage joinActiveGame(SystemUser user, int gameId)
 		{
-			throw new NotImplementedException();
-		}
+            return null;
+        }
 
 		public ReturnMessage leaveGame(SystemUser user, int gameId)
 		{
-			throw new NotImplementedException();
-		}
+            return null;
+        }
 
 		public ReturnMessage Login(string user, string password)
 		{
@@ -81,17 +80,17 @@ namespace SL
 
 		public ReturnMessage Register(string user, string password, string email, string userImage)
 		{
-			return bl.Register(user, password, email, userImage);
-		}
+            return null;
+        }
 
 		public ReturnMessage Register(string user, string password)
 		{
-			throw new NotImplementedException();
-		}
+            return null;
+        }
 
 		public ReturnMessage spectateActiveGame(SystemUser user, int gameId)
 		{
-			throw new NotImplementedException();
+            return null;
 		}
 	}
 }
