@@ -2,13 +2,35 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using BL;
 using Backend.Game;
+using DAL;
+using Moq;
+using Backend.User;
+using Backend;
+using System.Collections.Generic;
 
 namespace TestProject.UnitTest
 {
     [TestClass]
     public class TestGameCreate
     {
-        BLInterface bl = new BLImpl();
+        BLInterface bl;
+
+        [TestInitialize]
+        public void SetUp()
+        {
+            var usersList = new List<SystemUser>
+            {
+                new SystemUser("Hadas", "Aa123456", "email0", "image0", 1000),
+                new SystemUser("Gili", "123123", "email1", "image1", 0),
+                new SystemUser("Or", "111111", "email2", "image2", 700),
+                new SystemUser("Aviv", "Aa123456", "email3", "image3", 1500)
+            };
+
+            Mock<DALInterface> dalMock = new Mock<DALInterface>();
+            dalMock.Setup(x => x.getUserById(It.IsAny<int>())).Returns((int id) => usersList.Find(u => u.id == id));
+            dalMock.Setup(x => x.addGame(It.IsAny<TexasHoldemGame>())).Returns(new ReturnMessage(true, null));
+            this.bl = new BLImpl(dalMock.Object);
+        }
 
         [TestMethod]
         public void TestCreateGame()
