@@ -54,22 +54,22 @@ namespace Backend.Game
         {
             if (Games.Contains(g))
             {
-                return new Message(false, String.Format("Game {0} is already in league {1}.", g.id, leagueId));
+                return new Message(false, String.Format("Game {0} is already in league {1}.", g.gameId, leagueId));
             }
 
             Games.Add(g);
-            return new Message(true, String.Format("Game {0} was added to league {1}.", g.id, leagueId));
+            return new Message(true, String.Format("Game {0} was added to league {1}.", g.gameId, leagueId));
         }
 
         public Message removeGame(LeagueTexasHoldemGame g)
         {
             if (!Games.Contains(g))
             {
-                return new Message(false, String.Format("Game {0} is not in league {1}.", g.id, leagueId));
+                return new Message(false, String.Format("Game {0} is not in league {1}.", g.gameId, leagueId));
             }
 
             Games.Remove(g);
-            return new Message(true, String.Format("Game {0} was added to league {1}.", g.id, leagueId));
+            return new Message(true, String.Format("Game {0} was added to league {1}.", g.gameId, leagueId));
         }
     }
 }

@@ -21,7 +21,6 @@ namespace TestProject.UnitTest
             p3 = new Player(3, 40, 40);
             gp = new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 30, 50, 10, 2, 10, true);
             game = new TexasHoldemGame(1, gp);
-            game.joinGame(p1);
             game.joinGame(p2);
             game.joinGame(p3);
 

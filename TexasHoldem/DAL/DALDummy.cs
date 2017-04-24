@@ -47,7 +47,7 @@ namespace DAL
                 new LeagueTexasHoldemGame(3, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false), leagues[1])
             };
             for (int i = 0; i < 6; i++)
-                gameDummies[i].id = i;
+                gameDummies[i].gameId = i;
 
             playerDummies = new List<Player>
             {
@@ -64,7 +64,7 @@ namespace DAL
         public TexasHoldemGame getGameById(int gameID)
         {
             for (int i = 0; i < gameDummies.Count(); i++)
-                if (gameDummies[i].id == gameID)
+                if (gameDummies[i].gameId == gameID)
                     return gameDummies[i];
             return null;
         }
