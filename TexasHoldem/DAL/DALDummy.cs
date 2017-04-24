@@ -169,26 +169,7 @@ namespace DAL
 
         public ReturnMessage setLeagueCriteria(int minRank, int maxRank, string leagueName, Guid leagueId, int userId)
         {
-            if (getHighestUserId() != userId)
-            {
-                return new ReturnMessage(false, String.Format("Cannot set criteria. user {0} is not highest ranking in system.", userId));
-            }
-
-            if(leagues.Any(l => (l.leagueName == leagueName && (l.leagueId != leagueId))))
-            {
-                return new ReturnMessage(false, String.Format("League name {0} already taken.", leagueName));
-            }
-
-            var league = leagues.Where(l => l.leagueId == leagueId).FirstOrDefault();
-
-            if (league == null)
-            {
-                return new ReturnMessage(false, String.Format("No such league with ID: {0}", leagueId));
-            }
-
-            league.minRank = minRank;
-            league.maxRank = maxRank;
-            return new ReturnMessage(true, null);
+            return null;
         }
 
         public ReturnMessage addGame(TexasHoldemGame game)
