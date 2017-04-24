@@ -25,7 +25,7 @@ namespace BL
 
 		SystemUser getUserById(int userId);
         TexasHoldemGame getGameById(int gameId);
-
+        void replayGame(int gameId);
 		ReturnMessage addLeague(int minRank, int maxRank, string name);
 		ReturnMessage removeLeague(League league);
         League getLeagueByName(string name);

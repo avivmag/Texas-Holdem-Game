@@ -15,7 +15,7 @@ namespace Backend.Game
         public Player[] players { get; set; }
         public List<Spectator> spectators;
         private int gameCreatorUserId;
-        public int id { get; set; }
+        public int gameId { get; set; }
         public int pot { get; set; }
         public int tempPot { get; set; }
         public int currentBet { get; set; }
@@ -27,7 +27,6 @@ namespace Backend.Game
         public Card river { get; set; }
         public enum HandsRanks { HighCard, Pair, TwoPairs, ThreeOfAKind, Straight, Flush, FullHouse, FourOfAKind, StraightFlush, RoyalFlush }
 
-
         public TexasHoldemGame(int gameCreatorUserId, GamePreferences gamePreferences)
         {
             this.gameCreatorUserId = gameCreatorUserId;
@@ -38,7 +37,11 @@ namespace Backend.Game
             spectators = new List<Spectator>();
             players = new Player[GamePreferences.MaxPlayers];
             availableSeats = GamePreferences.MaxPlayers - 1;
-            players[0] = new Player(gameCreatorUserId, gamePreferences.StartingChipsAmount, 0);
+            Random rnd = new Random();
+            this.gameId = rnd.Next(0, 999999);
+            GameLog.setLog(gameId, DateTime.Now);
+            GameLog.logLine(gameId, GameLog.Actions.Game_Start, DateTime.Now.ToString());
+            var m = joinGame(new Player(gameCreatorUserId, gamePreferences.StartingChipsAmount, 0));
             for (int i = 1; i < GamePreferences.MaxPlayers; i++)
             {
                 players[i] = null;
@@ -71,6 +74,7 @@ namespace Backend.Game
                 if (players[i] == null)
                 {
                     players[i] = p;
+                    GameLog.logLine(gameId, GameLog.Actions.Player_Join, p.id.ToString());
                     break;
                 }
             }
@@ -107,7 +111,8 @@ namespace Backend.Game
                     return new ReturnMessage(false, "Couldn't spectate the game because the user is already spectating the game.");
 
             spectators.Add(s);
-            return new ReturnMessage(true, "");
+            GameLog.logLine(gameId, GameLog.Actions.Spectate_Join, s.systemUserID.ToString());
+            return new ReturnMessage(true,"");
         }
 
         public void leaveGame(Player p)
@@ -117,6 +122,7 @@ namespace Backend.Game
                 if (players[i] != null && players[i].id == p.id)
                 {
                     players[i] = null;
+                    GameLog.logLine(gameId, GameLog.Actions.Player_Left, p.id.ToString());
                     break;
                 }
             }
@@ -124,32 +130,36 @@ namespace Backend.Game
 
         public void leaveGame(Spectator spec)
         {
+            GameLog.logLine(gameId, GameLog.Actions.Spectate_Left, spec.systemUserID.ToString());
             spectators.Remove(spec);
         }
 
         private void playGame()
         {
+            GameLog.logLine(gameId, GameLog.Actions.Game_Start, DateTime.Now.ToString());
             deck.Shuffle();
             dealCards();
             currentSmall = setSmallBlind();
             currentBig = setBigBlind();
             betBlinds();
-
             //players sets their bets
             for (int i = nextToSeat(currentBig); i < GamePreferences.MaxPlayers; i++)
             {
                 if (players[i] != null && players[i].playerState == Player.PlayerState.in_round)
                 {
-                    chooseBetAction(players[i], BetAction.check, 0);
+                    BetAction action = BetAction.check;
+                    chooseBetAction(players[i], action, 0);
                 }
             }
 
-            pot = tempPot;
+            addToPot(tempPot);
 
             //flop
             for (int i = 0; i < 3; i++)
             {
-                flop.Add(deck.Top());
+                Card flopCard = deck.Top();
+                flop.Add(flopCard);
+                GameLog.logLine(gameId, GameLog.Actions.Flop, i.ToString(), flopCard.ToString());
             }
 
             //players sets their bets
@@ -161,9 +171,13 @@ namespace Backend.Game
                 }
             }
 
-            pot = tempPot;
+            addToPot(tempPot);
 
             turn = deck.Top();
+            GameLog.logLine(
+                gameId,
+                GameLog.Actions.Turn,
+                turn.ToString());
 
             //players sets their bets
             for (int i = nextToSeat(currentDealer); i < GamePreferences.MaxPlayers; i++)
@@ -174,9 +188,13 @@ namespace Backend.Game
                 }
             }
 
-            pot = tempPot;
+            addToPot(tempPot);
 
             river = deck.Top();
+            GameLog.logLine(
+                gameId,
+                GameLog.Actions.River,
+                turn.ToString());
 
             //players sets their bets
             for (int i = nextToSeat(currentDealer); i < GamePreferences.MaxPlayers; i++)
@@ -187,9 +205,7 @@ namespace Backend.Game
                 }
             }
 
-            pot = tempPot;
-
-
+            addToPot(tempPot);
         }
 
         public void setInitialState()
@@ -211,13 +227,14 @@ namespace Backend.Game
             {
                 if (players[index] != null)
                 {
-                    Console.Out.WriteLine(" ggg    " + players[index].id);
-                    if (players[index].playerCards.Count == 2)
+                    if (players[index].playerCards.Count >= 2)
                     {
-                        players[index].playerCards.RemoveAt(0);
-                        players[index].playerCards.RemoveAt(1);
+                        players[index].playerCards.Clear();
                     }
-                    players[index].playerCards.Add(deck.Top());
+
+                    Card newCard = deck.Top();
+                    players[index].playerCards.Add(newCard);
+                    GameLog.logLine(gameId, GameLog.Actions.Deal_Card, newCard.ToString());
                 }
                 index = (index + 1) % GamePreferences.MaxPlayers;
             }
@@ -228,7 +245,9 @@ namespace Backend.Game
             {
                 if (players[index] != null)
                 {
-                    players[index].playerCards.Add(deck.Top());
+                    Card newCard = deck.Top();
+                    players[index].playerCards.Add(newCard);
+                    GameLog.logLine(gameId, GameLog.Actions.Deal_Card, newCard.ToString());
                 }
                 index = (index + 1) % GamePreferences.MaxPlayers;
             }
@@ -241,7 +260,10 @@ namespace Backend.Game
             while (i != j)
             {
                 if (players[j] != null && players[j].playerState == Player.PlayerState.in_round)
+                {
+                    GameLog.logLine(gameId, GameLog.Actions.Small_Blind, players[j].id.ToString());
                     return j;
+                }
                 j = (j + 1) % GamePreferences.MaxPlayers;
             }
             return -1;
@@ -261,7 +283,10 @@ namespace Backend.Game
             while (i != j)
             {
                 if (players[j] != null && players[j].playerState == Player.PlayerState.in_round)
+                {
+                    GameLog.logLine(gameId, GameLog.Actions.Big_Blind, players[j].id.ToString());
                     return j;
+                }
                 j = (j + 1) % GamePreferences.MaxPlayers;
             }
             return -1;
@@ -270,13 +295,31 @@ namespace Backend.Game
         public void betBlinds()
         {
             players[currentSmall].Tokens -= currentBlindBet / 2;
+            GameLog.logLine(
+                gameId, 
+                GameLog.Actions.Action_Bet, 
+                players[currentSmall].id.ToString(),
+                (currentBlindBet / 2).ToString());
+
             players[currentBig].Tokens -= currentBlindBet;
-            tempPot += (currentBlindBet + (currentBlindBet / 2));
+            GameLog.logLine(
+                gameId,
+                GameLog.Actions.Action_Bet,
+                players[currentBig].id.ToString(),
+                (currentBlindBet / 2).ToString());
+
+            tempPot += ((currentBlindBet + (currentBlindBet / 2)));
         }
 
         public void bet(Player p, int amount)
         {
             p.Tokens -= amount;
+            GameLog.logLine(
+                gameId,
+                GameLog.Actions.Action_Bet,
+                p.id.ToString(),
+                amount.ToString());
+
             tempPot += amount;
             currentBet = amount;
         }
@@ -284,21 +327,39 @@ namespace Backend.Game
         public void call(Player p)
         {
             p.Tokens -= currentBet;
+            GameLog.logLine(
+                gameId,
+                GameLog.Actions.Action_Bet,
+                p.id.ToString(),
+                currentBet.ToString());
             tempPot += currentBet;
         }
 
         public void fold(Player p)
         {
             p.playerState = Player.PlayerState.folded;
+            GameLog.logLine(
+                gameId,
+                GameLog.Actions.Action_Fold,
+                p.id.ToString());
         }
 
         public void check(Player p)
         {
+            GameLog.logLine(
+                gameId,
+                GameLog.Actions.Action_Check,
+                p.id.ToString());
         }
 
         public void raise(Player p, int amount)
         {
             p.Tokens -= (amount + currentBet);
+            GameLog.logLine(
+                gameId,
+                GameLog.Actions.Action_Raise,
+                p.id.ToString(),
+                amount.ToString());
             tempPot += (amount + currentBet);
         }
 
@@ -375,6 +436,11 @@ namespace Backend.Game
             return HandsRanks.Flush;
         }
 
+        private void addToPot(int sum)
+        {
+            pot += sum;
+            GameLog.logLine(gameId, GameLog.Actions.Pot_Changed, sum.ToString(), pot.ToString());
+        }
 
 
         public bool checkRoyalFlush(List<Card> fullHand)
