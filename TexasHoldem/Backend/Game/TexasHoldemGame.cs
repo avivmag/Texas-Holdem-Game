@@ -11,7 +11,7 @@ namespace Backend.Game
         public int currentBig { get; set; }
         public int currentSmall { get; set; }
         public GamePreferences GamePreferences { get; }
-        private Deck deck;
+        public Deck deck { get; }
         public Player[] players { get; set; }
         public List<Spectator> spectators;
         private int gameCreatorUserId;
@@ -49,22 +49,22 @@ namespace Backend.Game
             currentDealer = 0;
         }
 
-        public virtual Message joinGame(Player p)
+        public virtual ReturnMessage joinGame(Player p)
         {
             if (AvailableSeats == 0)
-                return new Message(false, "There are no available seats.");
+                return new ReturnMessage(false, "There are no available seats.");
 
             for (int i = 0; i < GamePreferences.MaxPlayers; i++)
             {
                 if (players[i] != null && players[i].systemUserID == p.systemUserID)
-                    return new Message(false, "The player is already taking part in the wanted game.");
+                    return new ReturnMessage(false, "The player is already taking part in the wanted game.");
             }
 
             if (spectators != null)
             {
                 foreach (Spectator spec in spectators)
                     if (spec.systemUserID == p.systemUserID)
-                        return new Message(false, "Couldn't join the game because the user is already spectating the game.");
+                        return new ReturnMessage(false, "Couldn't join the game because the user is already spectating the game.");
             }
             for (int i = 0; i < GamePreferences.MaxPlayers; i++)
             {
@@ -74,7 +74,7 @@ namespace Backend.Game
                     break;
                 }
             }
-            return new Message(true, "");
+            return new ReturnMessage(true, "");
         }
 
         public int AvailableSeats
@@ -91,23 +91,23 @@ namespace Backend.Game
             }
         }
 
-        public Message joinSpectate(Spectator s)
+        public ReturnMessage joinSpectate(Spectator s)
         {
             if (!GamePreferences.IsSpectatingAllowed)
-                return new Message(false, "Couldn't spectate the game because the game preferences is not alowing.");
+                return new ReturnMessage(false, "Couldn't spectate the game because the game preferences is not alowing.");
 
             foreach (Player p in players)
                 if (p != null)
                 {
                     if (p.systemUserID == s.systemUserID)
-                        return new Message(false, "Couldn't spectate the game because the user is already playing the game.");
+                        return new ReturnMessage(false, "Couldn't spectate the game because the user is already playing the game.");
                 }
             foreach (Spectator spec in spectators)
                 if (spec.systemUserID == s.systemUserID)
-                    return new Message(false, "Couldn't spectate the game because the user is already spectating the game.");
+                    return new ReturnMessage(false, "Couldn't spectate the game because the user is already spectating the game.");
             
             spectators.Add(s);
-            return new Message(true,"");
+            return new ReturnMessage(true,"");
         }
 
         public void leaveGame(Player p)
@@ -211,6 +211,12 @@ namespace Backend.Game
             {
                 if (players[index] != null)
                 {
+                    Console.Out.WriteLine(" ggg    " + players[index].id);
+                    if (players[index].playerCards.Count == 2)
+                    {
+                        players[index].playerCards.RemoveAt(0);
+                        players[index].playerCards.RemoveAt(1);
+                    }
                     players[index].playerCards.Add(deck.Top());
                 }
                 index = (index + 1) % GamePreferences.MaxPlayers;
@@ -344,13 +350,48 @@ namespace Backend.Game
             for (int i = 0; i < 2; i++)
             {
                 fullHand.Add(p.playerCards[0]);
-                flop.RemoveAt(0);
             }
 
             fullHand.Add(turn);
             fullHand.Add(river);
 
             fullHand.Sort();
+
+            bool straight = false;
+            int counterStraight = 0;
+            
+            //Royal Flush
+            for (int i = 0; i < 7; i++)
+                if (fullHand[i].Value == 1 && fullHand[i].Type.Equals(Card.cardType.heart))
+                    counterStraight++;
+            for (int i = 0; i < 7; i++)
+                if (fullHand[i].Value == 10 && fullHand[i].Type.Equals(Card.cardType.heart))
+                    counterStraight++;
+            for (int i = 0; i < 7; i++)
+                if (fullHand[i].Value == 11 && fullHand[i].Type.Equals(Card.cardType.heart))
+                    counterStraight++;
+            for (int i = 0; i < 7; i++)
+                if (fullHand[i].Value == 12 && fullHand[i].Type.Equals(Card.cardType.heart))
+                    counterStraight++;
+            for (int i = 0; i < 7; i++)
+                if (fullHand[i].Value == 13 && fullHand[i].Type.Equals(Card.cardType.heart))
+                    counterStraight++;
+
+            if (counterStraight == 5)
+                return HandsRanks.RoyalFlush;
+
+
+            //Straight Flush
+            Card prev = fullHand[6];
+            counterStraight = 0;
+            int fiveCards = 0;
+            for (int i = 0; i < 6; i++)
+            {
+                return HandsRanks.Flush;
+            }
+
+
+
 
             for (int i = 0; i < fullHand.Count; i++)
             {

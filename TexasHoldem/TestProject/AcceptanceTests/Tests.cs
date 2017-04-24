@@ -13,12 +13,13 @@ namespace TestProject
         string statusGame = "Active";
         string gameOver = "notActive";
         string game = "Texas1";
-        string game2 = "Texas1";
-        List<string> activeGames = new List<string>();
         string highLeague = "league #1";
         int points = 100;
         int points2 = 0;
         string lowLeague = "league #10";
+        string newCriteria = "new league";
+        string criteria = "Points";
+        string players = "Alufim";
 
 
         [TestMethod]
@@ -127,6 +128,23 @@ namespace TestProject
             Assert.AreEqual(this.joinLeaguePerPoints(points2), lowLeague);
             //check if league list deleted
             Assert.AreNotEqual(this.joinLeaguePerPoints(points), null);
+        }
+
+        [TestMethod]
+        public void TestSetCriteriaForNewLeague()
+        {
+            //check if league by criteria is exist
+            Assert.IsFalse(this.isLeagueExist(newCriteria));
+            //create new league
+            Assert.IsTrue(this.setCriteriaForNewLeague(newCriteria));
+            //set inncorrect input for creteria
+            Assert.IsFalse(this.setCriteriaForNewLeague(password));
+            //set incorrect name for league
+            if (this.isLeagueExist(criteria))
+                Assert.IsFalse(setCriteriaForNewLeague(criteria));
+            //check if there are players suits to this eague
+            Assert.IsTrue(this.PlayersWithCriteria(newCriteria, players));
+
         }
 
        

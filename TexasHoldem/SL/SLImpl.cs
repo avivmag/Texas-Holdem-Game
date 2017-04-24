@@ -20,7 +20,7 @@ namespace SL
 			bl = new BLImpl();
 		}
 
-		public Message editUserProfile(int userId, string name, string password, string email, string avatar)
+		public ReturnMessage editUserProfile(int userId, string name, string password, string email, string avatar)
 		{
 			throw new NotImplementedException();
 		}
@@ -30,7 +30,7 @@ namespace SL
 			throw new NotImplementedException();
 		}
 
-        public Message createGame(int gameCreator, int gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool isSpectatingAllowed)
+        public ReturnMessage createGame(int gameCreator, int gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool isSpectatingAllowed)
         {
             throw new NotImplementedException();
         }
@@ -51,45 +51,45 @@ namespace SL
 			throw new NotImplementedException();
 		}
 
-		public Message joinActiveGame(SystemUser user, int gameId)
+		public ReturnMessage joinActiveGame(SystemUser user, int gameId)
 		{
 			throw new NotImplementedException();
 		}
 
-		public Message leaveGame(SystemUser user, int gameId)
+		public ReturnMessage leaveGame(SystemUser user, int gameId)
 		{
 			throw new NotImplementedException();
 		}
 
-		public Message Login(string user, string password)
+		public ReturnMessage Login(string user, string password)
 		{
-			Message m = bl.Login(user, password);
+			ReturnMessage m = bl.Login(user, password);
 			if (m.success)
 				mySystemUser = bl.getUserByName(user);
 
 			return m;
 		}
 
-		public Message Logout()
+		public ReturnMessage Logout()
 		{
-			Message m = bl.Logout(mySystemUser.name);
+			ReturnMessage m = bl.Logout(mySystemUser.name);
 			if (m.success)
 				mySystemUser = null;
 
 			return m;
 		}
 
-		public Message Register(string user, string password, string email, string userImage)
+		public ReturnMessage Register(string user, string password, string email, string userImage)
 		{
 			return bl.Register(user, password, email, userImage);
 		}
 
-		public Message Register(string user, string password)
+		public ReturnMessage Register(string user, string password)
 		{
 			throw new NotImplementedException();
 		}
 
-		public Message spectateActiveGame(SystemUser user, int gameId)
+		public ReturnMessage spectateActiveGame(SystemUser user, int gameId)
 		{
 			throw new NotImplementedException();
 		}
