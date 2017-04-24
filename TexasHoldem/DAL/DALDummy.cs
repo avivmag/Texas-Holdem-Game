@@ -47,7 +47,7 @@ namespace DAL
                 new LeagueTexasHoldemGame(3, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false), leagues[1])
             };
             for (int i = 0; i < 6; i++)
-                gameDummies[i].id = i;
+                gameDummies[i].gameId = i;
 
             playerDummies = new List<Player>
             {
@@ -63,7 +63,7 @@ namespace DAL
         public TexasHoldemGame getGameById(int gameID)
         {
             for (int i = 0; i < gameDummies.Count(); i++)
-                if (gameDummies[i].id == gameID)
+                if (gameDummies[i].gameId == gameID)
                     return gameDummies[i];
             return null;
         }
@@ -168,26 +168,7 @@ namespace DAL
 
         public ReturnMessage setLeagueCriteria(int minRank, int maxRank, string leagueName, Guid leagueId, int userId)
         {
-            if (getHighestUserId() != userId)
-            {
-                return new ReturnMessage(false, String.Format("Cannot set criteria. user {0} is not highest ranking in system.", userId));
-            }
-
-            if(leagues.Any(l => (l.leagueName == leagueName && (l.leagueId != leagueId))))
-            {
-                return new ReturnMessage(false, String.Format("League name {0} already taken.", leagueName));
-            }
-
-            var league = leagues.Where(l => l.leagueId == leagueId).FirstOrDefault();
-
-            if (league == null)
-            {
-                return new ReturnMessage(false, String.Format("No such league with ID: {0}", leagueId));
-            }
-
-            league.minRank = minRank;
-            league.maxRank = maxRank;
-            return new ReturnMessage(true, null);
+            return null;
         }
 
         public ReturnMessage addGame(TexasHoldemGame game)
