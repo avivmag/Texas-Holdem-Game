@@ -19,11 +19,12 @@ namespace DAL
 
         public DALDummy()
         {
-            leagues = new List<League>();
-            leagues.Add(new League(0, 1000));
-            leagues.Add(new League(1000, 2000));
-            
-                userDummies = new List<SystemUser>
+            leagues = new List<League>
+            {
+                new League(0, 1000),
+                new League(1000, 2000)
+            };
+            userDummies = new List<SystemUser>
             {
                 new SystemUser("Hadas", "Aa123456", "email0", "image0", 1000),
                 new SystemUser("Gili", "123123", "email1", "image1", 0),
@@ -58,7 +59,6 @@ namespace DAL
             };
             for (int i = 0; i < 4; i++)
                 playerDummies[i].id = i;
-
         }
 
         public TexasHoldemGame getGameById(int gameID)

@@ -10,12 +10,17 @@ public class BLImpl : BLInterface
 {
 	private DALInterface dal;
 
-	public BLImpl()
-	{
-		dal = new DALDummy();
-	}
+    public BLImpl()
+    {
+        dal = new DALDummy();
+    }
 
-	public Message spectateActiveGame(SystemUser user, int gameID)
+    public BLImpl(DALInterface dal)
+    {
+        this.dal = dal;
+    }
+
+    public Message spectateActiveGame(SystemUser user, int gameID)
 	{
 		Message m = new Message();
 		TexasHoldemGame existingGame = dal.getGameById(gameID);
