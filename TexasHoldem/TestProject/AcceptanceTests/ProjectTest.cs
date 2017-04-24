@@ -157,6 +157,18 @@ namespace TestProject
         {
             return this.bridge.betBigBlind(amount);
         }
-    } 
+        public bool isLeagueExist(string criteria)
+        {
+            return this.bridge.isLeagueExist(criteria);
+        }
+        public bool setCriteriaForNewLeague(string criteria)
+        {
+            return this.bridge.setCriteriaForNewLeague(criteria);
+        }
+        public bool PlayersWithCriteria(string criteria, string players)
+        {
+            return this.bridge.PlayersWithCriteria(criteria, players);
+        }
+    }   
 
 }

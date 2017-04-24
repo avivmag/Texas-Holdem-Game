@@ -41,10 +41,14 @@ namespace TestProject
         bool updateStatePlayer(string statePlayer, int amount);
         bool betSmallBlind(int amount);
         bool betBigBlind(int amount);
+        bool isLeagueExist(string criteria);
+        bool setCriteriaForNewLeague(string criteria);
+        bool PlayersWithCriteria(string criteria, string players);
 
-        
 
-      
+
+
+
 
     }
 }
