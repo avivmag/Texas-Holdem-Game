@@ -124,8 +124,8 @@ namespace TestProject
             Assert.AreEqual(this.joinLeaguePerPoints(points), highLeague);
             Assert.AreNotEqual(this.joinLeaguePerPoints(points), lowLeague);
             //check if new user register is added to lower league
-            Assert.AreEqual(this.register(username, password), this.getUserbyName(username));
-            Assert.AreEqual(this.joinLeaguePerPoints(points2), lowLeague);
+            if(this.register(username,password).Equals(this.getUserbyName(username)))
+              Assert.AreEqual(this.joinLeaguePerPoints(points2), lowLeague);
             //check if league list deleted
             Assert.AreNotEqual(this.joinLeaguePerPoints(points), null);
         }
