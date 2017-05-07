@@ -47,8 +47,6 @@
     <Compile Include="Game\League.cs" />
     <Compile Include="Game\LeagueTexasHoldemGame.cs" />
     <Compile Include="Game\Player.cs" />
-    <Compile Include="Game\RegularTexasHoldemGame.cs" />
-    <Compile Include="Game\Spectator.cs" />
     <Compile Include="Game\TexasHoldemGame.cs" />
     <Compile Include="Tools\ReturnMessage.cs" />
     <Compile Include="Messages\Notification.cs" />

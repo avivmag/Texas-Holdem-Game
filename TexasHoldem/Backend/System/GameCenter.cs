@@ -17,14 +17,6 @@ namespace Backend.System
 
         }
 
-        public Game.TexasHoldemGame createLeagueGame(int userId, Game.GamePreferences preferences, Guid leagueId)
-        {
-            var league = leagues.Where(l => l.leagueId == leagueId).Single();
-            var leagueGame = new Game.LeagueTexasHoldemGame(userId, preferences, league);
-            texasHoldemGames.Add(leagueGame);
-            return leagueGame;
-        }
-
         // Maintain leagues for players. Should be invoked after each game ending, or new players register.
         public void maintainLeagues(List<User.SystemUser> users)
         {

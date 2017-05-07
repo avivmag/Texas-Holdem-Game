@@ -26,11 +26,11 @@ public class BLImpl : BLInterface
 		TexasHoldemGame existingGame = dal.getGameById(gameID);
 		if (existingGame != null)
 		{
-			Spectator spec = new Spectator(user.id);
-			m = existingGame.joinSpectate(spec);
+			Player spectator = new Player(user.id);
+			m = existingGame.joinSpectate(spectator);
 			if (m.success)
 			{
-				user.addSpectatingGame(spec);
+				user.addSpectatingGame(spectator);
 			}
 			return m;
 		}
@@ -55,14 +55,14 @@ public class BLImpl : BLInterface
 			return new ReturnMessage(false, "Couldn't find the wanted game with the id:" + gameID.ToString() + ".");
 	}
 
-	public ReturnMessage leaveGame(Spectator spec, int gameID)
+	public ReturnMessage leaveGame(Player spec, int gameID)
 	{
 		ReturnMessage m = new ReturnMessage();
 		TexasHoldemGame existingGame = dal.getGameById(gameID);
 		if (spec.GetType() == typeof(Player))
 		{
 			Player p = (Player)spec;
-			existingGame.leaveGame(p);
+			existingGame.leaveGamePlayer(p);
 			SystemUser user = dal.getUserById(spec.systemUserID);
 			//TODO: what is the rank changing policy.
 			user.money += p.Tokens;
@@ -74,7 +74,7 @@ public class BLImpl : BLInterface
 		}
 		else
 		{
-			existingGame.leaveGame((Player)spec);
+			existingGame.leaveGamePlayer((Player)spec);
 		}
 		return m;
 	}
@@ -224,7 +224,8 @@ public class BLImpl : BLInterface
 	public List<TexasHoldemGame> filterActiveGamesByGamePreferences(GamePreferences pref)
 	{
 		List<TexasHoldemGame> ans = new List<TexasHoldemGame> { };
-		foreach (TexasHoldemGame g in dal.getAllGames())
+        List<TexasHoldemGame> allGames = dal.getAllGames();
+        foreach (TexasHoldemGame g in allGames)
 		{
 			if (g.GamePreferences.Equals(pref))
 			{

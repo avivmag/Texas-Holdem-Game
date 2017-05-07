@@ -10,7 +10,7 @@ namespace BL
 	{
         ReturnMessage spectateActiveGame(SystemUser user, int gameID);
         ReturnMessage joinActiveGame(SystemUser user, int gameID);
-        ReturnMessage leaveGame(Spectator spec, int gameID);
+        ReturnMessage leaveGame(Player spec, int gameID);
         ReturnMessage editUserProfile(int userId, string name, string password, string email, string avatar);
         List<TexasHoldemGame> findAllActiveAvailableGames();
         List<TexasHoldemGame> filterActiveGamesByPlayerName(string name);

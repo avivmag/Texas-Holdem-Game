@@ -39,8 +39,8 @@ namespace TestProject
                 new TexasHoldemGame(0, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, false)),
                 new TexasHoldemGame(1, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, true)),
                 new TexasHoldemGame(1, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false)),
-                new LeagueTexasHoldemGame(3, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false), leagues[0]),
-                new LeagueTexasHoldemGame(3, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false), leagues[1])
+                new TexasHoldemGame(3, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 0, 1000)),
+                new TexasHoldemGame(3, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 1000, 2000))
             };
 
             Mock<DALInterface> dalMock = new Mock<DALInterface>();
@@ -53,10 +53,10 @@ namespace TestProject
         public void LeaveSpectatorSuccessTest()
         {
             TexasHoldemGame game = bl.getGameById(bl.getAllGames()[3].gameId);
-            Spectator spec = new Spectator(0);
+            Player spec = new Player(0);
             game.joinSpectate(spec);
-            game.leaveGame(spec);
-            CollectionAssert.AreEqual(game.spectators,new List<Spectator> { });
+            game.leaveGameSpectator(spec);
+            CollectionAssert.AreEqual(game.spectators,new List<Player> { });
         }
 
         [TestMethod]
@@ -66,7 +66,7 @@ namespace TestProject
             Player p = new Player(0,100,2);
             var actualPlayers = game.players.ToString();
             var m = game.joinGame(p);
-            game.leaveGame(p);
+            game.leaveGamePlayer(p);
             Assert.AreEqual(game.players.ToString(), actualPlayers);
         }
     }
