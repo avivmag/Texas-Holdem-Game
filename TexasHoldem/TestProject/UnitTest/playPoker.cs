@@ -42,7 +42,7 @@ namespace TestProject.UnitTest
 
             for (int i = 0; i < 3; i++)
             {
-                Console.Out.WriteLine(game.players[index].id);
+                Console.Out.WriteLine(game.players[index].systemUserID);
                 Console.Out.WriteLine(game.players[index].playerCards[0].ToString());
                 Console.Out.WriteLine(game.players[index].playerCards[1].ToString());
                 index = game.nextToSeat(index);
@@ -287,9 +287,9 @@ namespace TestProject.UnitTest
         [TestCleanup]
         public void TearDown()
         {
-            game.leaveGame(p1);
-            game.leaveGame(p2);
-            game.leaveGame(p3);
+            game.leaveGamePlayer(p1);
+            game.leaveGamePlayer(p2);
+            game.leaveGamePlayer(p3);
         }
     }
 }

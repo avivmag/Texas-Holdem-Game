@@ -13,7 +13,7 @@ namespace Backend.User
 		public String password { get; set; }
         public String email { get; set; }
 		public String userImage { get; set; }
-		public List<Game.Spectator> spectators;
+        public List<Game.Player> spectators;
         public Guid leagueId;
 
         public SystemUser(String name, String password, String email, String userImage, int money)
@@ -23,7 +23,7 @@ namespace Backend.User
             this.email = email;
             this.userImage = userImage;
             this.money = money;
-            spectators = new List<Spectator> { };
+            spectators = new List<Game.Player> { };
             rank = 0;
         }
 
@@ -37,7 +37,7 @@ namespace Backend.User
 			// writeln(str);
 		}
 
-        public void addSpectatingGame(Spectator spec)
+        public void addSpectatingGame(Player spec)
         {
             if (!this.spectators.Contains(spec))
                 this.spectators.Add(spec);
