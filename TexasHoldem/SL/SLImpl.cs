@@ -13,7 +13,6 @@ namespace SL
 {
 	public class SLImpl : SLInterface
 	{
-		public static SystemUser mySystemUser;
 		private BLInterface bl;
 
 		public SLImpl()
@@ -21,7 +20,7 @@ namespace SL
 			bl = new BLImpl();
 		}
 
-        public ReturnMessage createGame(int? gameCreator, GameTypePolicy gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed)
+        public TexasHoldemGame createGame(int gameCreator, GameTypePolicy gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed)
         {
             return bl.createGame(gameCreator,gamePolicy,buyInPolicy,startingChipsAmount,MinimalBet,minPlayers,maxPlayers,isSpectatingAllowed);
         }
@@ -31,7 +30,7 @@ namespace SL
             return bl.editUserProfile(userId, name, password, email, avatar);
 		}
 
-        public List<TexasHoldemGame> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed)
+        public List<TexasHoldemGame> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed)
         {
             return bl.filterActiveGamesByGamePreferences(gamePolicy,buyInPolicy,startingChipsAmount,MinimalBet,minPlayers,maxPlayers,isSpectatingAllowed);
         }
@@ -51,7 +50,17 @@ namespace SL
             return bl.findAllActiveAvailableGames();
         }
 
-		public ReturnMessage joinActiveGame(SystemUser user, int gameId)
+        public TexasHoldemGame getGameById(int gameId)
+        {
+            return bl.getGameById(gameId);
+        }
+
+        public SystemUser getUserByName(string userName)
+        {
+            return bl.getUserByName(userName);
+        }
+
+        public ReturnMessage joinActiveGame(SystemUser user, int gameId)
 		{
             return bl.joinActiveGame(user, gameId);
         }
@@ -63,20 +72,12 @@ namespace SL
 
 		public ReturnMessage Login(string user, string password)
 		{
-			ReturnMessage m = bl.Login(user, password);
-			if (m.success)
-				mySystemUser = bl.getUserByName(user);
-
-			return m;
+			return bl.Login(user, password);
 		}
 
-		public ReturnMessage Logout()
+		public ReturnMessage Logout(string name)
 		{
-			ReturnMessage m = bl.Logout(mySystemUser.name);
-			if (m.success)
-				mySystemUser = null;
-
-			return m;
+			return bl.Logout(name);
 		}
 
 		public ReturnMessage Register(string user, string password, string email, string userImage)

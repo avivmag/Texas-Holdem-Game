@@ -35,6 +35,7 @@ namespace Backend.Game
             active = true;
             deck = new Deck();
             spectators = new List<Player>();
+            
             players = new Player[GamePreferences.MaxPlayers];
             availableSeats = GamePreferences.MaxPlayers - 1;
             Random rnd = new Random();
@@ -102,7 +103,7 @@ namespace Backend.Game
 
         public ReturnMessage joinSpectate(Player spectator)
         {
-            if (!GamePreferences.IsSpectatingAllowed)
+            if (!GamePreferences.IsSpectatingAllowed.Value)
                 return new ReturnMessage(false, "Couldn't spectate the game because the game preferences is not alowing.");
 
             foreach (Player p in players)

@@ -92,7 +92,7 @@ public class BLImpl : BLInterface
 			return m;
 		}
 		foreach (SystemUser u in allUsers) {
-			if (u.name.Equals(name, StringComparison.OrdinalIgnoreCase) || u.email.Equals(email, StringComparison.OrdinalIgnoreCase)) //comparing two passwords including cases i.e AbC = aBc
+			if (u.id!=userId && (u.name.Equals(name, StringComparison.OrdinalIgnoreCase) || u.email.Equals(email, StringComparison.OrdinalIgnoreCase))) //comparing two passwords including cases i.e AbC = aBc
 			{
 				m.success = false;
 				m.description = "Username or email already exists.";
@@ -154,9 +154,17 @@ public class BLImpl : BLInterface
         return m;
     }
 
-    public ReturnMessage createGame(int? gameCreator, GameTypePolicy gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed)
+    public TexasHoldemGame createGame(int gameCreator, GameTypePolicy gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed)
     {
-        return new ReturnMessage();
+        int buyInPolicyPref = buyInPolicy.HasValue ? buyInPolicy.Value : -1;
+        int startingChipsAmountPref = startingChipsAmount.HasValue ? startingChipsAmount.Value : -1;
+        int MinimalBetPref = MinimalBet.HasValue ? MinimalBet.Value : -1;
+        int minimalPlayerPref = minPlayers.HasValue ? minPlayers.Value : -1;
+        int maximalPlayerPref = maxPlayers.HasValue ? maxPlayers.Value : -1;
+        GamePreferences pref = new GamePreferences(gamePolicy, buyInPolicyPref, startingChipsAmountPref, MinimalBetPref, minimalPlayerPref, maximalPlayerPref, isSpectatingAllowed);
+        TexasHoldemGame game = new TexasHoldemGame(gameCreator, pref);
+        dal.addGame(game);
+        return game;
     }
 
     private ReturnMessage checkGamePreferences(GamePreferences pref)
@@ -242,8 +250,14 @@ public class BLImpl : BLInterface
 		return ans;
 	}
 
-    public List<TexasHoldemGame> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed)
+    public List<TexasHoldemGame> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount,
+                                    int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed)
     {
+        
+        List<TexasHoldemGame> ans = new List<TexasHoldemGame> { };
+        List<TexasHoldemGame> allGames = dal.getAllGames();
+
+        GamePreferences pref = new GamePreferences(gamePolicy, buyInPolicy, startingChipsAmount, MinimalBet, minPlayers, maxPlayers, isSpectatingAllowed);
         return null;
     }
 
