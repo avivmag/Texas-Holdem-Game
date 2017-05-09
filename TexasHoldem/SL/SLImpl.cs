@@ -7,12 +7,13 @@ using Backend;
 using Backend.Game;
 using Backend.User;
 using BL;
+using static Backend.Game.GamePreferences;
 
 namespace SL
 {
-	class SLImpl : SLInterface
+	public class SLImpl : SLInterface
 	{
-		private SystemUser mySystemUser;
+		public static SystemUser mySystemUser;
 		private BLInterface bl;
 
 		public SLImpl()
@@ -20,9 +21,9 @@ namespace SL
 			bl = new BLImpl();
 		}
 
-        public ReturnMessage createGame(int gameCreator, int gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool isSpectatingAllowed)
+        public ReturnMessage createGame(int? gameCreator, GameTypePolicy gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed)
         {
-            return null;
+            return bl.createGame(gameCreator,gamePolicy,buyInPolicy,startingChipsAmount,MinimalBet,minPlayers,maxPlayers,isSpectatingAllowed);
         }
 
         public ReturnMessage editUserProfile(int userId, string name, string password, string email, string avatar)
@@ -30,34 +31,34 @@ namespace SL
             return bl.editUserProfile(userId, name, password, email, avatar);
 		}
 
-        public List<TexasHoldemGame> filterActiveGamesByGamePreferences(int? gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed)
+        public List<TexasHoldemGame> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed)
         {
-            throw new NotImplementedException();
+            return bl.filterActiveGamesByGamePreferences(gamePolicy,buyInPolicy,startingChipsAmount,MinimalBet,minPlayers,maxPlayers,isSpectatingAllowed);
         }
 
         public List<TexasHoldemGame> filterActiveGamesByPlayerName(string name)
 		{
-            return null;
+            return bl.filterActiveGamesByPlayerName(name);
         }
 
-		public List<TexasHoldemGame> filterActiveGamesByPotSize(int size)
+		public List<TexasHoldemGame> filterActiveGamesByPotSize(int? size)
 		{
-            return null;
+            return bl.filterActiveGamesByPotSize(size);
         }
 
 		public List<TexasHoldemGame> findAllActiveAvailableGames()
 		{
-            return null;
+            return bl.findAllActiveAvailableGames();
         }
 
 		public ReturnMessage joinActiveGame(SystemUser user, int gameId)
 		{
-            return null;
+            return bl.joinActiveGame(user, gameId);
         }
 
-		public ReturnMessage leaveGame(SystemUser user, int gameId)
+		public ReturnMessage leaveGame(Player player, int gameId)
 		{
-            return null;
+            return bl.leaveGame(player, gameId);
         }
 
 		public ReturnMessage Login(string user, string password)
@@ -80,17 +81,12 @@ namespace SL
 
 		public ReturnMessage Register(string user, string password, string email, string userImage)
 		{
-            return null;
-        }
-
-		public ReturnMessage Register(string user, string password)
-		{
-            return null;
+            return bl.Register(user, password, email, userImage);
         }
 
 		public ReturnMessage spectateActiveGame(SystemUser user, int gameId)
 		{
-            return null;
+            return bl.spectateActiveGame(user, gameId);
 		}
 	}
 }

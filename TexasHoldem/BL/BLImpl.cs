@@ -6,6 +6,7 @@ using BL;
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using static Backend.Game.GamePreferences;
 
 public class BLImpl : BLInterface
 {
@@ -153,6 +154,11 @@ public class BLImpl : BLInterface
         return m;
     }
 
+    public ReturnMessage createGame(int? gameCreator, GameTypePolicy gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed)
+    {
+        return new ReturnMessage();
+    }
+
     private ReturnMessage checkGamePreferences(GamePreferences pref)
     {
         // Check buy in policy.
@@ -206,7 +212,7 @@ public class BLImpl : BLInterface
         return new ReturnMessage(true, null);
     }
 
-    public List<TexasHoldemGame> filterActiveGamesByPotSize(int potSize)
+    public List<TexasHoldemGame> filterActiveGamesByPotSize(int? potSize)
 	{
 		List<TexasHoldemGame> ans = new List<TexasHoldemGame> { };
 		ans = dal.getAllGames();
@@ -235,6 +241,11 @@ public class BLImpl : BLInterface
 
 		return ans;
 	}
+
+    public List<TexasHoldemGame> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed)
+    {
+        return null;
+    }
 
     public List<TexasHoldemGame> getAllGames()
     {
@@ -273,7 +284,7 @@ public class BLImpl : BLInterface
 	}
 	public ReturnMessage Register(string user, string password, string email, string userImage)
 	{
-		if (user == null || password == null || email == null || userImage == null || user.Equals("") || password.Equals("") || email.Equals("") || userImage.Equals(""))
+		if (user == null || password == null || email == null || userImage == null || user.Equals("") || password.Equals("") || email.Equals("") /*|| userImage.Equals("")*/)
 			return new ReturnMessage(false, "all attributes must be filled.");
 
 		SystemUser systemUser = dal.getUserByName(user);

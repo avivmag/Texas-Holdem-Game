@@ -3,6 +3,7 @@ using Backend.Game;
 using Backend.User;
 using System.Collections.Generic;
 using System;
+using static Backend.Game.GamePreferences;
 
 namespace BL
 {
@@ -14,10 +15,12 @@ namespace BL
         ReturnMessage editUserProfile(int userId, string name, string password, string email, string avatar);
         List<TexasHoldemGame> findAllActiveAvailableGames();
         List<TexasHoldemGame> filterActiveGamesByPlayerName(string name);
-        List<TexasHoldemGame> filterActiveGamesByPotSize(int size);
+        List<TexasHoldemGame> filterActiveGamesByPotSize(int? size);
         List<TexasHoldemGame> filterActiveGamesByGamePreferences(GamePreferences pref);
+        List<TexasHoldemGame> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed);
         List<TexasHoldemGame> getAllGames();
         ReturnMessage createGame(int gameCreatorId, GamePreferences pref);
+        ReturnMessage createGame(int? gameCreator, GameTypePolicy gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed);
 
         ReturnMessage Login(string user, string password);
 		ReturnMessage Register(string user, string password, string email, string userImage);
