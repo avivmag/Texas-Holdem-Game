@@ -1,0 +1,22 @@
+﻿<Window x:Class="PL.MainMenuWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PL"
+        mc:Ignorable="d"
+        Title="Main Menu Window" Height="410" Width="515">
+    <Grid>
+        <StackPanel HorizontalAlignment="Left" Height="320" Margin="10,25,0,0" VerticalAlignment="Top" Width="489">
+            <Button x:Name="createGame" Content="Create Game" VerticalAlignment="Top" FontStyle="Italic" FontSize="16" Width="120" Height="30" Click="Create_Game_Click" HorizontalAlignment="Center" Margin="0,15,0,0" />
+            <Button x:Name="joinGame" Content="Join Game" VerticalAlignment="Top" FontStyle="Italic" FontSize="16" Width="120" Height="30" Click="Join_Game_Click" HorizontalAlignment="Center" Margin="0,15,0,0" />
+            <Button x:Name="spectateGame" Content="Spectate Game" VerticalAlignment="Top" FontStyle="Italic" FontSize="16" Width="120" Height="30" Click="Specate_Game_Click" HorizontalAlignment="Center" Margin="0,15,0,0" />
+            <Button x:Name="searcGame" Content="Search Game" VerticalAlignment="Top" FontStyle="Italic" FontSize="16" Width="120" Height="30" Click="Search_Game_Click" HorizontalAlignment="Center" Margin="0,15,0,0" />
+            <Button x:Name="options" Content="Options" VerticalAlignment="Top" FontStyle="Italic" FontSize="16" Width="120" Height="30" Click="Options_Click" HorizontalAlignment="Center" Margin="0,15,0,0"/>
+            <Button x:Name="logout" Content="Logout" VerticalAlignment="Top" FontStyle="Italic" FontSize="16" Width="120" Height="30" Click="Logout_Click" HorizontalAlignment="Center" Margin="0,15,0,0" />
+            <Button x:Name="exit" Content="Exit" VerticalAlignment="Top" FontStyle="Italic" FontSize="16" Width="120" Height="30" Click="Exit_Click" HorizontalAlignment="Center" Margin="0,15,0,0" />
+        </StackPanel>
+
+        <TextBlock Name="errorMessage" HorizontalAlignment="Left" Height="23" Margin="10,349,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="488"/>
+    </Grid>
+</Window>
