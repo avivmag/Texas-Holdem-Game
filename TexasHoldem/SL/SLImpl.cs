@@ -7,12 +7,12 @@ using Backend;
 using Backend.Game;
 using Backend.User;
 using BL;
+using static Backend.Game.GamePreferences;
 
 namespace SL
 {
-	class SLImpl : SLInterface
+	public class SLImpl : SLInterface
 	{
-		private SystemUser mySystemUser;
 		private BLInterface bl;
 
 		public SLImpl()
@@ -20,78 +20,74 @@ namespace SL
 			bl = new BLImpl();
 		}
 
-		public ReturnMessage editUserProfile(int userId, string name, string password, string email, string avatar)
-		{
-			throw new NotImplementedException();
-		}
-
-		public List<TexasHoldemGame> filterActiveGamesByGamePreferences(int? gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed)
-		{
-			throw new NotImplementedException();
-		}
-
-        public ReturnMessage createGame(int gameCreator, int gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool isSpectatingAllowed)
+        public TexasHoldemGame createGame(int gameCreator, GameTypePolicy gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed)
         {
-            throw new NotImplementedException();
+            return bl.createGame(gameCreator,gamePolicy,buyInPolicy,startingChipsAmount,MinimalBet,minPlayers,maxPlayers,isSpectatingAllowed);
         }
 
+        public ReturnMessage editUserProfile(int userId, string name, string password, string email, string avatar)
+		{
+            return bl.editUserProfile(userId, name, password, email, avatar);
+		}
+
+        public List<TexasHoldemGame> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed)
+        {
+            return bl.filterActiveGamesByGamePreferences(gamePolicy,buyInPolicy,startingChipsAmount,MinimalBet,minPlayers,maxPlayers,isSpectatingAllowed);
+        }
 
         public List<TexasHoldemGame> filterActiveGamesByPlayerName(string name)
 		{
-			throw new NotImplementedException();
-		}
+            return bl.filterActiveGamesByPlayerName(name);
+        }
 
-		public List<TexasHoldemGame> filterActiveGamesByPotSize(int size)
+		public List<TexasHoldemGame> filterActiveGamesByPotSize(int? size)
 		{
-			throw new NotImplementedException();
-		}
+            return bl.filterActiveGamesByPotSize(size);
+        }
 
 		public List<TexasHoldemGame> findAllActiveAvailableGames()
 		{
-			throw new NotImplementedException();
-		}
+            return bl.findAllActiveAvailableGames();
+        }
 
-		public ReturnMessage joinActiveGame(SystemUser user, int gameId)
-		{
-			throw new NotImplementedException();
-		}
+        public TexasHoldemGame getGameById(int gameId)
+        {
+            return bl.getGameById(gameId);
+        }
 
-		public ReturnMessage leaveGame(SystemUser user, int gameId)
+        public SystemUser getUserByName(string userName)
+        {
+            return bl.getUserByName(userName);
+        }
+
+        public ReturnMessage joinActiveGame(SystemUser user, int gameId)
 		{
-			throw new NotImplementedException();
-		}
+            return bl.joinActiveGame(user, gameId);
+        }
+
+		public ReturnMessage leaveGame(Player player, int gameId)
+		{
+            return bl.leaveGame(player, gameId);
+        }
 
 		public ReturnMessage Login(string user, string password)
 		{
-			ReturnMessage m = bl.Login(user, password);
-			if (m.success)
-				mySystemUser = bl.getUserByName(user);
-
-			return m;
+			return bl.Login(user, password);
 		}
 
-		public ReturnMessage Logout()
+		public ReturnMessage Logout(string name)
 		{
-			ReturnMessage m = bl.Logout(mySystemUser.name);
-			if (m.success)
-				mySystemUser = null;
-
-			return m;
+			return bl.Logout(name);
 		}
 
 		public ReturnMessage Register(string user, string password, string email, string userImage)
 		{
-			return bl.Register(user, password, email, userImage);
-		}
-
-		public ReturnMessage Register(string user, string password)
-		{
-			throw new NotImplementedException();
-		}
+            return bl.Register(user, password, email, userImage);
+        }
 
 		public ReturnMessage spectateActiveGame(SystemUser user, int gameId)
 		{
-			throw new NotImplementedException();
+            return bl.spectateActiveGame(user, gameId);
 		}
 	}
 }

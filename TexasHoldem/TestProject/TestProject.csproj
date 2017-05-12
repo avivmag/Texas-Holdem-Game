@@ -101,10 +101,6 @@
       <Project>{1e852876-108e-4607-8897-4d50f83fb0c6}</Project>
       <Name>SL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TexasHoldem\TexasHoldem.csproj">
-      <Project>{6809fa67-cd71-4df1-a6f9-92d38f023c6d}</Project>
-      <Name>TexasHoldem</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

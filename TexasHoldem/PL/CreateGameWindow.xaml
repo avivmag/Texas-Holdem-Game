@@ -1,0 +1,64 @@
+﻿<Window x:Class="PL.CreateGameWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PL"
+        mc:Ignorable="d"
+        Title="CreateGameWindow" Height="500" Width="500">
+    <Grid>
+        <Label Content="Please choose preferences:"></Label>
+
+        <StackPanel x:Name="prefFields" Orientation="Vertical" VerticalAlignment="Center" Width="294" Margin="0,0,0,75">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="290">
+                <Label Content="Policy:" Margin="0,0,5,0" VerticalAlignment="Center" Width="110"/>
+                <ComboBox Margin="10,10,10,10" x:Name="GameTypePolicyComboBox" IsEnabled="False" Text="" VerticalAlignment="Center" Height="30" Width="157">
+                    <ComboBoxItem Content="none"/>
+                    <ComboBoxItem Content="limit"/>
+                    <ComboBoxItem Content="no-limit"/>
+                    <ComboBoxItem Content="pot_limit"/>
+                </ComboBox>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="290">
+                <Label Content="Buy in policy:" Margin="0,0,5,0" VerticalAlignment="Center" Width="110"/>
+                <TextBox Margin="10,10,10,10" x:Name="buyInTextbox" IsEnabled="False" Text="" VerticalAlignment="Center" Height="30" TextWrapping="NoWrap" Width="157"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="290">
+                <Label Content="Starting Chips:" Margin="0,0,5,0" VerticalAlignment="Center" Width="110"/>
+                <TextBox Margin="10,10,10,10" x:Name="startingChipsTextbox" IsEnabled="False" Text="" VerticalAlignment="Center" Height="30" TextWrapping="NoWrap" Width="157"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="290">
+                <Label Content="Minimal Bet:" Margin="0,0,5,0" VerticalAlignment="Center" Width="110"/>
+                <TextBox Margin="10,10,10,10" x:Name="minimalBetTextbox" IsEnabled="False" Text="" VerticalAlignment="Center" Height="30" TextWrapping="NoWrap" Width="157"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="290">
+                <Label Content="Minimal Player:" Margin="0,0,5,0" VerticalAlignment="Center" Width="110"/>
+                <TextBox Margin="10,10,10,10" x:Name="minimalPlayerTextbox" IsEnabled="False" Text="" VerticalAlignment="Center" Height="30" TextWrapping="NoWrap" Width="157"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="290">
+                <Label Content="Maximal Player:" Margin="0,0,5,0" VerticalAlignment="Center" Width="110"/>
+                <TextBox Margin="10,10,10,10" x:Name="maximalPlayerTextbox" IsEnabled="False" Text="" VerticalAlignment="Center" Height="30" TextWrapping="NoWrap" Width="157"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="290">
+                <Label Content="Spectate allowed:" Margin="0,0,5,0" VerticalAlignment="Center" Width="110"/>
+                <ComboBox Margin="10,10,10,10" x:Name="spectateAllowedTextbox" IsEnabled="False" Text="" VerticalAlignment="Center" Height="30" Width="157">
+                    <ComboBoxItem Content="none"/>
+                    <ComboBoxItem Content="true"/>
+                    <ComboBoxItem Content="false"/>
+                </ComboBox>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Height="50" Margin="0,0,0,30">
+            <Button x:Name="backBtn" Content="Back" VerticalAlignment="Center" Width="124" Click="Back_Click" Margin="70,0,0,0"/>
+            <Button x:Name="CreateBtn" Content="Create Game" VerticalAlignment="Center" Width="124" Click="Create_Game_Click" Margin="100,0,0,0"/>
+        </StackPanel>
+        <TextBlock Name="errorMessage" HorizontalAlignment="Stretch" Height="23" TextWrapping="Wrap" Text="" VerticalAlignment="Bottom"/>
+    </Grid>
+</Window>

@@ -6,15 +6,16 @@ using BL;
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using static Backend.Game.GamePreferences;
 
 public class BLImpl : BLInterface
 {
 	private DALInterface dal;
 
-	public BLImpl()
-	{
-		dal = new DALDummy();
-	}
+    public BLImpl()
+    {
+        dal = new DALDummy();
+    }
 
     public BLImpl(DALInterface dal)
     {
@@ -26,11 +27,11 @@ public class BLImpl : BLInterface
 		TexasHoldemGame existingGame = dal.getGameById(gameID);
 		if (existingGame != null)
 		{
-			Spectator spec = new Spectator(user.id);
-			m = existingGame.joinSpectate(spec);
+			Player spectator = new Player(user.id);
+			m = existingGame.joinSpectate(spectator);
 			if (m.success)
 			{
-				user.addSpectatingGame(spec);
+				user.addSpectatingGame(spectator);
 			}
 			return m;
 		}
@@ -55,14 +56,14 @@ public class BLImpl : BLInterface
 			return new ReturnMessage(false, "Couldn't find the wanted game with the id:" + gameID.ToString() + ".");
 	}
 
-	public ReturnMessage leaveGame(Spectator spec, int gameID)
+	public ReturnMessage leaveGame(Player spec, int gameID)
 	{
 		ReturnMessage m = new ReturnMessage();
 		TexasHoldemGame existingGame = dal.getGameById(gameID);
 		if (spec.GetType() == typeof(Player))
 		{
 			Player p = (Player)spec;
-			existingGame.leaveGame(p);
+			existingGame.leaveGamePlayer(p);
 			SystemUser user = dal.getUserById(spec.systemUserID);
 			//TODO: what is the rank changing policy.
 			user.money += p.Tokens;
@@ -74,7 +75,7 @@ public class BLImpl : BLInterface
 		}
 		else
 		{
-			existingGame.leaveGame((Player)spec);
+			existingGame.leaveGamePlayer((Player)spec);
 		}
 		return m;
 	}
@@ -91,7 +92,7 @@ public class BLImpl : BLInterface
 			return m;
 		}
 		foreach (SystemUser u in allUsers) {
-			if (u.name.Equals(name, StringComparison.OrdinalIgnoreCase) || u.email.Equals(email, StringComparison.OrdinalIgnoreCase)) //comparing two passwords including cases i.e AbC = aBc
+			if (u.id!=userId && (u.name.Equals(name, StringComparison.OrdinalIgnoreCase) || u.email.Equals(email, StringComparison.OrdinalIgnoreCase))) //comparing two passwords including cases i.e AbC = aBc
 			{
 				m.success = false;
 				m.description = "Username or email already exists.";
@@ -153,6 +154,19 @@ public class BLImpl : BLInterface
         return m;
     }
 
+    public TexasHoldemGame createGame(int gameCreator, GameTypePolicy gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed)
+    {
+        int buyInPolicyPref = buyInPolicy.HasValue ? buyInPolicy.Value : -1;
+        int startingChipsAmountPref = startingChipsAmount.HasValue ? startingChipsAmount.Value : -1;
+        int MinimalBetPref = MinimalBet.HasValue ? MinimalBet.Value : -1;
+        int minimalPlayerPref = minPlayers.HasValue ? minPlayers.Value : -1;
+        int maximalPlayerPref = maxPlayers.HasValue ? maxPlayers.Value : -1;
+        GamePreferences pref = new GamePreferences(gamePolicy, buyInPolicyPref, startingChipsAmountPref, MinimalBetPref, minimalPlayerPref, maximalPlayerPref, isSpectatingAllowed);
+        TexasHoldemGame game = new TexasHoldemGame(gameCreator, pref);
+        dal.addGame(game);
+        return game;
+    }
+
     private ReturnMessage checkGamePreferences(GamePreferences pref)
     {
         // Check buy in policy.
@@ -206,7 +220,7 @@ public class BLImpl : BLInterface
         return new ReturnMessage(true, null);
     }
 
-    public List<TexasHoldemGame> filterActiveGamesByPotSize(int potSize)
+    public List<TexasHoldemGame> filterActiveGamesByPotSize(int? potSize)
 	{
 		List<TexasHoldemGame> ans = new List<TexasHoldemGame> { };
 		ans = dal.getAllGames();
@@ -224,7 +238,8 @@ public class BLImpl : BLInterface
 	public List<TexasHoldemGame> filterActiveGamesByGamePreferences(GamePreferences pref)
 	{
 		List<TexasHoldemGame> ans = new List<TexasHoldemGame> { };
-		foreach (TexasHoldemGame g in dal.getAllGames())
+        List<TexasHoldemGame> allGames = dal.getAllGames();
+        foreach (TexasHoldemGame g in allGames)
 		{
 			if (g.GamePreferences.Equals(pref))
 			{
@@ -234,6 +249,22 @@ public class BLImpl : BLInterface
 
 		return ans;
 	}
+
+    public List<TexasHoldemGame> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount,
+                                    int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed)
+    {
+        
+        List<TexasHoldemGame> ans = new List<TexasHoldemGame> { };
+        List<TexasHoldemGame> allGames = dal.getAllGames();
+
+        GamePreferences pref = new GamePreferences(gamePolicy, buyInPolicy, startingChipsAmount, MinimalBet, minPlayers, maxPlayers, isSpectatingAllowed);
+        return null;
+    }
+
+    public List<TexasHoldemGame> getAllGames()
+    {
+        return dal.getAllGames();
+    }
 
 	public SystemUser getUserById(int userId)
 	{
@@ -267,7 +298,7 @@ public class BLImpl : BLInterface
 	}
 	public ReturnMessage Register(string user, string password, string email, string userImage)
 	{
-		if (user == null || password == null || email == null || userImage == null || user.Equals("") || password.Equals("") || email.Equals("") || userImage.Equals(""))
+		if (user == null || password == null || email == null || userImage == null || user.Equals("") || password.Equals("") || email.Equals("") /*|| userImage.Equals("")*/)
 			return new ReturnMessage(false, "all attributes must be filled.");
 
 		SystemUser systemUser = dal.getUserByName(user);
@@ -328,6 +359,124 @@ public class BLImpl : BLInterface
 
 		return dal.logOutUser(user);
 	}
+
+    public void replayGame(int gameId)
+    {
+        String line = GameLog.readLine(gameId);
+        var lineOptions = parseLine(line);
+
+        if (lineOptions[0] == GameLog.Actions.Action_Bet.ToString())
+        {
+            var playerId = lineOptions[1];
+            var betAmount = lineOptions[2];
+            Console.WriteLine("Player {0} has bet amount of {1}.", playerId, betAmount);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Action_Call.ToString())
+        {
+            var playerId = lineOptions[1];
+            var betAmount = lineOptions[2];
+            Console.WriteLine("Player {0} has called amount of {1}.", playerId, betAmount);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Action_Check.ToString())
+        {
+            var playerId = lineOptions[1];
+            Console.WriteLine("Player {0} has checked.", playerId);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Action_Fold.ToString())
+        {
+            var playerId = lineOptions[1];
+            Console.WriteLine("Player {0} has folded.", playerId);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Action_Raise.ToString())
+        {
+            var playerId = lineOptions[1];
+            var betAmount = lineOptions[2];
+            Console.WriteLine("Player {0} has raised amount of {1}", playerId, betAmount);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Big_Blind.ToString())
+        {
+            var playerId = lineOptions[1];
+            Console.WriteLine("Player {0} has placed big blind.", playerId);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Small_Blind.ToString())
+        {
+            var playerId = lineOptions[1];
+            Console.WriteLine("Player {0} has placed small blind.", playerId);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Deal_Card.ToString())
+        {
+            var card = lineOptions[1];
+            Console.WriteLine("A card was dealt: {0}.", card);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Flop.ToString())
+        {
+            var flop = lineOptions[1];
+            Console.WriteLine("The flop is: {0}.", flop);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Game_Start.ToString())
+        {
+            var gameDate = lineOptions[1];
+            Console.WriteLine("Game started at {0}.", gameDate);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Player_Join.ToString())
+        {
+            var playerId = lineOptions[1];
+            Console.WriteLine("Player {0} has joined the game.", playerId);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Player_Left.ToString())
+        {
+            var playerId = lineOptions[1];
+            Console.WriteLine("Player {0} has left the game.", playerId);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Pot_Changed.ToString())
+        {
+            var amountChanged = lineOptions[1];
+            var newPot = lineOptions[2];
+            Console.WriteLine("Pot was changed by {0} and is now {1}!.", amountChanged, newPot);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.River.ToString())
+        {
+            var river = lineOptions[1];
+            Console.WriteLine("The river is: {0}.", river);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Spectate_Join.ToString())
+        {
+            var playerId = lineOptions[1];
+            Console.WriteLine("Player {0} has started spectating the game.", playerId);
+        }
+
+        if (lineOptions[0] == GameLog.Actions.Spectate_Left.ToString())
+        {
+            var playerId = lineOptions[1];
+            Console.WriteLine("Player {0} has stopped spectating the game.", playerId);
+        }
+
+    }
+
+    private string[] parseLine(string line)
+    {
+        var lineOptions = line.Split(new string[] { "][" }, StringSplitOptions.None);
+        lineOptions[0].Substring(1);
+        if (lineOptions.Length > 1) {
+            var lastOption = lineOptions[lineOptions.Length - 1];
+            lineOptions[lineOptions.Length - 1].Substring(0, lastOption.Length - 1);
+        }
+        return lineOptions;
+    }
 
     public ReturnMessage addLeague(int minRank, int maxRank, string leagueName)
     {
