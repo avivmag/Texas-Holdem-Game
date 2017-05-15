@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BL;
+using SL;
 using Backend.Game;
 using DAL;
 using Moq;
@@ -13,7 +13,8 @@ namespace TestProject.UnitTest
     [TestClass]
     public class TestGameCreate
     {
-        BLInterface bl;
+
+        SLInterface sl;
 
         [TestInitialize]
         public void SetUp()
@@ -29,13 +30,13 @@ namespace TestProject.UnitTest
             Mock<DALInterface> dalMock = new Mock<DALInterface>();
             dalMock.Setup(x => x.getUserById(It.IsAny<int>())).Returns((int id) => usersList.Find(u => u.id == id));
             dalMock.Setup(x => x.addGame(It.IsAny<TexasHoldemGame>())).Returns(new ReturnMessage(true, null));
-            this.bl = new BLImpl(dalMock.Object);
+            this.sl = new SLImpl(dalMock.Object);
         }
 
         [TestMethod]
         public void TestCreateGame()
         {
-            var user = bl.getUserById(0);
+            var user = sl.getUserById(0);
             GamePreferences pref = new GamePreferences(
                 GamePreferences.GameTypePolicy.limit,
                 100,
@@ -44,7 +45,7 @@ namespace TestProject.UnitTest
                 4,
                 8,
                 true);
-            var gameCreationMessage = bl.createGame(user.id, pref);
+            var gameCreationMessage = sl.createGame(user.id, pref);
 
             Assert.IsTrue(gameCreationMessage.success);
         }
@@ -60,7 +61,7 @@ namespace TestProject.UnitTest
                 4,
                 8,
                 true);
-            var gameCreationMessage = bl.createGame(95, pref);
+            var gameCreationMessage = sl.createGame(95, pref);
 
             Assert.IsFalse(gameCreationMessage.success);
         }
@@ -76,7 +77,7 @@ namespace TestProject.UnitTest
                 4,
                 8,
                 true);
-            var gameCreationMessage = bl.createGame(0, pref);
+            var gameCreationMessage = sl.createGame(0, pref);
 
             Assert.IsFalse(gameCreationMessage.success);
         }
@@ -92,7 +93,7 @@ namespace TestProject.UnitTest
                 4,
                 8,
                 true);
-            var gameCreationMessage = bl.createGame(0, pref);
+            var gameCreationMessage = sl.createGame(0, pref);
 
             Assert.IsFalse(gameCreationMessage.success);
         }
@@ -108,7 +109,7 @@ namespace TestProject.UnitTest
                 4,
                 8,
                 true);
-            var gameCreationMessage = bl.createGame(0, pref);
+            var gameCreationMessage = sl.createGame(0, pref);
 
             Assert.IsFalse(gameCreationMessage.success);
         }
@@ -124,7 +125,7 @@ namespace TestProject.UnitTest
                 1,
                 8,
                 true);
-            var gameCreationMessage = bl.createGame(0, pref);
+            var gameCreationMessage = sl.createGame(0, pref);
 
             Assert.IsFalse(gameCreationMessage.success);
         }
@@ -140,7 +141,7 @@ namespace TestProject.UnitTest
                 4,
                 3,
                 true);
-            var gameCreationMessage = bl.createGame(0, pref);
+            var gameCreationMessage = sl.createGame(0, pref);
 
             Assert.IsFalse(gameCreationMessage.success);
         }

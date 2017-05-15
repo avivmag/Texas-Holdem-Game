@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BL;
+using SL;
 using Moq;
 using DAL;
 using Backend.User;
@@ -10,7 +10,7 @@ namespace TestProject
     [TestClass]
     public class EditUserProfileTest
     {
-        BLInterface bl;
+        SLInterface bl;
         [TestInitialize]
         public void SetUp()
         {
@@ -25,7 +25,7 @@ namespace TestProject
             Mock<DALInterface> dalMock = new Mock<DALInterface>();
             dalMock.Setup(x => x.getAllUsers()).Returns(userList);
             dalMock.Setup(x => x.getUserById(It.IsAny<int>())).Returns((int i) => userList[i]);
-            this.bl = new BLImpl(dalMock.Object);
+            this.bl = new SLImpl(dalMock.Object);
         }
 
         [TestMethod]

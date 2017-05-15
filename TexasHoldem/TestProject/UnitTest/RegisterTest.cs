@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BL;
+using SL;
 using System.Collections.Generic;
 using Backend.User;
 using Moq;
@@ -11,7 +11,7 @@ namespace TestProject.UnitTest
 	public class RegisterTest
 	{
 
-        BLInterface bl;
+        SLInterface sl;
 
         [TestInitialize]
         public void SetUp()
@@ -29,31 +29,31 @@ namespace TestProject.UnitTest
             dalMock.Setup(x => x.logUser(It.IsAny<string>())).Returns(new ReturnMessage(true, null));
             dalMock.Setup(x => x.logOutUser(It.IsAny<string>())).Returns(new ReturnMessage(true, null));
             dalMock.Setup(x => x.getUserByName(It.IsAny<string>())).Returns((string name) => usersList.Find(u => u.name == name));
-            this.bl = new BLImpl(dalMock.Object);
+            this.sl = new SLImpl(dalMock.Object);
         }
 
         [TestMethod]
 		public void successTest()
 		{
-			Assert.IsTrue(bl.Register("Scorpion", "GET OVER HERE!!", "scorpy@winnig.tournament.mk", "deadly skull behind a mask").success);
+			Assert.IsTrue(sl.Register("Scorpion", "GET OVER HERE!!", "scorpy@winnig.tournament.mk", "deadly skull behind a mask").success);
 		}
         
 		[TestMethod]
 		public void emptyUserNameTest()
 		{
-			Assert.IsFalse(bl.Register("", "P@SSW0RD", "gmail@gmail.com", "none").success);
+			Assert.IsFalse(sl.Register("", "P@SSW0RD", "gmail@gmail.com", "none").success);
 		}
 
 		[TestMethod]
 		public void emptyPasswordTest()
 		{
-			Assert.IsFalse(bl.Register("NeverPassworded", "", "no@password.com", "ying yang photo").success);
+			Assert.IsFalse(sl.Register("NeverPassworded", "", "no@password.com", "ying yang photo").success);
 		}
 
 		[TestMethod]
 		public void alreadyExistsEmailTest()
 		{
-			Assert.IsFalse(bl.Register("NeverPassworded", "", "no@password.com", "ying yang photo").success);
+			Assert.IsFalse(sl.Register("NeverPassworded", "", "no@password.com", "ying yang photo").success);
 		}
 	}
 

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PL"
         mc:Ignorable="d"
-        Title="SelectGameWindow" Height="750" Width="750">
+        Title="SelectGameWindow" Height="750" Width="750" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
     <Grid>
         <Label Content="Please choose game:"></Label>
         <StackPanel HorizontalAlignment="Stretch" Height="610" VerticalAlignment="Center">

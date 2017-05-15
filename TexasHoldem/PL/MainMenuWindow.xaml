@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PL"
         mc:Ignorable="d"
-        Title="Main Menu Window" Height="410" Width="515">
+        Title="Main Menu Window" Height="410" Width="515" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
     <Grid>
         <StackPanel HorizontalAlignment="Left" Height="320" Margin="10,25,0,0" VerticalAlignment="Top" Width="489">
             <Button x:Name="createGame" Content="Create Game" VerticalAlignment="Top" FontStyle="Italic" FontSize="16" Width="120" Height="30" Click="Create_Game_Click" HorizontalAlignment="Center" Margin="0,15,0,0" />

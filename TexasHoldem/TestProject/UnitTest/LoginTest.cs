@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BL;
+using SL;
 using Moq;
 using DAL;
 using Backend.User;
@@ -11,7 +11,7 @@ namespace TestProject.UnitTest
 	[TestClass]
 	public class LoginTest
 	{
-        BLInterface bl;
+        SLInterface bl;
 
         [TestInitialize]
         public void SetUp()
@@ -28,7 +28,7 @@ namespace TestProject.UnitTest
             dalMock.Setup(x => x.registerUser(It.IsAny<SystemUser>())).Returns(new ReturnMessage(true, null));
             dalMock.Setup(x => x.logUser(It.IsAny<string>())).Returns(new ReturnMessage(true, null));
             dalMock.Setup(x => x.getUserByName(It.IsAny<string>())).Returns((string name) => usersList.Find(u => u.name == name));
-            this.bl = new BLImpl(dalMock.Object);
+            this.bl = new SLImpl(dalMock.Object);
         }
 		[TestMethod]
 		public void successTest()
