@@ -17,7 +17,7 @@ namespace Backend.User
 
         private int tempRank;
         private int tempGames ;
-        private bool newPlayer; 
+        public bool newPlayer { get; set; } 
 
         public SystemUser(String name, String password, String email, String userImage, int money)
         {
