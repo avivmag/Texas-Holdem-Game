@@ -35,6 +35,6 @@ namespace SL
         //      League getLeagueById(Guid leagueId);
         //ReturnMessage setLeagueCriteria(int minRank, int maxRank, string leagueName, Guid leagueId, int userId);
 
-        ReturnMessage raiseBet(int gameId, int playerId, int coins)
+        string raiseBet(int gameId, int playerId, int coins);
     }
 }

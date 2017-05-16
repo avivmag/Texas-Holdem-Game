@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Windows;
-using Backend;
-using Backend.User;
-using SL;
+using CLClient;
+using CLClient.Entities;
 
 namespace PL
 {
@@ -11,15 +10,13 @@ namespace PL
     /// </summary>
     public partial class OptionsWindow : Window
     {
-        private SLInterface sl;
         private Window MainMenuWindow;
 
         public OptionsWindow(Window MainMenuWindow)
         {
             InitializeComponent();
             this.MainMenuWindow = MainMenuWindow;
-            sl = LoginWindow.sl;
-            SystemUser user = LoginWindow.mySystemUser;
+            SystemUser user = LoginWindow.user;
             username.Text = user.name;
             password.Text = user.password;
             email.Text = user.email;
@@ -40,7 +37,7 @@ namespace PL
             }
             else
             {
-                ReturnMessage m = sl.editUserProfile(LoginWindow.mySystemUser.id, username.Text, password.Text, email.Text, null);
+                ReturnMessage m = sl.editUserProfile(LoginWindow.user.id, username.Text, password.Text, email.Text, null);
 
                 if (m.success)
                 {

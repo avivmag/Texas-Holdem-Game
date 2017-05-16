@@ -3,23 +3,182 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CLShared;
 using SL;
+using System.Net.Sockets;
+using System.Xml.Serialization;
+using System.IO;
+using System.Net;
+using System.Threading;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace CLServer
 {
-    [Serializable]
-    public class CLImpl : CLShared.CLInterface
+    public class CLImpl
     {
-        private SLInterface sl;
-        public CLImpl(SLInterface sl)
+        private static SLInterface sl = null;
+
+        /// <summary>
+        /// Task to proccess the client's requests.
+        /// </summary>
+        /// <param name="obj">The tcp client.</param>
+        private static void ProcessClientRequests(Object obj)
         {
-            this.sl = sl;
+            TcpClient client = (TcpClient)obj;
+
+            try
+            {
+                while (true)
+                {
+                    var jsonObject = getJsonObjectFromStream(client);
+
+                    tryExecuteAction(jsonObject);
+                }
+            }
+
+            catch (ArgumentException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+                SendExceptionMessage(client);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+            finally
+            {
+                if (client != null)
+                {
+                    client.Close();
+                }
+            }
         }
-        
-        ReturnMessage CLInterface.raiseBet(int gameId, int playerId, int coins)
+
+        /// <summary>
+        /// Sends an exception message to the client.
+        /// </summary>
+        /// <param name="client">The client to send to.</param>
+        /// <param name="message">The message to send. (Optional)</param>
+        private static void SendExceptionMessage(TcpClient client, String message = "")
         {
-            return sl.raiseBet(gameId, playerId, coins);
+            // If a message was received in the function's parameters, send it to the client, otherwise send generic message.
+            var exception = new {
+                exceptionMessage = (message == "" ? "An exception has occured." : message)
+            };
+
+            var exceptionString = JObject.FromObject(exception);
+
+            var serializedException = JsonConvert.SerializeObject(exceptionString);
+
+            var exceptionByteArray = Encoding.ASCII.GetBytes(serializedException);
+
+            try
+            {
+                if (client.GetStream().CanWrite)
+                {
+                    client.GetStream().Write(exceptionByteArray, 0, exceptionByteArray.Length);
+                }
+            }
+
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+        }
+
+        /// <summary>
+        /// returns a JObject as data from the client stream.
+        /// </summary>
+        /// <param name="client">The tcp client</param>
+        /// <returns>The JObject</returns>
+        private static JObject getJsonObjectFromStream(TcpClient client)
+        {
+            var message = new byte[1024];
+
+            var bytesRead = client.GetStream().Read(message, 0, 1024);
+
+            string myObject = Encoding.ASCII.GetString(message);
+            Object deserializedProduct = JsonConvert.DeserializeObject(myObject);
+            return JObject.FromObject(deserializedProduct);
+        }
+
+        /// <summary>
+        /// Tries to execute the action given by the client.
+        /// </summary>
+        /// <param name="jsonObject">The Object received from the client.</param>
+        private static void tryExecuteAction(JObject jsonObject)
+        {
+            var action = jsonObject.Value<string>("iAction");
+
+            Console.WriteLine("Trying to execute action: {0}", action);
+
+            switch (action)
+            {
+                case "Raise":
+                    // Get values from JSON.
+                    var gameId = jsonObject.Value<int?>("gameId");
+                    var playerId = jsonObject.Value<int?>("playedId");
+                    var coins = jsonObject.Value<int?>("coins");
+
+                    if (gameId == null || playerId == null || coins == null)
+                    {
+                        throw new ArgumentException("parameters mismatch.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Raising Bet. parameters are: gameId: {0}, playerId: {1}, coins: {2}", gameId, playerId, coins);
+                    }
+                    //sl.raiseBet(gameId, playerId, coins);
+                    break;
+
+                default:
+                    throw new ArgumentException("No known action specified.");
+            }
+        }
+
+        static void Main()
+        {
+            TcpListener listener = null;
+            try
+            {
+                var address = IPAddress.Parse("127.0.0.1");
+                var port    = 2345;
+                listener    = new TcpListener(address, port);
+
+                listener.Start();
+
+                Console.WriteLine(
+                    String.Format("Server has been initialized at IP: {0} PORT: {1}", 
+                    address.ToString(), 
+                    port));
+
+                while (true)
+                {
+                    Console.WriteLine("Waiting for new connection.");
+
+                    TcpClient client = listener.AcceptTcpClient();
+
+                    Console.WriteLine("Accepted new client");
+
+                    Thread t = new Thread(ProcessClientRequests);
+                    t.Start(client);
+                }
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+            finally
+            {
+                if (listener != null)
+                {
+                    listener.Stop();
+                }
+            }
         }
     }
 }

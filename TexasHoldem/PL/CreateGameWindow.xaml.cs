@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Windows;
-using Backend.Game;
-using static Backend.Game.GamePreferences;
-using SL;
 
 namespace PL
 {
@@ -11,7 +8,6 @@ namespace PL
     /// </summary>
     public partial class CreateGameWindow : Window
     {
-        private SLInterface sl = LoginWindow.sl;
         private Window mainMenuWindow;
 
         public CreateGameWindow(Window MainMenuWindow)
@@ -29,7 +25,7 @@ namespace PL
         private void Create_Game_Click(object sender, RoutedEventArgs e)
         {
             errorMessage.Text = "";
-            TexasHoldemGame game = getGame();
+            var game = getGame();
             if (game == null)
             {
                 errorMessage.Text = "Could not create the game";

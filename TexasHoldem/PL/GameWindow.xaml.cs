@@ -11,9 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using Backend.Game;
 using System.Windows.Controls.Primitives;
-using CLShared;
 
 namespace PL
 {
@@ -23,7 +21,6 @@ namespace PL
     /// </summary>
     public partial class GameWindow : Window
     {
-        private CLInterface cl;
         private int gameId;
         private Window mainMenuWindow;
         private Button[] seatsButtons;

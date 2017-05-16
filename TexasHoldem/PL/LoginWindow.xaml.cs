@@ -1,7 +1,6 @@
 ﻿using System.Windows;
-using Backend;
-using Backend.User;
-using SL;
+using CLClient;
+using CLClient.Entities;
 
 namespace PL
 {
@@ -10,14 +9,11 @@ namespace PL
     /// </summary>
     public partial class LoginWindow : Window, PLInterface
     {
-        public static SLInterface sl;
-        public static SystemUser mySystemUser;
+        internal static SystemUser user;
 
         public LoginWindow()
         {
-            InitializeComponent();
-            
-            sl = new SLImpl();
+            InitializeComponent();            
         }
 
         public void Run()
@@ -27,20 +23,11 @@ namespace PL
 
         private void Login_Click(object sender, RoutedEventArgs e)
         {
-            ReturnMessage message = sl.Login(this.username.Text, this.password.Password);
-         
-            if (message.success)
-            {
-                mySystemUser = sl.getUserByName(this.username.Text);
-                this.Hide();
-                errorMessage.Text = "";
-                new MainMenuWindow(this).Show();
-            }
-            else
-            {
-                this.errorMessage.Text = message.description;
-                this.errorMessage.Visibility = Visibility.Visible;
-            }
+            user = CommClient.Login(this.username.Text, this.password.Password);
+
+            this.Hide();
+            errorMessage.Text = "";
+            new MainMenuWindow(this).Show();
         }
 
         private void Register_Click(object sender, RoutedEventArgs e)
