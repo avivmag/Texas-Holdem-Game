@@ -26,20 +26,5 @@ namespace Backend.Game
             this.systemUserID = userId;
             this.spectator = true;
         }
-
-        public void ShowUpdate(GameObserver.ObserverType ot, string s)
-        {
-            switch (ot){
-                case GameObserver.ObserverType.Chat:
-                    //TODO:
-                    break;
-                case GameObserver.ObserverType.Game:
-                    //TODO:
-                    break;
-                case GameObserver.ObserverType.Spactate:
-                    //TODO:
-                    break;
-            }
-        }
     }
 }

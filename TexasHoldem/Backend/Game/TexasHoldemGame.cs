@@ -26,9 +26,6 @@ namespace Backend.Game
         public Card turn { get; set; }
         public Card river { get; set; }
         public enum HandsRanks { HighCard, Pair, TwoPairs, ThreeOfAKind, Straight, Flush, FullHouse, FourOfAKind, StraightFlush, RoyalFlush }
-        private GameObserver playerObserver;
-        private GameObserver gameObserver;
-        private GameObserver spectateObserver;
 
         public TexasHoldemGame(int gameCreatorUserId, GamePreferences gamePreferences)
         {
@@ -54,12 +51,6 @@ namespace Backend.Game
             flop = new List<Card>();
 
             currentDealer = 0;
-
-            playerObserver = new GameObserver(GameObserver.ObserverType.Player);
-            gameObserver = new GameObserver(GameObserver.ObserverType.Game);
-            spectateObserver = new GameObserver(GameObserver.ObserverType.Spactate);
-
-
         }
 
         public virtual ReturnMessage joinGame(Player p)
@@ -92,9 +83,6 @@ namespace Backend.Game
                     break;
                 }
             }
-
-            playerObserver.subscribe(p);
-            gameObserver.subscribe(p);
 
             return new ReturnMessage(true, "");
         }
@@ -131,10 +119,6 @@ namespace Backend.Game
 
             spectators.Add(spectator);
             GameLog.logLine(gameId, GameLog.Actions.Spectate_Join, spectator.systemUserID.ToString());
-
-            spectateObserver.subscribe(spectator);
-            gameObserver.subscribe(spectator);
-
             return new ReturnMessage(true,"");
         }
 
@@ -149,18 +133,12 @@ namespace Backend.Game
                     break;
                 }
             }
-
-            gameObserver.unsubscribe(p);
-            playerObserver.unsubscribe(p);
         }
 
         public void leaveGameSpectator(Player spec)
         {
             GameLog.logLine(gameId, GameLog.Actions.Spectate_Left, spec.systemUserID.ToString());
             spectators.Remove(spec);
-
-            gameObserver.unsubscribe(spec);
-            spectateObserver.unsubscribe(spec);
         }
 
         private void playGame()
@@ -643,21 +621,6 @@ namespace Backend.Game
                     return highestCardValue;
             }
             return -1;
-        }
-
-        public void sendMessageChat(Player p, string s)
-        {
-            if (spectators.Contains(p))
-            {
-                spectateObserver.update(s);
-                playerObserver.update(s);
-            }
-
-            for (int i = 0; i < players.Length; i++)
-            {
-                if (p.Equals(players[i]))
-                    playerObserver.update(s);
-            }
         }
     }
 }
