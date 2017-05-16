@@ -13,12 +13,18 @@ namespace CLClient
 {
     public static class CommClient
     {
-        private static TcpClient client = new TcpClient("127.0.0.1", 2345);
+        private static TcpClient client;
 
         #region Static functionality
 
-        public static JObject sendResponseMessage(object obj)
+        public static void startClientConnection()
         {
+            client = new TcpClient("127.0.0.1", 2345);
+        }
+
+        public static JObject sendMessage(object obj)
+        {
+
             var jsonObj             = JObject.FromObject(obj);
             var serializedJsonObj   = JsonConvert.SerializeObject(jsonObj);
 
@@ -30,14 +36,7 @@ namespace CLClient
 
                 networkStream.Write(jsonObjArray, 0, jsonObjArray.Length);
             }
-
-            while (true)
-            {
-                if (networkStream.DataAvailable)
-                {
-                    var jsonObject = getJsonObjectFromStream(client);
-                }
-            }
+                return getJsonObjectFromStream(client);
         }
 
         private static JObject getJsonObjectFromStream(TcpClient client)
@@ -63,7 +62,7 @@ namespace CLClient
         {
             var message = new { action = "Login", username = username, password = password };
 
-            var responseJson = sendResponseMessage(message);
+            var responseJson = sendMessage(message);
 
             var response = responseJson.ToObject<SystemUser>();
 
