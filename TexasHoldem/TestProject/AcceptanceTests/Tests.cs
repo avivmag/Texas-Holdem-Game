@@ -89,21 +89,6 @@ namespace TestProject
             Assert.IsTrue(this.checkActiveGame(statusGame));
 
         }
-        
-        [TestMethod]
-        public void TestSaveTurns()
-        {
-            //check if the user is watching a replay
-            Assert.IsTrue(this.isWatchingReplay(game));
-            //save success
-            Assert.IsTrue(this.saveTurn(game));
-            //already saved the turn
-            Assert.IsFalse(this.saveTurn("Texsa2"));
-            //check if the replay can be save
-            Assert.IsTrue(this.saveTurn((string)this.selectGameToReplay(gameOver)));
-            //check if the turn can be replay
-            Assert.IsTrue(this.saveTurn(game) && this.exitGame(game));
-        }
 
 
         [TestMethod]
@@ -114,41 +99,6 @@ namespace TestProject
             Assert.IsTrue(this.storeGameData());
 
         }
-
-        [TestMethod]
-        public void TestMaintainLeagus()
-        {
-            //check if the game is finish (not just not active)
-            Assert.IsTrue(this.isGameOver(game, username));
-            //check if the user added to correct league
-            Assert.AreEqual(this.joinLeaguePerPoints(points), highLeague);
-            Assert.AreNotEqual(this.joinLeaguePerPoints(points), lowLeague);
-            //check if new user register is added to lower league
-            Assert.AreEqual(this.register(username, password), this.getUserbyName(username));
-            Assert.AreEqual(this.joinLeaguePerPoints(points2), lowLeague);
-            //check if league list deleted
-            Assert.AreNotEqual(this.joinLeaguePerPoints(points), null);
-        }
-
-        [TestMethod]
-        public void TestSetCriteriaForNewLeague()
-        {
-            //check if league by criteria is exist
-            Assert.IsFalse(this.isLeagueExist(newCriteria));
-            //create new league
-            Assert.IsTrue(this.setCriteriaForNewLeague(newCriteria));
-            //set inncorrect input for creteria
-            Assert.IsFalse(this.setCriteriaForNewLeague(password));
-            //set incorrect name for league
-            if (this.isLeagueExist(criteria))
-                Assert.IsFalse(setCriteriaForNewLeague(criteria));
-            //check if there are players suits to this eague
-            Assert.IsTrue(this.PlayersWithCriteria(newCriteria, players));
-
-        }
-
-       
-
 
 
 
