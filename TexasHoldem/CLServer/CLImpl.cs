@@ -32,7 +32,7 @@ namespace CLServer
                 {
                     var jsonObject = getJsonObjectFromStream(client);
 
-                    tryExecuteAction(jsonObject);
+                    tryExecuteAction(client, jsonObject);
                 }
             }
 
@@ -40,7 +40,7 @@ namespace CLServer
             {
                 Console.WriteLine(e.Message);
                 Console.WriteLine(e.StackTrace);
-                SendExceptionMessage(client);
+                SendMessage(client, new { exception = "An Error Has Occured" });
             }
             catch (Exception e)
             {
@@ -61,14 +61,9 @@ namespace CLServer
         /// </summary>
         /// <param name="client">The client to send to.</param>
         /// <param name="message">The message to send. (Optional)</param>
-        private static void SendExceptionMessage(TcpClient client, String message = "")
+        private static void SendMessage(TcpClient client, object message = null)
         {
-            // If a message was received in the function's parameters, send it to the client, otherwise send generic message.
-            var exception = new {
-                exceptionMessage = (message == "" ? "An exception has occured." : message)
-            };
-
-            var exceptionString = JObject.FromObject(exception);
+            var exceptionString = JObject.FromObject(message);
 
             var serializedException = JsonConvert.SerializeObject(exceptionString);
 
@@ -109,9 +104,9 @@ namespace CLServer
         /// Tries to execute the action given by the client.
         /// </summary>
         /// <param name="jsonObject">The Object received from the client.</param>
-        private static void tryExecuteAction(JObject jsonObject)
+        private static void tryExecuteAction(TcpClient client, JObject jsonObject)
         {
-            var action = jsonObject.Value<string>("iAction");
+            var action = jsonObject.Value<string>("action");
 
             Console.WriteLine("Trying to execute action: {0}", action);
 
@@ -132,6 +127,20 @@ namespace CLServer
                         Console.WriteLine("Raising Bet. parameters are: gameId: {0}, playerId: {1}, coins: {2}", gameId, playerId, coins);
                     }
                     //sl.raiseBet(gameId, playerId, coins);
+                    break;
+
+                case "Login":
+                    var username = jsonObject.Value<string>("username");
+                    var password = jsonObject.Value<string>("password");
+
+                    if (username == null || password == null)
+                    {
+                        throw new ArgumentException("Parameters Mismatch.");
+                    }
+
+                    var response = sl.Login(username, password);
+
+                    SendMessage(client, response);
                     break;
 
                 default:

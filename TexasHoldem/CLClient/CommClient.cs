@@ -61,7 +61,7 @@ namespace CLClient
 
         public static SystemUser Login(string username, string password)
         {
-            var message = new { username = username, password = password };
+            var message = new { action = "Login", username = username, password = password };
 
             var responseJson = sendResponseMessage(message);
 
