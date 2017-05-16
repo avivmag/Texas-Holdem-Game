@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PL"
         mc:Ignorable="d"
-        Title="Login Window" Height="410" Width="515" Closing="Window_Closing">
+        Title="Login Window" Height="410" Width="515" Closing="Window_Closing" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
     <Grid>
         <StackPanel HorizontalAlignment="Left" Height="129" Margin="10,148,0,0" VerticalAlignment="Top" Width="481" >
             <StackPanel Orientation="Horizontal">

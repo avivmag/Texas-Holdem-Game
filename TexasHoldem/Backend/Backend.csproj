@@ -54,5 +54,6 @@
     <Compile Include="System\GameCenter.cs" />
     <Compile Include="User\SystemUser.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

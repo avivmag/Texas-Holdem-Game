@@ -18,7 +18,7 @@ namespace DAL
 
         List<SystemUser> getAllUsers();
 
-        List<League> getAllLeagues();
+        //List<League> getAllLeagues();
 
         void editUser(SystemUser user);
 
@@ -30,13 +30,13 @@ namespace DAL
 		
         ReturnMessage addGame(TexasHoldemGame game);
 
-		ReturnMessage addLeague(int minRank, int maxRank, string leagueName);
+		//ReturnMessage addLeague(int minRank, int maxRank, string leagueName);
 
-		ReturnMessage removeLeague(Guid leagueId);
+		//ReturnMessage removeLeague(Guid leagueId);
 
         int getHighestUserId();
 
-		ReturnMessage setLeagueCriteria(int minRank, int maxRank, string leagueName, Guid leagueId, int userId);
+		//ReturnMessage setLeagueCriteria(int minRank, int maxRank, string leagueName, Guid leagueId, int userId);
 
     }
 }

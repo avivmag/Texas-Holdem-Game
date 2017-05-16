@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BL;
+using SL;
 using Backend.Game;
 using System.Collections.Generic;
 using DAL;
@@ -11,7 +11,7 @@ namespace TestProject
     [TestClass]
     public class FilterActiveGamesTest
     {
-        BLInterface bl;
+        SLInterface sl;
         [TestInitialize]
         public void SetUp()
         {
@@ -24,81 +24,81 @@ namespace TestProject
             };
 
 
-            var leagues = new List<League>
-            {
-                new League(0, 1000, "hi"),
-                new League(1000, 2000, "bye")
-            };
+            //var leagues = new List<League>
+            //{
+            //    new League(0, 1000, "hi"),
+            //    new League(1000, 2000, "bye")
+            //};
 
             var gamesList = new List<TexasHoldemGame>
             {                                             
-                new TexasHoldemGame(0, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, true)),
-                new TexasHoldemGame(0, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, false)),
-                new TexasHoldemGame(1, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, true)),
-                new TexasHoldemGame(1, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false)),
-                new TexasHoldemGame(2, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false)),
-                new TexasHoldemGame(2, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false)),
-                new TexasHoldemGame(3, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 0, 1000)),
-                new TexasHoldemGame(3, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 1000, 2000))
+                new TexasHoldemGame(userList[0], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, true)),
+                new TexasHoldemGame(userList[0], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, false)),
+                new TexasHoldemGame(userList[1], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, true)),
+                new TexasHoldemGame(userList[1], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false)),
+                new TexasHoldemGame(userList[2], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false)),
+                new TexasHoldemGame(userList[2], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false)),
+                new TexasHoldemGame(userList[3], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 0, 1000)),
+                new TexasHoldemGame(userList[3], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 1000, 2000))
             };
             
             Mock<DALInterface> dalMock = new Mock<DALInterface>();
             dalMock.Setup(x => x.getAllGames()).Returns(gamesList);
             dalMock.Setup(x => x.getUserById(It.IsAny<int>())).Returns((int i) => userList[i]);
             dalMock.Setup(x => x.getGameById(It.IsAny<int>())).Returns((int i) => gamesList[i]);
-            this.bl = new BLImpl(dalMock.Object);
+            this.sl = new SLImpl(dalMock.Object);
         }
         [TestMethod]
         public void filterActiveGamesByPlayerNameSuccessTest()
         {
-            SystemUser user2 = bl.getUserById(2);
-            var m = bl.joinActiveGame(user2, 3);
+            SystemUser user2 = sl.getUserById(2);
+            var m = sl.joinActiveGame(user2, 3);
 
-            CollectionAssert.AreNotEqual(bl.filterActiveGamesByPlayerName("Hadas"),new List<TexasHoldemGame>());
+            CollectionAssert.AreNotEqual(sl.filterActiveGamesByPlayerName("Hadas"),new List<TexasHoldemGame>());
         }
 
         [TestMethod]
         public void filterActiveGamesByPlayerNameTwoGamesTest()
         {
-            SystemUser user2 = bl.getUserById(2);
-            var m = bl.joinActiveGame(user2, 3);
+            SystemUser user2 = sl.getUserById(2);
+            var m = sl.joinActiveGame(user2, 3);
 
-            var m2 = bl.joinActiveGame(user2, 0);
+            var m2 = sl.joinActiveGame(user2, 0);
 
-            Assert.AreEqual(bl.filterActiveGamesByPlayerName("Hadas").Count, 3);
+            Assert.AreEqual(sl.filterActiveGamesByPlayerName("Hadas").Count, 7);
         }
 
         [TestMethod]
         public void filterActiveGamesByPlayerNameTwoGamesFailsTest()
         {
-            SystemUser user2 = bl.getUserById(0);
-            bl.joinActiveGame(user2, 3);
+            SystemUser user2 = sl.getUserById(0);
+            sl.joinActiveGame(user2, 3);
 
-            bl.joinActiveGame(user2, 0);
+            sl.joinActiveGame(user2, 0);
 
-            Assert.AreEqual(bl.filterActiveGamesByPlayerName("Shaked").Count, 0);
+            Assert.AreEqual(sl.filterActiveGamesByPlayerName("Shaked").Count, 0);
         }
 
         [TestMethod]
         public void filterActiveGamesByPotSizeTest()
         {
-            SystemUser user2 = bl.getUserById(0);
-            bl.joinActiveGame(user2, 3);
+            SystemUser user2 = sl.getUserById(0);
+            sl.joinActiveGame(user2, 3);
 
-            bl.joinActiveGame(user2, 0);
+            sl.joinActiveGame(user2, 0);
 
-            Assert.AreEqual(bl.filterActiveGamesByPotSize(0).Count, 8);
+            Assert.AreEqual(sl.filterActiveGamesByPotSize(0).Count, 8);
         }
 
         [TestMethod]
         public void filterActiveGamesByPotSizeFailsTest()
         {
-            SystemUser user2 = bl.getUserById(0);
-            bl.joinActiveGame(user2, 3);
+            SystemUser user2 = sl.getUserById(0);
+            sl.joinActiveGame(user2, 3);
 
-            bl.joinActiveGame(user2, 0);
+            sl.joinActiveGame(user2, 0);
 
-            Assert.AreEqual(bl.filterActiveGamesByPotSize(100).Count, 8);
+            Assert.AreEqual(sl.filterActiveGamesByPotSize(100).Count, 8);
         }
 
         [TestMethod]
@@ -106,7 +106,7 @@ namespace TestProject
         {
             GamePreferences pref = new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, true);
             
-            Assert.AreEqual(bl.filterActiveGamesByGamePreferences(pref).Count, 1);
+            Assert.AreEqual(sl.filterActiveGamesByGamePreferences(pref).Count, 1);
         }
 
         [TestMethod]
@@ -114,7 +114,7 @@ namespace TestProject
         {
             GamePreferences pref = new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false);
 
-            Assert.AreEqual(bl.filterActiveGamesByGamePreferences(pref).Count, 3);
+            Assert.AreEqual(sl.filterActiveGamesByGamePreferences(pref).Count, 3);
         }
 
         [TestMethod]
@@ -122,7 +122,7 @@ namespace TestProject
         {
             GamePreferences pref = new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 1000000, 500, 20, 2, 2, false);
 
-            Assert.AreEqual(bl.filterActiveGamesByGamePreferences(pref).Count, 0);
+            Assert.AreEqual(sl.filterActiveGamesByGamePreferences(pref).Count, 0);
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BL;
+using SL;
 using Backend.User;
 using Backend;
 using Moq;
@@ -14,7 +14,7 @@ namespace TestProject
     public class SpectateActiveGameTest
     {
 
-        BLInterface bl;
+        SLInterface sl;
 
         [TestInitialize]
         public void SetUp()
@@ -27,20 +27,20 @@ namespace TestProject
                 new SystemUser("Aviv", "Aa123456", "email3", "image3", 1500)
             };
 
-            var leagues = new List<League>
-            {
-                new League(0, 1000, "Starter League"),
-                new League(1000, 2000, "Experienced League")
-            };
+            //var leagues = new List<League>
+            //{
+            //    new League(0, 1000, "Starter League"),
+            //    new League(1000, 2000, "Experienced League")
+            //};
 
             var gamesList = new List<TexasHoldemGame>
             {
-                new TexasHoldemGame(0, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, true)),
-                new TexasHoldemGame(0, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, false)),
-                new TexasHoldemGame(1, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, true)),
-                new TexasHoldemGame(1, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false)),
-                new TexasHoldemGame(3, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 0, 1000)),
-                new TexasHoldemGame(3, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 1000, 2000))
+                new TexasHoldemGame(usersList[0], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, true)),
+                new TexasHoldemGame(usersList[0], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, false)),
+                new TexasHoldemGame(usersList[1], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, true)),
+                new TexasHoldemGame(usersList[1], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false)),
+                new TexasHoldemGame(usersList[3], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 0, 1000)),
+                new TexasHoldemGame(usersList[3], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 1000, 2000))
             };
 
             Mock<DALInterface> dalMock = new Mock<DALInterface>();
@@ -49,45 +49,45 @@ namespace TestProject
             dalMock.Setup(x => x.logOutUser(It.IsAny<string>())).Returns(new ReturnMessage(true, null));
             dalMock.Setup(x => x.getAllGames()).Returns(gamesList);
             dalMock.Setup(x => x.getUserByName(It.IsAny<string>())).Returns((string name) => usersList.Find(u => u.name == name));
-            this.bl = new BLImpl(dalMock.Object);
+            this.sl = new SLImpl(dalMock.Object);
         }
 
         [TestMethod]
         public void spectateSuccessTest()
         {
-            SystemUser user = bl.getUserById(2);
-            var spectateMessage = bl.spectateActiveGame(user, bl.getAllGames()[0].gameId);
+            SystemUser user = sl.getUserById(2);
+            var spectateMessage = sl.spectateActiveGame(user, sl.getAllGames()[0].gameId);
          //   Assert.IsTrue(spectateMessage.success);
         }
 
         [TestMethod]
         public void spectateFailesPreferencesTest()
         {
-            SystemUser user = bl.getUserById(0);
-            Assert.IsFalse(bl.spectateActiveGame(user, 1).success);
+            SystemUser user = sl.getUserById(0);
+            Assert.IsFalse(sl.spectateActiveGame(user, 1).success);
         }
 
         [TestMethod]
         public void spectateFailesAlreadySpectateTest()
         {
-            SystemUser user = bl.getUserById(3);
-            bl.spectateActiveGame(user, 0);
-            Assert.IsFalse(bl.spectateActiveGame(user, 0).success);
+            SystemUser user = sl.getUserById(3);
+            sl.spectateActiveGame(user, 0);
+            Assert.IsFalse(sl.spectateActiveGame(user, 0).success);
         }
 
         [TestMethod]
         public void spectateFailesAlreadyPlayTest()
         {
-            SystemUser user = bl.getUserById(3);
-            bl.joinActiveGame(user, 0);
-            Assert.IsFalse(bl.spectateActiveGame(user, 0).success);
+            SystemUser user = sl.getUserById(3);
+            sl.joinActiveGame(user, 0);
+            Assert.IsFalse(sl.spectateActiveGame(user, 0).success);
         }
 
         [TestMethod]
         public void spectateFailsGameNoExistsTest()
         {
-            SystemUser user = bl.getUserById(0);
-            Assert.IsFalse(bl.spectateActiveGame(user, 1000).success);
+            SystemUser user = sl.getUserById(0);
+            Assert.IsFalse(sl.spectateActiveGame(user, 1000).success);
         }
     }
 }

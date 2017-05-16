@@ -157,7 +157,7 @@ namespace PL
             {
                 gamesFound = getFilteredGameByPreferences();
             }
-            if (gamesFound.Count == 0)
+            if (gamesFound == null ||gamesFound.Count == 0)
             {
                 errorMessage.Text = "Couldn't find any games try to change your criterya.";
             }
