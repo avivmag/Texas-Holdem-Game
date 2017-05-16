@@ -21,7 +21,7 @@ namespace SL
         ReturnMessage createGame(int gameCreatorId, GamePreferences pref);
         TexasHoldemGame createGame(int gameCreator, GameTypePolicy gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed);
 
-        ReturnMessage Login(string user, string password);
+        object Login(string user, string password);
 		ReturnMessage Register(string user, string password, string email, string userImage);
 		ReturnMessage Logout(string user);
 		SystemUser getUserByName(string name);
