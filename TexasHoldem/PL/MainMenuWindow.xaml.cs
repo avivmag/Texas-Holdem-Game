@@ -1,5 +1,6 @@
 ﻿using System.Windows;
-using SL;
+using CLClient;
+using CLClient.Entities;
 
 namespace PL
 {
@@ -8,20 +9,18 @@ namespace PL
     /// </summary>
     public partial class MainMenuWindow : Window
     {
-        private SLInterface sl;
         private Window loginWindow;
 
         public MainMenuWindow(Window loginWindow)
         {
             InitializeComponent();
-            this.sl = LoginWindow.sl;
             this.loginWindow = loginWindow;
         }
 
         private void Logout_Click(object sender, RoutedEventArgs e)
         {
-            sl.Logout(LoginWindow.mySystemUser.name);
-            LoginWindow.mySystemUser = null;
+            CommClient.Logout(LoginWindow.user.name);
+            LoginWindow.user = null;
             this.Close();
             loginWindow.Show();
         }
