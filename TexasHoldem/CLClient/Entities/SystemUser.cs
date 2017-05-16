@@ -22,5 +22,6 @@ namespace CLClient.Entities
             this.password   = password;
             this.userImage  = userImage;
             this.money      = money;
+            }
     }
 }
