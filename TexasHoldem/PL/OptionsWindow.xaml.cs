@@ -37,16 +37,16 @@ namespace PL
             }
             else
             {
-                ReturnMessage m = sl.editUserProfile(LoginWindow.user.id, username.Text, password.Text, email.Text, null);
+                Boolean m = CommClient.editUserProfile(LoginWindow.user.id, username.Text, password.Text, email.Text, null);
 
-                if (m.success)
+                if (m)
                 {
                     this.Hide();
                     MainMenuWindow.Show();
                 }
                 else
                 {
-                    errorMessage.Text = m.description;
+                    errorMessage.Text = "Could not edit user profile.";
                 }
             }
         }
