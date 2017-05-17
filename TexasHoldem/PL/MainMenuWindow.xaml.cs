@@ -19,7 +19,7 @@ namespace PL
 
         private void Logout_Click(object sender, RoutedEventArgs e)
         {
-            CommClient.Logout(LoginWindow.user.name);
+            CommClient.Logout(LoginWindow.user.id);
             LoginWindow.user = null;
             this.Close();
             loginWindow.Show();

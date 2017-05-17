@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Controls.Primitives;
+using CLClient;
+using CLClient.Entities;
 
 namespace PL
 {
@@ -22,6 +24,7 @@ namespace PL
     public partial class GameWindow : Window
     {
         private int gameId;
+        private TexasHoldemGame game;
         private Window mainMenuWindow;
         private Button[] seatsButtons;
         private Label[] playerNames;
@@ -43,7 +46,7 @@ namespace PL
         // for testing
         public GameWindow()
         {
-            game = new TexasHoldemGame(new Backend.User.SystemUser("","","","",0), new GamePreferences(GamePreferences.GameTypePolicy.limit, 100, 100, 12, 2, 9, false));
+            var game = CommClient.getGame(gameId);
             InitializeComponent();
             initializeScreen();
             placePlayer(3, "profile_pic", "gil", 100);
@@ -416,9 +419,7 @@ namespace PL
             if(playerCoinsNum <= 0)
                 allInIcons[playerIndex].Visibility = Visibility.Visible;
 
-            cl.raiseBet(gameId, playerIndex, coins);
+            CommClient.raiseBet(gameId, playerIndex, coins);
         }
-        
-
     }
 }

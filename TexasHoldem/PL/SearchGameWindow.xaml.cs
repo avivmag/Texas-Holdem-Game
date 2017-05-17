@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using Backend;
-using Backend.Game;
-using SL;
-using static Backend.Game.GamePreferences;
+using CLClient;
+using CLClient.Entities;
 
 namespace PL
 {
@@ -16,7 +14,6 @@ namespace PL
     /// </summary>
     public partial class SearchGameWindow : Window
     {
-        private SLInterface sl;
         private Window mainMenuWindow;
         private string selectedCheckBox;
 
@@ -26,7 +23,6 @@ namespace PL
 
             selectedCheckBox = playerNameCheckBox.Name;
             this.mainMenuWindow = mainMenuWindow;
-            sl = LoginWindow.sl;
         }
 
         private void enableNameCheckBox(object sender, RoutedEventArgs e)
@@ -134,7 +130,7 @@ namespace PL
                 }
                 else
                 {
-                    gamesFound = sl.filterActiveGamesByPlayerName(playerNameTextbox.Text);
+                    gamesFound = CommClient.filterActiveGamesByPlayerName(playerNameTextbox.Text);
                 }
             }
             else if (potSizeCheckBox.IsChecked.HasValue && potSizeCheckBox.IsChecked.Value)
@@ -150,7 +146,7 @@ namespace PL
                 }
                 else
                 {
-                    gamesFound = sl.filterActiveGamesByPotSize(potSize);
+                    gamesFound = CommClient.filterActiveGamesByPotSize(potSize);
                 }
             }
             else
@@ -252,7 +248,7 @@ namespace PL
                 spectateAllowed = Convert.ToBoolean(spectateAllowedTextbox.Text);
             }
 
-            return sl.filterActiveGamesByGamePreferences(gamePolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed);
+            return CommClient.filterActiveGamesByGamePreferences(gamePolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed);
         }
 
         private void Join_Game_Click(object sender, RoutedEventArgs e)
@@ -261,16 +257,15 @@ namespace PL
             int gameId;
             DataGridCellInfo cellValue = (searchResultGrid.SelectedCells.ElementAt(1));
             gameId = Int32.Parse(cellValue.ToString());
-            ReturnMessage m = sl.joinActiveGame(LoginWindow.mySystemUser, gameId);
-            if (m.success)
+            var game = CommClient.joinActiveGame(LoginWindow.user, gameId);
+            if (game != default(TexasHoldemGame))
             {
-                TexasHoldemGame game = sl.getGameById(gameId);
                 this.Close();
                 new GameWindow(mainMenuWindow,game).Show();
             }
             else
             {
-                errorMessage.Text = m.description;
+                errorMessage.Text = "Could not join chosen game.";
             }
         }
 
@@ -279,16 +274,15 @@ namespace PL
             int gameId;
             DataGridCellInfo cellValue = (searchResultGrid.SelectedCells.ElementAt(1));
             gameId = Int32.Parse(((TexasHoldemGameStrings)cellValue.Item).gameId);
-            ReturnMessage m = sl.spectateActiveGame(LoginWindow.mySystemUser, gameId);
-            if (m.success)
+            var game = CommClient.spectateActiveGame(LoginWindow.user, gameId);
+            if (game != default(TexasHoldemGame))
             {
-                TexasHoldemGame game = sl.getGameById(gameId);
                 this.Close();
                 new GameWindow(mainMenuWindow,game).Show();
             }
             else
             {
-                errorMessage.Text = m.description;
+                errorMessage.Text = "Could not spectate chosen game.";
             }
         }
 

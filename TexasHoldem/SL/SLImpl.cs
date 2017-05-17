@@ -1,15 +1,14 @@
 ﻿using Backend.User;
 using Backend.Game;
-using CLShared;
 using System.Collections.Generic;
 using System;
 using Backend.System;
 using static Backend.Game.GamePreferences;
 using SL;
 
-public class SLImpl : SLInterface
+public class SLImpl
 {
-	private GameCenter gameCenter;
+	/*private GameCenter gameCenter;
 
     //public SLImpl()
     //{
@@ -305,7 +304,7 @@ public class SLImpl : SLInterface
 
 	public ReturnMessage Register(string user, string password, string email, string userImage)
 	{
-		if (user == null || password == null || email == null || userImage == null || user.Equals("") || password.Equals("") || email.Equals("") /*|| userImage.Equals("")*/)
+		if (user == null || password == null || email == null || userImage == null || user.Equals("") || password.Equals("") || email.Equals("") || userImage.Equals(""))
 			return new ReturnMessage(false, "all attributes must be filled.");
 
 		SystemUser systemUser = dal.getUserByName(user);
@@ -352,12 +351,12 @@ public class SLImpl : SLInterface
     //    return new ReturnMessage(false, "leagueId is NULL");
     //}
 
-	public ReturnMessage Logout(string user)
+	public ReturnMessage Logout(int userId)
 	{
-		if (user == null || user.Equals(""))
+		if (userId == default(int))
 			return new ReturnMessage(false, "all attributes must be filled.");
 
-		SystemUser systemUser = dal.getUserByName(user);
+		SystemUser systemUser = dal.getUserById(user);
 		if (systemUser == null)
 			return new ReturnMessage(false, "User does not exists");
 
@@ -561,5 +560,5 @@ public class SLImpl : SLInterface
     {
         Backend.ReturnMessage backendReturnMessage = gameCenter.raiseBet(gameId, playerId, coins);
         return new ReturnMessage(backendReturnMessage.success, backendReturnMessage.description);
-    }
+    }*/
 }

@@ -172,9 +172,9 @@
     <Resource Include="resources\small_icon.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CLShared\CLShared.csproj">
-      <Project>{bf23c7a2-2a04-4a45-8bc6-97b9e12d5602}</Project>
-      <Name>CLShared</Name>
+    <ProjectReference Include="..\CLClient\CLClient.csproj">
+      <Project>{b66a3c92-bd02-44a2-a020-cf49be0f79ac}</Project>
+      <Name>CLClient</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
