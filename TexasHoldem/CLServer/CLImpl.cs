@@ -11,6 +11,7 @@ using System.Net;
 using System.Threading;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using System.Reflection;
 
 namespace CLServer
 {
@@ -104,48 +105,113 @@ namespace CLServer
         /// Tries to execute the action given by the client.
         /// </summary>
         /// <param name="jsonObject">The Object received from the client.</param>
+        /// old stuff saved in case things will not work
+        /*
+private static void tryExecuteAction(TcpClient client, JObject jsonObject)
+{
+    var action = jsonObject.Value<string>("action");
+
+    Console.WriteLine("Trying to execute action: {0}", action);
+
+    switch (action)
+    {
+        case "Raise":
+            // Get values from JSON.
+            var gameId = jsonObject.Value<int?>("gameId");
+            var playerId = jsonObject.Value<int?>("playedId");
+            var coins = jsonObject.Value<int?>("coins");
+
+            if (gameId == null || playerId == null || coins == null)
+            {
+                throw new ArgumentException("parameters mismatch.");
+            }
+            else
+            {
+                Console.WriteLine("Raising Bet. parameters are: gameId: {0}, playerId: {1}, coins: {2}", gameId, playerId, coins);
+            }
+            //sl.raiseBet(gameId, playerId, coins);
+            break;
+
+        case "Login":
+            var username = jsonObject.Value<string>("username");
+            var password = jsonObject.Value<string>("password");
+
+            if (username == null || password == null)
+            {
+                throw new ArgumentException("Parameters Mismatch.");
+            }
+
+            var response = sl.Login(username, password);
+
+            SendMessage(client, response);
+            break;
+
+        default:
+            throw new ArgumentException("No known action specified.");
+    }
+}     
+*/
+        ///
         private static void tryExecuteAction(TcpClient client, JObject jsonObject)
         {
             var action = jsonObject.Value<string>("action");
 
             Console.WriteLine("Trying to execute action: {0}", action);
 
-            switch (action)
+
+            // null means calling a static method
+            object[] temp = new object[2];
+            temp[0] = jsonObject;
+            temp[1] = client;
+            try
             {
-                case "Raise":
-                    // Get values from JSON.
-                    var gameId = jsonObject.Value<int?>("gameId");
-                    var playerId = jsonObject.Value<int?>("playedId");
-                    var coins = jsonObject.Value<int?>("coins");
-
-                    if (gameId == null || playerId == null || coins == null)
-                    {
-                        throw new ArgumentException("parameters mismatch.");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Raising Bet. parameters are: gameId: {0}, playerId: {1}, coins: {2}", gameId, playerId, coins);
-                    }
-                    //sl.raiseBet(gameId, playerId, coins);
-                    break;
-
-                case "Login":
-                    var username = jsonObject.Value<string>("username");
-                    var password = jsonObject.Value<string>("password");
-
-                    if (username == null || password == null)
-                    {
-                        throw new ArgumentException("Parameters Mismatch.");
-                    }
-
-                    var response = sl.Login(username, password);
-
-                    SendMessage(client, response);
-                    break;
-
-                default:
-                    throw new ArgumentException("No known action specified.");
+                typeof(CLImpl).GetMethod(action).Invoke(null, temp);
             }
+            catch(TargetException e)
+            {
+                // class specified not found
+            }
+        }
+
+        private static void Raise(object[] args)
+        {
+            // this two lines must be in every method
+            JObject jsonObject = (JObject)args[0];
+            TcpClient client = (TcpClient)args[1];
+            
+            // Get values from JSON.
+            var gameId = jsonObject.Value<int?>("gameId");
+            var playerId = jsonObject.Value<int?>("playedId");
+            var coins = jsonObject.Value<int?>("coins");
+
+            if (gameId == null || playerId == null || coins == null)
+            {
+                throw new ArgumentException("parameters mismatch.");
+            }
+            else
+            {
+                Console.WriteLine("Raising Bet. parameters are: gameId: {0}, playerId: {1}, coins: {2}", gameId, playerId, coins);
+            }
+            //sl.raiseBet(gameId, playerId, coins);
+        }
+
+        private static void Login(object[] args)
+        {
+            // this two lines must be in every method
+            JObject jsonObject = (JObject)args[0];
+            TcpClient client = (TcpClient)args[1];
+
+            var username = jsonObject.Value<string>("username");
+            var password = jsonObject.Value<string>("password");
+
+            if (username == null || password == null)
+            {
+                throw new ArgumentException("Parameters Mismatch.");
+            }
+
+            var response = sl.Login(username, password);
+
+            SendMessage(client, response);
         }
 
         static void Main()
