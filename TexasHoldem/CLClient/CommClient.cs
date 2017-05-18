@@ -13,14 +13,9 @@ namespace CLClient
 {
     public static class CommClient
     {
-        private static TcpClient client;
+        private static TcpClient client = new TcpClient("127.0.0.1", 2345);
 
         #region Static functionality
-
-        public static void startClientConnection()
-        {
-            client = new TcpClient("127.0.0.1", 2345);
-        }
 
         public static JObject sendMessage(object obj)
         {
@@ -60,11 +55,142 @@ namespace CLClient
 
         public static SystemUser Login(string username, string password)
         {
-            var message = new { action = "Login", username = username, password = password };
+            var message     = new { action = "Login", username, password };
+            var jsonMessage = sendMessage(message);
+            var response    = jsonMessage.ToObject<SystemUser>();
 
-            var responseJson = sendMessage(message);
+            return response;
+        }
 
-            var response = responseJson.ToObject<SystemUser>();
+        public static Boolean Logout(int userId)
+        {
+            var message     = new { action = "Logout", userId };
+            var jsonMessage = sendMessage(message);
+            var response    = jsonMessage.ToObject<Boolean>();
+
+            return response;
+        }
+
+        public static TexasHoldemGame CreateGame(int gameCreatorId, int gamePolicy, int buyInPolicy, int startingChips, int minimalBet, int minimalPlayers, int maximalPlayers, bool? spectateAllowed)
+        {
+            var message = new
+            {
+                action = "CreateGame",
+                gameCreatorId,
+                gamePolicy,
+                buyInPolicy,
+                startingChips,
+                minimalBet,
+                minimalPlayers,
+                maximalPlayers,
+                spectateAllowed
+            };
+
+            var jsonMessage = sendMessage(message);
+            var response    = jsonMessage.ToObject<TexasHoldemGame>();
+
+            return response;
+        }
+
+        public static TexasHoldemGame getGame(int gameId)
+        {
+            var message     = new { action = "GetGame", gameId };
+            var jsonMessage = sendMessage(message);
+            var response    = jsonMessage.ToObject<TexasHoldemGame>();
+
+            return response;
+        }
+
+        public static TexasHoldemGame joinActiveGame(int userId, int gameId)
+        {
+            var message     = new { action = "JoinActiveGame", userId, gameId };
+            var jsonMessage = sendMessage(message);
+            var response    = jsonMessage.ToObject<TexasHoldemGame>();
+
+            return response;
+        }
+
+        public static TexasHoldemGame spectateActiveGame(int userId, int gameId)
+        {
+            var message     = new { action = "SpectateActiveGame", userId, gameId };
+            var jsonMessage = sendMessage(message);
+            var response    = jsonMessage.ToObject<TexasHoldemGame>();
+
+            return response;
+        }
+
+        public static List<TexasHoldemGame> findAllActiveAvailableGames()
+        {
+            var message     = new { action = "FindAllActiveAvailableGames" };
+            var jsonMessage = sendMessage(message);
+            var response    = jsonMessage.ToObject<List<TexasHoldemGame>>();
+
+            return response;
+        }
+
+        public static List<TexasHoldemGame> filterActiveGamesByGamePreferences(int gamePolicy, int buyInPolicy, int startingChips, int minimalBet, int minimalPlayers, int maximalPlayers, bool spectateAllowed)
+        {
+            var message = new
+            {
+                action = "FilterActiveGamesByGamePreferences",
+                gamePolicy,
+                buyInPolicy,
+                startingChips,
+                minimalBet,
+                minimalPlayers,
+                maximalPlayers,
+                spectateAllowed
+            };
+
+            var jsonMessage = sendMessage(message);
+            var response = jsonMessage.ToObject<List<TexasHoldemGame>>();
+
+            return response;
+        }
+
+        public static List<TexasHoldemGame> filterActiveGamesByPotSize(int potSize)
+        {
+            var message = new { action = "FilterActiveGamesByPotSize", potSize };
+
+            var jsonMessage = sendMessage(message);
+            var response = jsonMessage.ToObject<List<TexasHoldemGame>>();
+
+            return response;
+        }
+
+        public static List<TexasHoldemGame> filterActiveGamesByPlayerName(string playerName)
+        {
+            var message = new { action = "FilterActiveGamesByPlayerName", playerName };
+
+            var jsonMessage = sendMessage(message);
+            var response = jsonMessage.ToObject<List<TexasHoldemGame>>();
+
+            return response;
+        }
+
+        public static Boolean raiseBet(int gameId, int playerIndex, int coins)
+        {
+            var message     = new { action = "Raise", gameId, playerIndex, coins };
+            var jsonMessage = sendMessage(message);
+            var response    = jsonMessage.ToObject<Boolean>();
+
+            return response;
+        }
+
+        public static SystemUser Register(string username, string password, string email, string userImage)
+        {
+            var message     = new { action = "Register", username, password, email, userImage };
+            var jsonMessage = sendMessage(message);
+            var response    = jsonMessage.ToObject<SystemUser>();
+
+            return response;
+        }
+
+        public static Boolean editUserProfile(int userId, string name, string password, string email, string avatar)
+        {
+            var message     = new { action = "EditUserProfile", userId, name, password, email, avatar };
+            var jsonMessage = sendMessage(message);
+            var response    = jsonMessage.ToObject<Boolean>();
 
             return response;
         }

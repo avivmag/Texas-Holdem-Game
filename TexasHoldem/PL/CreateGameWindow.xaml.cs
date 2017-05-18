@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Windows;
+using CLClient;
+using CLClient.Entities;
 
 namespace PL
 {
@@ -113,8 +115,8 @@ namespace PL
             {
                 spectateAllowed = Convert.ToBoolean(spectateAllowedTextbox.Text);
             }
-            //TODO: add user id.
-            return sl.createGame(0,gamePolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed);
+
+            return CommClient.CreateGame(LoginWindow.user.id, gamePolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed);
         }
     }
 }

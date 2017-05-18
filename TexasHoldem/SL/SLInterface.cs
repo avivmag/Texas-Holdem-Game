@@ -8,26 +8,26 @@ namespace SL
 {
 	public interface SLInterface
 	{
-        ReturnMessage spectateActiveGame(SystemUser user, int gameID);
-        ReturnMessage joinActiveGame(SystemUser user, int gameID);
+        object spectateActiveGame(int userId, int gameID);
+        object joinActiveGame(int userId, int gameID);
         ReturnMessage leaveGame(SystemUser user, int gameID);
-        ReturnMessage editUserProfile(int userId, string name, string password, string email, string avatar);
-        List<TexasHoldemGame> findAllActiveAvailableGames();
-        List<TexasHoldemGame> filterActiveGamesByPlayerName(string name);
-        List<TexasHoldemGame> filterActiveGamesByPotSize(int? size);
+        object editUserProfile(int userId, string name, string password, string email, string avatar);
+        object findAllActiveAvailableGames();
+        object filterActiveGamesByPlayerName(string name);
+        object filterActiveGamesByPotSize(int? size);
         List<TexasHoldemGame> filterActiveGamesByGamePreferences(GamePreferences pref);
         List<TexasHoldemGame> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed);
         List<TexasHoldemGame> getAllGames();
-        ReturnMessage createGame(int gameCreatorId, GamePreferences pref);
-        TexasHoldemGame createGame(int gameCreator, GameTypePolicy gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed);
+        object createGame(int gameCreatorId, object pref);
+        object createGame(int gameCreator, int gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed);
 
         object Login(string user, string password);
-		ReturnMessage Register(string user, string password, string email, string userImage);
-		ReturnMessage Logout(string user);
+		object Register(string user, string password, string email, string userImage);
+		object Logout(int userId);
 		SystemUser getUserByName(string name);
 
 		SystemUser getUserById(int userId);
-        TexasHoldemGame getGameById(int gameId);
+        object getGameById(int gameId);
         void replayGame(int gameId);
         //ReturnMessage addLeague(int minRank, int maxRank, string name);
         //ReturnMessage removeLeague(League league);

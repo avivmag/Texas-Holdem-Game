@@ -11,7 +11,6 @@ using System.Net;
 using System.Threading;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
-using System.Reflection;
 
 namespace CLServer
 {
@@ -105,113 +104,219 @@ namespace CLServer
         /// Tries to execute the action given by the client.
         /// </summary>
         /// <param name="jsonObject">The Object received from the client.</param>
-        /// old stuff saved in case things will not work
-        /*
-private static void tryExecuteAction(TcpClient client, JObject jsonObject)
-{
-    var action = jsonObject.Value<string>("action");
-
-    Console.WriteLine("Trying to execute action: {0}", action);
-
-    switch (action)
-    {
-        case "Raise":
-            // Get values from JSON.
-            var gameId = jsonObject.Value<int?>("gameId");
-            var playerId = jsonObject.Value<int?>("playedId");
-            var coins = jsonObject.Value<int?>("coins");
-
-            if (gameId == null || playerId == null || coins == null)
-            {
-                throw new ArgumentException("parameters mismatch.");
-            }
-            else
-            {
-                Console.WriteLine("Raising Bet. parameters are: gameId: {0}, playerId: {1}, coins: {2}", gameId, playerId, coins);
-            }
-            //sl.raiseBet(gameId, playerId, coins);
-            break;
-
-        case "Login":
-            var username = jsonObject.Value<string>("username");
-            var password = jsonObject.Value<string>("password");
-
-            if (username == null || password == null)
-            {
-                throw new ArgumentException("Parameters Mismatch.");
-            }
-
-            var response = sl.Login(username, password);
-
-            SendMessage(client, response);
-            break;
-
-        default:
-            throw new ArgumentException("No known action specified.");
-    }
-}     
-*/
-        ///
         private static void tryExecuteAction(TcpClient client, JObject jsonObject)
         {
             var action = jsonObject.Value<string>("action");
 
             Console.WriteLine("Trying to execute action: {0}", action);
 
+            if (action == "Raise") {
+                var gameId = jsonObject.Value<int?>("gameId");
+                var playerIndex = jsonObject.Value<int?>("playedIndex");
+                var coins = jsonObject.Value<int?>("coins");
 
-            // null means calling a static method
-            object[] temp = new object[2];
-            temp[0] = jsonObject;
-            temp[1] = client;
-            try
-            {
-                typeof(CLImpl).GetMethod(action).Invoke(null, temp);
-            }
-            catch(TargetException e)
-            {
-                // class specified not found
-            }
-        }
+                if (!gameId.HasValue || !playerIndex.HasValue || !coins.HasValue)
+                {
+                    throw new ArgumentException("Parameters Mismatch at Raise.");
+                }
+                else
+                {
+                    Console.WriteLine("Raising Bet. parameters are: gameId: {0}, playerIndex: {1}, coins: {2}", gameId, playerIndex, coins);
+                }
 
-        private static void Raise(object[] args)
-        {
-            // this two lines must be in every method
-            JObject jsonObject = (JObject)args[0];
-            TcpClient client = (TcpClient)args[1];
-            
-            // Get values from JSON.
-            var gameId = jsonObject.Value<int?>("gameId");
-            var playerId = jsonObject.Value<int?>("playedId");
-            var coins = jsonObject.Value<int?>("coins");
+                sl.raiseBet(gameId.Value, playerIndex.Value, coins.Value);
+                var raiseResponse = new Boolean();
+                raiseResponse = true;
 
-            if (gameId == null || playerId == null || coins == null)
-            {
-                throw new ArgumentException("parameters mismatch.");
-            }
-            else
-            {
-                Console.WriteLine("Raising Bet. parameters are: gameId: {0}, playerId: {1}, coins: {2}", gameId, playerId, coins);
-            }
-            //sl.raiseBet(gameId, playerId, coins);
-        }
-
-        private static void Login(object[] args)
-        {
-            // this two lines must be in every method
-            JObject jsonObject = (JObject)args[0];
-            TcpClient client = (TcpClient)args[1];
-
-            var username = jsonObject.Value<string>("username");
-            var password = jsonObject.Value<string>("password");
-
-            if (username == null || password == null)
-            {
-                throw new ArgumentException("Parameters Mismatch.");
+                SendMessage(client, raiseResponse);
+                return;
             }
 
-            var response = sl.Login(username, password);
+            if (action == "Login") {
+                var username = jsonObject.Value<string>("username");
+                var password = jsonObject.Value<string>("password");
 
-            SendMessage(client, response);
+                if (String.IsNullOrWhiteSpace(username) || String.IsNullOrWhiteSpace(password))
+                {
+                    throw new ArgumentException("Parameters Mismatch at Login.");
+                }
+
+                var loginResponse = sl.Login(username, password);
+
+                SendMessage(client, loginResponse);
+                return;
+            }
+
+            if (action == "CreateGame") {
+                var gameCreatorId = jsonObject.Value<int?>("gameCreatorId");
+                var gamePolicy = jsonObject.Value<int?>("gamePolicy");
+                var buyInPolicy = jsonObject.Value<int?>("buyInPolicy");
+                var startingChips = jsonObject.Value<int?>("startingChips");
+                var minimalBet = jsonObject.Value<int?>("minimalBet");
+                var minimalPlayers = jsonObject.Value<int?>("minimalPlayers");
+                var maximalPlayers = jsonObject.Value<int?>("maximalPlayers");
+                var spectateAllowed = jsonObject.Value<bool?>("spectateAllowed");
+
+                if (!gameCreatorId.HasValue || !gamePolicy.HasValue)
+                {
+                    throw new ArgumentException("Parameters Mismatch at CreateGame.");
+                }
+
+                var createGameResponse = sl.createGame(gameCreatorId.Value, gamePolicy.Value, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed);
+
+                SendMessage(client, createGameResponse);
+                return;
+            }
+
+            if (action == "GetGame") {
+                var gameId = jsonObject.Value<int?>("gameId");
+
+                if (!gameId.HasValue)
+                {
+                    throw new ArgumentException("Parameters Mismatch at GetGame");
+                }
+
+                var getGameResponse = sl.getGameById(gameId.Value);
+
+                SendMessage(client, getGameResponse);
+                return;
+            }
+
+            if (action == "Register")
+            {
+                var username = jsonObject.Value<string>("username");
+                var password = jsonObject.Value<string>("password");
+                var email = jsonObject.Value<string>("email");
+                var userImage = jsonObject.Value<string>("userImage");
+                if (String.IsNullOrWhiteSpace(username) || String.IsNullOrWhiteSpace(password) || String.IsNullOrWhiteSpace(email))
+                {
+                    throw new ArgumentException("Parameters Mismatch at Register");
+                }
+
+                var registerResponse = sl.Register(username, password, email, userImage);
+
+                SendMessage(client, registerResponse);
+                return;
+            }
+
+            if (action == "Logout")
+            {
+                var userId = jsonObject.Value<int?>("userId");
+
+                if (!userId.HasValue)
+                {
+                    throw new ArgumentException("Parameters Mismatch at Logout");
+                }
+
+                var logoutResponse = sl.Logout(userId.Value);
+
+                SendMessage(client, logoutResponse);
+                return;
+            }
+
+            if (action == "JoinActiveGame")
+            {
+                var gameId = jsonObject.Value<int?>("gameId");
+                var userId = jsonObject.Value<int?>("userId");
+
+                if (!gameId.HasValue || !userId.HasValue)
+                {
+                    throw new ArgumentException("Parameters Mismatch at Join Active Game");
+                }
+
+                var joinActiveGameResponse = sl.joinActiveGame(userId.Value, gameId.Value);
+
+                SendMessage(client, joinActiveGameResponse);
+                return;
+            }
+
+            if (action == "SpectateActiveGame")
+            {
+                var gameId = jsonObject.Value<int?>("gameId");
+                var userId = jsonObject.Value<int?>("userId");
+
+                if (!gameId.HasValue || !userId.HasValue)
+                {
+                    throw new ArgumentException("Parameters Mismatch at Spectate Active Game");
+                }
+
+                var spectateActiveGameResponse = sl.spectateActiveGame(userId.Value, gameId.Value);
+
+                SendMessage(client, spectateActiveGameResponse);
+                return;
+            }
+
+            if (action == "FindAllActiveAvailableGames")
+            {
+                var findAllActiveAvailableGamesResponse = sl.findAllActiveAvailableGames();
+
+                SendMessage(client, findAllActiveAvailableGamesResponse);
+                return;
+            }
+
+            //TODO:: Obsolete because game preferences is now decorator. Not finished.
+            if (action == "FilterActiveGamesByGamePreferences")
+            {
+                var gamePolicy = jsonObject.Value<int?>("gamePolicy");
+                var buyInPolicy = jsonObject.Value<int?>("buyInPolicy");
+                var startingChips = jsonObject.Value<int?>("startingChips");
+                var minimalBet = jsonObject.Value<int?>("minimalBet");
+                var minimalPlayers = jsonObject.Value<int?>("minimalPlayers");
+                var maximalPlayers = jsonObject.Value<int?>("maximalPlayers");
+                var spectateAllowed = jsonObject.Value<bool?>("spectateAllowed");
+            }
+
+            if (action == "FilterActiveGamesByPotSize")
+            {
+                var potSize = jsonObject.Value<int?>("potSize");
+
+                if (!potSize.HasValue)
+                {
+                    throw new ArgumentException("Parameters Mismatch at Filter Active Games By Pot Size");
+                }
+
+                var filterActiveGamesByPotSizeResponse = sl.filterActiveGamesByPotSize(potSize);
+
+                SendMessage(client, filterActiveGamesByPotSizeResponse);
+                return;
+            }
+
+            if (action == "FilterActiveGamesByPlayerName")
+            {
+
+                var playerName = jsonObject.Value<string>("playerName");
+
+                if (String.IsNullOrWhiteSpace(playerName))
+                {
+                    throw new ArgumentException("Parameters Mismatch at Filter Active Games By Player Name");
+                }
+
+                var filterActiveGamesByPlayerNameResponse = sl.filterActiveGamesByPlayerName(playerName);
+
+                SendMessage(client, filterActiveGamesByPlayerNameResponse);
+                return;
+            }
+
+            if (action == "EditUserProfile")
+            {
+                var userId = jsonObject.Value<int?>("userId");
+                var name = jsonObject.Value<string>("name");
+                var password = jsonObject.Value<string>("password");
+                var email = jsonObject.Value<string>("email");
+                var avatar = jsonObject.Value<string>("avatar");
+
+                if (!userId.HasValue)
+                {
+                    throw new ArgumentException("Parameters Mismatch at Edit User Profile");
+                }
+
+                var editUserProfileResponse = sl.editUserProfile(userId.Value, name, password, email, avatar);
+
+                SendMessage(client, editUserProfileResponse);
+                return;
+            }
+
+            throw new ArgumentException("No known action specified.");
         }
 
         static void Main()

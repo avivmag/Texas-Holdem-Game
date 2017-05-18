@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using Backend;
-using Backend.Game;
-using SL;
+using CLClient;
+using CLClient.Entities;
 using static PL.SearchGameWindow;
 
 namespace PL
@@ -16,14 +15,13 @@ namespace PL
     public partial class SelectGameWindow : Window
     {
         private Window mainMenuWindow;
-        private SLInterface sl = LoginWindow.sl;
 
         public SelectGameWindow(Window mainMenuWindow, string joinOperation)
         {
             InitializeComponent();
             this.mainMenuWindow = mainMenuWindow;
             this.actionBtn.Content = joinOperation;
-            List<TexasHoldemGame> allGames = sl.findAllActiveAvailableGames();
+            List<TexasHoldemGame> allGames = CommClient.findAllActiveAvailableGames();
 
             int i = 0;
             foreach (TexasHoldemGame game in allGames)
@@ -49,32 +47,30 @@ namespace PL
             {
                 DataGridCellInfo cellValue = (selectGameGrid.SelectedCells.ElementAt(1));
                 gameId = Int32.Parse(((TexasHoldemGameStrings)cellValue.Item).gameId);
-                ReturnMessage m = sl.spectateActiveGame(LoginWindow.mySystemUser, gameId);
-                if (m.success)
+                var game = CommClient.spectateActiveGame(LoginWindow.user, gameId);
+                if (game != default(TexasHoldemGame))
                 {
-                    TexasHoldemGame game = sl.getGameById(gameId);
                     this.Close();
                     new GameWindow(mainMenuWindow, game).Show();
                 }
                 else
                 {
-                    errorMessage.Text = m.description;
+                    errorMessage.Text = "Could not spectate chosen game.";
                 }
             }
             else
             {
                 DataGridCellInfo cellValue = (selectGameGrid.SelectedCells.ElementAt(1));
                 gameId = Int32.Parse(cellValue.ToString());
-                ReturnMessage m = sl.joinActiveGame(LoginWindow.mySystemUser, gameId);
-                if (m.success)
+                var game = CommClient.joinActiveGame(LoginWindow.user, gameId);
+                if (game != default(TexasHoldemGame))
                 {
-                    TexasHoldemGame game = sl.getGameById(gameId);
                     this.Close();
                     new GameWindow(mainMenuWindow, game).Show();
                 }
                 else
                 {
-                    errorMessage.Text = m.description;
+                    errorMessage.Text = "Could not join chosen game.";
                 }
             }
         }
