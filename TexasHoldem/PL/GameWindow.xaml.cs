@@ -92,8 +92,13 @@ namespace PL
         private void addControlBar()
         {
             UniformGrid mainControlBar = new UniformGrid();
-            UniformGrid checkFoldbetControlBar = new UniformGrid();
-            UniformGrid ControlBar = new UniformGrid();
+            UniformGrid checkFoldBetCommentControlBar = new UniformGrid();
+            UniformGrid checkFoldControlBar = new UniformGrid();
+            UniformGrid BetControlBar = new UniformGrid();
+            UniformGrid CommentControlBar = new UniformGrid();
+
+            
+
 
             BottomRow.Children.Add(mainControlBar);
         }
