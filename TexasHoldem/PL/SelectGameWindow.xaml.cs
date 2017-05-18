@@ -26,10 +26,10 @@ namespace PL
             int i = 0;
             foreach (TexasHoldemGame game in allGames)
             {
-                if ((joinOperation.Equals("Spectate") && game.GamePreferences.IsSpectatingAllowed.HasValue && game.GamePreferences.IsSpectatingAllowed.Value) || (joinOperation.Equals("Join"))){
-                    selectGameGrid.Items.Add(new TexasHoldemGameStrings(i, game));
-                    i++;
-                }
+                //if ((joinOperation.Equals("Spectate") && game.GamePreferences.IsSpectatingAllowed.HasValue && game.GamePreferences.IsSpectatingAllowed.Value) || (joinOperation.Equals("Join"))){
+                //    selectGameGrid.Items.Add(new TexasHoldemGameStrings(i, game));
+                //    i++;
+                //}
             }
         }
 
@@ -46,32 +46,32 @@ namespace PL
             if (actionBtn.Content.Equals("Spectate"))
             {
                 DataGridCellInfo cellValue = (selectGameGrid.SelectedCells.ElementAt(1));
-                gameId = Int32.Parse(((TexasHoldemGameStrings)cellValue.Item).gameId);
-                var game = CommClient.spectateActiveGame(LoginWindow.user, gameId);
-                if (game != default(TexasHoldemGame))
-                {
-                    this.Close();
-                    new GameWindow(mainMenuWindow, game).Show();
-                }
-                else
-                {
-                    errorMessage.Text = "Could not spectate chosen game.";
-                }
+                //gameId = Int32.Parse(((TexasHoldemGameStrings)cellValue.Item).gameId);
+                //var game = CommClient.spectateActiveGame(LoginWindow.user, gameId);
+                //if (game != default(TexasHoldemGame))
+                //{
+                //    this.Close();
+                //    new GameWindow(mainMenuWindow, game).Show();
+                //}
+                //else
+                //{
+                //    errorMessage.Text = "Could not spectate chosen game.";
+                //}
             }
             else
             {
                 DataGridCellInfo cellValue = (selectGameGrid.SelectedCells.ElementAt(1));
                 gameId = Int32.Parse(cellValue.ToString());
-                var game = CommClient.joinActiveGame(LoginWindow.user, gameId);
-                if (game != default(TexasHoldemGame))
-                {
-                    this.Close();
-                    new GameWindow(mainMenuWindow, game).Show();
-                }
-                else
-                {
-                    errorMessage.Text = "Could not join chosen game.";
-                }
+                //var game = CommClient.joinActiveGame(LoginWindow.user, gameId);
+                //if (game != default(TexasHoldemGame))
+                //{
+                //    this.Close();
+                //    new GameWindow(mainMenuWindow, game).Show();
+                //}
+                //else
+                //{
+                //    errorMessage.Text = "Could not join chosen game.";
+                //}
             }
         }
 

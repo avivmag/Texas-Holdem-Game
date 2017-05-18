@@ -46,7 +46,8 @@ namespace PL
         // for testing
         public GameWindow()
         {
-            var game = CommClient.getGame(gameId);
+            game = new TexasHoldemGame();
+            game.players = new Player[9];
             InitializeComponent();
             initializeScreen();
             placePlayer(3, "profile_pic", "gil", 100);
@@ -83,27 +84,39 @@ namespace PL
             {
                 initializeVariables(i);
                 positionElementsOnScreen(i);
+                if (i == 7)
+                    addControlBar();
             }
+        }
+
+        private void addControlBar()
+        {
+            UniformGrid mainControlBar = new UniformGrid();
+            UniformGrid checkFoldbetControlBar = new UniformGrid();
+            UniformGrid ControlBar = new UniformGrid();
+
+            BottomRow.Children.Add(mainControlBar);
         }
 
         private void positionElementsOnScreen(int i)
         {
             UniformGrid playerUg = makePlayerUniformGrid(i);
-            if (i < 2)
+            
+            if (i < 3)
                 TopRow.Children.Add(playerUg);
-            else if (i == 2)
+            else if (i == 3)
             {
                 UpperMiddleRow.Children.Add(playerUg);
                 AddCommunityCards();
             }
-            else if (i == 3)
-                UpperMiddleRow.Children.Add(playerUg);
             else if (i == 4)
+                UpperMiddleRow.Children.Add(playerUg);
+            else if (i == 5)
             {
                 LowerMiddleRow.Children.Add(playerUg);
                 AddCoins();
             }
-            else if (i == 5)
+            else if (i == 6)
                 LowerMiddleRow.Children.Add(playerUg);
             else
                 BottomRow.Children.Add(playerUg);

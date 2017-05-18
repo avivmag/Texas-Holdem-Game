@@ -50,10 +50,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CLShared\CLShared.csproj">
-      <Project>{bf23c7a2-2a04-4a45-8bc6-97b9e12d5602}</Project>
-      <Name>CLShared</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SL\SL.csproj">
       <Project>{009cacb2-4448-4d7d-932c-5e73790c9139}</Project>
       <Name>SL</Name>
