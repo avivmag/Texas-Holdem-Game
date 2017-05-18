@@ -167,7 +167,7 @@ namespace CLServer
                 (passwordToken == null) || (passwordToken.Type != JTokenType.String) ||
                 (String.IsNullOrWhiteSpace(passwordToken.ToString())))
             {
-                throw new ArgumentException("Error: Parameters Mismatch at Login.");
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Login."));
             }
             
             var loginResponse = sl.Login((string)usernameToken, (string)passwordToken);
@@ -189,7 +189,7 @@ namespace CLServer
             if ((gameCreatorIdToken == null) || (gameCreatorIdToken.Type != JTokenType.Integer) ||
                 (gamePolicyToken == null) || (gamePolicyToken.Type != JTokenType.Integer))
             {
-                throw new ArgumentException("Error: Parameters Mismatch at Create Game.");
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Create Game."));
             }
 
             var createGameResponse = sl.createGame(
@@ -211,7 +211,7 @@ namespace CLServer
 
             if (gameIdToken == null || gameIdToken.Type != JTokenType.Integer)
             {
-                throw new ArgumentException("Error: Parameters Mismatch at Get Game");
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Get Game"));
             }
 
             var getGameResponse = sl.getGameById((int)gameIdToken);
@@ -238,7 +238,7 @@ namespace CLServer
                 (userImageToken == null) || (userImageToken.Type != JTokenType.String) ||
                 (String.IsNullOrWhiteSpace(userImageToken.ToString())))
             {
-                throw new ArgumentException("Error: Parameters Mismatch at Register");
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Register"));
             }
 
             var registerResponse = sl.Register(
@@ -257,7 +257,7 @@ namespace CLServer
 
             if (userIdToken == null || userIdToken.Type != JTokenType.Integer)
             {
-                throw new ArgumentException("Error: Parameters Mismatch at Logout");
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Logout"));
             }
 
             var logoutResponse = sl.Logout((int)userIdToken);
@@ -274,7 +274,7 @@ namespace CLServer
             if ((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer) ||
                 (userIdToken == null) || (userIdToken.Type != JTokenType.Integer))
             {
-                throw new ArgumentException("Error: Parameters Mismatch at Join Active Game");
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Join Active Game"));
             }
 
             var joinActiveGameResponse = sl.joinActiveGame((int)userIdToken, (int)gameIdToken);
@@ -291,7 +291,7 @@ namespace CLServer
             if ((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer) ||
                 (userIdToken == null) || (userIdToken.Type != JTokenType.Integer))
             {
-                throw new ArgumentException("Error: Parameters Mismatch at Spectate Active Game");
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Spectate Active Game"));
             }
 
             var spectateActiveGameResponse = sl.spectateActiveGame((int)userIdToken, (int)gameIdToken);
@@ -326,7 +326,8 @@ namespace CLServer
 
             if ((potSizeToken == null) || (potSizeToken.Type != JTokenType.Integer))
             {
-                throw new ArgumentException("Error: Parameters Mismatch at Filter Active Games By Pot Size");
+                throw new TargetInvocationException(
+                    new ArgumentException("Error: Parameters Mismatch at Filter Active Games By Pot Size"));
             }
 
             var filterActiveGamesByPotSizeResponse = sl.filterActiveGamesByPotSize((int?)potSizeToken);
@@ -342,7 +343,8 @@ namespace CLServer
             if ((playerNameToken == null) || (playerNameToken.Type != JTokenType.String) ||
                 (String.IsNullOrWhiteSpace(playerNameToken.ToString())))
             {
-                throw new ArgumentException("Error: Parameters Mismatch at Filter Active Games By Player Name");
+                throw new TargetInvocationException(
+                    new ArgumentException("Error: Parameters Mismatch at Filter Active Games By Player Name"));
             }
 
             var filterActiveGamesByPotSizeResponse = sl.filterActiveGamesByPlayerName((string)playerNameToken);
@@ -361,7 +363,7 @@ namespace CLServer
 
             if (userIdToken == null || userIdToken.Type != JTokenType.Integer)
             {
-                throw new ArgumentException("Error: Parameters Mismatch at Edit User Profile");
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Edit User Profile"));
             }
 
             var editUserProfileResponse = sl.editUserProfile(
