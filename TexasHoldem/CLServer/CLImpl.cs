@@ -39,6 +39,7 @@ namespace CLServer
             catch (TargetInvocationException tie)
             {
                 Console.WriteLine(tie.InnerException);
+                SendMessage(client, new { exception = "An Error Has Occured" });
             }
             catch (Exception e)
             {
