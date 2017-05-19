@@ -5,21 +5,147 @@ using System;
 using Backend.System;
 using static Backend.Game.GamePreferences;
 using SL;
+using Backend;
 
-public class SLImpl
+public class SLImpl :SLInterface
 {
-	/*private GameCenter gameCenter;
+	private GameCenter gameCenter;
 
-    //public SLImpl()
+    public SLImpl()
+    {
+        this.gameCenter = GameCenter.getGameCenter();
+        //dal = new DALDummy();
+    }
+
+    //public SLImpl(GameCenter gameCenter)
     //{
-    //    dal = new DALDummy();
+    //    this.gameCenter = gameCenter;
     //}
 
-    public SLImpl(GameCenter gameCenter)
+
+    public object spectateActiveGame(int userId, int gameID)
     {
-        this.gameCenter = gameCenter;
+        TexasHoldemGame game = gameCenter.getGameById(gameID);
+        SystemUser user = gameCenter.getUserById(userId);
+        if (game == null || user == null)
+            return null;
+        return game.joinSpectate(user);
     }
-	public ReturnMessage spectateActiveGame(SystemUser user, int gameID)
+
+    public object joinActiveGame(int userId, int gameID)
+    {
+        TexasHoldemGame game = gameCenter.getGameById(gameID);
+        SystemUser user = gameCenter.getUserById(userId);
+        if (game == null || user == null)
+            return null;
+        return game.joinGame(user);
+    }
+
+    public object leaveGame(SystemUser user, int gameID)
+    {
+        TexasHoldemGame game = gameCenter.getGameById(gameID);
+        if (game == null)
+            return null;
+        return game.removeUser(user);
+    }
+
+
+
+
+
+
+    public object createGame(int gameCreatorId, object pref)
+    {
+        throw new NotImplementedException();
+    }
+
+    public object createGame(int gameCreator, int gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed)
+    {
+        throw new NotImplementedException();
+    }
+
+    public object editUserProfile(int userId, string name, string password, string email, string avatar)
+    {
+        throw new NotImplementedException();
+    }
+
+    public List<TexasHoldemGame> filterActiveGamesByGamePreferences(GamePreferences pref)
+    {
+        throw new NotImplementedException();
+    }
+
+    public List<TexasHoldemGame> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed)
+    {
+        throw new NotImplementedException();
+    }
+
+    public object filterActiveGamesByPlayerName(string name)
+    {
+        throw new NotImplementedException();
+    }
+
+    public object filterActiveGamesByPotSize(int? size)
+    {
+        throw new NotImplementedException();
+    }
+
+    public object findAllActiveAvailableGames()
+    {
+        throw new NotImplementedException();
+    }
+
+    public List<TexasHoldemGame> getAllGames()
+    {
+        throw new NotImplementedException();
+    }
+
+    public object getGameById(int gameId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SystemUser getUserById(int userId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SystemUser getUserByName(string name)
+    {
+        throw new NotImplementedException();
+    }
+
+    
+
+    
+
+    public object Login(string user, string password)
+    {
+        throw new NotImplementedException();
+    }
+
+    public object Logout(int userId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public string raiseBet(int gameId, int playerId, int coins)
+    {
+        throw new NotImplementedException();
+    }
+
+    public object Register(string user, string password, string email, string userImage)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void replayGame(int gameId)
+    {
+        throw new NotImplementedException();
+    }
+
+    
+
+    /*public ReturnMessage spectateActiveGame(SystemUser user, int gameID)
 	{
 		ReturnMessage m = new ReturnMessage();
 		TexasHoldemGame existingGame = dal.getGameById(gameID);

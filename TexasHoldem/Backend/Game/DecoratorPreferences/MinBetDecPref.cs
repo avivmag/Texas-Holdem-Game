@@ -12,10 +12,10 @@ namespace Backend.Game.DecoratorPreferences
             this.minimalBet = minimalBet;
         }
 
-        public override ReturnMessage canPerformUserActions(TexasHoldemGame game, Player p, SystemUser user, string action)
+        public override ReturnMessage canPerformUserActions(TexasHoldemGame game, SystemUser user, string action)
         {
             if (nextDecPref != null)
-                return nextDecPref.canPerformUserActions(game,p, user, action);
+                return nextDecPref.canPerformUserActions(game, user, action);
             return new ReturnMessage(true, "");
         }
 

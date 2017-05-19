@@ -9,6 +9,7 @@ namespace Backend.System
 	{
 		public List<TexasHoldemGame> texasHoldemGames { get; set; }
         public List<League> leagues { get; set; }
+        public List<SystemUser> loggedInUsers { get; set; }
         private static GameCenter center;
 
         private GameCenter()
@@ -29,7 +30,6 @@ namespace Backend.System
 			var game = new Game.TexasHoldemGame(user, preferences);
             texasHoldemGames.Add(game);
             return game;
-
         }
 
         // Maintain leagues for players. Should be invoked once a week.
@@ -110,6 +110,23 @@ namespace Backend.System
             }
             return false;
         }
+
+        public TexasHoldemGame getGameById(int gameId)
+        {
+            foreach (TexasHoldemGame game in texasHoldemGames)
+                if (game.gameId == gameId)
+                    return game;
+            return null;
+        }
+
+        public SystemUser getUserById(int userId)
+        {
+            foreach (SystemUser user in loggedInUsers)
+                if (user.id == userId)
+                    return user;
+            return null;
+        }
+
         private ReturnMessage raiseBet(int gameId, int playerId, int coins)
         {
             // I am too tired right now, but I think you've got the idea,

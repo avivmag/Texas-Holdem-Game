@@ -11,11 +11,11 @@ namespace Backend.Game.DecoratorPreferences
             this.minPlayers = minPlayers;
         }
 
-        public override ReturnMessage canPerformUserActions(TexasHoldemGame game, Player p, SystemUser user, string action)
+        public override ReturnMessage canPerformUserActions(TexasHoldemGame game, SystemUser user, string action)
         {
             //TODO: leave PLayer?
             if (nextDecPref != null)
-                return nextDecPref.canPerformUserActions(game, p, user, action);
+                return nextDecPref.canPerformUserActions(game, user, action);
             else
                 return new ReturnMessage(true, "");
         }
