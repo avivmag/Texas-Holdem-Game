@@ -3,6 +3,7 @@ using Backend.Game;
 using Backend.User;
 using System.Collections.Generic;
 using static Backend.Game.GamePreferences;
+using Backend.Game.DecoratorPreferences;
 
 namespace SL
 {
@@ -12,14 +13,15 @@ namespace SL
         object joinActiveGame(int userId, int gameID);
         object leaveGame(SystemUser user, int gameID);
 
-        object editUserProfile(int userId, string name, string password, string email, string avatar);
+        object editUserProfile(int userId, string name, string password, string email, string avatar, int amount);
 
-        object findAllActiveAvailableGames();
-        object filterActiveGamesByPlayerName(string name);
-        object filterActiveGamesByPotSize(int? size);
-        List<TexasHoldemGame> filterActiveGamesByGamePreferences(GamePreferences pref);
-        List<TexasHoldemGame> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed);
-        List<TexasHoldemGame> getAllGames();
+        List<object> findAllActiveAvailableGames();
+        List<object> filterActiveGamesByPlayerName(string name);
+        List<object> filterActiveGamesByPotSize(int? size);
+        List<object> filterActiveGamesByGamePreferences(MustPreferences pref);
+        //List<object> filterActiveGamesByGamePreferences(GamePreferences pref);
+        //List<object> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed);
+        List<object> getAllGames();
 
         object createGame(int gameCreatorId, object pref);
         object createGame(int gameCreator, int gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed);
