@@ -77,6 +77,11 @@ namespace Backend.System
             }
         }
 
+        public object getAllGames()
+        {
+            return dal.getAllGames();
+        }
+
         public List<TexasHoldemGame> filterActiveGamesByGamePreferences(MustPreferences pref)
         {
             List<TexasHoldemGame> ans = new List<TexasHoldemGame> { };

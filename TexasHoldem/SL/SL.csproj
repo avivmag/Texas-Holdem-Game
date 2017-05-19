@@ -45,9 +45,17 @@
     <Compile Include="SLInterface.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ApplicationFacade\ApplicationFacade.csproj">
+      <Project>{4C020F04-D40B-47A2-B8DC-E3BB2804D4E9}</Project>
+      <Name>ApplicationFacade</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Backend\Backend.csproj">
       <Project>{9951a575-8f22-40e4-b7f9-f59a66494af1}</Project>
       <Name>Backend</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DAL\DAL.csproj">
+      <Project>{C338435B-70E3-40BB-93B7-A8CC89F73744}</Project>
+      <Name>DAL</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
