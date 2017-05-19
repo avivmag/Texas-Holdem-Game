@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Backend.User;
+﻿using Backend.User;
 
 namespace Backend.Game.DecoratorPreferences
 {
-    //Current ordrer of decorator: gamePolicy->buyInPolicy->startingChipsAmount->minBet->minPlayers->maxPlayers->spectateAloowed->league
+    //Current ordrer of decorator: mustPref (canSpectate,League vals) ->gamePolicy->buyInPolicy->startingChipsAmount->minBet->minPlayers->maxPlayers
     public interface DecoratorPreferencesInterface
     {
-        ReturnMessage canPerformUserActions(Player p, SystemUser user, string action);
-        ReturnMessage canPerformGameActions(TexasHoldemGame game, SystemUser user, string action);
-        bool isContain(MustPreferences pref);
+        //This method will check if actions that are not related to a running game (such as join) can be performed
+        ReturnMessage canPerformUserActions(TexasHoldemGame game, Player p, SystemUser user, string action);
+        //This method will check if actions that related to a running game (such as bet) can be performed
+        ReturnMessage canPerformGameActions(TexasHoldemGame game, SystemUser user, int amount, string action);
+        bool isContain(DecoratorPreferencesInterface pref);
     }
 }

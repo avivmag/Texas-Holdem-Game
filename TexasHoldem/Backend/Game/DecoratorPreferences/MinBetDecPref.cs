@@ -1,61 +1,64 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Backend.User;
 
 namespace Backend.Game.DecoratorPreferences
 {
-    public class MinBetDecPref : DecoratorPreferencesInterface
+    public class MinBetDecPref : OptionalPreferences
     {
         private int minimalBet;
-        private DecoratorPreferencesInterface nextDecPref;
 
-        public MinBetDecPref(int minimalBet, DecoratorPreferencesInterface nextDecPref)
+        public MinBetDecPref(int minimalBet, OptionalPreferences nextDecPref): base(nextDecPref)
         {
             this.minimalBet = minimalBet;
-            this.nextDecPref = nextDecPref;
         }
-        public ReturnMessage canPerformUserActions(Player p, SystemUser user, string action)
+
+        public override ReturnMessage canPerformUserActions(TexasHoldemGame game, Player p, SystemUser user, string action)
         {
-            switch (action)
-            {
-                case "join":
-                    break;
-
-                case "spectate":
-                    break;
-
-                case "leave":
-                    break;
-
-
-                default:
-                    return null;
-            }
-            return null;
+            if (nextDecPref != null)
+                return nextDecPref.canPerformUserActions(game,p, user, action);
+            return new ReturnMessage(true, "");
         }
 
-        public ReturnMessage canPerformGameActions(TexasHoldemGame game, SystemUser user, string action)
+        public override ReturnMessage canPerformGameActions(TexasHoldemGame game, SystemUser user, int amount, string action)
         {
             switch (action)
             {
                 case "Bet":
-
-                    break;
+                    if (amount < minimalBet)
+                        return new ReturnMessage(false, "The bet you entered is lower than the minimal bet: " + minimalBet.ToString());
+                    else if (nextDecPref != null)
+                        return nextDecPref.canPerformGameActions(game, user, amount, action);
+                    else
+                        return new ReturnMessage(true, "");
 
                 case "Raise":
+                    if (nextDecPref != null)
+                        return nextDecPref.canPerformGameActions(game, user, amount, action);
+                    else
+                        return new ReturnMessage(true, "");
 
-                    break;
-
+                default:
+                    return new ReturnMessage(false, "Wrong input to the canPerformGameActions.");
             }
-            return null;
         }
 
-        public bool isContain(MustPreferences pref)
+        public override bool isContain(DecoratorPreferencesInterface pref)
         {
-            throw new NotImplementedException();
+            if (pref.GetType() != typeof(OptionalPreferences))
+                return false;
+            OptionalPreferences opPref = ((OptionalPreferences)pref);
+            MinBetDecPref matchingPref = (MinBetDecPref)getMatchingOptionalPref(opPref);
+            //if we found matchig optinal pref and he have the same policy
+            if (matchingPref != null && matchingPref.minimalBet == minimalBet)
+                //if we still need to check the rest of the chain
+                if (nextDecPref != null)
+                    //return its result
+                    return nextDecPref.isContain(pref);
+                //if we don't have anything else to check return true.
+                else return true;
+            //if we couldent found or if we found pref with different value.
+            else
+                return false;
         }
     }
 }
