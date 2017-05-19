@@ -8,11 +8,11 @@ namespace Backend.Game.DecoratorPreferences
 
         public OptionalPreferences(OptionalPreferences nextPref)
         {
-            this.nextDecPref = nextPref;
+            nextDecPref = nextPref;
         }
 
         public abstract ReturnMessage canPerformGameActions(TexasHoldemGame game, SystemUser user, int amount, string action);
-        public abstract ReturnMessage canPerformUserActions(TexasHoldemGame game, Player p, SystemUser user, string action);
+        public abstract ReturnMessage canPerformUserActions(TexasHoldemGame game, SystemUser user, string action);
         public abstract bool isContain(DecoratorPreferencesInterface pref);
 
         public OptionalPreferences getMatchingOptionalPref(OptionalPreferences toGet)

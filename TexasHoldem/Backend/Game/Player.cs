@@ -12,19 +12,21 @@ namespace Backend.Game
         public PlayerState playerState { get; set; }
         public List<Card> playerCards { get; set; }
 
+        // a builder to the player
 		public Player(int userId, int tokens, int userRank)
 		{
-            this.systemUserID = userId;
-			this.Tokens = tokens;
+            systemUserID = userId;
+			Tokens = tokens;
             //this.userRank = userRank;
-            this.spectator = false;
+            spectator = false;
             playerCards = new List<Card>();
 		}
 
+        //a builder to a spectator
         public Player(int userId)
         {
-            this.systemUserID = userId;
-            this.spectator = true;
+            systemUserID = userId;
+            spectator = true;
         }
     }
 }
