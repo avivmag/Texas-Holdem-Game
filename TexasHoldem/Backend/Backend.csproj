@@ -52,7 +52,6 @@
     <Compile Include="Tools\ReturnMessage.cs" />
     <Compile Include="Messages\Notification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="System\GameCenter.cs" />
     <Compile Include="User\SystemUser.cs" />
     <Compile Include="Game\DecoratorPreferences\BuyInPolicyDecPref.cs" />
     <Compile Include="Game\DecoratorPreferences\DecoratorPreferencesInterface.cs" />
