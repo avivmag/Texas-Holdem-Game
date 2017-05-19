@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Backend.Game;
+using Backend.Game.DecoratorPreferences;
 using Backend.User;
+using DAL;
 
 namespace Backend.System
 {
@@ -11,11 +13,13 @@ namespace Backend.System
         public List<League> leagues { get; set; }
         public List<SystemUser> loggedInUsers { get; set; }
         private static GameCenter center;
+        private DALDummy dal;
 
         private GameCenter()
         {
             texasHoldemGames = new List<TexasHoldemGame>();
             leagues = new List<League>();
+            dal = new DALDummy();
         }
 
         public static GameCenter getGameCenter()
@@ -71,6 +75,70 @@ namespace Backend.System
                         leagues.Add(l);
                 }
             }
+        }
+
+        public List<TexasHoldemGame> filterActiveGamesByGamePreferences(MustPreferences pref)
+        {
+            List<TexasHoldemGame> ans = new List<TexasHoldemGame> { };
+            foreach (TexasHoldemGame g in texasHoldemGames)
+                if (g.gamePreferences.isContain(pref))
+                    ans.Add(g);
+            return ans;
+        }
+
+        public List<TexasHoldemGame> filterActiveGamesByPotSize(int? size)
+        {
+            List<TexasHoldemGame> ans = new List<TexasHoldemGame> { };
+            foreach (TexasHoldemGame g in texasHoldemGames)
+                if (g.pot <= size)
+                    ans.Add(g);
+            return ans;
+        }
+
+        public List<TexasHoldemGame> filterActiveGamesByPlayerName(string name)
+        {
+            List<TexasHoldemGame> ans = new List<TexasHoldemGame> ();
+            foreach (TexasHoldemGame game in texasHoldemGames)
+            {
+                foreach (Player p in game.players)
+                {
+                    if (p != null)
+                    {
+                        if (getUserById(p.systemUserID).name.Equals(name, StringComparison.OrdinalIgnoreCase))
+                        {
+                            ans.Add(game);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return ans;
+        }
+
+        public ReturnMessage editUserProfile(int userId, string name, string password, string email, string avatar, int money)
+        {
+            SystemUser user = getUserById(userId);
+            List<SystemUser> allUsers = dal.getAllUsers();
+
+            //Validates attributes.
+            if (name.Equals("") || password.Equals(""))
+                return new ReturnMessage(false, "Can't change to empty user name or password.");
+            if (money<0)
+                return new ReturnMessage(false, "Can't change money to a negative value.");
+
+            //Check that attributes are not already exists.
+            foreach (SystemUser u in allUsers)
+                if (u.id != userId && (u.name.Equals(name, StringComparison.OrdinalIgnoreCase) || u.email.Equals(email, StringComparison.OrdinalIgnoreCase))) //comparing two passwords including cases i.e AbC = aBc
+                    return new ReturnMessage(false, "Username or email already exists.");
+
+            //changes the attributes
+            user.name = name;
+            user.password = password;
+            user.email = email;
+            user.userImage = avatar;
+            dal.editUser(user);
+            return new ReturnMessage(true,"");
         }
 
         private SystemUser getHighest(List<SystemUser> users)
