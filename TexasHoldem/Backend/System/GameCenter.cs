@@ -1,49 +1,123 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using Backend.Game;
+using Backend.User;
 
 namespace Backend.System
 {
 	public class GameCenter : Messages.Notification
 	{
-		private List<Game.TexasHoldemGame> texasHoldemGames;
-        private List<Game.League> leagues;
+		public List<TexasHoldemGame> texasHoldemGames { get; set; }
+        public List<League> leagues { get; set; }
+        private static GameCenter center;
 
-		public Game.TexasHoldemGame createRegularGame(int userId, Game.GamePreferences preferences)
+        private GameCenter()
+        {
+            texasHoldemGames = new List<TexasHoldemGame>();
+            leagues = new List<League>();
+        }
+
+        public static GameCenter getGameCenter()
+        {
+            if (center == null)
+                center = new GameCenter();
+            return center;
+        }
+
+		public TexasHoldemGame createRegularGame(SystemUser user, GamePreferences preferences)
 		{
-			var game = new Game.TexasHoldemGame(userId, preferences);
+			var game = new Game.TexasHoldemGame(user, preferences);
             texasHoldemGames.Add(game);
             return game;
 
         }
 
-        // Maintain leagues for players. Should be invoked after each game ending, or new players register.
-        public void maintainLeagues(List<User.SystemUser> users)
+        // Maintain leagues for players. Should be invoked once a week.
+        public void maintainLeagues(List<SystemUser> users)
         {
-            foreach(var u in users)
+            int numOfUsers = users.Count;
+
+            if (numOfUsers < 2)
             {
-                foreach(var l in leagues)
+                League l = new League();
+                foreach (SystemUser user in users)
                 {
-                    if (u.rank >= l.minRank && u.rank <= l.maxRank && !l.isUserInLeague(u))
+                    l.addUser(user);
+                }
+            }
+            else
+            {
+                int numOfLeagues = (int)Math.Ceiling(numOfUsers / Math.Sqrt(numOfUsers));
+                int numOfPlayersInLeague = numOfUsers / numOfLeagues;
+                leagues.Clear();
+
+                for (int j = 0; j < numOfLeagues; j++)
+                {
+                    League l = new League();
+                    for (int i = 0; i < numOfPlayersInLeague; i++)
                     {
-                        l.addUser(u);
+                        SystemUser currHighestRankUser = getHighest(users);
+                        if (currHighestRankUser != null)
+                        {
+                            users.Remove(currHighestRankUser);
+                            l.addUser(currHighestRankUser);
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
-                    else if ((u.rank < l.minRank || u.rank > l.maxRank) && l.isUserInLeague(u))
-                    {
-                        l.removeUser(u);
-                    }
+                    if (l.Users.Count > 0)
+                        leagues.Add(l);
                 }
             }
         }
 
-        public List<Game.TexasHoldemGame> findGameByCriteria(String str)
-		{
-			return null;
-		}
-
-        public Game.League createLeague(int minRank, int maxRank, String leagueName)
+        private SystemUser getHighest(List<SystemUser> users)
         {
-            return new Game.League(minRank, maxRank, leagueName);
+            int maxRank = -1;
+            SystemUser ans = null;
+            foreach (SystemUser u in users)
+            {
+                if (u.rank > maxRank)
+                {
+                    ans = u;
+                    maxRank = u.rank;
+                }
+            }
+            return ans;
         }
-	}
+
+        public League getUserLeague(SystemUser user)
+        {
+            foreach (League l in leagues)
+            {
+                if (l.Users.Contains(user))
+                    return l;
+            }
+            return null;
+        }
+
+        public bool userPlay(SystemUser user)
+        {
+            foreach (TexasHoldemGame game in texasHoldemGames)
+            {
+                foreach(Player p in game.players)
+                {
+                    if (p.systemUserID == user.id)
+                        return true;
+                }
+            }
+            return false;
+        }
+        private ReturnMessage raiseBet(int gameId, int playerId, int coins)
+        {
+            // I am too tired right now, but I think you've got the idea,
+            // now the gamecenter will find the game by gameId and at the bet, blah blah
+            // and return if it succeded or not
+            // be aware the logic seats in the entities themself
+
+            return null;
+        }
+    }
 }

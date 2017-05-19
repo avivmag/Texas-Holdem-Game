@@ -89,16 +89,12 @@
       <Project>{9951A575-8F22-40E4-B7F9-F59A66494AF1}</Project>
       <Name>Backend</Name>
     </ProjectReference>
-    <ProjectReference Include="..\BL\BL.csproj">
-      <Project>{99782cf7-8736-4c1e-949f-c0b962071b0c}</Project>
-      <Name>BL</Name>
-    </ProjectReference>
     <ProjectReference Include="..\DAL\DAL.csproj">
       <Project>{C338435B-70E3-40BB-93B7-A8CC89F73744}</Project>
       <Name>DAL</Name>
     </ProjectReference>
     <ProjectReference Include="..\SL\SL.csproj">
-      <Project>{1e852876-108e-4607-8897-4d50f83fb0c6}</Project>
+      <Project>{009cacb2-4448-4d7d-932c-5e73790c9139}</Project>
       <Name>SL</Name>
     </ProjectReference>
   </ItemGroup>

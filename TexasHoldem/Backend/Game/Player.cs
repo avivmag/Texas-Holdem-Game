@@ -6,7 +6,7 @@ namespace Backend.Game
 	{
         public int systemUserID { get; set; }
         public int Tokens { get; set; }
-        public int userRank { get; set; }
+        //public int userRank { get; set; }
         public bool spectator { get; set; }
         public enum PlayerState { folded, in_round}
         public PlayerState playerState { get; set; }
@@ -16,7 +16,7 @@ namespace Backend.Game
 		{
             this.systemUserID = userId;
 			this.Tokens = tokens;
-            this.userRank = userRank;
+            //this.userRank = userRank;
             this.spectator = false;
             playerCards = new List<Card>();
 		}

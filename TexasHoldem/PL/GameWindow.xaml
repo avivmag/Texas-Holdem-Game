@@ -5,8 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PL"
         mc:Ignorable="d"
-        Title="GameWindow" Height="300" Width="300">
-    <Grid>
-        
-    </Grid>
+        WindowState="Maximized"
+        Title="GameWindow" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+    <UniformGrid Columns="1">
+        <UniformGrid Name="TopRow" Rows="1"/>
+        <UniformGrid Name="UpperMiddleRow" Rows="1"/>
+        <UniformGrid Name="LowerMiddleRow" Rows="1"/>
+        <UniformGrid Name="BottomRow" Rows="1" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+    </UniformGrid>
 </Window>

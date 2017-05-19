@@ -1,17 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using SL;
+﻿using System.Windows;
+using CLClient;
+using CLClient.Entities;
 
 namespace PL
 {
@@ -20,20 +9,18 @@ namespace PL
     /// </summary>
     public partial class MainMenuWindow : Window
     {
-        private SLInterface sl;
         private Window loginWindow;
 
         public MainMenuWindow(Window loginWindow)
         {
             InitializeComponent();
-            this.sl = LoginWindow.sl;
             this.loginWindow = loginWindow;
         }
 
         private void Logout_Click(object sender, RoutedEventArgs e)
         {
-            sl.Logout(LoginWindow.mySystemUser.name);
-            LoginWindow.mySystemUser = null;
+            CommClient.Logout(LoginWindow.user.id);
+            LoginWindow.user = null;
             this.Close();
             loginWindow.Show();
         }

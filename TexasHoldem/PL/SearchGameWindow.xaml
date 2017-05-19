@@ -29,7 +29,7 @@
                         <ComboBox Margin="10,15,10,10" x:Name="GameTypePolicyComboBox" IsEnabled="False" Text="" VerticalAlignment="Center" Height="26" Width="157">
                             <ComboBoxItem Content="none"/>
                             <ComboBoxItem Content="limit"/>
-                            <ComboBoxItem Content="no-limit"/>
+                            <ComboBoxItem Content="no_limit"/>
                             <ComboBoxItem Content="pot_limit"/>
                         </ComboBox>
                     </StackPanel>

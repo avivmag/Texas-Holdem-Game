@@ -1,20 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using Backend;
-using Backend.Game;
-using SL;
-using static Backend.Game.GamePreferences;
+using CLClient;
+using CLClient.Entities;
 
 namespace PL
 {
@@ -23,7 +10,6 @@ namespace PL
     /// </summary>
     public partial class CreateGameWindow : Window
     {
-        private SLInterface sl = LoginWindow.sl;
         private Window mainMenuWindow;
 
         public CreateGameWindow(Window MainMenuWindow)
@@ -41,7 +27,7 @@ namespace PL
         private void Create_Game_Click(object sender, RoutedEventArgs e)
         {
             errorMessage.Text = "";
-            TexasHoldemGame game = getGame();
+            var game = getGame();
             if (game == null)
             {
                 errorMessage.Text = "Could not create the game";
@@ -129,8 +115,9 @@ namespace PL
             {
                 spectateAllowed = Convert.ToBoolean(spectateAllowedTextbox.Text);
             }
-            //TODO: add user id.
-            return sl.createGame(0,gamePolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed);
+
+            return CommClient.CreateGame(LoginWindow.user.id, gamePolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed);
+            //return null;
         }
     }
 }

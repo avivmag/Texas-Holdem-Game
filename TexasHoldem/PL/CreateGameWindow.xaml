@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PL"
         mc:Ignorable="d"
-        Title="CreateGameWindow" Height="500" Width="500">
+        Title="CreateGameWindow" Height="500" Width="500" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
     <Grid>
         <Label Content="Please choose preferences:"></Label>
 
@@ -15,7 +15,7 @@
                 <ComboBox Margin="10,10,10,10" x:Name="GameTypePolicyComboBox" IsEnabled="False" Text="" VerticalAlignment="Center" Height="30" Width="157">
                     <ComboBoxItem Content="none"/>
                     <ComboBoxItem Content="limit"/>
-                    <ComboBoxItem Content="no-limit"/>
+                    <ComboBoxItem Content="no_limit"/>
                     <ComboBoxItem Content="pot_limit"/>
                 </ComboBox>
             </StackPanel>

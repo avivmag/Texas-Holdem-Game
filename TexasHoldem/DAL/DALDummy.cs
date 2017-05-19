@@ -12,16 +12,16 @@ namespace DAL
     {
         private List<SystemUser> userDummies;
         private List<SystemUser> loggedInUserDummies;
-        private List<League> leagues;
+        //private List<League> leagues;
         private List<Player> playerDummies;
-        private List<Player> spectatorDummies;
+        //private List<Player> spectatorDummies;
         private List<TexasHoldemGame> gameDummies;
 
         public DALDummy()
         {
-            leagues = new List<League>();
-            leagues.Add(new League(0, 1000, "Starter League"));
-            leagues.Add(new League(1000, 2000, "Experienced League"));
+            //leagues = new List<League>();
+            //leagues.Add(new League(0, 1000, "Starter League"));
+            //leagues.Add(new League(1000, 2000, "Experienced League"));
 
             userDummies = new List<SystemUser>
             {
@@ -39,12 +39,12 @@ namespace DAL
             loggedInUserDummies = new List<SystemUser>();
             gameDummies = new List<TexasHoldemGame>
             {
-                new TexasHoldemGame(0, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, true)),
-                new TexasHoldemGame(0, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, false)),
-                new TexasHoldemGame(1, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, true)),
-                new TexasHoldemGame(1, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false)),
-                new TexasHoldemGame(3, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 0, 1000)),
-                new TexasHoldemGame(3, new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 1000, 2000))
+                new TexasHoldemGame(userDummies[0], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, true)),
+                new TexasHoldemGame(userDummies[0], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, false)),
+                new TexasHoldemGame(userDummies[1], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, true)),
+                new TexasHoldemGame(userDummies[1], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false)),
+                new TexasHoldemGame(userDummies[3], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 0, 1000)),
+                new TexasHoldemGame(userDummies[3], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 1000, 2000))
             };
             for (int i = 0; i < 6; i++)
                 gameDummies[i].gameId = i;
@@ -140,36 +140,36 @@ namespace DAL
 			return new ReturnMessage(false, "you are not logged in");
 		}
 		
-        public ReturnMessage addLeague(int minRank, int maxRank, string name)
-        {
-            leagues.Add(new League(minRank, maxRank, name));
+        //public ReturnMessage addLeague(int minRank, int maxRank, string name)
+        //{
+        //    leagues.Add(new League(minRank, maxRank, name));
 
-            return new ReturnMessage(true, null);
-        }
+        //    return new ReturnMessage(true, null);
+        //}
 
-        public ReturnMessage removeLeague(Guid leagueId)
-        {
-            var league = leagues.Where(l => l.leagueId == leagueId).SingleOrDefault();
+        //public ReturnMessage removeLeague(Guid leagueId)
+        //{
+        //    var league = leagues.Where(l => l.leagueId == leagueId).SingleOrDefault();
 
-            if(league == null)
-            {
-                return new ReturnMessage(false, String.Format("Cannot Remove league. no such league exists with Id {0}", leagueId));
-            }
-            leagues.Remove(league);
+        //    if(league == null)
+        //    {
+        //        return new ReturnMessage(false, String.Format("Cannot Remove league. no such league exists with Id {0}", leagueId));
+        //    }
+        //    leagues.Remove(league);
 
-            return new ReturnMessage(true, null);
-        }
+        //    return new ReturnMessage(true, null);
+        //}
 
         
-        public List<League> getAllLeagues()
-        {
-            return leagues;
-        }
+        //public List<League> getAllLeagues()
+        //{
+        //    return leagues;
+        //}
 
-        public ReturnMessage setLeagueCriteria(int minRank, int maxRank, string leagueName, Guid leagueId, int userId)
-        {
-            return null;
-        }
+        //public ReturnMessage setLeagueCriteria(int minRank, int maxRank, string leagueName, Guid leagueId, int userId)
+        //{
+        //    return null;
+        //}
 
         public ReturnMessage addGame(TexasHoldemGame game)
         {
