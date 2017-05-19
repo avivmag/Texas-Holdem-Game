@@ -58,27 +58,30 @@ public class SLImpl :SLInterface
     }
 
 
-    public List<object> findAllActiveAvailableGames()
+    public object findAllActiveAvailableGames()
     {
         return gameCenter.texasHoldemGames;
     }
 
-    public List<object> filterActiveGamesByPlayerName(string name)
+    public object filterActiveGamesByPlayerName(string name)
     {
         return gameCenter.filterActiveGamesByPlayerName(name);
     }
 
-    public List<object> filterActiveGamesByPotSize(int? size)
+    public object filterActiveGamesByPotSize(int? size)
     {
         return gameCenter.filterActiveGamesByPotSize(size);
     }
 
-    public List<object> filterActiveGamesByGamePreferences(MustPreferences pref)
+    public object filterActiveGamesByGamePreferences(MustPreferences pref)
     {
         return gameCenter.filterActiveGamesByGamePreferences(pref);
     }
 
-
+    public object getAllGames()
+    {
+        return gameCenter.getAllGames();
+    }
 
 
 
@@ -111,10 +114,7 @@ public class SLImpl :SLInterface
 
     
 
-    public List<TexasHoldemGame> getAllGames()
-    {
-        throw new NotImplementedException();
-    }
+    
 
     public object getGameById(int gameId)
     {

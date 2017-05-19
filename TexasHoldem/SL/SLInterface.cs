@@ -15,13 +15,13 @@ namespace SL
 
         object editUserProfile(int userId, string name, string password, string email, string avatar, int amount);
 
-        List<object> findAllActiveAvailableGames();
-        List<object> filterActiveGamesByPlayerName(string name);
-        List<object> filterActiveGamesByPotSize(int? size);
-        List<object> filterActiveGamesByGamePreferences(MustPreferences pref);
+        object findAllActiveAvailableGames();
+        object filterActiveGamesByPlayerName(string name);
+        object filterActiveGamesByPotSize(int? size);
+        object filterActiveGamesByGamePreferences(MustPreferences pref);
         //List<object> filterActiveGamesByGamePreferences(GamePreferences pref);
         //List<object> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed);
-        List<object> getAllGames();
+        object getAllGames();
 
         object createGame(int gameCreatorId, object pref);
         object createGame(int gameCreator, int gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed);
