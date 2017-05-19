@@ -4,7 +4,7 @@ namespace Backend.Game.DecoratorPreferences
 {
     public abstract class OptionalPreferences : DecoratorPreferencesInterface
     {
-        public OptionalPreferences nextDecPref;
+        public OptionalPreferences nextDecPref { get; set; }
 
         public OptionalPreferences(OptionalPreferences nextPref)
         {

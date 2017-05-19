@@ -3,8 +3,6 @@ using Backend.User;
 using System.Collections.Generic;
 using System.Linq;
 using Backend;
-using System;
-using Backend.System;
 
 namespace DAL
 {
@@ -39,12 +37,12 @@ namespace DAL
             loggedInUserDummies = new List<SystemUser>();
             gameDummies = new List<TexasHoldemGame>
             {
-                new TexasHoldemGame(userDummies[0], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, true)),
-                new TexasHoldemGame(userDummies[0], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, false)),
-                new TexasHoldemGame(userDummies[1], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, true)),
-                new TexasHoldemGame(userDummies[1], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false)),
-                new TexasHoldemGame(userDummies[3], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 0, 1000)),
-                new TexasHoldemGame(userDummies[3], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 1000, 2000))
+                //new TexasHoldemGame(userDummies[0], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, true)),
+                //new TexasHoldemGame(userDummies[0], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, false)),
+                //new TexasHoldemGame(userDummies[1], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, true)),
+                //new TexasHoldemGame(userDummies[1], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false)),
+                //new TexasHoldemGame(userDummies[3], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 0, 1000)),
+                //new TexasHoldemGame(userDummies[3], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 1000, 2000))
             };
             for (int i = 0; i < 6; i++)
                 gameDummies[i].gameId = i;

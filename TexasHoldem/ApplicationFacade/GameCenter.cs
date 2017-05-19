@@ -4,6 +4,7 @@ using Backend.Game;
 using Backend.Game.DecoratorPreferences;
 using Backend.User;
 using DAL;
+using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
 
 namespace Backend.System
 {
@@ -12,8 +13,8 @@ namespace Backend.System
 		public List<TexasHoldemGame> texasHoldemGames { get; set; }
         public List<League> leagues { get; set; }
         public List<SystemUser> loggedInUsers { get; set; }
-        private static GameCenter center;
         private DALDummy dal;
+        private static GameCenter center;
 
         private GameCenter()
         {
@@ -27,13 +28,6 @@ namespace Backend.System
             if (center == null)
                 center = new GameCenter();
             return center;
-        }
-
-		public TexasHoldemGame createRegularGame(SystemUser user, GamePreferences preferences)
-		{
-			var game = new Game.TexasHoldemGame(user, preferences);
-            texasHoldemGames.Add(game);
-            return game;
         }
 
         // Maintain leagues for players. Should be invoked once a week.
@@ -77,6 +71,91 @@ namespace Backend.System
             }
         }
 
+        public object logout(int userId)
+        {
+            SystemUser systemUser = getUserById(userId);
+            if (systemUser == null)
+                return new ReturnMessage(false, "User does not exists");
+
+            if (systemUser.spectatingGame.Count > 0)
+                return new ReturnMessage(false, "you are active in some games as spectator, leave them and then log out.");
+
+            if (userPlay(systemUser))
+            {
+                return new ReturnMessage(false, "you are active in some games as a player, leave them and then log out.");
+            }
+
+            loggedInUsers.Remove(systemUser);
+            return dal.logOutUser(systemUser.name);
+        }
+
+        public object register(string user, string password, string email, string userImage)
+        {
+            if (user == null || password == null || email == null || userImage == null || user.Equals("") || password.Equals("") || email.Equals("") || userImage.Equals(""))
+                return new ReturnMessage(false, "all attributes must be filled.");
+
+            SystemUser systemUser = dal.getUserByName(user);
+            if (systemUser != null)
+                return new ReturnMessage(false, "user name or email already taken");
+
+            //creating the user.
+            systemUser = new SystemUser(user, password, email, userImage, 0);
+            //after a registeration the user stay login
+            loggedInUsers.Add(systemUser);
+            //adding the user to the db.
+            return dal.registerUser(systemUser);
+        }
+
+        public object login(string user, string password)
+        {
+            if (user == null || password == null || user.Equals("") || password.Equals(""))
+                return new ReturnMessage(false, "all attributes must be filled.");
+
+            SystemUser systemUser = dal.getUserByName(user);
+            if (systemUser == null)
+                return new ReturnMessage(false, "user does not exists.");
+
+            if (systemUser.password.Equals(password))
+            {
+                loggedInUsers.Add(systemUser);
+                return new ReturnMessage(true, "");
+            }
+            else
+                return new ReturnMessage(false, "Incorrect password mismatched.");
+        }
+
+        public object createGame(int gameCreatorId, MustPreferences pref)
+        {
+            SystemUser user = getUserById(gameCreatorId);
+            if (user == null)
+                return new ReturnMessage(false, "Game creator is Not a user.");
+            
+            TexasHoldemGame game = new TexasHoldemGame(user, pref);
+            ReturnMessage m = game.gamePreferences.canPerformUserActions(game, user, "create");
+
+            if (m.success)
+                dal.addGame(game);
+            return m;
+        }
+
+        public object createGame(int gameCreator, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? minimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague)
+        {
+            SystemUser user = getUserById(gameCreator);
+            League l = null;
+            
+            if (isLeague.HasValue && isLeague.Value)
+                l = getUserLeague(user);
+
+            
+            MustPreferences mustPref = getMustPref(gamePolicy,gamePolicyLimit,buyInPolicy,startingChipsAmount,minimalBet,minPlayers,maxPlayers,isSpectatingAllowed,isLeague,l.minRank,l.maxRank);
+
+           
+
+            TexasHoldemGame game = new TexasHoldemGame(user, mustPref);
+            dal.addGame(game);
+            return game;
+        }
+
         public object getAllGames()
         {
             return dal.getAllGames();
@@ -88,6 +167,16 @@ namespace Backend.System
             foreach (TexasHoldemGame g in texasHoldemGames)
                 if (g.gamePreferences.isContain(pref))
                     ans.Add(g);
+            return ans;
+        }
+
+        public object filterActiveGamesByGamePreferences(string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? minimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague, int minRank, int maxRank)
+        {
+            MustPreferences mustPref = getMustPref(gamePolicy,gamePolicyLimit,buyInPolicy,startingChipsAmount,minimalBet,minPlayers,maxPlayers,isSpectatingAllowed,isLeague,minRank,maxRank);
+            List<TexasHoldemGame> ans = new List<TexasHoldemGame>();
+            foreach (TexasHoldemGame game in dal.getAllGames())
+                if (game.gamePreferences.isContain(mustPref))
+                    ans.Add(game);
             return ans;
         }
 
@@ -146,21 +235,6 @@ namespace Backend.System
             return new ReturnMessage(true,"");
         }
 
-        private SystemUser getHighest(List<SystemUser> users)
-        {
-            int maxRank = -1;
-            SystemUser ans = null;
-            foreach (SystemUser u in users)
-            {
-                if (u.rank > maxRank)
-                {
-                    ans = u;
-                    maxRank = u.rank;
-                }
-            }
-            return ans;
-        }
-
         public League getUserLeague(SystemUser user)
         {
             foreach (League l in leagues)
@@ -192,6 +266,11 @@ namespace Backend.System
             return null;
         }
 
+        public SystemUser getUserByName(string name)
+        {
+            return dal.getUserByName(name);
+        }
+
         public SystemUser getUserById(int userId)
         {
             foreach (SystemUser user in loggedInUsers)
@@ -200,14 +279,105 @@ namespace Backend.System
             return null;
         }
 
-        private ReturnMessage raiseBet(int gameId, int playerId, int coins)
+        public ReturnMessage raiseBet(int gameId, int playerUserId, int coins)
         {
-            // I am too tired right now, but I think you've got the idea,
-            // now the gamecenter will find the game by gameId and at the bet, blah blah
-            // and return if it succeded or not
-            // be aware the logic seats in the entities themself
-
-            return null;
+            TexasHoldemGame game = getGameById(gameId);
+            Player player = null;
+            foreach (Player p in game.players)
+                if (p.systemUserID == playerUserId)
+                    player = p;
+            if (player == null)
+                return new ReturnMessage(false, "could not find the player");
+            game.raise(player,coins);
+            return new ReturnMessage(true, "");
         }
+
+        private SystemUser getHighest(List<SystemUser> users)
+        {
+            int maxRank = -1;
+            SystemUser ans = null;
+            foreach (SystemUser u in users)
+            {
+                if (u.rank > maxRank)
+                {
+                    ans = u;
+                    maxRank = u.rank;
+                }
+            }
+            return ans;
+        }
+
+        private MustPreferences getMustPref(string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? minimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague, int minRank, int maxRank)
+        {
+            MustPreferences mustPref = null;
+            if (isLeague.Value)
+                mustPref = new MustPreferences(null, isSpectatingAllowed.Value, minRank, maxRank);
+            else
+                mustPref = new MustPreferences(null, isSpectatingAllowed.Value);
+
+            OptionalPreferences nextPref = null;
+
+            //game type policy settings
+            GamePolicyDecPref gamePolicyDec = null;
+            if (gamePolicy != null)
+            {
+                GameTypePolicy policy;
+                Enum.TryParse(gamePolicy, out policy);
+                if (gamePolicyLimit.HasValue)
+                {
+                    gamePolicyDec = new GamePolicyDecPref(policy, gamePolicyLimit.Value, null);
+                }
+            }
+            if (gamePolicyDec != null)
+            {
+                nextPref = gamePolicyDec;
+                nextPref = nextPref.nextDecPref;
+            }
+
+            //buy in policy settings
+            BuyInPolicyDecPref buyInPolicyPref = buyInPolicy.HasValue ? new BuyInPolicyDecPref(buyInPolicy.Value, null) : null;
+            if (buyInPolicyPref != null)
+            {
+                nextPref = buyInPolicyPref;
+                nextPref = nextPref.nextDecPref;
+            }
+
+            StartingAmountChipsCedPref startingChipsAmountPref = startingChipsAmount.HasValue ? new StartingAmountChipsCedPref(startingChipsAmount.Value, null) : null;
+            if (startingChipsAmountPref != null)
+            {
+                nextPref = startingChipsAmountPref;
+                nextPref = nextPref.nextDecPref;
+            }
+
+            MinBetDecPref MinimalBetPref = minimalBet.HasValue ? new MinBetDecPref(minimalBet.Value, null) : null;
+            if (MinimalBetPref != null)
+            {
+                nextPref = MinimalBetPref;
+                nextPref = nextPref.nextDecPref;
+            }
+
+            MinPlayersDecPref minimalPlayerPref = minPlayers.HasValue ? new MinPlayersDecPref(minPlayers.Value, null) : null;
+            if (minimalPlayerPref != null)
+            {
+                nextPref = minimalPlayerPref;
+                nextPref = nextPref.nextDecPref;
+            }
+
+            MaxPlayersDecPref maximalPlayerPref = maxPlayers.HasValue ? new MaxPlayersDecPref(maxPlayers.Value, null) : null;
+            if (maximalPlayerPref != null)
+            {
+                nextPref = maximalPlayerPref;
+                nextPref = nextPref.nextDecPref;
+            }
+            return mustPref;
+        }
+
+
+        //public TexasHoldemGame createRegularGame(SystemUser user, GamePreferences preferences)
+        //{
+        //	var game = new Game.TexasHoldemGame(user, preferences);
+        //          texasHoldemGames.Add(game);
+        //          return game;
+        //      }
     }
 }
