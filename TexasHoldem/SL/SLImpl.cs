@@ -2,19 +2,22 @@
 using Backend.Game;
 using System.Collections.Generic;
 using System;
-using Backend.System;
 using static Backend.Game.GamePreferences;
 using SL;
 using Backend;
+using DAL;
+using Backend.System;
+using Backend.Game.DecoratorPreferences;
 
 public class SLImpl :SLInterface
 {
 	private GameCenter gameCenter;
+    private DALDummy dal;
 
     public SLImpl()
     {
-        this.gameCenter = GameCenter.getGameCenter();
-        //dal = new DALDummy();
+        gameCenter = GameCenter.getGameCenter();
+        dal = new DALDummy();
     }
 
     //public SLImpl(GameCenter gameCenter)
@@ -49,6 +52,35 @@ public class SLImpl :SLInterface
         return game.removeUser(user);
     }
 
+    public object editUserProfile(int userId, string name, string password, string email, string avatar, int money)
+    {
+        return gameCenter.editUserProfile(userId,name,password,email,avatar,money);
+    }
+
+
+    public List<object> findAllActiveAvailableGames()
+    {
+        return gameCenter.texasHoldemGames;
+    }
+
+    public List<object> filterActiveGamesByPlayerName(string name)
+    {
+        return gameCenter.filterActiveGamesByPlayerName(name);
+    }
+
+    public List<object> filterActiveGamesByPotSize(int? size)
+    {
+        return gameCenter.filterActiveGamesByPotSize(size);
+    }
+
+    public List<object> filterActiveGamesByGamePreferences(MustPreferences pref)
+    {
+        return gameCenter.filterActiveGamesByGamePreferences(pref);
+    }
+
+
+
+
 
 
 
@@ -64,35 +96,20 @@ public class SLImpl :SLInterface
         throw new NotImplementedException();
     }
 
-    public object editUserProfile(int userId, string name, string password, string email, string avatar)
-    {
-        throw new NotImplementedException();
-    }
+    
 
-    public List<TexasHoldemGame> filterActiveGamesByGamePreferences(GamePreferences pref)
-    {
-        throw new NotImplementedException();
-    }
 
-    public List<TexasHoldemGame> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed)
-    {
-        throw new NotImplementedException();
-    }
 
-    public object filterActiveGamesByPlayerName(string name)
-    {
-        throw new NotImplementedException();
-    }
+    //public List<TexasHoldemGame> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed)
+    //{
+    //    throw new NotImplementedException();
+    //}
 
-    public object filterActiveGamesByPotSize(int? size)
-    {
-        throw new NotImplementedException();
-    }
+    
 
-    public object findAllActiveAvailableGames()
-    {
-        throw new NotImplementedException();
-    }
+
+
+    
 
     public List<TexasHoldemGame> getAllGames()
     {
