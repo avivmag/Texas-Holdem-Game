@@ -186,7 +186,7 @@ namespace PL
             }
             else
             {
-                gamePolicy = (GameTypePolicy) Enum.Parse(typeof(GameTypePolicy), GameTypePolicyComboBox.Text);
+                gamePolicy = (GameTypePolicy)Enum.Parse(typeof(GameTypePolicy), GameTypePolicyComboBox.Text);
             }
 
             if (buyInTextbox.Text.Equals(""))
@@ -249,6 +249,7 @@ namespace PL
             }
 
             return CommClient.filterActiveGamesByGamePreferences(gamePolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed);
+            //return null;
         }
 
         private void Join_Game_Click(object sender, RoutedEventArgs e)
@@ -261,7 +262,7 @@ namespace PL
             if (game != default(TexasHoldemGame))
             {
                 this.Close();
-                new GameWindow(mainMenuWindow,game).Show();
+                //new GameWindow(mainMenuWindow,game).Show();
             }
             else
             {
@@ -278,7 +279,7 @@ namespace PL
             if (game != default(TexasHoldemGame))
             {
                 this.Close();
-                new GameWindow(mainMenuWindow,game).Show();
+                new GameWindow(mainMenuWindow, game).Show();
             }
             else
             {
@@ -305,7 +306,7 @@ namespace PL
                 this.GamePolicy = pref.GamePolicy.ToString();
                 this.BuyInPolicy = pref.BuyInPolicy.ToString();
                 this.StartingChipsAmount = pref.StartingChipsAmount.ToString();
-                this.MinimalBet= pref.MinimalBet.ToString();
+                this.MinimalBet = pref.MinimalBet.ToString();
                 this.MinPlayers = pref.MinPlayers.ToString();
                 this.MaxPlayers = pref.MaxPlayers.ToString();
                 this.IsSpectatingAllowed = pref.IsSpectatingAllowed.ToString();

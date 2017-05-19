@@ -23,7 +23,9 @@ namespace PL
     /// </summary>
     public partial class GameWindow : Window
     {
-        private int gameId;
+        private int playerSeatIndex;
+        private Player player;
+
         private TexasHoldemGame game;
         private Window mainMenuWindow;
         private Button[] seatsButtons;
@@ -41,25 +43,32 @@ namespace PL
         private Image[] smallIcons;
         private Label[] playerCoins;
         private Label[] playerCoinsGambled;
-
+        private TextBox betTextBox;
+        private TextBlock messagesTextBlock;
+        private TextBox messagesTextBox;
 
         // for testing
         public GameWindow()
-        {
-            var game = CommClient.getGame(gameId);
+        {   
+            game = new TexasHoldemGame();
+            game.players = new Player[9];
+            playerSeatIndex = 3;
+            player = new Player();
+            player.Tokens = 1000;
+
             InitializeComponent();
             initializeScreen();
-            placePlayer(3, "profile_pic", "gil", 100);
+            placePlayer(playerSeatIndex, "profile_pic", "gil", 1000);
             placePlayer(4, "profile_pic", "aviv", 100);
             removePlayer(4);
             SetDealerBigSmallIcons(0, 8, 7);
             SetDealerBigSmallIcons(1, 2, 3);
             movePlayersCoinsToHeap(0);
-
         }
 
         public GameWindow(Window mainMenuWindow, TexasHoldemGame game)
         {
+            playerSeatIndex = -1;
             this.mainMenuWindow = mainMenuWindow;
             this.game = game;
         }
@@ -71,7 +80,7 @@ namespace PL
             playerStateBackground = new Image[game.players.Length];
             playersImage = new Image[game.players.Length];
             playerCards = new Image[game.players.Length][];
-            currentButtonForThisTwo = new Dictionary<Button, Image>();
+            seatButtonToImageDictionary = new Dictionary<Button, Image>();
             allInIcons = new Image[game.players.Length];
             dealerIcons = new Image[game.players.Length];
             bigIcons = new Image[game.players.Length];
@@ -83,32 +92,104 @@ namespace PL
             {
                 initializeVariables(i);
                 positionElementsOnScreen(i);
+                if (i == 7)
+                    addControlBar();
             }
         }
 
+        private void addControlBar()
+        {
+            UniformGrid mainControlBarUg = new UniformGrid();
+            UniformGrid checkFoldBetCommentControlBarUg = new UniformGrid();
+            UniformGrid checkFoldControlBarUg = new UniformGrid();
+            UniformGrid betControlBarUg = new UniformGrid();
+            mainControlBarUg.Columns = 1;
+            checkFoldBetCommentControlBarUg.Columns = 1;
+            checkFoldControlBarUg.Rows = 1;
+            betControlBarUg.Rows = 1;
+            Button betButton = new Button();
+            Button checkButton = new Button();
+            Button foldButton = new Button();
+            Button commentButton = new Button();
+            messagesTextBlock = new TextBlock();
+            messagesTextBox = new TextBox();
+            betTextBox = new TextBox();
+
+            betButton.Click += BetButton_Click;
+            checkButton.Click += CheckButton_Click;
+            foldButton.Click += FoldButton_Click;
+            commentButton.Click += CommentButton_Click;
+
+            betButton.Content = "Bet";
+            checkButton.Content = "Check";
+            foldButton.Content = "Fold";
+            commentButton.Content = "Send";
+            
+            checkFoldControlBarUg.Children.Add(checkButton);
+            checkFoldControlBarUg.Children.Add(foldButton);
+            betControlBarUg.Children.Add(betButton);
+
+            Border border = new Border();
+            border.Background = Brushes.SkyBlue;
+            border.BorderBrush = Brushes.Black;
+            border.BorderThickness = new Thickness(1);
+            border.Child = betTextBox;
+            betControlBarUg.Children.Add(border);
+
+            border = new Border();
+            border.Background = Brushes.SkyBlue;
+            border.BorderBrush = Brushes.Black;
+            border.BorderThickness = new Thickness(1);
+            border.Child = messagesTextBox;
+
+            checkFoldBetCommentControlBarUg.Children.Add(border);
+            checkFoldBetCommentControlBarUg.Children.Add(commentButton);
+            checkFoldBetCommentControlBarUg.Children.Add(checkFoldControlBarUg);
+            checkFoldBetCommentControlBarUg.Children.Add(betControlBarUg);
+
+            ScrollViewer sv = new ScrollViewer();
+            sv.Content = messagesTextBlock;
+            border = new Border();
+            border.Background = Brushes.SkyBlue;
+            border.BorderBrush = Brushes.Black;
+            border.BorderThickness = new Thickness(1);
+            border.Child = sv;
+
+            mainControlBarUg.Children.Add(border);
+            mainControlBarUg.Children.Add(checkFoldBetCommentControlBarUg);
+            
+            BottomRow.Children.Add(mainControlBarUg);
+        }
+        
         private void positionElementsOnScreen(int i)
         {
             UniformGrid playerUg = makePlayerUniformGrid(i);
-            if (i < 2)
+            
+            if (i < 3)
                 TopRow.Children.Add(playerUg);
-            else if (i == 2)
+            else if (i == 3)
             {
                 UpperMiddleRow.Children.Add(playerUg);
                 AddCommunityCards();
             }
-            else if (i == 3)
-                UpperMiddleRow.Children.Add(playerUg);
             else if (i == 4)
+                UpperMiddleRow.Children.Add(playerUg);
+            else if (i == 5)
             {
                 LowerMiddleRow.Children.Add(playerUg);
                 AddCoins();
             }
-            else if (i == 5)
+            else if (i == 6)
                 LowerMiddleRow.Children.Add(playerUg);
             else
                 BottomRow.Children.Add(playerUg);
         }
 
+        /// <summary>
+        /// creates and returns a grid for the seat i including everything - cards, 4 icons, name, image, sum of tokens, tokens which he bets on in this round.
+        /// </summary>
+        /// <param name="i"></param>
+        /// <returns></returns>
         private UniformGrid makePlayerUniformGrid(int i)
         {
             initializePlayerIcon(i);
@@ -138,8 +219,7 @@ namespace PL
             cardsUg.Rows = 1;
             cardsUg.Children.Add(playerCards[i][0]);
             cardsUg.Children.Add(playerCards[i][1]);
-
-
+            
             UniformGrid playerIconsUg = new UniformGrid();
             playerIconsUg.Rows = 1;
             playerIconsUg.HorizontalAlignment = HorizontalAlignment.Center;
@@ -214,23 +294,27 @@ namespace PL
             seatsButtons[i].Content = canvas;
         }
 
+        /// <summary>
+        /// initiates the player which is playing in index i of the game
+        /// </summary>
+        /// <param name="i"></param>
         private void initializePlayerIcon(int i)
         {
-            currentButtonForThisTwo[seatsButtons[i]] = playerStateBackground[i];
+            seatButtonToImageDictionary[seatsButtons[i]] = playerStateBackground[i];
             seatsButtons[i].Width = 90;
             seatsButtons[i].Height = 90;
             changeSeat(i, true, "free_seat", "free_seat_icon", "free_seat", 0);
         }
 
-        private IDictionary<Button, Image> currentButtonForThisTwo;
+        private IDictionary<Button, Image> seatButtonToImageDictionary;
         private void FreeSeatEventMouseEnter(object sender, EventArgs e)
         {
-            currentButtonForThisTwo[(Button) sender].Source = new BitmapImage(new Uri("pack://application:,,,/resources/in_game.png"));
+            seatButtonToImageDictionary[(Button) sender].Source = new BitmapImage(new Uri("pack://application:,,,/resources/in_game.png"));
         }
 
         private void FreeSeatEventMouseLeave(object sender, EventArgs e)
         {
-            currentButtonForThisTwo[(Button) sender].Source = new BitmapImage(new Uri("pack://application:,,,/resources/free_seat.png"));
+            seatButtonToImageDictionary[(Button) sender].Source = new BitmapImage(new Uri("pack://application:,,,/resources/free_seat.png"));
         }
 
         private void placePlayer(int i, string playerImageUrl, string playerName, int coins)
@@ -258,9 +342,7 @@ namespace PL
 
             playerStateBackground[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/" + playerStateImageUrl + ".png"));
             playersImage[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/" + playerImageUrl + ".png"));
-
-
-
+            
             playerNames[i].Content = playerName;
             playerCoins[i].Content = playerCoinsNumber;
             playerCoinsGambled[i].Content = 0;
@@ -404,22 +486,46 @@ namespace PL
         }
 
         // raise bet of some player
-        public void raiseBet(int playerIndex, int coins)
+        private void BetButton_Click(object sender, RoutedEventArgs e)
         {
-            int playerCoinsNum, playerCoinsGambledNum;
-            int.TryParse(playerCoins[playerIndex].Content.ToString(), out playerCoinsNum);
-            int.TryParse(playerCoinsGambled[playerIndex].Content.ToString(), out playerCoinsGambledNum);
-
+            int playerCoinsNum, playerCoinsGambledNum, coins;
+            int.TryParse(playerCoins[playerSeatIndex].Content.ToString(), out playerCoinsNum);
+            int.TryParse(playerCoinsGambled[playerSeatIndex].Content.ToString(), out playerCoinsGambledNum);
+            if(!Int32.TryParse(betTextBox.Text, out coins) || coins < 1 || playerCoinsNum < coins)
+            {
+                MessageBox.Show("bad bet number entered");
+                return;
+            }
+            
             playerCoinsNum -= coins;
             playerCoinsGambledNum += coins;
 
-            playerCoins[playerIndex].Content = playerCoinsNum;
-            playerCoinsGambled[playerIndex].Content = playerCoinsGambledNum;
+            playerCoins[playerSeatIndex].Content = playerCoinsNum;
+            playerCoinsGambled[playerSeatIndex].Content = playerCoinsGambledNum;
 
-            if(playerCoinsNum <= 0)
-                allInIcons[playerIndex].Visibility = Visibility.Visible;
+            if (playerCoinsNum <= 0)
+                allInIcons[playerSeatIndex].Visibility = Visibility.Visible;
 
-            CommClient.raiseBet(gameId, playerIndex, coins);
+            //CommClient.gameWindowRaiseBet(gameId, playerIndex, coins);
         }
+
+        private void CommentButton_Click(object sender, RoutedEventArgs e)
+        {
+            //CommClient.gameWindowAddMessage(gameId, playerIndex, messagesTextBox.Text);
+            messagesTextBox.Text = "";
+        }
+
+        private void FoldButton_Click(object sender, RoutedEventArgs e)
+        {
+            //CommClient.gameWindowFold(gameId, playerIndex);
+            seatButtonToImageDictionary[seatsButtons[playerSeatIndex]].Source = new BitmapImage(new Uri("pack://application:,,,/resources/fold.png"));
+        }
+
+        private void CheckButton_Click(object sender, RoutedEventArgs e)
+        {
+            //CommClient.gameWindowCheck(gameId, playerIndex);
+            seatButtonToImageDictionary[seatsButtons[playerSeatIndex]].Source = new BitmapImage(new Uri("pack://application:,,,/resources/in_game.png"));
+        }
+
     }
 }

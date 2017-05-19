@@ -117,6 +117,7 @@ namespace PL
             }
 
             return CommClient.CreateGame(LoginWindow.user.id, gamePolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed);
+            //return null;
         }
     }
 }

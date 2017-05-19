@@ -26,7 +26,8 @@ namespace PL
             int i = 0;
             foreach (TexasHoldemGame game in allGames)
             {
-                if ((joinOperation.Equals("Spectate") && game.GamePreferences.IsSpectatingAllowed.HasValue && game.GamePreferences.IsSpectatingAllowed.Value) || (joinOperation.Equals("Join"))){
+                if ((joinOperation.Equals("Spectate") && game.GamePreferences.IsSpectatingAllowed.HasValue && game.GamePreferences.IsSpectatingAllowed.Value) || (joinOperation.Equals("Join")))
+                {
                     selectGameGrid.Items.Add(new TexasHoldemGameStrings(i, game));
                     i++;
                 }
