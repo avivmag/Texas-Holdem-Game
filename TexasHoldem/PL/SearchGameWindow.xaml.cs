@@ -172,7 +172,7 @@ namespace PL
         private List<TexasHoldemGame> getFilteredGameByPreferences()
         {
             List<TexasHoldemGame> ans = new List<TexasHoldemGame>();
-            //GameTypePolicy gamePolicy;
+            GameTypePolicy gamePolicy;
             int buyInPolicy;
             int startingChips;
             int minimalBet;
@@ -180,14 +180,14 @@ namespace PL
             int maximalPlayers;
             bool? spectateAllowed;
 
-            //if (GameTypePolicyComboBox.Text.Equals("none") || GameTypePolicyComboBox.Text.Equals(""))
-            //{
-            //    gamePolicy = GameTypePolicy.Undef;
-            //}
-            //else
-            //{
-            //    gamePolicy = (GameTypePolicy) Enum.Parse(typeof(GameTypePolicy), GameTypePolicyComboBox.Text);
-            //}
+            if (GameTypePolicyComboBox.Text.Equals("none") || GameTypePolicyComboBox.Text.Equals(""))
+            {
+                gamePolicy = GameTypePolicy.Undef;
+            }
+            else
+            {
+                gamePolicy = (GameTypePolicy)Enum.Parse(typeof(GameTypePolicy), GameTypePolicyComboBox.Text);
+            }
 
             if (buyInTextbox.Text.Equals(""))
             {
@@ -248,8 +248,8 @@ namespace PL
                 spectateAllowed = Convert.ToBoolean(spectateAllowedTextbox.Text);
             }
 
-            //return CommClient.filterActiveGamesByGamePreferences(gamePolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed);
-            return null;
+            return CommClient.filterActiveGamesByGamePreferences(gamePolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed);
+            //return null;
         }
 
         private void Join_Game_Click(object sender, RoutedEventArgs e)
@@ -258,16 +258,16 @@ namespace PL
             int gameId;
             DataGridCellInfo cellValue = (searchResultGrid.SelectedCells.ElementAt(1));
             gameId = Int32.Parse(cellValue.ToString());
-            //var game = CommClient.joinActiveGame(LoginWindow.user, gameId);
-            //if (game != default(TexasHoldemGame))
-            //{
-            //    this.Close();
-            //    //new GameWindow(mainMenuWindow,game).Show();
-            //}
-            //else
-            //{
-            //    errorMessage.Text = "Could not join chosen game.";
-            //}
+            var game = CommClient.joinActiveGame(LoginWindow.user, gameId);
+            if (game != default(TexasHoldemGame))
+            {
+                this.Close();
+                //new GameWindow(mainMenuWindow,game).Show();
+            }
+            else
+            {
+                errorMessage.Text = "Could not join chosen game.";
+            }
         }
 
         private void Spectate_Game_Click(object sender, RoutedEventArgs e)
@@ -275,16 +275,16 @@ namespace PL
             int gameId;
             DataGridCellInfo cellValue = (searchResultGrid.SelectedCells.ElementAt(1));
             gameId = Int32.Parse(((TexasHoldemGameStrings)cellValue.Item).gameId);
-            //var game = CommClient.spectateActiveGame(LoginWindow.user, gameId);
-            //if (game != default(TexasHoldemGame))
-            //{
-            //    this.Close();
-            //    new GameWindow(mainMenuWindow,game).Show();
-            //}
-            //else
-            //{
-            //    errorMessage.Text = "Could not spectate chosen game.";
-            //}
+            var game = CommClient.spectateActiveGame(LoginWindow.user, gameId);
+            if (game != default(TexasHoldemGame))
+            {
+                this.Close();
+                new GameWindow(mainMenuWindow, game).Show();
+            }
+            else
+            {
+                errorMessage.Text = "Could not spectate chosen game.";
+            }
         }
 
         public class TexasHoldemGameStrings{
@@ -300,16 +300,16 @@ namespace PL
 
             public TexasHoldemGameStrings(int row,TexasHoldemGame game)
             {
-                //GamePreferences pref = game.GamePreferences;
+                GamePreferences pref = game.GamePreferences;
                 this.row = row.ToString();
                 this.gameId = game.gameId.ToString();
-                //this.GamePolicy = pref.GamePolicy.ToString();
-                //this.BuyInPolicy = pref.BuyInPolicy.ToString();
-                //this.StartingChipsAmount = pref.StartingChipsAmount.ToString();
-                //this.MinimalBet= pref.MinimalBet.ToString();
-                //this.MinPlayers = pref.MinPlayers.ToString();
-                //this.MaxPlayers = pref.MaxPlayers.ToString();
-                //this.IsSpectatingAllowed = pref.IsSpectatingAllowed.ToString();
+                this.GamePolicy = pref.GamePolicy.ToString();
+                this.BuyInPolicy = pref.BuyInPolicy.ToString();
+                this.StartingChipsAmount = pref.StartingChipsAmount.ToString();
+                this.MinimalBet = pref.MinimalBet.ToString();
+                this.MinPlayers = pref.MinPlayers.ToString();
+                this.MaxPlayers = pref.MaxPlayers.ToString();
+                this.IsSpectatingAllowed = pref.IsSpectatingAllowed.ToString();
             }
         }
 

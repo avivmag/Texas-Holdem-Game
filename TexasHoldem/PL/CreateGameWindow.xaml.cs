@@ -40,7 +40,7 @@ namespace PL
         }
         private TexasHoldemGame getGame()
         {
-            //GameTypePolicy gamePolicy;
+            GameTypePolicy gamePolicy;
             int buyInPolicy;
             int startingChips;
             int minimalBet;
@@ -48,14 +48,14 @@ namespace PL
             int maximalPlayers;
             bool? spectateAllowed;
 
-            //if (GameTypePolicyComboBox.Text.Equals("none") || GameTypePolicyComboBox.Text.Equals(""))
-            //{
-            //    gamePolicy = GameTypePolicy.Undef;
-            //}
-            //else
-            //{
-            //    gamePolicy = (GameTypePolicy)Enum.Parse(typeof(GameTypePolicy), GameTypePolicyComboBox.Text);
-            //}
+            if (GameTypePolicyComboBox.Text.Equals("none") || GameTypePolicyComboBox.Text.Equals(""))
+            {
+                gamePolicy = GameTypePolicy.Undef;
+            }
+            else
+            {
+                gamePolicy = (GameTypePolicy)Enum.Parse(typeof(GameTypePolicy), GameTypePolicyComboBox.Text);
+            }
 
             if (buyInTextbox.Text.Equals(""))
             {
@@ -116,8 +116,8 @@ namespace PL
                 spectateAllowed = Convert.ToBoolean(spectateAllowedTextbox.Text);
             }
 
-            //return CommClient.CreateGame(LoginWindow.user.id, gamePolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed);
-            return null;
+            return CommClient.CreateGame(LoginWindow.user.id, gamePolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed);
+            //return null;
         }
     }
 }
