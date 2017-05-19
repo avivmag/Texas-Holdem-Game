@@ -67,7 +67,7 @@ namespace Backend.Game
 
             currentDealer = 0;
         }
-
+        
         //public TexasHoldemGame(SystemUser user, GamePreferences gamePreferences)
         //{
         //    this.gameCreatorUserId = user.id;

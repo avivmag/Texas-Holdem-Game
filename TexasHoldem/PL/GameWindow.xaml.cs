@@ -66,11 +66,11 @@ namespace PL
             movePlayersCoinsToHeap(0);
         }
 
-        public GameWindow(Window mainMenuWindow, TexasHoldemGame game)
+        public GameWindow(TexasHoldemGame game, int gameId, int playerId)
         {
+            this.game = game;
             playerSeatIndex = -1;
             this.mainMenuWindow = mainMenuWindow;
-            this.game = game;
         }
 
         private void initializeScreen()
