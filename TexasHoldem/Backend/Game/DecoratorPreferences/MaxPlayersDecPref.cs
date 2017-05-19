@@ -1,62 +1,64 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Backend.User;
+﻿using Backend.User;
 
 namespace Backend.Game.DecoratorPreferences
 {
-    public class MaxPlayersDecPref : DecoratorPreferencesInterface
+    public class MaxPlayersDecPref : OptionalPreferences
     {
         private int maxPlayers;
-        private DecoratorPreferencesInterface nextDecPref;
 
-        public MaxPlayersDecPref(int maxPlayers, DecoratorPreferencesInterface nextDecPref)
+        public MaxPlayersDecPref(int maxPlayers, OptionalPreferences nextDecPref): base(nextDecPref)
         {
             this.maxPlayers = maxPlayers;
-            this.nextDecPref = nextDecPref;
         }
 
-        public ReturnMessage canPerformUserActions(Player p, SystemUser user, string action)
+        public override ReturnMessage canPerformUserActions(TexasHoldemGame game, Player p, SystemUser user, string action)
         {
             switch (action)
             {
                 case "join":
-                    break;
+                    if (game.AvailableSeats >= maxPlayers)
+                        return new ReturnMessage(false, "The game is alredy full");
+                    else if (nextDecPref != null)
+                        return nextDecPref.canPerformUserActions(game, p, user, action);
+                    else
+                        return new ReturnMessage(true, "");
 
                 case "spectate":
-                    break;
-
                 case "leave":
-                    break;
-
-
+                    if (nextDecPref != null)
+                        return nextDecPref.canPerformUserActions(game, p, user, action);
+                    else
+                        return new ReturnMessage(true, "");
                 default:
-                    return null;
+                    return new ReturnMessage(false, "Wrong input to the canPerformUserActions.");
             }
-            return null;
         }
 
-        public ReturnMessage canPerformGameActions(TexasHoldemGame game, SystemUser user, string action)
+        public override ReturnMessage canPerformGameActions(TexasHoldemGame game, SystemUser user, int amount, string action)
         {
-            switch (action)
-            {
-                case "Bet":
-
-                    break;
-
-                case "Raise":
-
-                    break;
-
-            }
-            return null;
+            if (nextDecPref != null)
+                return nextDecPref.canPerformGameActions(game, user, amount, action);
+            else
+                return new ReturnMessage(true, "");
         }
 
-        public bool isContain(MustPreferences pref)
+        public override bool isContain(DecoratorPreferencesInterface pref)
         {
-            throw new NotImplementedException();
+            if (pref.GetType() != typeof(OptionalPreferences))
+                return false;
+            OptionalPreferences opPref = ((OptionalPreferences)pref);
+            MaxPlayersDecPref matchingPref = (MaxPlayersDecPref)getMatchingOptionalPref(opPref);
+            //if we found matchig optinal pref and he have the same policy
+            if (matchingPref != null && matchingPref.maxPlayers == maxPlayers)
+                //if we still need to check the rest of the chain
+                if (nextDecPref != null)
+                    //return its result
+                    return nextDecPref.isContain(pref);
+                //if we don't have anything else to check return true.
+                else return true;
+            //if we couldent found or if we found pref with different value.
+            else
+                return false;
         }
     }
 }
