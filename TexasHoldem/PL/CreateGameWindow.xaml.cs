@@ -36,7 +36,9 @@ namespace PL
             else
             {
                 Close();
-                new GameWindow(mainMenuWindow, game);
+                mainMenuWindow.Show();
+                new GameWindow(game, LoginWindow.user.id).Show();
+
             }
         }
         private TexasHoldemGame getGame()

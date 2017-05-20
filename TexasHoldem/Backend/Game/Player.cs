@@ -6,6 +6,7 @@ namespace Backend.Game
 	{
         public int systemUserID { get; set; }
         public int Tokens { get; set; }
+        public int TokensInBet { get; set; }
         //public int userRank { get; set; }
         public bool spectator { get; set; }
         public enum PlayerState { folded, in_round, not_in_round, my_turn }

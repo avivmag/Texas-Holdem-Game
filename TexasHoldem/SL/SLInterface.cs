@@ -40,6 +40,12 @@ namespace SL
         object Bet(int gameId, int playerUserId, int coins);
         object AddMessage(int gameId, int playerIndex, string messageText);
         object Fold(int gameId, int playerIndex);
+        object Check(int gameId, int playerIndex);
+        object GetGameState(int gameId);
+        object ChoosePlayerSeat(int gameId, int playerIndex);
+        object GetPlayer(int gameId, int playerIndex);
+        object GetPlayerCards(int gameId, int playerIndex);
+        object GetShowOff(int gameId);
         #endregion
-    }
+        }
 }

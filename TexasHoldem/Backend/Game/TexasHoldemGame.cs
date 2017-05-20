@@ -35,6 +35,8 @@ namespace Backend.Game
         public Card turn { get; set; }
         public Card river { get; set; }
 
+        // TODO: Gili - notice Gil decorator pattern and Aviv player.TokensInBet - you should use them in your logic
+
         public TexasHoldemGame(SystemUser user, MustPreferences gamePreferences)
         {
             gameCreatorUserId = user.id;
@@ -224,7 +226,7 @@ namespace Backend.Game
 
             //getting the buy in policy if exists to pay for the chips else getting 1000 for free.
             int startingChips = 1000;
-            BuyInPolicyDecPref buyInPref = (BuyInPolicyDecPref)gamePreferences.getOptionalPref(new BuyInPolicyDecPref(0, null));
+            BuyInPolicyDecPref buyInPref = (BuyInPolicyDecPref)gamePreferences.getOptionalPref(new MaxPlayersDecPref(0, null));
             if (buyInPref != null)
                 startingChips = buyInPref.buyInPolicy;
             Player p = new Player(user.id, user.name, startingChips, user.rank);
@@ -240,8 +242,9 @@ namespace Backend.Game
             foreach (SystemUser u in spectators)
                     if (u.id == user.id)
                         return new ReturnMessage(false, "Couldn't join the game because the user is already spectating the game.");
-            
-            //seats the player in the first available seat
+
+            //TODO: Gili - the player should position itself
+            // seats the player in the first available seat
             for (int i = 0; i < players.Length; i++)
             {
                 if (players[i] == null)
@@ -559,45 +562,47 @@ namespace Backend.Game
                 currentBet.ToString());
             tempPot += currentBet;
         }
-
-        public void fold(Player p)
+        
+        public ReturnMessage fold(Player p)
         {
             p.playerState = Player.PlayerState.folded;
             GameLog.logLine(
                 gameId,
                 GameLog.Actions.Action_Fold,
                 p.systemUserID.ToString());
+            return null; // TODO: Gili!
         }
 
-        public void check(Player p)
+        public ReturnMessage check(Player p)
         {
             GameLog.logLine(
                 gameId,
                 GameLog.Actions.Action_Check,
                 p.systemUserID.ToString());
+            return null; // TODO: Gili!
         }
 
-        //public void chooseBetAction(Player p, BetAction betAction, int amount)
-        //{
-        //    switch (betAction)
-        //    {
-        //        case BetAction.bet:
-        //            bet(p, amount);
-        //            break;
-        //        case BetAction.call:
-        //            call(p);
-        //            break;
-        //        case BetAction.check:
-        //            check(p);
-        //            break;
-        //        case BetAction.fold:
-        //            fold(p);
-        //            break;
-        //        case BetAction.raise:
-        //            raise(p, amount);
-        //            break;
-        //    }
-        //}
+        public void chooseBetAction(Player p, BetAction betAction, int amount)
+        {
+            switch (betAction)
+            {
+                case BetAction.bet:
+                    bet(p, amount);
+                    break;
+                case BetAction.call:
+                    call(p);
+                    break;
+                case BetAction.check:
+                    check(p);
+                    break;
+                case BetAction.fold:
+                    fold(p);
+                    break;
+                case BetAction.raise:
+                    //raise(p, amount);
+                    break;
+            }
+        }
 
         public int nextToSeat(int seat)
         {
@@ -826,6 +831,30 @@ namespace Backend.Game
                     return highestCardValue;
             }
             return -1;
+        }
+
+        // TODO: Gili - tries to position a player where he wants (on a seat)
+        public ReturnMessage ChoosePlayerSeat(int playerIndex)
+        {
+            return null;
+        }
+        public Player GetPlayer(int playerIndex)
+        {
+            return players[playerIndex];
+        }
+        public Card[] GetPlayerCards(int playerIndex)
+        {
+            return players[playerIndex].playerCards.ToArray();
+        }
+        // TODO: Gili - when showoff happends this method would be called to get all the cards - so dont forget to update when a showoff happens
+        public IDictionary<int, Card[]> GetShowOff()
+        {
+            IDictionary<int, Card[]> ans = new Dictionary<int, Card[]>();
+            for(int i = 0; i < players.Length; i++)
+            {
+                ans[i] = players[i].playerCards.ToArray();
+            }
+            return ans;
         }
     }
 }

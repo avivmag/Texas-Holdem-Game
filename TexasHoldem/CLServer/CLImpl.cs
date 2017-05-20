@@ -149,12 +149,8 @@ namespace CLServer
             var coins = (int)coinsToken;
 
             Console.WriteLine("Bet. parameters are: gameId: {0}, playerIndex: {1}, coins: {2}", gameId, playerIndex, coins);
-
-            sl.Bet(gameId, playerIndex, coins);
-            var betResponse = new { response = true };
-
-            SendMessage(client, betResponse);
-            return;
+            
+            SendMessage(client, new { response = sl.Bet(gameId, playerIndex, coins) });
         }
         private static void AddMessage(TcpClient client, JObject jsonObject)
         {
@@ -174,12 +170,8 @@ namespace CLServer
             var messageText = (string)messageTextToken;
 
             Console.WriteLine("Message added. parameters are: gameId: {0}, playerIndex: {1}, messageText: {2}", gameId, playerIndex, messageText);
-
-            sl.AddMessage(gameId, playerIndex, messageText);
-            var messageTextResponse = new { response = true };
-
-            SendMessage(client, messageTextResponse);
-            return;
+            
+            SendMessage(client, new { response = sl.AddMessage(gameId, playerIndex, messageText) });
         }
         private static void Fold(TcpClient client, JObject jsonObject)
         {
@@ -196,11 +188,100 @@ namespace CLServer
             var playerIndex = (int)playerIndexToken;
 
             Console.WriteLine("Fold. parameters are: gameId: {0}, playerIndex: {1}", gameId, playerIndex);
-
-            sl.Fold(gameId, playerIndex);
             
-            SendMessage(client, new { response = true });
-            return;
+            SendMessage(client, new { response = sl.Fold(gameId, playerIndex) });
+        }
+        private static void Check(TcpClient client, JObject jsonObject)
+        {
+            var gameIdToken = jsonObject["gameId"];
+            var playerIndexToken = jsonObject["playerIndex"];
+
+            if (((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer)) ||
+                ((playerIndexToken == null) || (playerIndexToken.Type != JTokenType.Integer)))
+            {
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Fold."));
+            }
+
+            var gameId = (int)gameIdToken;
+            var playerIndex = (int)playerIndexToken;
+
+            Console.WriteLine("Check. parameters are: gameId: {0}, playerIndex: {1}", gameId, playerIndex);
+
+            SendMessage(client, new { response = sl.Check(gameId, playerIndex) });
+        }
+        private static void GetGameState(TcpClient client, JObject jsonObject)
+        {
+            var gameIdToken = jsonObject["gameId"];
+
+            if ((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer))
+            {
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Fold."));
+            }
+
+            var gameId = (int)gameIdToken;
+
+            SendMessage(client, new { response = sl.GetGameState(gameId) });
+        }
+        private static void ChoosePlayerSeat(TcpClient client, JObject jsonObject)
+        {
+            var gameIdToken = jsonObject["gameId"];
+            var playerSeatIndexToken = jsonObject["playerSeatIndex"];
+
+            if ((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer) ||
+                (playerSeatIndexToken == null) || (playerSeatIndexToken.Type != JTokenType.Integer))
+            {
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Fold."));
+            }
+
+            var gameId = (int)gameIdToken;
+            var playerSeatIndex = (int)playerSeatIndexToken;
+
+            SendMessage(client, new { response = sl.ChoosePlayerSeat(gameId, playerSeatIndex) });
+        }
+        private static void GetPlayer(TcpClient client, JObject jsonObject)
+        {
+            var gameIdToken = jsonObject["gameId"];
+            var playerSeatIndexToken = jsonObject["playerSeatIndex"];
+
+            if ((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer) ||
+                (playerSeatIndexToken == null) || (playerSeatIndexToken.Type != JTokenType.Integer))
+            {
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Fold."));
+            }
+
+            var gameId = (int)gameIdToken;
+            var playerSeatIndex = (int)playerSeatIndexToken;
+
+            SendMessage(client, new { response = sl.GetPlayer(gameId, playerSeatIndex) });
+        }
+        private static void GetPlayerCards(TcpClient client, JObject jsonObject)
+        {
+            var gameIdToken = jsonObject["gameId"];
+            var playerSeatIndexToken = jsonObject["playerSeatIndex"];
+
+            if ((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer) ||
+                (playerSeatIndexToken == null) || (playerSeatIndexToken.Type != JTokenType.Integer))
+            {
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Fold."));
+            }
+
+            var gameId = (int)gameIdToken;
+            var playerSeatIndex = (int)playerSeatIndexToken;
+
+            SendMessage(client, new { response = sl.GetPlayerCards(gameId, playerSeatIndex) });
+        }
+        private static void GetShowOff(TcpClient client, JObject jsonObject)
+        {
+            var gameIdToken = jsonObject["gameId"];
+
+            if ((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer))
+            {
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Fold."));
+            }
+
+            var gameId = (int)gameIdToken;
+
+            SendMessage(client, new { response = sl.GetShowOff(gameId) });
         }
         #endregion
 

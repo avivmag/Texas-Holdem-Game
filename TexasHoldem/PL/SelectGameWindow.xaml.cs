@@ -54,7 +54,8 @@ namespace PL
                 if (game != default(TexasHoldemGame))
                 {
                     this.Close();
-                    new GameWindow(mainMenuWindow, game).Show();
+                    mainMenuWindow.Show();
+                    new GameWindow(game, LoginWindow.user.id).Show();
                 }
                 else
                 {
@@ -69,7 +70,8 @@ namespace PL
                 if (game != default(TexasHoldemGame))
                 {
                     this.Close();
-                    new GameWindow(mainMenuWindow, game).Show();
+                    mainMenuWindow.Show();
+                    new GameWindow(game, LoginWindow.user.id).Show();
                 }
                 else
                 {

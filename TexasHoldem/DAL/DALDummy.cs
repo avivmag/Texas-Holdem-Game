@@ -90,10 +90,10 @@ namespace DAL
 
             playerDummies = new List<Player>
             {
-                new Player(0, 100, userList[0].rank),
-                new Player(1, 0, userList[1].rank),
-                new Player(2, 200, userList[2].rank),
-                new Player(3, 200, userList[3].rank)
+                new Player(0, "", 100, userList[0].rank),
+                new Player(1, "", 0, userList[1].rank),
+                new Player(2, "", 200, userList[2].rank),
+                new Player(3, "", 200, userList[3].rank)
             };
             for (int i = 0; i < 4; i++)
                 playerDummies[i].systemUserID = i;
