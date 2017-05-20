@@ -1,29 +1,17 @@
 ﻿using Backend.User;
 using Backend.Game;
-using System.Collections.Generic;
-using System;
-using static Backend.Game.GamePreferences;
 using SL;
-using Backend;
-using DAL;
 using Backend.System;
 using Backend.Game.DecoratorPreferences;
 
 public class SLImpl :SLInterface
 {
 	private GameCenter gameCenter;
-    private DALDummy dal;
 
     public SLImpl()
     {
         gameCenter = GameCenter.getGameCenter();
-        dal = new DALDummy();
     }
-
-    //public SLImpl(GameCenter gameCenter)
-    //{
-    //    this.gameCenter = gameCenter;
-    //}
 
 
     public object spectateActiveGame(int userId, int gameID)
@@ -57,7 +45,6 @@ public class SLImpl :SLInterface
         return gameCenter.editUserProfile(userId,name,password,email,avatar,money);
     }
 
-
     public object findAllActiveAvailableGames()
     {
         return gameCenter.texasHoldemGames;
@@ -73,9 +60,16 @@ public class SLImpl :SLInterface
         return gameCenter.filterActiveGamesByPotSize(size);
     }
 
-    public object filterActiveGamesByGamePreferences(MustPreferences pref)
+    public object filterActiveGamesByGamePreferences(object pref)
     {
-        return gameCenter.filterActiveGamesByGamePreferences(pref);
+        if (pref.GetType() == typeof(MustPreferences))
+            return gameCenter.filterActiveGamesByGamePreferences((MustPreferences)pref);
+        return null;
+    }
+
+    public object filterActiveGamesByGamePreferences(string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague, int minRank, int maxRank)
+    {
+        return gameCenter.filterActiveGamesByGamePreferences(gamePolicy, gamePolicyLimit, buyInPolicy, startingChipsAmount, MinimalBet, minPlayers, maxPlayers, isSpectatingAllowed, isLeague, minRank, maxRank);
     }
 
     public object getAllGames()
@@ -83,23 +77,65 @@ public class SLImpl :SLInterface
         return gameCenter.getAllGames();
     }
 
-
-
-
-
-
-
     public object createGame(int gameCreatorId, object pref)
     {
-        throw new NotImplementedException();
+        if (pref.GetType() == typeof(MustPreferences))
+            return gameCenter.createGame(gameCreatorId, (MustPreferences)pref);
+        else
+            return null;
     }
 
-    public object createGame(int gameCreator, int gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed)
+    public object createGame(int gameCreator, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague)
     {
-        throw new NotImplementedException();
+        return gameCenter.createGame(gameCreator, gamePolicy, gamePolicyLimit, buyInPolicy, startingChipsAmount, MinimalBet, minPlayers, maxPlayers, isSpectatingAllowed, isLeague);
     }
 
-    
+    public object Login(string user, string password)
+    {
+        return gameCenter.login(user, password);
+    }
+
+    public object Register(string user, string password, string email, string userImage)
+    {
+        return gameCenter.register(user, password, email, userImage);
+    }
+
+    public object Logout(int userId)
+    {
+        return gameCenter.logout(userId);
+    }
+
+    public object getUserByName(string name)
+    {
+        return gameCenter.getUserByName(name);
+    }
+
+    public object getUserById(int userId)
+    {
+        return gameCenter.getUserById(userId);
+    }
+
+    public object getGameById(int gameId)
+    {
+        return gameCenter.getGameById(gameId);
+    }
+
+    public object raiseBet(int gameId, int playerUserId, int coins)
+    {
+        return gameCenter.raiseBet(gameId, playerUserId, coins);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -108,59 +144,13 @@ public class SLImpl :SLInterface
     //    throw new NotImplementedException();
     //}
 
-    
+
+    //public void replayGame(int gameId)
+    //{
+    //    throw new NotImplementedException();
+    //}
 
 
-
-    
-
-    
-
-    public object getGameById(int gameId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public SystemUser getUserById(int userId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public SystemUser getUserByName(string name)
-    {
-        throw new NotImplementedException();
-    }
-
-    
-
-    
-
-    public object Login(string user, string password)
-    {
-        throw new NotImplementedException();
-    }
-
-    public object Logout(int userId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public string raiseBet(int gameId, int playerId, int coins)
-    {
-        throw new NotImplementedException();
-    }
-
-    public object Register(string user, string password, string email, string userImage)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void replayGame(int gameId)
-    {
-        throw new NotImplementedException();
-    }
-
-    
 
     /*public ReturnMessage spectateActiveGame(SystemUser user, int gameID)
 	{

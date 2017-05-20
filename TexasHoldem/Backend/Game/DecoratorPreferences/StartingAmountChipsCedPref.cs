@@ -13,9 +13,22 @@ namespace Backend.Game.DecoratorPreferences
 
         public override ReturnMessage canPerformUserActions(TexasHoldemGame game, SystemUser user, string action)
         {
-            if (nextDecPref != null)
-                return nextDecPref.canPerformUserActions(game, user, action);
-            return new ReturnMessage(true,"");
+            switch (action)
+            {
+                case "create":
+                    if (startingChipsPolicy >= 0)
+                        if (nextDecPref != null)
+                            return nextDecPref.canPerformUserActions(game, user, action);
+                        else
+                            return new ReturnMessage(true, "");
+                    else
+                        return
+                            new ReturnMessage(false, "Starting chips policy must be positive");
+                default:
+                    if (nextDecPref != null)
+                        return nextDecPref.canPerformUserActions(game, user, action);
+                    return new ReturnMessage(true, "");
+            }
         }
 
         public override ReturnMessage canPerformGameActions(TexasHoldemGame game, SystemUser user, int amount, string action)

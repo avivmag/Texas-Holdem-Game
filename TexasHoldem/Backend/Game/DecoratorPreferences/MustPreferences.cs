@@ -8,7 +8,7 @@ namespace Backend.Game.DecoratorPreferences
         private int maxRank;
         public bool isSpectateAllowed { get; set; }
         public bool isLeague { get; set; }
-        public OptionalPreferences firstDecPref { get; }
+        public OptionalPreferences firstDecPref { get; set; }
 
         public MustPreferences(OptionalPreferences firstDecPref, bool isSpectateAllowed)
         {
@@ -32,6 +32,17 @@ namespace Backend.Game.DecoratorPreferences
         {
             switch (action)
             {
+                case "create":
+                    if ((isLeague && minRank >= 0 && maxRank >= 0 && maxRank >= minRank) || !isLeague)
+                    {
+                        if (firstDecPref != null)
+                            return firstDecPref.canPerformUserActions(game, user, "create");
+                        else
+                            return new ReturnMessage(true, "");
+                    }
+                    else
+                        return new ReturnMessage(false, "The attributes of the league are not matching");
+
                 case "join":
                     if (isLeague)
                     {

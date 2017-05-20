@@ -16,6 +16,15 @@ namespace Backend.Game.DecoratorPreferences
             ReturnMessage m = new ReturnMessage();
             switch (action)
             {
+                case "create":
+                    if (buyInPolicy >= 0)
+                        if (nextDecPref != null)
+                            return nextDecPref.canPerformUserActions(game, user, "create");
+                        else
+                            return new ReturnMessage(true, "");
+                    else
+                        return new ReturnMessage(false, "Buy in policy can't be negative");
+
                 case "join":
                     if (user.money >= buyInPolicy)
                         if (nextDecPref != null)
