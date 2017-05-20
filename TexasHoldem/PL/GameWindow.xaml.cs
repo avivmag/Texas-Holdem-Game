@@ -522,34 +522,61 @@ namespace PL
             int playerCoinsNum, playerCoinsGambledNum, coins;
             int.TryParse(playerCoins[playerSeatIndex].Content.ToString(), out playerCoinsNum);
             int.TryParse(playerCoinsGambled[playerSeatIndex].Content.ToString(), out playerCoinsGambledNum);
-            if(!Int32.TryParse(betTextBox.Text, out coins) || coins < 1 || playerCoinsNum < coins)
+            //          int inserted                           put the minimal bet at least and not all in              tried to put more coins that he had
+            if(!Int32.TryParse(betTextBox.Text, out coins) || (coins < getMinimumBet() && coins != playerCoinsNum ) || playerCoinsNum < coins)
             {
                 MessageBox.Show("bad bet number entered");
                 return;
             }
-            
-            playerCoinsNum -= coins;
-            playerCoinsGambledNum += coins;
 
-            playerCoins[playerSeatIndex].Content = playerCoinsNum;
-            playerCoinsGambled[playerSeatIndex].Content = playerCoinsGambledNum;
+            ReturnMessage returnMessage = CommClient.Bet(game.gameId, playerSeatIndex, coins);
+            if (returnMessage.success)
+            {
+                playerCoinsNum -= coins;
+                playerCoinsGambledNum += coins;
 
-            if (playerCoinsNum <= 0)
-                allInIcons[playerSeatIndex].Visibility = Visibility.Visible;
+                playerCoins[playerSeatIndex].Content = playerCoinsNum;
+                playerCoinsGambled[playerSeatIndex].Content = playerCoinsGambledNum;
 
-            //CommClient.gameWindowRaiseBet(gameId, playerIndex, coins);
+                if (playerCoinsNum <= 0)
+                    allInIcons[playerSeatIndex].Visibility = Visibility.Visible;
+            }
+            else
+            {
+                MessageBox.Show(returnMessage.description);
+                return;
+            }
         }
 
+        private int getMinimumBet()
+        {
+            int temp, ans = 0;
+            for (int i = 0; i < seatsButtons.Length; i++)
+            {
+                int.TryParse(playerCoinsGambled[i].Content.ToString(), out temp);
+                ans = Math.Max(temp, ans);
+            }
+            return ans;
+        }
+
+        // send a comment
         private void CommentButton_Click(object sender, RoutedEventArgs e)
         {
-            //CommClient.gameWindowAddMessage(gameId, playerIndex, messagesTextBox.Text);
-            messagesTextBox.Text = "";
+            ReturnMessage returnMessage = CommClient.AddMessage(game.gameId, playerSeatIndex, messagesTextBox.Text);
+            if (returnMessage.success)
+                messagesTextBox.Text = "";
+            else
+                MessageBox.Show(returnMessage.description);
         }
 
         private void FoldButton_Click(object sender, RoutedEventArgs e)
         {
-            //CommClient.gameWindowFold(gameId, playerIndex);
-            seatButtonToImageDictionary[seatsButtons[playerSeatIndex]].Source = new BitmapImage(new Uri("pack://application:,,,/resources/red.png"));
+            ReturnMessage returnMessage = CommClient.Fold(game.gameId, playerSeatIndex);
+
+            if (returnMessage.success)
+                seatButtonToImageDictionary[seatsButtons[playerSeatIndex]].Source = new BitmapImage(new Uri("pack://application:,,,/resources/red.png"));
+            else
+                MessageBox.Show(returnMessage.description);
         }
 
         private void CheckButton_Click(object sender, RoutedEventArgs e)

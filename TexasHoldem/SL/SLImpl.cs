@@ -1,7 +1,7 @@
 ﻿using Backend.User;
 using Backend.Game;
 using SL;
-using Backend.System;
+using ApplicationFacade;
 using Backend.Game.DecoratorPreferences;
 
 public class SLImpl :SLInterface
@@ -120,21 +120,17 @@ public class SLImpl :SLInterface
         return gameCenter.getGameById(gameId);
     }
 
-    public object raiseBet(int gameId, int playerUserId, int coins)
+    #region GameWindow
+    public object bet(int gameId, int playerUserId, int coins)
     {
-        return gameCenter.raiseBet(gameId, playerUserId, coins);
+        return gameCenter.bet(gameId, playerUserId, coins);
     }
-
-
-
-
-
-
-
-
-
-
-
+    public object AddMessage(int gameId, int playerIndex, string messageText)
+    {
+        // TODO: Gili, you need to send the message to the other players
+        // return gameCenter.addMessage(gameId, playerIndex, messageText);
+    }
+    #endregion
 
 
 

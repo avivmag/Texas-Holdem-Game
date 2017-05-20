@@ -227,7 +227,7 @@ namespace Backend.Game
             BuyInPolicyDecPref buyInPref = (BuyInPolicyDecPref)gamePreferences.getOptionalPref(new MaxPlayersDecPref(0, null));
             if (buyInPref != null)
                 startingChips = buyInPref.buyInPolicy;
-            Player p = new Player(user.id, startingChips, user.rank);
+            Player p = new Player(user.id, user.name, startingChips, user.rank);
             
             //check that the player is not already in the game
             for (int i = 0; i < players.Length; i++)
@@ -514,17 +514,39 @@ namespace Backend.Game
             tempPot += ((currentBlindBet + (currentBlindBet / 2)));
         }
 
-        public void bet(Player p, int amount)
+        //public void bet(Player p, int amount)
+        //{
+        //    p.Tokens -= amount;
+        //    GameLog.logLine(
+        //        gameId,
+        //        GameLog.Actions.Action_Bet,
+        //        p.systemUserID.ToString(),
+        //        amount.ToString());
+
+        //    tempPot += amount;
+        //    currentBet = amount;
+        //}
+
+        public ReturnMessage bet(Player p, int amount)
         {
+            if(p.Tokens - amount < 0)
+                return new ReturnMessage(false, "not enough coins");
+            if(currentBet > amount && amount != p.Tokens)
+                return new ReturnMessage(false, "need to bet more");
+
+            currentBet = Math.Max(amount, currentBet);
+
             p.Tokens -= amount;
+
             GameLog.logLine(
                 gameId,
-                GameLog.Actions.Action_Bet,
+                GameLog.Actions.Action_Raise,
                 p.systemUserID.ToString(),
                 amount.ToString());
 
             tempPot += amount;
-            currentBet = amount;
+            // TODO: Gili, you need to send the message to the other players
+            return new ReturnMessage(true, "");
         }
 
         public void call(Player p)
@@ -555,38 +577,27 @@ namespace Backend.Game
                 p.systemUserID.ToString());
         }
 
-        public void raise(Player p, int amount)
-        {
-            p.Tokens -= (amount + currentBet);
-            GameLog.logLine(
-                gameId,
-                GameLog.Actions.Action_Raise,
-                p.systemUserID.ToString(),
-                amount.ToString());
-            tempPot += (amount + currentBet);
-        }
-
-        public void chooseBetAction(Player p, BetAction betAction, int amount)
-        {
-            switch (betAction)
-            {
-                case BetAction.bet:
-                    bet(p, amount);
-                    break;
-                case BetAction.call:
-                    call(p);
-                    break;
-                case BetAction.check:
-                    check(p);
-                    break;
-                case BetAction.fold:
-                    fold(p);
-                    break;
-                case BetAction.raise:
-                    raise(p, amount);
-                    break;
-            }
-        }
+        //public void chooseBetAction(Player p, BetAction betAction, int amount)
+        //{
+        //    switch (betAction)
+        //    {
+        //        case BetAction.bet:
+        //            bet(p, amount);
+        //            break;
+        //        case BetAction.call:
+        //            call(p);
+        //            break;
+        //        case BetAction.check:
+        //            check(p);
+        //            break;
+        //        case BetAction.fold:
+        //            fold(p);
+        //            break;
+        //        case BetAction.raise:
+        //            raise(p, amount);
+        //            break;
+        //    }
+        //}
 
         public int nextToSeat(int seat)
         {

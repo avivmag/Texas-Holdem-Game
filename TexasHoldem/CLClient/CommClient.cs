@@ -168,15 +168,32 @@ namespace CLClient
             return response;
         }
 
-        public static Boolean raiseBet(int gameId, int playerIndex, int coins)
+        #region gameWindow
+        public static ReturnMessage Bet(int gameId, int playerIndex, int coins)
         {
-            var message     = new { action = "Raise", gameId, playerIndex, coins };
+            var message     = new { action = "Bet", gameId, playerIndex, coins };
             var jsonMessage = sendMessage(message);
-            var response    = jsonMessage.ToObject<Boolean>();
+            var response    = jsonMessage.ToObject<ReturnMessage>();
 
             return response;
         }
+        public static ReturnMessage AddMessage(int gameId, int playerIndex, string messageText)
+        {
+            var message = new { action = "AddMessage", gameId, playerIndex, messageText };
+            var jsonMessage = sendMessage(message);
+            var response = jsonMessage.ToObject<ReturnMessage>();
 
+            return response;
+        }
+        public static ReturnMessage Fold(int gameId, int playerIndex)
+        {
+            var message = new { action = "Fold", gameId, playerIndex };
+            var jsonMessage = sendMessage(message);
+            var response = jsonMessage.ToObject<ReturnMessage>();
+
+            return response;
+        }
+        #endregion
         public static SystemUser Register(string username, string password, string email, string userImage)
         {
             var message     = new { action = "Register", username, password, email, userImage };

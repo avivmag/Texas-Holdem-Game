@@ -5,10 +5,11 @@ using Backend.Game.DecoratorPreferences;
 using Backend.User;
 using DAL;
 using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
+using Backend;
 
-namespace Backend.System
+namespace ApplicationFacade
 {
-	public class GameCenter : Messages.Notification
+	public class GameCenter : Backend.Messages.Notification
 	{
 		public List<TexasHoldemGame> texasHoldemGames { get; set; }
         public List<League> leagues { get; set; }
@@ -279,18 +280,24 @@ namespace Backend.System
             return null;
         }
 
-        public ReturnMessage raiseBet(int gameId, int playerUserId, int coins)
+        #region game
+        public ReturnMessage bet(int gameId, int playerIndex, int coins)
         {
             TexasHoldemGame game = getGameById(gameId);
-            Player player = null;
-            foreach (Player p in game.players)
-                if (p.systemUserID == playerUserId)
-                    player = p;
-            if (player == null)
-                return new ReturnMessage(false, "could not find the player");
-            game.raise(player,coins);
-            return new ReturnMessage(true, "");
+            //Player player = null;
+            //foreach (Player p in game.players)
+            //    if (p.systemUserID == playerUserId)
+            //        player = p;
+            //if (player == null)
+            //    return new ReturnMessage(false, "could not find the player");
+            return game.bet(game.players[playerIndex], coins);
         }
+        public TexasHoldemGame getGameState(int gameId)
+        {
+            TexasHoldemGame game = getGameById(gameId);
+            return game;
+        }
+        #endregion
 
         private SystemUser getHighest(List<SystemUser> users)
         {

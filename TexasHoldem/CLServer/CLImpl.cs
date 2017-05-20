@@ -130,31 +130,79 @@ namespace CLServer
             method.Invoke(null, new object[] { client, jsonObject });
         }
 
-        private static void Raise(TcpClient client, JObject jsonObject)
+        #region GameWindow
+        private static void Bet(TcpClient client, JObject jsonObject)
         {
-            var gameIdToken          = jsonObject["gameId"];
-            var playerIndexToken     = jsonObject["playerIndex"];
-            var coinsToken           = jsonObject["coins"];
+            var gameIdToken = jsonObject["gameId"];
+            var playerIndexToken = jsonObject["playerIndex"];
+            var coinsToken = jsonObject["coins"];
 
-            if (((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer)) || 
-                ((playerIndexToken == null) || (playerIndexToken.Type != JTokenType.Integer)) || 
+            if (((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer)) ||
+                ((playerIndexToken == null) || (playerIndexToken.Type != JTokenType.Integer)) ||
                 ((coinsToken == null) || (coinsToken.Type != JTokenType.Integer)))
             {
                 throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Raise."));
             }
 
-            var gameId          = (int)gameIdToken;
-            var playerIndex     = (int)playerIndexToken;
-            var coins           = (int)coinsToken;
+            var gameId = (int)gameIdToken;
+            var playerIndex = (int)playerIndexToken;
+            var coins = (int)coinsToken;
 
-            Console.WriteLine("Raising Bet. parameters are: gameId: {0}, playerIndex: {1}, coins: {2}", gameId, playerIndex, coins);
+            Console.WriteLine("Bet. parameters are: gameId: {0}, playerIndex: {1}, coins: {2}", gameId, playerIndex, coins);
 
-            sl.raiseBet(gameId, playerIndex, coins);
-            var raiseResponse   = new { response = true };
+            sl.Bet(gameId, playerIndex, coins);
+            var betResponse = new { response = true };
 
-            SendMessage(client, raiseResponse);
+            SendMessage(client, betResponse);
             return;
         }
+        private static void AddMessage(TcpClient client, JObject jsonObject)
+        {
+            var gameIdToken = jsonObject["gameId"];
+            var playerIndexToken = jsonObject["playerIndex"];
+            var messageTextToken = jsonObject["messageText"];
+
+            if (((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer)) ||
+                ((playerIndexToken == null) || (playerIndexToken.Type != JTokenType.Integer)) ||
+                ((messageTextToken == null) || (messageTextToken.Type != JTokenType.String)))
+            {
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Add Message."));
+            }
+
+            var gameId = (int)gameIdToken;
+            var playerIndex = (int)playerIndexToken;
+            var messageText = (string)messageTextToken;
+
+            Console.WriteLine("Message added. parameters are: gameId: {0}, playerIndex: {1}, messageText: {2}", gameId, playerIndex, messageText);
+
+            sl.AddMessage(gameId, playerIndex, messageText);
+            var messageTextResponse = new { response = true };
+
+            SendMessage(client, messageTextResponse);
+            return;
+        }
+        private static void Fold(TcpClient client, JObject jsonObject)
+        {
+            var gameIdToken = jsonObject["gameId"];
+            var playerIndexToken = jsonObject["playerIndex"];
+
+            if (((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer)) ||
+                ((playerIndexToken == null) || (playerIndexToken.Type != JTokenType.Integer)))
+            {
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Fold."));
+            }
+
+            var gameId = (int)gameIdToken;
+            var playerIndex = (int)playerIndexToken;
+
+            Console.WriteLine("Fold. parameters are: gameId: {0}, playerIndex: {1}", gameId, playerIndex);
+
+            sl.Fold(gameId, playerIndex);
+            
+            SendMessage(client, new { response = true });
+            return;
+        }
+        #endregion
 
         private static void Login(TcpClient client, JObject jsonObject)
         {
