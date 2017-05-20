@@ -1,9 +1,4 @@
-﻿using Backend;
-using Backend.Game;
-using Backend.User;
-using System.Collections.Generic;
-using static Backend.Game.GamePreferences;
-using Backend.Game.DecoratorPreferences;
+﻿using Backend.User;
 
 namespace SL
 {
@@ -18,28 +13,29 @@ namespace SL
         object findAllActiveAvailableGames();
         object filterActiveGamesByPlayerName(string name);
         object filterActiveGamesByPotSize(int? size);
-        object filterActiveGamesByGamePreferences(MustPreferences pref);
+        object filterActiveGamesByGamePreferences(object pref);
+        object filterActiveGamesByGamePreferences(string gamePolicy,int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague, int minRank, int maxRank);
         //List<object> filterActiveGamesByGamePreferences(GamePreferences pref);
         //List<object> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed);
         object getAllGames();
 
         object createGame(int gameCreatorId, object pref);
-        object createGame(int gameCreator, int gamePolicy, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed);
+        object createGame(int gameCreator, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague);
 
         object Login(string user, string password);
 		object Register(string user, string password, string email, string userImage);
 		object Logout(int userId);
 
-        SystemUser getUserByName(string name);
-        SystemUser getUserById(int userId);
+        object getUserByName(string name);
+        object getUserById(int userId);
         object getGameById(int gameId);
-        void replayGame(int gameId);
+        //void replayGame(int gameId);
         //ReturnMessage addLeague(int minRank, int maxRank, string name);
         //ReturnMessage removeLeague(League league);
         //      League getLeagueByName(string name);
         //      League getLeagueById(Guid leagueId);
         //ReturnMessage setLeagueCriteria(int minRank, int maxRank, string leagueName, Guid leagueId, int userId);
 
-        string raiseBet(int gameId, int playerId, int coins);
+        object raiseBet(int gameId, int playerUserId, int coins);
     }
 }

@@ -15,6 +15,16 @@ namespace Backend.Game.DecoratorPreferences
         {
             switch (action)
             {
+                case "create":
+                    if (maxPlayers >= 2 && maxPlayers <= 9)
+                        if (nextDecPref != null)
+                            return nextDecPref.canPerformUserActions(game, user, action);
+                        else
+                            return new ReturnMessage(true, "");
+                    else
+                        return
+                            new ReturnMessage(false, "max players must be between 2 and 9");
+
                 case "join":
                     if (game.AvailableSeats == 0)
                         return new ReturnMessage(false, "There are no available seats.");
