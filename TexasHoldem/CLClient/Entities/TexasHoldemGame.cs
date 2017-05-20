@@ -19,8 +19,8 @@ namespace CLClient.Entities
         public int pot { get; set; }
         public int tempPot { get; set; }
         public int currentBet { get; set; }
-        private int gameCreatorUserId;
-        private int availableSeats;
+        public int gameCreatorUserId;
+        public int availableSeats;
 
         public bool active { get; set; }
 

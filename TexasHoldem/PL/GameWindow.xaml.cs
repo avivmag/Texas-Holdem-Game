@@ -24,7 +24,7 @@ namespace PL
     public partial class GameWindow : Window
     {
         private int playerSeatIndex;
-        private Player player;
+        private int playerId;
 
         private TexasHoldemGame game;
         private Window mainMenuWindow;
@@ -50,13 +50,12 @@ namespace PL
         // for testing
         public GameWindow()
         {   
+            InitializeComponent();
+
             game = new TexasHoldemGame();
             game.players = new Player[9];
             playerSeatIndex = 3;
-            player = new Player();
-            player.Tokens = 1000;
 
-            InitializeComponent();
             initializeScreen();
             placePlayer(playerSeatIndex, "profile_pic", "gil", 1000);
             placePlayer(4, "profile_pic", "aviv", 100);
@@ -66,13 +65,17 @@ namespace PL
             movePlayersCoinsToHeap(0);
         }
 
-        public GameWindow(TexasHoldemGame game, int gameId, int playerId)
+        public GameWindow(TexasHoldemGame game, int playerId)
         {
+            InitializeComponent();
             this.game = game;
-            playerSeatIndex = -1;
-            this.mainMenuWindow = mainMenuWindow;
+            this.playerId = playerId;
+            initializeScreen();
         }
 
+        /// <summary>
+        /// initialization of all arrays and stuff
+        /// </summary>
         private void initializeScreen()
         {
             seatsButtons = new Button[game.players.Length];
@@ -161,6 +164,10 @@ namespace PL
             BottomRow.Children.Add(mainControlBarUg);
         }
         
+        /// <summary>
+        /// Adds the element to the appropriate grid on the screen
+        /// </summary>
+        /// <param name="i"></param>
         private void positionElementsOnScreen(int i)
         {
             UniformGrid playerUg = makePlayerUniformGrid(i);
@@ -194,7 +201,6 @@ namespace PL
         {
             initializePlayerIcon(i);
 
-            playerNames[i].Content = "free seat";
             playerNames[i].HorizontalAlignment = HorizontalAlignment.Center;
             playerNames[i].VerticalAlignment = VerticalAlignment.Center;
             playerNames[i].HorizontalContentAlignment = HorizontalAlignment.Center;
@@ -253,6 +259,10 @@ namespace PL
             return playerUg;
         }
 
+        /// <summary>
+        /// simple initialization of seat - just create it on the screen, does not take in account anything about the game state
+        /// </summary>
+        /// <param name="i"></param>
         private void initializeVariables(int i)
         {
             seatsButtons[i] = new Button();
@@ -303,28 +313,49 @@ namespace PL
             seatButtonToImageDictionary[seatsButtons[i]] = playerStateBackground[i];
             seatsButtons[i].Width = 90;
             seatsButtons[i].Height = 90;
-            changeSeat(i, true, "free_seat", "free_seat_icon", "free_seat", 0);
+            if(game.players[i] == null)
+                changeSeat(i, true, "gray", "free_seat_icon", "free seat", 0);
+            else
+            {
+                string background = null;
+                switch (game.players[i].playerState)
+                {
+                    case Player.PlayerState.folded:
+                        background = "red";
+                        break;
+                    case Player.PlayerState.in_round:
+                        background = "green";
+                        break;
+                    case Player.PlayerState.my_turn:
+                        background = "blue";
+                        break;
+                    case Player.PlayerState.not_in_round:
+                        background = "gray";
+                        break;
+                }
+                changeSeat(i, false, background, game.players[i].imageUrl, game.players[i].name, 0);
+            }
         }
 
         private IDictionary<Button, Image> seatButtonToImageDictionary;
         private void FreeSeatEventMouseEnter(object sender, EventArgs e)
         {
-            seatButtonToImageDictionary[(Button) sender].Source = new BitmapImage(new Uri("pack://application:,,,/resources/in_game.png"));
+            seatButtonToImageDictionary[(Button) sender].Source = new BitmapImage(new Uri("pack://application:,,,/resources/green.png"));
         }
 
         private void FreeSeatEventMouseLeave(object sender, EventArgs e)
         {
-            seatButtonToImageDictionary[(Button) sender].Source = new BitmapImage(new Uri("pack://application:,,,/resources/free_seat.png"));
+            seatButtonToImageDictionary[(Button) sender].Source = new BitmapImage(new Uri("pack://application:,,,/resources/gray.png"));
         }
 
         private void placePlayer(int i, string playerImageUrl, string playerName, int coins)
         {
-            changeSeat(i, false, "in_game", playerImageUrl, playerName, coins);
+            changeSeat(i, false, "green", playerImageUrl, playerName, coins);
         }
 
         private void removePlayer(int i)
         {
-            changeSeat(i, true, "free_seat", "free_seat_icon", "free seat", 0);
+            changeSeat(i, true, "gray", "free_seat_icon", "free seat", 0);
         }
 
         private void changeSeat(int i, Boolean addMouseEvents, string playerStateImageUrl, string playerImageUrl, string playerName, int playerCoinsNumber)
@@ -518,13 +549,13 @@ namespace PL
         private void FoldButton_Click(object sender, RoutedEventArgs e)
         {
             //CommClient.gameWindowFold(gameId, playerIndex);
-            seatButtonToImageDictionary[seatsButtons[playerSeatIndex]].Source = new BitmapImage(new Uri("pack://application:,,,/resources/fold.png"));
+            seatButtonToImageDictionary[seatsButtons[playerSeatIndex]].Source = new BitmapImage(new Uri("pack://application:,,,/resources/red.png"));
         }
 
         private void CheckButton_Click(object sender, RoutedEventArgs e)
         {
             //CommClient.gameWindowCheck(gameId, playerIndex);
-            seatButtonToImageDictionary[seatsButtons[playerSeatIndex]].Source = new BitmapImage(new Uri("pack://application:,,,/resources/in_game.png"));
+            seatButtonToImageDictionary[seatsButtons[playerSeatIndex]].Source = new BitmapImage(new Uri("pack://application:,,,/resources/green.png"));
         }
 
     }
