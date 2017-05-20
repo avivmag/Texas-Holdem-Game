@@ -3,17 +3,18 @@ using Backend.User;
 using System.Collections.Generic;
 using System.Linq;
 using Backend;
+using Backend.Game.DecoratorPreferences;
+using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
 
 namespace DAL
 {
     public class DALDummy : DALInterface
     {
-        private List<SystemUser> userDummies;
+        private List<SystemUser> userList;
         private List<SystemUser> loggedInUserDummies;
-        //private List<League> leagues;
         private List<Player> playerDummies;
-        //private List<Player> spectatorDummies;
         private List<TexasHoldemGame> gameDummies;
+        
 
         public DALDummy()
         {
@@ -21,22 +22,62 @@ namespace DAL
             //leagues.Add(new League(0, 1000, "Starter League"));
             //leagues.Add(new League(1000, 2000, "Experienced League"));
 
-            userDummies = new List<SystemUser>
+            userList = new List<SystemUser>
             {
                 new SystemUser("Hadas", "Aa123456", "email0", "image0", 1000),
                 new SystemUser("Gili", "123123", "email1", "image1", 0),
                 new SystemUser("Or", "111111", "email2", "image2", 700),
                 new SystemUser("Aviv", "Aa123456", "email3", "image3", 1500)
             };
-
-            // Should call GameCenter.Maintain Leagues right about now.
+            
 
             for (int i = 0; i < 4; i++)
-                userDummies[i].id = i;
+            {
+                userList[i].id = i;
+            }
+                
+            
+            
 
             loggedInUserDummies = new List<SystemUser>();
+            //setting the games
+            //pref order: mustpref(spectate,league)->game type , buy in policy, starting chips, minimal bet, minimum players, maximum players.
             gameDummies = new List<TexasHoldemGame>
             {
+                //regular games
+                new TexasHoldemGame(userList[0],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
+                                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                                                                    new MinBetDecPref(20,new MinPlayersDecPref(2,
+                                                                    new MaxPlayersDecPref (9,null) ))))),true)),
+                new TexasHoldemGame(userList[0],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
+                                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                                                                    new MinBetDecPref(20,new MinPlayersDecPref(2,
+                                                                    new MaxPlayersDecPref (9,null) ))))),false)),
+                new TexasHoldemGame(userList[1],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
+                                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                                                                    new MinBetDecPref(20,new MinPlayersDecPref(2,
+                                                                    new MaxPlayersDecPref (2,null) ))))),true)),
+                new TexasHoldemGame(userList[1],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
+                                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                                                                    new MinBetDecPref(20,new MinPlayersDecPref(2,
+                                                                    new MaxPlayersDecPref (2,null) ))))),false)),
+                new TexasHoldemGame(userList[2],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
+                                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                                                                    new MinBetDecPref(20,new MinPlayersDecPref(2,
+                                                                    new MaxPlayersDecPref (2,null) ))))),false)),
+                new TexasHoldemGame(userList[2],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
+                                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                                                                    new MinBetDecPref(20,new MinPlayersDecPref(2,
+                                                                    new MaxPlayersDecPref (2,null) ))))),false)),
+                //league games
+                //new TexasHoldemGame(userList[3],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
+                //                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                //                                                    new MinBetDecPref(20,new MinPlayersDecPref(2,
+                //                                                    new MaxPlayersDecPref (2,null) ))))),false,l.minRank,l.maxRank)),
+                //new TexasHoldemGame(userList[3],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
+                //                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                //                                                    new MinBetDecPref(20,new MinPlayersDecPref(2,
+                //                                                    new MaxPlayersDecPref (2,null) ))))),false,l.minRank,l.maxRank))
                 //new TexasHoldemGame(userDummies[0], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, true)),
                 //new TexasHoldemGame(userDummies[0], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, false)),
                 //new TexasHoldemGame(userDummies[1], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, true)),
@@ -49,10 +90,10 @@ namespace DAL
 
             playerDummies = new List<Player>
             {
-                new Player(0, 100, userDummies[0].rank),
-                new Player(1, 0, userDummies[1].rank),
-                new Player(2, 200, userDummies[2].rank),
-                new Player(3, 200, userDummies[3].rank)
+                new Player(0, 100, userList[0].rank),
+                new Player(1, 0, userList[1].rank),
+                new Player(2, 200, userList[2].rank),
+                new Player(3, 200, userList[3].rank)
             };
             for (int i = 0; i < 4; i++)
                 playerDummies[i].systemUserID = i;
@@ -68,17 +109,17 @@ namespace DAL
 
         public SystemUser getUserById(int userID)
         {
-            for (int i = 0; i < userDummies.Count; i++)
-                if (userDummies[i].id == userID)
-                    return userDummies[i];
+            for (int i = 0; i < userList.Count; i++)
+                if (userList[i].id == userID)
+                    return userList[i];
             return null;
         }
 
         public SystemUser getUserByName(string name)
         {
-            for (int i = 0; i < userDummies.Count; i++)
-                if (userDummies[i].name.Equals(name))
-                    return userDummies[i];
+            for (int i = 0; i < userList.Count; i++)
+                if (userList[i].name.Equals(name))
+                    return userList[i];
             return null;
         }
 
@@ -90,22 +131,22 @@ namespace DAL
 
         public List<SystemUser> getAllUsers()
         {
-            return userDummies.Cast<SystemUser>().ToList();
+            return userList.Cast<SystemUser>().ToList();
         }
 
         public void editUser(SystemUser user)
         {
-            if (user.id < userDummies.Count)
-                userDummies[user.id - 1] = user;
+            if (user.id < userList.Count)
+                userList[user.id] = user;
         }
 		
 		public ReturnMessage registerUser(SystemUser user)
 		{
-			foreach (SystemUser systemUser in userDummies)
+			foreach (SystemUser systemUser in userList)
 				if (systemUser.name.Equals(user.name))
 					return new ReturnMessage(false, "This user name is already taken.");
 
-			userDummies.Add(user);
+			userList.Add(user);
 			return new ReturnMessage(true, null);
 		}
 
@@ -116,11 +157,11 @@ namespace DAL
 					return new ReturnMessage(false, "You are already logged in to the system");
 
 			int i = 0;
-			for (; i < userDummies.Count; i++)
-				if (userDummies[i].name.Equals(user))
+			for (; i < userList.Count; i++)
+				if (userList[i].name.Equals(user))
 					break;
 
-			if (i == userDummies.Count)
+			if (i == userList.Count)
 				return new ReturnMessage(false, "You must be registered before attempting to log in.");
 
 			loggedInUserDummies.Add(getUserByName(user));

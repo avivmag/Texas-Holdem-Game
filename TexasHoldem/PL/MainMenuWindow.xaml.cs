@@ -21,42 +21,43 @@ namespace PL
         {
             CommClient.Logout(LoginWindow.user.id);
             LoginWindow.user = null;
-            this.Close();
+            Close();
             loginWindow.Show();
         }
 
         private void Options_Click(object sender, RoutedEventArgs e)
         {
-            this.Hide();
+            Hide();
             new OptionsWindow(this).Show();
         }
 
         private void Search_Game_Click(object sender, RoutedEventArgs e)
         {
-            this.Hide();
+            Hide();
             new SearchGameWindow(this).Show();
         }
 
         private void Specate_Game_Click(object sender, RoutedEventArgs e)
         {
-            this.Hide();
+            Hide();
             new SelectGameWindow(this,"Spectate").Show();
         }
 
         private void Join_Game_Click(object sender, RoutedEventArgs e)
         {
-            this.Hide();
+            Hide();
             new SelectGameWindow(this,"Join").Show();
         }
 
         private void Create_Game_Click(object sender, RoutedEventArgs e)
         {
-            this.Hide();
+            Hide();
             new CreateGameWindow(this).Show();
         }
 
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
+            CommClient.Logout(LoginWindow.user.id);
             Application.Current.Shutdown();
         }
     }

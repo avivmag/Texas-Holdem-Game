@@ -19,22 +19,22 @@ namespace PL
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-            this.Hide();
+            Hide();
             loginWindow.Show();
         }
 
         private void Register_Click(object sender, RoutedEventArgs e)
         {
-            var user = CommClient.Register(this.username.Text, this.password.Text, this.email.Text, "");
+            var user = CommClient.Register(username.Text, password.Text, email.Text, "");
 
             if (user != default(SystemUser)){
                 LoginWindow.user = user;
-                this.Close();
+                Close();
                 new MainMenuWindow(loginWindow).Show();
             }
             else
             {
-                this.errorMessage.Text ="Could not register at the moment.";
+                errorMessage.Text ="Could not register at the moment.";
             }
         }
     }

@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using Backend;
 using Backend.Game;
 using Backend.Game.DecoratorPreferences;
 using Backend.User;
 using DAL;
 using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
 
-namespace Backend.System
+namespace ApplicationFacade
 {
-	public class GameCenter : Messages.Notification
+	public class GameCenter : Backend.Messages.Notification
 	{
 		public List<TexasHoldemGame> texasHoldemGames { get; set; }
         public List<League> leagues { get; set; }
@@ -20,6 +21,7 @@ namespace Backend.System
         {
             texasHoldemGames = new List<TexasHoldemGame>();
             leagues = new List<League>();
+            loggedInUsers = new List<SystemUser>();
             dal = new DALDummy();
         }
 
@@ -30,15 +32,23 @@ namespace Backend.System
             return center;
         }
 
+        public void shutDown()
+        {
+            texasHoldemGames.Clear();
+            leagues.Clear();
+            loggedInUsers.Clear();
+        }
+
         // Maintain leagues for players. Should be invoked once a week.
         public void maintainLeagues(List<SystemUser> users)
         {
+            List<SystemUser> tempList = new List<SystemUser>(users);
             int numOfUsers = users.Count;
 
             if (numOfUsers < 2)
             {
                 League l = new League();
-                foreach (SystemUser user in users)
+                foreach (SystemUser user in tempList)
                 {
                     l.addUser(user);
                 }
@@ -54,10 +64,10 @@ namespace Backend.System
                     League l = new League();
                     for (int i = 0; i < numOfPlayersInLeague; i++)
                     {
-                        SystemUser currHighestRankUser = getHighest(users);
+                        SystemUser currHighestRankUser = getHighest(tempList);
                         if (currHighestRankUser != null)
                         {
-                            users.Remove(currHighestRankUser);
+                            tempList.Remove(currHighestRankUser);
                             l.addUser(currHighestRankUser);
                         }
                         else
@@ -89,7 +99,7 @@ namespace Backend.System
             return dal.logOutUser(systemUser.name);
         }
 
-        public object register(string user, string password, string email, string userImage)
+        public ReturnMessage register(string user, string password, string email, string userImage)
         {
             if (user == null || password == null || email == null || userImage == null || user.Equals("") || password.Equals("") || email.Equals("") || userImage.Equals(""))
                 return new ReturnMessage(false, "all attributes must be filled.");
@@ -106,7 +116,7 @@ namespace Backend.System
             return dal.registerUser(systemUser);
         }
 
-        public object login(string user, string password)
+        public ReturnMessage login(string user, string password)
         {
             if (user == null || password == null || user.Equals("") || password.Equals(""))
                 return new ReturnMessage(false, "all attributes must be filled.");
@@ -124,21 +134,21 @@ namespace Backend.System
                 return new ReturnMessage(false, "Incorrect password mismatched.");
         }
 
-        public object createGame(int gameCreatorId, MustPreferences pref)
+        public TexasHoldemGame createGame(int gameCreatorId, MustPreferences pref)
         {
             SystemUser user = getUserById(gameCreatorId);
             if (user == null)
-                return new ReturnMessage(false, "Game creator is Not a user.");
+                return null;
             
             TexasHoldemGame game = new TexasHoldemGame(user, pref);
             ReturnMessage m = game.gamePreferences.canPerformUserActions(game, user, "create");
 
             if (m.success)
                 dal.addGame(game);
-            return m;
+            return game;
         }
 
-        public object createGame(int gameCreator, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? minimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague)
+        public TexasHoldemGame createGame(int gameCreator, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? minimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague)
         {
             SystemUser user = getUserById(gameCreator);
             League l = null;
@@ -156,9 +166,9 @@ namespace Backend.System
             return game;
         }
 
-        public object getAllGames()
+        public List<TexasHoldemGame> getAllGames()
         {
-            return dal.getAllGames();
+            return new List<TexasHoldemGame>(texasHoldemGames);
         }
 
         public List<TexasHoldemGame> filterActiveGamesByGamePreferences(MustPreferences pref)
@@ -170,7 +180,7 @@ namespace Backend.System
             return ans;
         }
 
-        public object filterActiveGamesByGamePreferences(string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? minimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague, int minRank, int maxRank)
+        public List<TexasHoldemGame> filterActiveGamesByGamePreferences(string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? minimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague, int minRank, int maxRank)
         {
             MustPreferences mustPref = getMustPref(gamePolicy,gamePolicyLimit,buyInPolicy,startingChipsAmount,minimalBet,minPlayers,maxPlayers,isSpectatingAllowed,isLeague,minRank,maxRank);
             List<TexasHoldemGame> ans = new List<TexasHoldemGame>();
@@ -187,6 +197,19 @@ namespace Backend.System
                 if (g.pot <= size)
                     ans.Add(g);
             return ans;
+        }
+
+        public ReturnMessage endGame(int gameId)
+        {
+            foreach (TexasHoldemGame game in texasHoldemGames)
+                if (game.gameId == gameId)
+                {
+                    game.active = false;
+                    texasHoldemGames.Remove(game);
+                    return new ReturnMessage(true, "");
+                }
+            return new ReturnMessage(false, "couldn't find the wanted games");
+                    
         }
 
         public List<TexasHoldemGame> filterActiveGamesByPlayerName(string name)
@@ -213,6 +236,8 @@ namespace Backend.System
         public ReturnMessage editUserProfile(int userId, string name, string password, string email, string avatar, int money)
         {
             SystemUser user = getUserById(userId);
+            if (user == null)
+                return new ReturnMessage(false, "Could not find the logged user.");
             List<SystemUser> allUsers = dal.getAllUsers();
 
             //Validates attributes.

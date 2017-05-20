@@ -25,7 +25,7 @@ namespace PL
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Close();
             MainMenuWindow.Show();
         }
 
@@ -37,11 +37,11 @@ namespace PL
             }
             else
             {
-                Boolean m = CommClient.editUserProfile(LoginWindow.user.id, username.Text, password.Text, email.Text, null);
+                Boolean m = CommClient.editUserProfile(LoginWindow.user.id, username.Text, password.Text, email.Text, null, money);
 
                 if (m)
                 {
-                    this.Hide();
+                    Hide();
                     MainMenuWindow.Show();
                 }
                 else
