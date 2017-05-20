@@ -1,19 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using Backend;
-using Backend.User;
-using SL;
+using CLClient;
+using CLClient.Entities;
 
 namespace PL
 {
@@ -22,15 +10,13 @@ namespace PL
     /// </summary>
     public partial class OptionsWindow : Window
     {
-        private SLInterface sl;
         private Window MainMenuWindow;
 
         public OptionsWindow(Window MainMenuWindow)
         {
             InitializeComponent();
             this.MainMenuWindow = MainMenuWindow;
-            sl = LoginWindow.sl;
-            SystemUser user = LoginWindow.mySystemUser;
+            SystemUser user = LoginWindow.user;
             username.Text = user.name;
             password.Text = user.password;
             email.Text = user.email;
@@ -39,7 +25,7 @@ namespace PL
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Close();
             MainMenuWindow.Show();
         }
 
@@ -51,16 +37,16 @@ namespace PL
             }
             else
             {
-                ReturnMessage m = sl.editUserProfile(LoginWindow.mySystemUser.id, username.Text, password.Text, email.Text, null);
+                Boolean m = CommClient.editUserProfile(LoginWindow.user.id, username.Text, password.Text, email.Text, null, money);
 
-                if (m.success)
+                if (m)
                 {
-                    this.Hide();
+                    Hide();
                     MainMenuWindow.Show();
                 }
                 else
                 {
-                    errorMessage.Text = m.description;
+                    errorMessage.Text = "Could not edit user profile.";
                 }
             }
         }

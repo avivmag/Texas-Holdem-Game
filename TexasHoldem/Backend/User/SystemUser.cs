@@ -13,8 +13,11 @@ namespace Backend.User
 		public String password { get; set; }
         public String email { get; set; }
 		public String userImage { get; set; }
-        public List<Game.Player> spectators;
-        public Guid leagueId;
+        public List<TexasHoldemGame> spectatingGame;
+
+        private int tempRank;
+        private int tempGames ;
+        public bool newPlayer { get; set; } 
 
         public SystemUser(String name, String password, String email, String userImage, int money)
         {
@@ -23,13 +26,12 @@ namespace Backend.User
             this.email = email;
             this.userImage = userImage;
             this.money = money;
-            spectators = new List<Game.Player> { };
-            rank = 0;
-        }
+            spectatingGame = new List<TexasHoldemGame> { };
+            rank = -1;
 
-        public void setLeague(Guid leagueId)
-        {
-            this.leagueId = leagueId;
+            tempRank = 0;
+            tempGames = 0;
+            newPlayer = true;
         }
 
 		public void update(String str)
@@ -37,10 +39,52 @@ namespace Backend.User
 			// writeln(str);
 		}
 
-        public void addSpectatingGame(Player spec)
+        public void addSpectatingGame(TexasHoldemGame game)
         {
-            if (!this.spectators.Contains(spec))
-                this.spectators.Add(spec);
+            if (!this.spectatingGame.Contains(game))
+                this.spectatingGame.Add(game);
         }
-	}
+
+        public void setTempGames()
+        {
+            tempGames++;
+            if (tempGames >= 10)
+                newPlayer = false;
+            if (!newPlayer)
+            {
+                rank = tempRank;
+            }
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj.GetType() != typeof(SystemUser))
+                return false;
+            return name.Equals(((SystemUser)obj).name);
+        }
+
+        public void updateRank(int rankToUpdate)
+        {
+            if (newPlayer)
+            {
+                if (tempRank + rankToUpdate > 0)
+                    tempRank += rankToUpdate;
+                else
+                {
+                    tempRank = 0;
+                }
+            }
+            else
+            {
+                if (rank + rankToUpdate > 0)
+                {
+                    rank += rankToUpdate;
+                }
+                else
+                {
+                    rank = 0;
+                }
+            }
+        }
+    }
 }

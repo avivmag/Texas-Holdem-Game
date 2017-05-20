@@ -1,20 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using Backend;
-using Backend.Game;
-using SL;
-using static Backend.Game.GamePreferences;
+using CLClient;
+using CLClient.Entities;
+using static CLClient.Entities.GamePreferences;
 
 namespace PL
 {
@@ -23,44 +11,47 @@ namespace PL
     /// </summary>
     public partial class CreateGameWindow : Window
     {
-        private SLInterface sl = LoginWindow.sl;
         private Window mainMenuWindow;
 
         public CreateGameWindow(Window MainMenuWindow)
         {
             InitializeComponent();
-            this.mainMenuWindow = MainMenuWindow;
+            mainMenuWindow = MainMenuWindow;
         }
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Close();
             mainMenuWindow.Show();
         }
 
         private void Create_Game_Click(object sender, RoutedEventArgs e)
         {
             errorMessage.Text = "";
-            TexasHoldemGame game = getGame();
+            var game = getGame();
             if (game == null)
             {
                 errorMessage.Text = "Could not create the game";
             }
             else
             {
-                this.Close();
-                new GameWindow(mainMenuWindow, game);
+                Close();
+                mainMenuWindow.Show();
+                new GameWindow(game, LoginWindow.user.id).Show();
+
             }
         }
         private TexasHoldemGame getGame()
         {
             GameTypePolicy gamePolicy;
+            int limitPolicy;
             int buyInPolicy;
             int startingChips;
             int minimalBet;
             int minimalPlayers;
             int maximalPlayers;
             bool? spectateAllowed;
+            bool? isLeague;
 
             if (GameTypePolicyComboBox.Text.Equals("none") || GameTypePolicyComboBox.Text.Equals(""))
             {
@@ -70,6 +61,17 @@ namespace PL
             {
                 gamePolicy = (GameTypePolicy)Enum.Parse(typeof(GameTypePolicy), GameTypePolicyComboBox.Text);
             }
+
+            if (gamePolicy == GameTypePolicy.Limit)
+            {
+                if (limitPolicyTextbox.Text.Equals("") || !Int32.TryParse(buyInTextbox.Text, out limitPolicy) || limitPolicy < 0)
+                {
+                    errorMessage.Text = "Wrong Input - limit policy should be int and positive.";
+                    return null;
+                }
+            }
+            else
+                limitPolicy = 0;
 
             if (buyInTextbox.Text.Equals(""))
             {
@@ -121,16 +123,48 @@ namespace PL
                 return null;
             }
 
-            if (spectateAllowedTextbox.Text.Equals("") || spectateAllowedTextbox.Text.Equals("none"))
+            if (spectateAllowedTextbox.Text.Equals(""))
             {
-                spectateAllowed = null;
+                spectateAllowed = true;
             }
             else
             {
                 spectateAllowed = Convert.ToBoolean(spectateAllowedTextbox.Text);
             }
-            //TODO: add user id.
-            return sl.createGame(0,gamePolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed);
+
+            if (isLeagueTextbox.Text.Equals(""))
+            {
+                isLeague = false;
+            }
+            else
+            {
+                isLeague = Convert.ToBoolean(spectateAllowedTextbox.Text);
+            }
+
+            return CommClient.CreateGame(LoginWindow.user.id, gamePolicy.ToString() , limitPolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed, isLeague);
+            //return null;
+        }
+
+        private void GameTypePolicyComboBox_Selected(object sender, RoutedEventArgs e)
+        {
+            if (GameTypePolicyComboBox.Text.Equals("Limit"))
+                limitPolicyTextbox.IsEnabled = true;
+            else
+                limitPolicyTextbox.IsEnabled = false;
+        }
+
+        private void CleaerBtn_Click(object sender, RoutedEventArgs e)
+        {
+            GameTypePolicyComboBox.SelectedItem = "none";
+            limitPolicyTextbox.IsEnabled = false;
+            limitPolicyTextbox.Text = "";
+            buyInTextbox.Text = "";
+            startingChipsTextbox.Text = "";
+            minimalBetTextbox.Text = "";
+            minimalPlayerTextbox.Text = "";
+            maximalPlayerTextbox.Text = "";
+            spectateAllowedTextbox.Text = "True";
+            isLeagueTextbox.Text = "False";
         }
     }
 }

@@ -1,16 +1,20 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BL;
+using SL;
 using Moq;
 using DAL;
 using Backend.User;
 using System.Collections.Generic;
+using Backend;
+using ApplicationFacade;
 
 namespace TestProject
 {
     [TestClass]
     public class EditUserProfileTest
     {
-        BLInterface bl;
+        SLInterface sl;
+        GameCenter center = GameCenter.getGameCenter();
+
         [TestInitialize]
         public void SetUp()
         {
@@ -22,40 +26,70 @@ namespace TestProject
                 new SystemUser("Aviv", "Aa123456", "email3", "image3", 1500)
             };
 
+            for (int i = 0; i<4; i++)
+            {
+                userList[i].id = i;
+                center.login(userList[i].name, userList[i].password);
+            }
+
             Mock<DALInterface> dalMock = new Mock<DALInterface>();
             dalMock.Setup(x => x.getAllUsers()).Returns(userList);
             dalMock.Setup(x => x.getUserById(It.IsAny<int>())).Returns((int i) => userList[i]);
-            this.bl = new BLImpl(dalMock.Object);
+            sl = new SLImpl();
         }
 
         [TestMethod]
-        public void successTest()
+        public void successEditUserTest()
         {
-            Assert.IsTrue(bl.editUserProfile(0, "Hadas123", "12345", "email7", "image5").success);
+            object obj = sl.editUserProfile(0, "Hadas123", "12345", "email7", "image5", 100);
+            Assert.IsInstanceOfType(obj, typeof(ReturnMessage));
+            Assert.IsTrue(((ReturnMessage)obj).success);
         }
 
         [TestMethod]
         public void alreadyExistsUserNameTest()
         {
-            Assert.IsFalse(bl.editUserProfile(0, "gili", "12345", "email7", "image5").success);
+            object obj = sl.editUserProfile(0, "gili", "12345", "email7", "image5", 100);
+            Assert.IsInstanceOfType(obj, typeof(ReturnMessage));
+            Assert.IsFalse(((ReturnMessage)obj).success);
         }
 
         [TestMethod]
         public void emptyUserNameTest()
         {
-            Assert.IsFalse(bl.editUserProfile(0, "", "12345", "email7", "image5").success);
+            object obj = sl.editUserProfile(0, "", "12345", "email7", "image5", 100);
+            Assert.IsInstanceOfType(obj, typeof(ReturnMessage));
+            Assert.IsFalse(((ReturnMessage)obj).success);
         }
 
         [TestMethod]
         public void emptyPasswordTest()
         {
-            Assert.IsFalse(bl.editUserProfile(0, "gil", "", "email7", "image5").success);
+            object obj = sl.editUserProfile(0, "gil", "", "email7", "image5",100);
+            Assert.IsInstanceOfType(obj, typeof(ReturnMessage));
+            Assert.IsFalse(((ReturnMessage)obj).success);
         }
 
         [TestMethod]
         public void alreadyExistsEmailTest()
         {
-            Assert.IsFalse(bl.editUserProfile(0, "gil", "1111", "email2", "image5").success);
+            object obj = sl.editUserProfile(0, "gil", "1111", "email2", "image5", 100);
+            Assert.IsInstanceOfType(obj, typeof(ReturnMessage));
+            Assert.IsFalse(((ReturnMessage)obj).success);
+        }
+
+        [TestMethod]
+        public void negativeMoneyTest()
+        {
+            object obj = sl.editUserProfile(0, "gil", "1111", "email100", "image5", -100);
+            Assert.IsInstanceOfType(obj, typeof(ReturnMessage));
+            Assert.IsFalse(((ReturnMessage)obj).success);
+        }
+
+        [TestCleanup]
+        public void TearDown()
+        {
+            center.shutDown();
         }
     }
 }

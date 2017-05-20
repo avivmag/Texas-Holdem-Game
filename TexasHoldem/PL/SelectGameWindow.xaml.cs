@@ -1,19 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using Backend;
-using Backend.Game;
-using SL;
+using CLClient;
+using CLClient.Entities;
 using static PL.SearchGameWindow;
 
 namespace PL
@@ -24,19 +15,21 @@ namespace PL
     public partial class SelectGameWindow : Window
     {
         private Window mainMenuWindow;
-        private SLInterface sl = LoginWindow.sl;
 
         public SelectGameWindow(Window mainMenuWindow, string joinOperation)
         {
             InitializeComponent();
             this.mainMenuWindow = mainMenuWindow;
-            this.actionBtn.Content = joinOperation;
-            List<TexasHoldemGame> allGames = sl.findAllActiveAvailableGames();
+            actionBtn.Content = joinOperation;
+            List<TexasHoldemGame> allGames = CommClient.findAllActiveAvailableGames();
 
             int i = 0;
             foreach (TexasHoldemGame game in allGames)
             {
-                if ((joinOperation.Equals("Spectate") && game.GamePreferences.IsSpectatingAllowed.HasValue && game.GamePreferences.IsSpectatingAllowed.Value) || (joinOperation.Equals("Join"))){
+                if ((joinOperation.Equals("Spectate") && 
+                    game.GamePreferences.IsSpectatingAllowed.HasValue && 
+                    game.GamePreferences.IsSpectatingAllowed.Value) || (joinOperation.Equals("Join")))
+                {
                     selectGameGrid.Items.Add(new TexasHoldemGameStrings(i, game));
                     i++;
                 }
@@ -45,7 +38,7 @@ namespace PL
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Close();
             mainMenuWindow.Show();
         }
 
@@ -57,32 +50,32 @@ namespace PL
             {
                 DataGridCellInfo cellValue = (selectGameGrid.SelectedCells.ElementAt(1));
                 gameId = Int32.Parse(((TexasHoldemGameStrings)cellValue.Item).gameId);
-                ReturnMessage m = sl.spectateActiveGame(LoginWindow.mySystemUser, gameId);
-                if (m.success)
+                var game = CommClient.spectateActiveGame(LoginWindow.user.id, gameId);
+                if (game != default(TexasHoldemGame))
                 {
-                    TexasHoldemGame game = sl.getGameById(gameId);
                     this.Close();
-                    new GameWindow(mainMenuWindow, game).Show();
+                    mainMenuWindow.Show();
+                    new GameWindow(game, LoginWindow.user.id).Show();
                 }
                 else
                 {
-                    errorMessage.Text = m.description;
+                    errorMessage.Text = "Could not spectate chosen game.";
                 }
             }
             else
             {
                 DataGridCellInfo cellValue = (selectGameGrid.SelectedCells.ElementAt(1));
                 gameId = Int32.Parse(cellValue.ToString());
-                ReturnMessage m = sl.joinActiveGame(LoginWindow.mySystemUser, gameId);
-                if (m.success)
+                var game = CommClient.joinActiveGame(LoginWindow.user.id, gameId);
+                if (game != default(TexasHoldemGame))
                 {
-                    TexasHoldemGame game = sl.getGameById(gameId);
                     this.Close();
-                    new GameWindow(mainMenuWindow, game).Show();
+                    mainMenuWindow.Show();
+                    new GameWindow(game, LoginWindow.user.id).Show();
                 }
                 else
                 {
-                    errorMessage.Text = m.description;
+                    errorMessage.Text = "Could not join chosen game.";
                 }
             }
         }
@@ -91,7 +84,7 @@ namespace PL
         {
             if (selectGameGrid.SelectedIndex != -1)
             {
-                this.actionBtn.IsEnabled = true;   
+                actionBtn.IsEnabled = true;   
             }
         }
     }

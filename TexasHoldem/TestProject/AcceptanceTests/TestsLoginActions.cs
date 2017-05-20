@@ -93,7 +93,6 @@ namespace TestProject.AcceptanceTests
         {
             //there is at least one game that is active
             Assert.IsTrue(this.checkActiveGame(statusGame));
-            Console.WriteLine("find all active:" +this.findAllActive());
             Assert.AreEqual(this.findAllActive(), activeGames);
             //zero games when there are not any active games
             Assert.IsFalse(this.checkActiveGame(gameOver));

@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="SearchGameWindow" Height="750" Width="1050" WindowStartupLocation="CenterOwner" ResizeMode="NoResize" >
     <Grid x:Name="searchWindowGrid">
-        <StackPanel HorizontalAlignment="Left" Height="610" Margin="0,100,0,0" VerticalAlignment="Top" Width="489">
+        <StackPanel HorizontalAlignment="Left" Height="660" Margin="0,50,0,0" VerticalAlignment="Top" Width="489">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="15,20,20,0" Width="400">
                 <CheckBox x:Name="playerNameCheckBox" Margin="10,0,5,0" VerticalAlignment="Center" IsChecked="True" Checked="enableNameCheckBox"/>
                 <Label Content="By Player Name:" Margin="0,0,20,0" VerticalAlignment="Center" Width="130"/>
@@ -20,7 +20,7 @@
                 <TextBox Margin="10,10,10,10" x:Name="potSizeTextbox" IsEnabled="False" Text="" VerticalAlignment="Center" Height="26" TextWrapping="NoWrap" Width="157"/>
             </StackPanel>
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="15,20,0,20" Width="464" Height="381">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="15,20,0,20" Width="464" Height="430">
                 <CheckBox x:Name="gamePrefCheckBox" Margin="10,0,5,0" VerticalAlignment="Center" IsChecked="False" Checked="enableGamePrefTexts"/>
                 <Label Content="By Game Preferences:" Margin="0,0,20,0" VerticalAlignment="Center" Width="125"/>
                 <StackPanel x:Name="prefFields" Orientation="Vertical" Width="294" Margin="0,0,0,9.6">
@@ -29,7 +29,7 @@
                         <ComboBox Margin="10,15,10,10" x:Name="GameTypePolicyComboBox" IsEnabled="False" Text="" VerticalAlignment="Center" Height="26" Width="157">
                             <ComboBoxItem Content="none"/>
                             <ComboBoxItem Content="limit"/>
-                            <ComboBoxItem Content="no-limit"/>
+                            <ComboBoxItem Content="no_limit"/>
                             <ComboBoxItem Content="pot_limit"/>
                         </ComboBox>
                     </StackPanel>
@@ -61,10 +61,17 @@
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="290">
                         <Label Content="Spectate allowed:" Margin="0,0,5,0" VerticalAlignment="Center" Width="110"/>
-                        <ComboBox Margin="10,15,10,10" x:Name="spectateAllowedTextbox" IsEnabled="False" Text="" VerticalAlignment="Center" Height="26" Width="157">
-                            <ComboBoxItem Content="none"/>
-                            <ComboBoxItem Content="true"/>
-                            <ComboBoxItem Content="false"/>
+                        <ComboBox Margin="10,15,10,10" x:Name="spectateAllowedTextbox" IsEnabled="False" SelectedItem="True" Text="" VerticalAlignment="Center" Height="26" Width="157">
+                            <ComboBoxItem Content="True"/>
+                            <ComboBoxItem Content="False"/>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="290">
+                        <Label Content="Is League:" Margin="0,0,5,0" VerticalAlignment="Center" Width="110"/>
+                        <ComboBox Margin="10,15,10,10" x:Name="isLeagueTextbox" IsEnabled="False" SelectedItem="False" Text="" VerticalAlignment="Center" Height="26" Width="157">
+                            <ComboBoxItem Content="Talse"/>
+                            <ComboBoxItem Content="Frue"/>
                         </ComboBox>
                     </StackPanel>
                 </StackPanel>
@@ -76,7 +83,7 @@
                 <Button x:Name="searchBtn" Content="Search" VerticalAlignment="Top" Width="124" Click="Search_Click" HorizontalAlignment="Right" Margin="15,0,15,0"/>
             </StackPanel>
         </StackPanel>
-        <StackPanel HorizontalAlignment="Right" Height="610" Margin="0,100,0,0" VerticalAlignment="Top" Width="489">
+        <StackPanel HorizontalAlignment="Right" Height="660" Margin="0,50,0,0" VerticalAlignment="Top" Width="489">
             <ScrollViewer MaxHeight="550" MaxWidth="489" HorizontalScrollBarVisibility="Visible" Height="569" Margin="0,0,10,0">
                 <DataGrid x:Name="searchResultGrid" AutoGenerateColumns="False" ItemsSource="{Binding TexasHoldemGameStrings}" CanUserAddRows="False" MouseDoubleClick="Join_Game_Click" SelectionChanged="searchResultGrid_Selected">
                     <DataGrid.Columns >
@@ -89,6 +96,7 @@
                         <DataGridTextColumn Header="Min Players" IsReadOnly="True" Binding="{Binding Path = MinPlayers}"/>
                         <DataGridTextColumn Header="Max Players" IsReadOnly="True" Binding="{Binding Path = MaxPlayers}"/>
                         <DataGridTextColumn Header="Allow Spectate" IsReadOnly="True" Binding="{Binding Path = IsSpectatingAllowed}"/>
+                        <DataGridTextColumn Header="Is A League" IsReadOnly="True" Binding="{Binding Path = isLeague}"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </ScrollViewer>

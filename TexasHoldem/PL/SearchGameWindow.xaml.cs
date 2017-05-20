@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using Backend;
-using Backend.Game;
-using SL;
-using static Backend.Game.GamePreferences;
+using CLClient;
+using CLClient.Entities;
+using static CLClient.Entities.GamePreferences;
 
 namespace PL
 {
@@ -16,7 +15,6 @@ namespace PL
     /// </summary>
     public partial class SearchGameWindow : Window
     {
-        private SLInterface sl;
         private Window mainMenuWindow;
         private string selectedCheckBox;
 
@@ -26,7 +24,6 @@ namespace PL
 
             selectedCheckBox = playerNameCheckBox.Name;
             this.mainMenuWindow = mainMenuWindow;
-            sl = LoginWindow.sl;
         }
 
         private void enableNameCheckBox(object sender, RoutedEventArgs e)
@@ -34,16 +31,16 @@ namespace PL
             if (potSizeCheckBox != null)
             {
                 //filter by pot size
-                this.potSizeCheckBox.IsChecked = false;
-                this.potSizeTextbox.IsEnabled = false;
-                this.potSizeTextbox.Clear();
+                potSizeCheckBox.IsChecked = false;
+                potSizeTextbox.IsEnabled = false;
+                potSizeTextbox.Clear();
 
                 //filter by preferences
-                this.gamePrefCheckBox.IsChecked = false;
+                gamePrefCheckBox.IsChecked = false;
                 setGamePrefElement(false);
 
                 //filter by player name
-                this.playerNameTextbox.IsEnabled = true;
+                playerNameTextbox.IsEnabled = true;
                 selectedCheckBox = playerNameCheckBox.Name;
             }
 
@@ -52,34 +49,34 @@ namespace PL
         private void enablePotSizeText(object sender, RoutedEventArgs e)
         {
             //filter by pot
-            this.playerNameCheckBox.IsChecked = false;
-            this.playerNameTextbox.IsEnabled = false;
-            this.playerNameTextbox.Clear();
+            playerNameCheckBox.IsChecked = false;
+            playerNameTextbox.IsEnabled = false;
+            playerNameTextbox.Clear();
 
             //filter by preferences
-            this.gamePrefCheckBox.IsChecked = false;
+            gamePrefCheckBox.IsChecked = false;
             setGamePrefElement(false);
 
             //filter by pot size
             selectedCheckBox = potSizeCheckBox.Name;
-            this.potSizeTextbox.IsEnabled = true;
+            potSizeTextbox.IsEnabled = true;
         }
 
         private void enableGamePrefTexts(object sender, RoutedEventArgs e)
         {
             //filter by player
-            this.playerNameCheckBox.IsChecked = false;
-            this.playerNameTextbox.IsEnabled = false;
-            this.playerNameTextbox.Clear();
+            playerNameCheckBox.IsChecked = false;
+            playerNameTextbox.IsEnabled = false;
+            playerNameTextbox.Clear();
 
             //filter by pot size
-            this.potSizeCheckBox.IsChecked = false;
-            this.potSizeTextbox.IsEnabled = false;
-            this.potSizeTextbox.Clear();
+            potSizeCheckBox.IsChecked = false;
+            potSizeTextbox.IsEnabled = false;
+            potSizeTextbox.Clear();
 
             //filter by game pref
             selectedCheckBox = gamePrefCheckBox.Name;
-            this.gamePrefCheckBox.IsChecked = true;
+            gamePrefCheckBox.IsChecked = true;
             setGamePrefElement(true);
         }
 
@@ -93,6 +90,7 @@ namespace PL
             minimalPlayerTextbox.IsEnabled = enable;
             maximalPlayerTextbox.IsEnabled = enable;
             spectateAllowedTextbox.IsEnabled = enable;
+            isLeagueTextbox.IsEnabled = enable;
 
             //delete all values if needed
             if (!enable)
@@ -107,20 +105,20 @@ namespace PL
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Close();
             mainMenuWindow.Show();
         }
 
         private void Clear_Click(object sender, RoutedEventArgs e)
         {
-            this.playerNameCheckBox.IsChecked = true;
+            playerNameCheckBox.IsChecked = true;
             selectedCheckBox = playerNameCheckBox.Name;
-            this.playerNameTextbox.Clear();
-            this.potSizeTextbox.Clear();
+            playerNameTextbox.Clear();
+            potSizeTextbox.Clear();
             setGamePrefElement(false);
-            this.joinGameBtn.IsEnabled = false;
-            this.spectateGameBtn.IsEnabled = false;
-            this.searchResultGrid.Items.Clear();
+            joinGameBtn.IsEnabled = false;
+            spectateGameBtn.IsEnabled = false;
+            searchResultGrid.Items.Clear();
         }
 
         private void Search_Click(object sender, RoutedEventArgs e)
@@ -134,7 +132,7 @@ namespace PL
                 }
                 else
                 {
-                    gamesFound = sl.filterActiveGamesByPlayerName(playerNameTextbox.Text);
+                    gamesFound = CommClient.filterActiveGamesByPlayerName(playerNameTextbox.Text);
                 }
             }
             else if (potSizeCheckBox.IsChecked.HasValue && potSizeCheckBox.IsChecked.Value)
@@ -150,14 +148,14 @@ namespace PL
                 }
                 else
                 {
-                    gamesFound = sl.filterActiveGamesByPotSize(potSize);
+                    gamesFound = CommClient.filterActiveGamesByPotSize(potSize);
                 }
             }
             else
             {
                 gamesFound = getFilteredGameByPreferences();
             }
-            if (gamesFound.Count == 0)
+            if (gamesFound == null ||gamesFound.Count == 0)
             {
                 errorMessage.Text = "Couldn't find any games try to change your criterya.";
             }
@@ -176,83 +174,94 @@ namespace PL
         private List<TexasHoldemGame> getFilteredGameByPreferences()
         {
             List<TexasHoldemGame> ans = new List<TexasHoldemGame>();
-            GameTypePolicy gamePolicy;
-            int buyInPolicy;
-            int startingChips;
-            int minimalBet;
-            int minimalPlayers;
-            int maximalPlayers;
+            string gamePolicy;
+            int? buyInPolicy;
+            int? startingChips;
+            int? minimalBet;
+            int? minimalPlayers;
+            int? maximalPlayers;
             bool? spectateAllowed;
+            bool? isLeague;
 
+            int value;
+            //set the game type policy
             if (GameTypePolicyComboBox.Text.Equals("none") || GameTypePolicyComboBox.Text.Equals(""))
             {
-                gamePolicy = GameTypePolicy.Undef;
+                gamePolicy = null;
             }
             else
             {
-                gamePolicy = (GameTypePolicy) Enum.Parse(typeof(GameTypePolicy), GameTypePolicyComboBox.Text);
+                gamePolicy = GameTypePolicyComboBox.Text;
             }
 
-            if (buyInTextbox.Text.Equals(""))
-            {
-                buyInPolicy = -1;
-            }
-            else if (!Int32.TryParse(buyInTextbox.Text, out buyInPolicy) || buyInPolicy < 0)
+            //set the buy in
+            if (!buyInTextbox.Text.Equals(""))
+                buyInPolicy = null;
+            else if (!Int32.TryParse(buyInTextbox.Text, out value) || value < 0)
             {
                 errorMessage.Text = "Wrong Input - buy in policy should be int and positive.";
                 return ans;
             }
+            else
+                buyInPolicy = value;
 
+            // set the starting chips amount
             if (startingChipsTextbox.Text.Equals(""))
-            {
-                startingChips = -1;
-            }
-            else if (!Int32.TryParse(startingChipsTextbox.Text, out startingChips) || startingChips < 0)
+                startingChips = null;
+            else if (!Int32.TryParse(startingChipsTextbox.Text, out value) || value < 0)
             {
                 errorMessage.Text = "Wrong Input - starting chips should be int and positive.";
                 return ans;
             }
+            else
+                startingChips = value;
 
+            // set the minimal bet
             if (minimalBetTextbox.Text.Equals(""))
-            {
-                minimalBet = -1;
-            }
-            else if (!Int32.TryParse(minimalBetTextbox.Text, out minimalBet) || minimalBet < 0)
+                minimalBet = null;
+            else if (!Int32.TryParse(minimalBetTextbox.Text, out value) || value < 0)
             {
                 errorMessage.Text = "Wrong Input - minimal bet should be int and positive.";
                 return ans;
             }
+            else
+                minimalBet = value;
 
+            //set the minimal Players
             if (minimalPlayerTextbox.Text.Equals(""))
-            {
-                minimalPlayers= -1;
-            }
-            else if (!Int32.TryParse(minimalPlayerTextbox.Text, out minimalPlayers) || minimalPlayers < 0)
+                minimalPlayers = null;
+            else if (!Int32.TryParse(minimalPlayerTextbox.Text, out value) || value < 0)
             {
                 errorMessage.Text = "Wrong Input - minimal players should be int and positive.";
                 return ans;
             }
+            else
+                minimalPlayers = value;
 
+            //set maximal players
             if (maximalPlayerTextbox.Text.Equals(""))
-            {
-                maximalPlayers = -1;
-            }
-            else if (!Int32.TryParse(maximalPlayerTextbox.Text, out maximalPlayers) || maximalPlayers < 0)
+                maximalPlayers = null;
+            else if (!Int32.TryParse(maximalPlayerTextbox.Text, out value) || value < 0)
             {
                 errorMessage.Text = "Wrong Input - maximal players should be int and positive.";
                 return ans;
             }
-
-            if (spectateAllowedTextbox.Text.Equals("") || spectateAllowedTextbox.Text.Equals("none"))
-            {
-                spectateAllowed = null;
-            }
             else
-            {
-                spectateAllowed = Convert.ToBoolean(spectateAllowedTextbox.Text);
-            }
+                maximalPlayers = value;
 
-            return sl.filterActiveGamesByGamePreferences(gamePolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed);
+            //set spectator
+            if (spectateAllowedTextbox.Text.Equals(""))
+                spectateAllowed = true ;
+            else
+                spectateAllowed = Convert.ToBoolean(spectateAllowedTextbox.Text);
+
+            //set leagues
+            if (isLeagueTextbox.Text.Equals(""))
+                isLeague = false;
+            else
+                isLeague = Convert.ToBoolean(spectateAllowedTextbox.Text);
+
+            return CommClient.filterActiveGamesByGamePreferences(gamePolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed, isLeague);
         }
 
         private void Join_Game_Click(object sender, RoutedEventArgs e)
@@ -261,16 +270,15 @@ namespace PL
             int gameId;
             DataGridCellInfo cellValue = (searchResultGrid.SelectedCells.ElementAt(1));
             gameId = Int32.Parse(cellValue.ToString());
-            ReturnMessage m = sl.joinActiveGame(LoginWindow.mySystemUser, gameId);
-            if (m.success)
+            var game = CommClient.joinActiveGame(LoginWindow.user.id, gameId);
+            if (game != default(TexasHoldemGame))
             {
-                TexasHoldemGame game = sl.getGameById(gameId);
-                this.Close();
-                new GameWindow(mainMenuWindow,game).Show();
+                Close();
+                //new GameWindow(mainMenuWindow,game).Show();
             }
             else
             {
-                errorMessage.Text = m.description;
+                errorMessage.Text = "Could not join chosen game.";
             }
         }
 
@@ -279,16 +287,16 @@ namespace PL
             int gameId;
             DataGridCellInfo cellValue = (searchResultGrid.SelectedCells.ElementAt(1));
             gameId = Int32.Parse(((TexasHoldemGameStrings)cellValue.Item).gameId);
-            ReturnMessage m = sl.spectateActiveGame(LoginWindow.mySystemUser, gameId);
-            if (m.success)
+            var game = CommClient.spectateActiveGame(LoginWindow.user.id, gameId);
+            if (game != default(TexasHoldemGame))
             {
-                TexasHoldemGame game = sl.getGameById(gameId);
                 this.Close();
-                new GameWindow(mainMenuWindow,game).Show();
+                mainMenuWindow.Show();
+                new GameWindow(game, LoginWindow.user.id).Show();
             }
             else
             {
-                errorMessage.Text = m.description;
+                errorMessage.Text = "Could not spectate chosen game.";
             }
         }
 
@@ -302,19 +310,21 @@ namespace PL
             public string MinPlayers { get; }
             public string MaxPlayers { get; }
             public string IsSpectatingAllowed { get; }
+            public string isLeague { get; }
 
             public TexasHoldemGameStrings(int row,TexasHoldemGame game)
             {
                 GamePreferences pref = game.GamePreferences;
                 this.row = row.ToString();
-                this.gameId = game.gameId.ToString();
-                this.GamePolicy = pref.GamePolicy.ToString();
-                this.BuyInPolicy = pref.BuyInPolicy.ToString();
-                this.StartingChipsAmount = pref.StartingChipsAmount.ToString();
-                this.MinimalBet= pref.MinimalBet.ToString();
-                this.MinPlayers = pref.MinPlayers.ToString();
-                this.MaxPlayers = pref.MaxPlayers.ToString();
-                this.IsSpectatingAllowed = pref.IsSpectatingAllowed.ToString();
+                gameId = game.gameId.ToString();
+                GamePolicy = pref.gamePolicy.ToString();
+                BuyInPolicy = pref.buyInPolicy.ToString();
+                StartingChipsAmount = pref.startingChipsAmount.ToString();
+                MinimalBet = pref.minimalBet.ToString();
+                MinPlayers = pref.minPlayers.ToString();
+                MaxPlayers = pref.maxPlayers.ToString();
+                IsSpectatingAllowed = pref.IsSpectatingAllowed.ToString();
+                isLeague = pref.isLeague.ToString();
             }
         }
 
@@ -322,8 +332,8 @@ namespace PL
         {
             if (searchResultGrid.SelectedIndex != -1)
             {
-                this.joinGameBtn.IsEnabled = true;
-                this.spectateGameBtn.IsEnabled = true;
+                joinGameBtn.IsEnabled = true;
+                spectateGameBtn.IsEnabled = true;
             }
         }
     }

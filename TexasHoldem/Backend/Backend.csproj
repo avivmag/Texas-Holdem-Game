@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="Game\Card.cs" />
     <Compile Include="Game\Deck.cs" />
+    <Compile Include="Game\DecoratorPreferences\OptionalPreferences.cs" />
     <Compile Include="Game\GameLog.cs" />
     <Compile Include="Game\GamePreferences.cs" />
     <Compile Include="Game\League.cs" />
@@ -51,8 +52,16 @@
     <Compile Include="Tools\ReturnMessage.cs" />
     <Compile Include="Messages\Notification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="System\GameCenter.cs" />
     <Compile Include="User\SystemUser.cs" />
+    <Compile Include="Game\DecoratorPreferences\BuyInPolicyDecPref.cs" />
+    <Compile Include="Game\DecoratorPreferences\DecoratorPreferencesInterface.cs" />
+    <Compile Include="Game\DecoratorPreferences\GamePolicyDecPref.cs" />
+    <Compile Include="Game\DecoratorPreferences\MaxPlayersDecPref.cs" />
+    <Compile Include="Game\DecoratorPreferences\MinBetDecPref.cs" />
+    <Compile Include="Game\DecoratorPreferences\MinPlayersDecPref.cs" />
+    <Compile Include="Game\DecoratorPreferences\MustPreferences.cs" />
+    <Compile Include="Game\DecoratorPreferences\StartingAmountChipsCedPref.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
