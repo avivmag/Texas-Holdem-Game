@@ -52,24 +52,24 @@ namespace PL
         Button betButton;
         Button checkButton;
         Button foldButton;
-        
+
         // for testing
-        //public GameWindow()
-        //{
-        //    InitializeComponent();
+        public GameWindow()
+        {
+            InitializeComponent();
 
-        //    game = new TexasHoldemGame();
-        //    game.players = new Player[9];
-        //    playerSeatIndex = 3;
+            game = new TexasHoldemGame();
+            game.players = new Player[9];
+            playerSeatIndex = 3;
 
-        //    initializeScreen();
-        //    placePlayer(playerSeatIndex, "profile_pic", "gil", 1000);
-        //    placePlayer(4, "profile_pic", "aviv", 100);
-        //    removePlayer(4);
-        //    SetDealerBigSmallIcons(0, 8, 7);
-        //    SetDealerBigSmallIcons(1, 2, 3);
-        //    movePlayersCoinsToHeap(0);
-        //}
+            initializeScreen();
+            placePlayer(playerSeatIndex, "profile_pic", "gil", 1000);
+            placePlayer(4, "profile_pic", "aviv", 100);
+            removePlayer(4);
+            SetDealerBigSmallIcons(0, 8, 7);
+            SetDealerBigSmallIcons(1, 2, 3);
+            movePlayersCoinsToHeap(0);
+        }
 
         public GameWindow(TexasHoldemGame game, int systemUserId)
         {
@@ -77,6 +77,7 @@ namespace PL
             this.game = game;
             this.systemUserId = systemUserId;
             initializeScreen();
+            //getPlayer();
         }
 
         /// <summary>
@@ -471,11 +472,11 @@ namespace PL
                 coinsSumInHeap[i].HorizontalContentAlignment = HorizontalAlignment.Center;
                 coinsSumInHeap[i].VerticalContentAlignment = VerticalAlignment.Center;
 
-                //if (i != 0)
-                //{
-                //    coinsImagesInHeap[i].Visibility = Visibility.Hidden;
-                //    coinsSumInHeap[i].Visibility = Visibility.Hidden;
-                //}
+                if (i != 0)
+                {
+                    coinsImagesInHeap[i].Visibility = Visibility.Hidden;
+                    coinsSumInHeap[i].Visibility = Visibility.Hidden;
+                }
                 ug[i] = new UniformGrid();
                 ug[i].Columns = 1;
                 ug[i].Children.Add(coinsImagesInHeap[i]);
@@ -551,22 +552,19 @@ namespace PL
             }
 
             ReturnMessage returnMessage = CommClient.Bet(game.gameId, playerSeatIndex, coins);
-            if (returnMessage.success)
-            {
-                playerCoinsNum -= coins;
-                playerCoinsGambledNum += coins;
+            //if (returnMessage.success)
+            //{
+            //    playerCoinsNum -= coins;
+            //    playerCoinsGambledNum += coins;
 
-                playerCoins[playerSeatIndex].Content = playerCoinsNum;
-                playerCoinsGambled[playerSeatIndex].Content = playerCoinsGambledNum;
+            //    playerCoins[playerSeatIndex].Content = playerCoinsNum;
+            //    playerCoinsGambled[playerSeatIndex].Content = playerCoinsGambledNum;
 
-                if (playerCoinsNum <= 0)
-                    allInIcons[playerSeatIndex].Visibility = Visibility.Visible;
-            }
-            else
-            {
+            //    if (playerCoinsNum <= 0)
+            //        allInIcons[playerSeatIndex].Visibility = Visibility.Visible;
+            //}
+            if (!returnMessage.success)
                 MessageBox.Show(returnMessage.description);
-                return;
-            }
         }
 
         private int getMinimumBet()
@@ -584,9 +582,9 @@ namespace PL
         private void CommentButton_Click(object sender, RoutedEventArgs e)
         {
             ReturnMessage returnMessage = CommClient.AddMessage(game.gameId, playerSeatIndex, messagesTextBox.Text);
-            if (returnMessage.success)
-                messagesTextBox.Text = "";
-            else
+            //if (returnMessage.success)
+            //    messagesTextBox.Text = "";
+            if (!returnMessage.success)
                 MessageBox.Show(returnMessage.description);
         }
 
@@ -594,9 +592,9 @@ namespace PL
         {
             ReturnMessage returnMessage = CommClient.Fold(game.gameId, playerSeatIndex);
 
-            if (returnMessage.success)
-                seatButtonToImageDictionary[seatsButtons[playerSeatIndex]].Source = new BitmapImage(new Uri("pack://application:,,,/resources/red.png"));
-            else
+            //if (returnMessage.success)
+            //    seatButtonToImageDictionary[seatsButtons[playerSeatIndex]].Source = new BitmapImage(new Uri("pack://application:,,,/resources/red.png"));
+            if (!returnMessage.success)
                 MessageBox.Show(returnMessage.description);
         }
 
@@ -610,10 +608,10 @@ namespace PL
                 MessageBox.Show(returnMessage.description);
         }
         
-        private void getPlayer()
-        {
-            mePlayer = CommClient.GetPlayer(this.game.gameId, playerSeatIndex);
-        }
+        //private void getPlayer()
+        //{
+        //    mePlayer = CommClient.GetPlayer(this.game.gameId, playerSeatIndex);
+        //}
 
         // TODO: Gili or Or, this is the function that needs to be called when updating the cards of the player
         private void updatePlayerCards()
