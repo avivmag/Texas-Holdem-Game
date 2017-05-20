@@ -36,6 +36,10 @@ namespace Backend.Game
         public Card turn { get; set; }
         public Card river { get; set; }
 
+        public GameObserver playersChatObserver;
+        public GameObserver spectateChatObserver;
+        public GameObserver gameStatesObserver;
+
         // TODO: Gili - notice Gil decorator pattern and Aviv player.TokensInBet - you should use them in your logic
 
         public TexasHoldemGame(SystemUser user, MustPreferences gamePreferences)
@@ -69,6 +73,10 @@ namespace Backend.Game
             flop = new List<Card>();
 
             isGameActive = false;
+
+            playersChatObserver = new GameObserver(GameObserver.ObserverType.PlayersChat);
+            spectateChatObserver = new GameObserver(GameObserver.ObserverType.SpectateChat);
+            gameStatesObserver = new GameObserver(GameObserver.ObserverType.GameStates);
 
             currentDealer = 0;
         }
@@ -259,7 +267,8 @@ namespace Backend.Game
                     break;
                 }
             }
-
+            playersChatObserver.Subscribe(p);
+            gameStatesObserver.Subscribe(p);
             return new ReturnMessage(true, "");
         }
 
@@ -322,6 +331,9 @@ namespace Backend.Game
 
             spectators.Add(user);
             GameLog.logLine(gameId, GameLog.Actions.Spectate_Join, user.id.ToString());
+            //gameStatesObserver.Subscribe(p);
+            //spectateChatObserver(players);
+            //playersChatObserver(players);
             return new ReturnMessage(true, "");
         }
 
@@ -355,7 +367,7 @@ namespace Backend.Game
                 currentSmall = setSmallBlind();
                 currentBig = setBigBlind();
                 betBlinds();
-
+                
                 playersSetsTheirBets(true);
 
                 addToPot(tempPot);
@@ -390,6 +402,15 @@ namespace Backend.Game
 
                 playersSetsTheirBets(false);
                 addToPot(tempPot);
+                gameStatesObserver.Update();
+
+                for (int i = 0; i < players.Length; i++)
+                {
+                    if (players[i].playerState.Equals(Player.PlayerState.in_round))
+                        checkHandRank(players[i]);
+                }
+
+                gameStatesObserver.Update();
             }
         }
 
@@ -400,8 +421,9 @@ namespace Backend.Game
                 {
                     if (players[i] != null && players[i].playerState == PlayerState.in_round)
                     {
-                        BetAction action = chooseWhatToDo(players[i]);
-                        chooseBetAction(players[i], action, 0);
+                        players[i].playerState = PlayerState.my_turn;
+                        //UPDATE everybody
+                        gameStatesObserver.Update();
                     }
                 }
             else
@@ -409,7 +431,9 @@ namespace Backend.Game
                 {
                     if (players[i] != null && players[i].playerState == Player.PlayerState.in_round)
                     {
-                        chooseBetAction(players[i], BetAction.check, 0);
+                        players[i].playerState = PlayerState.my_turn;
+                        //UPDATE everybody
+                        gameStatesObserver.Update();
                     }
                 }
         }
@@ -586,28 +610,6 @@ namespace Backend.Game
             return null; // TODO: Gili!
         }
 
-        public void chooseBetAction(Player p, BetAction betAction, int amount)
-        {
-            switch (betAction)
-            {
-                case BetAction.bet:
-                    bet(p, amount);
-                    break;
-                case BetAction.call:
-                    call(p);
-                    break;
-                case BetAction.check:
-                    check(p);
-                    break;
-                case BetAction.fold:
-                    fold(p);
-                    break;
-                case BetAction.raise:
-                    //raise(p, amount);
-                    break;
-            }
-        }
-
         public int nextToSeat(int seat)
         {
             int i = seat;
@@ -644,6 +646,10 @@ namespace Backend.Game
                 return HandsRanks.RoyalFlush;
             if (checkStraightFlush(fullHand) != -1)
                 return HandsRanks.StraightFlush;
+            if (checkFourOfAKind(fullHand) != -1)
+                return HandsRanks.FourOfAKind;
+            if (checkFullHouse(fullHand, 3) != -1)
+                return HandsRanks.FullHouse;
 
 
 
