@@ -1,13 +1,11 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SL;
-using Backend.Game;
 using DAL;
 using Moq;
-using Backend;
 using Backend.User;
 using System.Collections.Generic;
-using Backend.System;
+using ApplicationFacade;
 
 namespace TestProject.UnitTest
 {
@@ -45,7 +43,8 @@ namespace TestProject.UnitTest
             //dalMock.Setup(x => x.setLeagueCriteria(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<int>())).Returns(new ReturnMessage(true, null));
             //dalMock.Setup(x => x.getUserById(It.IsAny<int>())).Returns(userDummies[0]);
             //dalMock.Setup(x => x.getHighestUserId()).Returns(userDummies[3].id);
-            this.sl = new SLImpl(dalMock.Object);
+            //this.sl = new SLImpl(dalMock.Object);
+            sl = new SLImpl();
             
         }
         [TestMethod]

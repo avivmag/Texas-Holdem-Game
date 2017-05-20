@@ -18,21 +18,21 @@ namespace PL
 
         public void Run()
         {
-            this.Show();
+            Show();
         }
 
         private void Login_Click(object sender, RoutedEventArgs e)
         {
-            user = CommClient.Login(this.username.Text, this.password.Password);
+            user = CommClient.Login(username.Text, password.Password);
 
-            this.Hide();
+            Hide();
             errorMessage.Text = "";
             new MainMenuWindow(this).Show();
         }
 
         private void Register_Click(object sender, RoutedEventArgs e)
         {
-            this.Hide();
+            Hide();
             errorMessage.Text = "";
             new RegisterWindow(this).Show();
         }

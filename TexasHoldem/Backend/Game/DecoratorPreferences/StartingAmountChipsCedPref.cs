@@ -40,7 +40,8 @@ namespace Backend.Game.DecoratorPreferences
 
         public override bool isContain(DecoratorPreferencesInterface pref)
         {
-            if (pref.GetType() != typeof(OptionalPreferences))
+            if (pref.GetType().IsAssignableFrom(typeof(OptionalPreferences)))
+                //if (pref.GetType() != typeof(OptionalPreferences))
                 return false;
             OptionalPreferences opPref = ((OptionalPreferences)pref);
             StartingAmountChipsCedPref matchingPref = (StartingAmountChipsCedPref)getMatchingOptionalPref(opPref);

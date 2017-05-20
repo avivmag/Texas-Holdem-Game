@@ -71,19 +71,21 @@ namespace CLClient
             return response;
         }
 
-        public static TexasHoldemGame CreateGame(int gameCreatorId, int gamePolicy, int buyInPolicy, int startingChips, int minimalBet, int minimalPlayers, int maximalPlayers, bool? spectateAllowed)
+        public static TexasHoldemGame CreateGame(int gameCreatorId, string gamePolicy, int gamePolicyLimit, int buyInPolicy, int startingChips, int minimalBet, int minimalPlayers, int maximalPlayers, bool? spectateAllowed, bool? isLeague)
         {
             var message = new
             {
                 action = "CreateGame",
                 gameCreatorId,
                 gamePolicy,
+                gamePolicyLimit,
                 buyInPolicy,
                 startingChips,
                 minimalBet,
                 minimalPlayers,
                 maximalPlayers,
-                spectateAllowed
+                spectateAllowed,
+                isLeague
             };
 
             var jsonMessage = sendMessage(message);
@@ -128,7 +130,7 @@ namespace CLClient
             return response;
         }
 
-        public static List<TexasHoldemGame> filterActiveGamesByGamePreferences(int gamePolicy, int buyInPolicy, int startingChips, int minimalBet, int minimalPlayers, int maximalPlayers, bool spectateAllowed)
+        public static List<TexasHoldemGame> filterActiveGamesByGamePreferences(string gamePolicy, int? buyInPolicy, int? startingChips, int? minimalBet, int? minimalPlayers, int? maximalPlayers, bool? spectateAllowed, bool? isLeague)
         {
             var message = new
             {
@@ -139,7 +141,8 @@ namespace CLClient
                 minimalBet,
                 minimalPlayers,
                 maximalPlayers,
-                spectateAllowed
+                spectateAllowed,
+                isLeague
             };
 
             var jsonMessage = sendMessage(message);
@@ -203,9 +206,9 @@ namespace CLClient
             return response;
         }
 
-        public static Boolean editUserProfile(int userId, string name, string password, string email, string avatar)
+        public static Boolean editUserProfile(int userId, string name, string password, string email, string avatar, int amount)
         {
-            var message     = new { action = "EditUserProfile", userId, name, password, email, avatar };
+            var message     = new { action = "EditUserProfile", userId, name, password, email, avatar, amount };
             var jsonMessage = sendMessage(message);
             var response    = jsonMessage.ToObject<Boolean>();
 

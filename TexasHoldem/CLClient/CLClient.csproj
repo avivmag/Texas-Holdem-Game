@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="CommClient.cs" />
     <Compile Include="Entities\Card.cs" />
+    <Compile Include="Entities\GamePreferences.cs" />
     <Compile Include="Entities\Player.cs" />
     <Compile Include="Entities\ReturnMessage.cs" />
     <Compile Include="Entities\SystemUser.cs" />

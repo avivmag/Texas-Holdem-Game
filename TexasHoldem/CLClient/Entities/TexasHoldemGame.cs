@@ -11,6 +11,7 @@ namespace CLClient.Entities
         public enum HandsRanks { HighCard, Pair, TwoPairs, ThreeOfAKind, Straight, Flush, FullHouse, FourOfAKind, StraightFlush, RoyalFlush }
         public enum BetAction { fold, bet, call, check, raise }
 
+        public GamePreferences GamePreferences { get; set; }
         public int gameId { get; set; }
         public int currentDealer { get; set; }
         public int currentBig { get; set; }

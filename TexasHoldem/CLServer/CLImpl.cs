@@ -227,12 +227,14 @@ namespace CLServer
         private static void CreateGame(TcpClient client, JObject jsonObject) {
             var gameCreatorIdToken = jsonObject["gameCreatorId"];
             var gamePolicyToken = jsonObject["gamePolicy"];
+            var gamePolicyLimitToken = jsonObject["gamePolicyLimit"];
             var buyInPolicyToken = jsonObject["buyInPolicy"];
             var startingChipsToken = jsonObject["startingChips"];
             var minimalBetToken = jsonObject["minimalBet"];
             var minimalPlayersToken = jsonObject["minimalPlayers"];
             var maximalPlayersToken = jsonObject["maximalPlayers"];
             var spectateAllowedToken = jsonObject["spectateAllowed"];
+            var isLeagueToken = jsonObject["isLeague"];
 
             if ((gameCreatorIdToken == null) || (gameCreatorIdToken.Type != JTokenType.Integer) ||
                 (gamePolicyToken == null) || (gamePolicyToken.Type != JTokenType.Integer))
@@ -242,13 +244,15 @@ namespace CLServer
 
             var createGameResponse = sl.createGame(
                 (int)gameCreatorIdToken, 
-                (int)gamePolicyToken, 
+                (string)gamePolicyToken,
+                (int?) gamePolicyLimitToken,
                 (int?)buyInPolicyToken, 
                 (int?)startingChipsToken, 
                 (int?)minimalBetToken, 
                 (int?)minimalPlayersToken, 
                 (int?)maximalPlayersToken, 
-                (bool?)spectateAllowedToken);
+                (bool?)spectateAllowedToken,
+                (bool?)isLeagueToken);
 
             SendMessage(client, createGameResponse);
             return;
@@ -408,6 +412,7 @@ namespace CLServer
             var passwordToken   = jsonObject["password"];
             var emailToken      = jsonObject["email"];
             var avatarToken     = jsonObject["avatar"];
+            var amountToken     = jsonObject["amount"];
 
             if (userIdToken == null || userIdToken.Type != JTokenType.Integer)
             {
@@ -418,8 +423,10 @@ namespace CLServer
                 (int)userIdToken,
                 (string)nameToken,
                 (string)passwordToken,
-                (string)emailToken, 
-                (string)avatarToken);
+                (string)emailToken,
+                (string)avatarToken,
+                (int)amountToken);
+                
 
             SendMessage(client, editUserProfileResponse);
             return;

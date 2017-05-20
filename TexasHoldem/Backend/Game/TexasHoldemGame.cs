@@ -224,7 +224,7 @@ namespace Backend.Game
 
             //getting the buy in policy if exists to pay for the chips else getting 1000 for free.
             int startingChips = 1000;
-            BuyInPolicyDecPref buyInPref = (BuyInPolicyDecPref)gamePreferences.getOptionalPref(new MaxPlayersDecPref(0, null));
+            BuyInPolicyDecPref buyInPref = (BuyInPolicyDecPref)gamePreferences.getOptionalPref(new BuyInPolicyDecPref(0, null));
             if (buyInPref != null)
                 startingChips = buyInPref.buyInPolicy;
             Player p = new Player(user.id, user.name, startingChips, user.rank);
