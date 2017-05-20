@@ -1,10 +1,10 @@
 ﻿using Backend.User;
 using Backend.Game;
 using SL;
-using Backend.Game.DecoratorPreferences;
 using ApplicationFacade;
+using Backend.Game.DecoratorPreferences;
 
-public class SLImpl :SLInterface
+public class SLImpl : SLInterface
 {
 	private GameCenter gameCenter;
 
@@ -120,21 +120,46 @@ public class SLImpl :SLInterface
         return gameCenter.getGameById(gameId);
     }
 
-    public object raiseBet(int gameId, int playerUserId, int coins)
+    #region GameWindow
+    public object Bet(int gameId, int playerIndex, int coins)
     {
-        return gameCenter.raiseBet(gameId, playerUserId, coins);
+        return gameCenter.bet(gameId, playerIndex, coins);
     }
-
-
-
-
-
-
-
-
-
-
-
+    public object AddMessage(int gameId, int playerIndex, string messageText)
+    {
+        // TODO: Gili, you need to send the message to the other players
+        // return gameCenter.addMessage(gameId, playerIndex, messageText);
+        return null;
+    }
+    public object Fold(int gameId, int playerIndex)
+    {
+        return gameCenter.fold(gameId, playerIndex);
+    }
+    public object Check(int gameId, int playerIndex)
+    {
+        return gameCenter.check(gameId, playerIndex);
+    }
+    public object GetGameState(int gameId)
+    {
+        return gameCenter.getGameState(gameId);
+    }
+    public object ChoosePlayerSeat(int gameId, int playerIndex)
+    {
+        return gameCenter.ChoosePlayerSeat(gameId, playerIndex);
+    }
+    public object GetPlayer(int gameId, int playerIndex)
+    {
+        return gameCenter.GetPlayer(gameId, playerIndex);
+    }
+    public object GetPlayerCards(int gameId, int playerIndex)
+    {
+        return gameCenter.GetPlayerCards(gameId, playerIndex);
+    }
+    public object GetShowOff(int gameId)
+    {
+        return gameCenter.GetShowOff(gameId);
+    }
+    #endregion
 
 
 

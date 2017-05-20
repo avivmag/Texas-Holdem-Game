@@ -304,18 +304,54 @@ namespace ApplicationFacade
             return null;
         }
 
-        public ReturnMessage raiseBet(int gameId, int playerUserId, int coins)
+        #region game
+        public ReturnMessage bet(int gameId, int playerIndex, int coins)
         {
             TexasHoldemGame game = getGameById(gameId);
-            Player player = null;
-            foreach (Player p in game.players)
-                if (p.systemUserID == playerUserId)
-                    player = p;
-            if (player == null)
-                return new ReturnMessage(false, "could not find the player");
-            game.raise(player,coins);
-            return new ReturnMessage(true, "");
+            //Player player = null;
+            //foreach (Player p in game.players)
+            //    if (p.systemUserID == playerUserId)
+            //        player = p;
+            //if (player == null)
+            //    return new ReturnMessage(false, "could not find the player");
+            return game.bet(game.players[playerIndex], coins);
         }
+        public ReturnMessage fold(int gameId, int playerIndex)
+        {
+            TexasHoldemGame game = getGameById(gameId);
+            return game.fold(game.players[playerIndex]);
+        }
+        public ReturnMessage check(int gameId, int playerIndex)
+        {
+            TexasHoldemGame game = getGameById(gameId);
+            return game.check(game.players[playerIndex]);
+        }
+        public TexasHoldemGame getGameState(int gameId)
+        {
+            TexasHoldemGame game = getGameById(gameId);
+            return game;
+        }
+        public ReturnMessage ChoosePlayerSeat(int gameId, int playerIndex)
+        {
+            TexasHoldemGame game = getGameById(gameId);
+            return game.ChoosePlayerSeat(playerIndex);
+        }
+        public Player GetPlayer(int gameId, int playerIndex)
+        {
+            TexasHoldemGame game = getGameById(gameId);
+            return game.GetPlayer(playerIndex);
+        }
+        public Card[] GetPlayerCards(int gameId, int playerIndex)
+        {
+            TexasHoldemGame game = getGameById(gameId);
+            return game.GetPlayerCards(playerIndex);
+        }
+        public IDictionary<int, Card[]> GetShowOff(int gameId)
+        {
+            TexasHoldemGame game = getGameById(gameId);
+            return game.GetShowOff();
+        }
+        #endregion
 
         private SystemUser getHighest(List<SystemUser> users)
         {

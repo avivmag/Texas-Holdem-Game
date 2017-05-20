@@ -171,15 +171,80 @@ namespace CLClient
             return response;
         }
 
-        public static Boolean raiseBet(int gameId, int playerIndex, int coins)
+        #region gameWindow
+        public static ReturnMessage Bet(int gameId, int playerIndex, int coins)
         {
-            var message     = new { action = "Raise", gameId, playerIndex, coins };
+            var message     = new { action = "Bet", gameId, playerIndex, coins };
             var jsonMessage = sendMessage(message);
-            var response    = jsonMessage.ToObject<Boolean>();
+            var response    = jsonMessage.ToObject<ReturnMessage>();
 
             return response;
         }
+        public static ReturnMessage AddMessage(int gameId, int playerIndex, string messageText)
+        {
+            var message = new { action = "AddMessage", gameId, playerIndex, messageText };
+            var jsonMessage = sendMessage(message);
+            var response = jsonMessage.ToObject<ReturnMessage>();
 
+            return response;
+        }
+        public static ReturnMessage Fold(int gameId, int playerIndex)
+        {
+            var message = new { action = "Fold", gameId, playerIndex };
+            var jsonMessage = sendMessage(message);
+            var response = jsonMessage.ToObject<ReturnMessage>();
+
+            return response;
+        }
+        public static ReturnMessage Check(int gameId, int playerIndex)
+        {
+            var message = new { action = "Check", gameId, playerIndex };
+            var jsonMessage = sendMessage(message);
+            var response = jsonMessage.ToObject<ReturnMessage>();
+
+            return response;
+        }
+        public static TexasHoldemGame GetGameState(int gameId)
+        {
+            var message = new { action = "GetGameState", gameId };
+            var jsonMessage = sendMessage(message);
+            var response = jsonMessage.ToObject<TexasHoldemGame>();
+
+            return response;
+        }
+        public static ReturnMessage ChoosePlayerSeat(int gameId, int playerSeatIndex)
+        {
+            var message = new { action = "ChoosePlayerSeat", gameId, playerSeatIndex };
+            var jsonMessage = sendMessage(message);
+            var response = jsonMessage.ToObject<ReturnMessage>();
+
+            return response;
+        }
+        public static Player GetPlayer(int gameId, int playerSeatIndex)
+        {
+            var message = new { action = "GetPlayer", gameId, playerSeatIndex };
+            var jsonMessage = sendMessage(message);
+            var response = jsonMessage.ToObject<Player>();
+
+            return response;
+        }
+        public static Card[] GetPlayerCards(int gameId, int playerSeatIndex)
+        {
+            var message = new { action = "GetPlayerCards", gameId, playerSeatIndex };
+            var jsonMessage = sendMessage(message);
+            var response = jsonMessage.ToObject<Card[]>();
+
+            return response;
+        }
+        public static IDictionary<int, Card[]> GetShowOff(int gameId)
+        {
+            var message = new { action = "GetShowOff", gameId };
+            var jsonMessage = sendMessage(message);
+            var response = jsonMessage.ToObject<IDictionary<int, Card[]>>();
+
+            return response;
+        }
+        #endregion
         public static SystemUser Register(string username, string password, string email, string userImage)
         {
             var message     = new { action = "Register", username, password, email, userImage };
