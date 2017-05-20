@@ -100,10 +100,12 @@ namespace Backend.Game.DecoratorPreferences
 
         public OptionalPreferences getOptionalPref(OptionalPreferences wantedPref)
         {
-            while (firstDecPref != null)
+            OptionalPreferences temp = firstDecPref;
+            while (temp != null)
             {
-                if (firstDecPref.GetType() == wantedPref.GetType())
-                    return firstDecPref;
+                if (temp.GetType() == wantedPref.GetType())
+                    return temp;
+                temp = temp.nextDecPref;
             }
             return null;
         }

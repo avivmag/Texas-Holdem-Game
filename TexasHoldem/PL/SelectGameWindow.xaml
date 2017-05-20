@@ -21,6 +21,9 @@
                         <DataGridTextColumn Header="Min Players" IsReadOnly="True" Binding="{Binding Path = MinPlayers}"/>
                         <DataGridTextColumn Header="Max Players" IsReadOnly="True" Binding="{Binding Path = MaxPlayers}"/>
                         <DataGridTextColumn Header="Allow Spectate" IsReadOnly="True" Binding="{Binding Path = IsSpectatingAllowed}"/>
+                        <DataGridTextColumn Header="Is A League" IsReadOnly="True" Binding="{Binding Path = isLeague}"/>
+                        <DataGridTextColumn Header="Min Rank" IsReadOnly="True" Binding="{Binding Path = minRank}"/>
+                        <DataGridTextColumn Header="Max Rank" IsReadOnly="True" Binding="{Binding Path = maxRank}"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </ScrollViewer>
