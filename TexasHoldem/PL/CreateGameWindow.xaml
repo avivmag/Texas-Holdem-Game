@@ -12,7 +12,7 @@
         <StackPanel x:Name="prefFields" Orientation="Vertical" VerticalAlignment="Center" Width="294" Margin="0,0,0,75">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="290">
                 <Label Content="Policy:" Margin="0,0,5,0" VerticalAlignment="Center" Width="110"/>
-                <ComboBox Margin="10,10,10,10" x:Name="GameTypePolicyComboBox" SelectionChanged="GameTypePolicyComboBox_Selected" IsEnabled="True" Text="" VerticalAlignment="Center" Height="30" Width="157">
+                <ComboBox Margin="10,10,10,10" x:Name="GameTypePolicyComboBox" SelectionChanged="GameTypePolicyComboBox_Selected" IsEnabled="True" Text="" VerticalAlignment="Center" Height="30" Width="157" SelectedIndex="0">
                     <ComboBoxItem Content="none"/>
                     <ComboBoxItem Content="Limit"/>
                     <ComboBoxItem Content="No_limit"/>
@@ -52,15 +52,15 @@
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="290">
                 <Label Content="Spectate allowed:" Margin="0,0,5,0" VerticalAlignment="Center" Width="110"/>
-                <ComboBox Margin="10,10,10,10" x:Name="spectateAllowedTextbox" IsEnabled="True" SelectedItem="True" Text="" VerticalAlignment="Center" Height="30" Width="157">
-                    <ComboBoxItem Content="True"/>
+                <ComboBox Margin="10,10,10,10" x:Name="spectateAllowedTextbox" IsEnabled="True" SelectedItem="True" Text="" VerticalAlignment="Center" Height="30" Width="157" SelectedIndex="0">
                     <ComboBoxItem Content="False"/>
+                    <ComboBoxItem Content="True"/>
                 </ComboBox>
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="290">
                 <Label Content="Is League:" Margin="0,0,5,0" VerticalAlignment="Center" Width="110"/>
-                <ComboBox Margin="10,15,10,10" x:Name="isLeagueTextbox" IsEnabled="True" SelectedItem="False" Text="" VerticalAlignment="Center" Height="26" Width="157">
+                <ComboBox Margin="10,15,10,10" x:Name="isLeagueTextbox" IsEnabled="True" SelectedItem="False" Text="" VerticalAlignment="Center" Height="26" Width="157" SelectedIndex="0">
                     <ComboBoxItem Content="False"/>
                     <ComboBoxItem Content="True"/>
                 </ComboBox>
