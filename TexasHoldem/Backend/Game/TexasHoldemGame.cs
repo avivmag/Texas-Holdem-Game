@@ -36,9 +36,9 @@ namespace Backend.Game
         public Card turn { get; set; }
         public Card river { get; set; }
 
-        public GameObserver playersChatObserver;
-        public GameObserver spectateChatObserver;
-        public GameObserver gameStatesObserver;
+        //public GameObserver playersChatObserver;
+        //public GameObserver spectateChatObserver;
+        //public GameObserver gameStatesObserver;
 
         // TODO: Gili - notice Gil decorator pattern and Aviv player.TokensInBet - you should use them in your logic
 
@@ -74,9 +74,9 @@ namespace Backend.Game
 
             isGameActive = false;
 
-            playersChatObserver = new GameObserver(GameObserver.ObserverType.PlayersChat);
-            spectateChatObserver = new GameObserver(GameObserver.ObserverType.SpectateChat);
-            gameStatesObserver = new GameObserver(GameObserver.ObserverType.GameStates);
+            //playersChatObserver = new GameObserver(GameObserver.ObserverType.PlayersChat);
+            //spectateChatObserver = new GameObserver(GameObserver.ObserverType.SpectateChat);
+            //gameStatesObserver = new GameObserver(GameObserver.ObserverType.GameStates);
 
             currentDealer = 0;
         }
@@ -237,7 +237,7 @@ namespace Backend.Game
 
             //getting the buy in policy if exists to pay for the chips else getting 1000 for free.
             int startingChips = 1000;
-            BuyInPolicyDecPref buyInPref = (BuyInPolicyDecPref)gamePreferences.getOptionalPref(new MaxPlayersDecPref(0, null));
+            BuyInPolicyDecPref buyInPref = (BuyInPolicyDecPref)gamePreferences.getOptionalPref(new BuyInPolicyDecPref(0, null));
             if (buyInPref != null)
                 startingChips = buyInPref.buyInPolicy;
             Player p = new Player(user.id, user.name, startingChips, user.rank);
@@ -267,8 +267,8 @@ namespace Backend.Game
                     break;
                 }
             }
-            playersChatObserver.Subscribe(p);
-            gameStatesObserver.Subscribe(p);
+            //playersChatObserver.Subscribe(p);
+            //gameStatesObserver.Subscribe(p);
             return new ReturnMessage(true, "");
         }
 
@@ -402,7 +402,7 @@ namespace Backend.Game
 
                 playersSetsTheirBets(false);
                 addToPot(tempPot);
-                gameStatesObserver.Update();
+                //gameStatesObserver.Update();
 
                 for (int i = 0; i < players.Length; i++)
                 {
@@ -410,7 +410,7 @@ namespace Backend.Game
                         checkHandRank(players[i]);
                 }
 
-                gameStatesObserver.Update();
+                //gameStatesObserver.Update();
             }
         }
 
@@ -423,7 +423,7 @@ namespace Backend.Game
                     {
                         players[i].playerState = PlayerState.my_turn;
                         //UPDATE everybody
-                        gameStatesObserver.Update();
+                        //gameStatesObserver.Update();
                     }
                 }
             else
@@ -433,7 +433,7 @@ namespace Backend.Game
                     {
                         players[i].playerState = PlayerState.my_turn;
                         //UPDATE everybody
-                        gameStatesObserver.Update();
+                        //gameStatesObserver.Update();
                     }
                 }
         }
