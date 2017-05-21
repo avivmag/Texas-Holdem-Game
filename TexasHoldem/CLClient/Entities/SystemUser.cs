@@ -16,12 +16,15 @@ namespace CLClient.Entities
         public String email { get; set; }
         public String userImage { get; set; }
 
+        public bool newPlayer { get; set; }
+
         public SystemUser(String name, String password, String email, String userImage, int money)
         {
             this.name       = name;
             this.password   = password;
             this.userImage  = userImage;
             this.money      = money;
+            this.newPlayer  = true;
             }
     }
 }

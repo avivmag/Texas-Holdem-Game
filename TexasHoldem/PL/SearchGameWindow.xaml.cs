@@ -5,7 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using CLClient;
 using CLClient.Entities;
-using static CLClient.Entities.GamePreferences;
+using CLClient.Entities.DecoratorPreferences;
 
 namespace PL
 {
@@ -314,16 +314,16 @@ namespace PL
 
             public TexasHoldemGameStrings(int row,TexasHoldemGame game)
             {
-                GamePreferences pref = game.GamePreferences;
+                Preference pref = game.gamePreferences;
                 this.row = row.ToString();
                 gameId = game.gameId.ToString();
                 GamePolicy = pref.gamePolicy.ToString();
                 BuyInPolicy = pref.buyInPolicy.ToString();
-                StartingChipsAmount = pref.startingChipsAmount.ToString();
+                StartingChipsAmount = pref.startingChipsPolicy.ToString();
                 MinimalBet = pref.minimalBet.ToString();
                 MinPlayers = pref.minPlayers.ToString();
                 MaxPlayers = pref.maxPlayers.ToString();
-                IsSpectatingAllowed = pref.IsSpectatingAllowed.ToString();
+                IsSpectatingAllowed = pref.isSpectateAllowed.ToString();
                 isLeague = pref.isLeague.ToString();
             }
         }

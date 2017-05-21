@@ -29,12 +29,23 @@ public class SLImpl : SLInterface
     public object joinActiveGame(int userId, int gameID)
     {
         TexasHoldemGame game = gameCenter.getGameById(gameID);
-        if (game == null)
-            return new ReturnMessage(false, "couldn't find the game.");
         SystemUser user = gameCenter.getUserById(userId);
-        if (user == null)
-            return new ReturnMessage(false,"couldn't find the user.");
-        return game.joinGame(user);
+
+        if (game == null || user == null)
+        {
+            return null;
+        }
+
+        var response = game.joinGame(user);
+
+        if (response.success)
+        {
+            return game;
+        }
+        else
+        {
+            return null;
+        }
     }
 
     public object leaveGame(SystemUser user, int gameID)
