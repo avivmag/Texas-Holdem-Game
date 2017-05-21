@@ -250,16 +250,16 @@ namespace PL
                 maximalPlayers = value;
 
             //set spectator
-            if (spectateAllowedTextbox.Text.Equals(""))
-                spectateAllowed = true ;
-            else
-                spectateAllowed = Convert.ToBoolean(spectateAllowedTextbox.Text);
+            //if (spectateAllowedTextbox.Text.Equals(""))
+            //    spectateAllowed = true ;
+            //else
+            spectateAllowed = Convert.ToBoolean(spectateAllowedTextbox.Text);
 
             //set leagues
-            if (isLeagueTextbox.Text.Equals(""))
-                isLeague = false;
-            else
-                isLeague = Convert.ToBoolean(spectateAllowedTextbox.Text);
+            //if (isLeagueTextbox.Text.Equals(""))
+            //    isLeague = false;
+            //else
+            isLeague = Convert.ToBoolean(spectateAllowedTextbox.Text);
 
             return CommClient.filterActiveGamesByGamePreferences(gamePolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed, isLeague);
         }
