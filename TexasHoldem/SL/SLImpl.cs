@@ -29,7 +29,16 @@ public class SLImpl : SLInterface
         SystemUser user = gameCenter.getUserById(userId);
         if (game == null || user == null)
             return null;
-        return game.joinGame(user);
+        var response = game.joinGame(user);
+
+        if (response.success)
+        {
+            return game;
+        }
+        else
+        {
+            return null;
+        }
     }
 
     public object leaveGame(SystemUser user, int gameID)
