@@ -19,10 +19,12 @@ namespace ApplicationFacade
 
         private GameCenter()
         {
-            texasHoldemGames = new List<TexasHoldemGame>();
+            dal = new DALDummy();
+            //texasHoldemGames = new List<TexasHoldemGame>();
+            texasHoldemGames = dal.getAllGames();
+            Console.WriteLine(texasHoldemGames);
             leagues = new List<League>();
             loggedInUsers = new List<SystemUser>();
-            dal = new DALDummy();
         }
 
         public static GameCenter getGameCenter()
@@ -116,22 +118,22 @@ namespace ApplicationFacade
             return dal.registerUser(systemUser);
         }
 
-        public ReturnMessage login(string user, string password)
+        public SystemUser login(string user, string password)
         {
             if (user == null || password == null || user.Equals("") || password.Equals(""))
-                return new ReturnMessage(false, "all attributes must be filled.");
+                throw new ArgumentException("No such user.");
 
             SystemUser systemUser = dal.getUserByName(user);
             if (systemUser == null)
-                return new ReturnMessage(false, "user does not exists.");
+                throw new ArgumentException("No such user.");
 
             if (systemUser.password.Equals(password))
             {
                 loggedInUsers.Add(systemUser);
-                return new ReturnMessage(true, "");
+                return systemUser;
             }
             else
-                return new ReturnMessage(false, "Incorrect password mismatched.");
+                throw new InvalidOperationException("Incorrect password");
         }
 
         public TexasHoldemGame createGame(int gameCreatorId, MustPreferences pref)
