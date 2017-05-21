@@ -9,11 +9,12 @@ namespace Backend.Game
         public int TokensInBet { get; set; }
         //public int userRank { get; set; }
         public bool spectator { get; set; }
-        public enum PlayerState { folded, in_round, not_in_round, my_turn }
+        public enum PlayerState { folded, in_round, not_in_round, my_turn, winner }
         public string imageUrl = "profile_pic";
         public PlayerState playerState { get; set; }
         public List<Card> playerCards { get; set; }
         public string name { get; set; }
+        public TexasHoldemGame.HandsRanks handRank { get; set; }
 
         // a builder to the player
         public Player(int userId, string name, int tokens, int userRank)
