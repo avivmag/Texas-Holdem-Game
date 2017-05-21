@@ -25,6 +25,11 @@ namespace PL
         {
             user = CommClient.Login(username.Text, password.Password);
 
+            if (user == null)
+            {
+                MessageBox.Show("Wrong input.");
+                return;
+            }
             Hide();
             errorMessage.Text = "";
             new MainMenuWindow(this).Show();

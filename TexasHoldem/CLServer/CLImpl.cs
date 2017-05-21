@@ -63,9 +63,23 @@ namespace CLServer
         /// <param name="message">The message to send. (Optional)</param>
         private static void SendMessage(TcpClient client, object message = null)
         {
-            var messageString       = JObject.FromObject(message);
+            JObject messageJObject = new JObject();
 
-            var serializedMessage   = JsonConvert.SerializeObject(messageString);
+            if (message != null)
+            {
+                messageJObject["message"] = JToken.FromObject(message);
+            }
+            else
+            {
+                messageJObject["message"] = JToken.FromObject(new object());
+            }
+
+            var serializedMessage   = JsonConvert.SerializeObject(messageJObject,
+                                                                  Newtonsoft.Json.Formatting.None,
+                                                                  new JsonSerializerSettings
+                                                                  {
+                                                                      NullValueHandling = NullValueHandling.Ignore
+                                                                  });
 
             var messageByteArray    = Encoding.ASCII.GetBytes(serializedMessage);
 

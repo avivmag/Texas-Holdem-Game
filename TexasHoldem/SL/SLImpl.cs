@@ -47,6 +47,10 @@ public class SLImpl : SLInterface
 
     public object findAllActiveAvailableGames()
     {
+        if (gameCenter.texasHoldemGames.Count == 0)
+        {
+            return null;
+        }
         return gameCenter.texasHoldemGames;
     }
 

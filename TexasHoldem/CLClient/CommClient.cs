@@ -19,7 +19,6 @@ namespace CLClient
 
         public static JObject sendMessage(object obj)
         {
-
             var jsonObj             = JObject.FromObject(obj);
             var serializedJsonObj   = JsonConvert.SerializeObject(jsonObj);
 
@@ -47,24 +46,53 @@ namespace CLClient
             return JObject.FromObject(deserializedProduct);
         }
 
+        private static JToken getResponse(JObject jsonMessage)
+        {
+            var responseJson = jsonMessage["message"];
+
+            if ((responseJson == null) || (responseJson.Type == JTokenType.Array && !responseJson.HasValues) ||
+               (responseJson.Type == JTokenType.Object && !responseJson.HasValues) ||
+               (responseJson.Type == JTokenType.String && responseJson.ToString() == String.Empty) ||
+               (responseJson.Type == JTokenType.Null) ||
+               responseJson["exception"] != null)
+            {
+                return null;
+            }
+            else
+            {
+                return responseJson;
+            }
+        }
+
         #endregion
 
         #region PL Functions
 
         public static SystemUser Login(string username, string password)
         {
-            var message     = new { action = "Login", username, password };
-            var jsonMessage = sendMessage(message);
-            var response    = jsonMessage.ToObject<SystemUser>();
-
+            var message         = new { action = "Login", username, password };
+            var jsonMessage     = sendMessage(message);
+            var responseJson    = getResponse(jsonMessage);
+            
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response        = responseJson.ToObject<SystemUser>();
             return response;
         }
 
-        public static Boolean Logout(int userId)
+        public static ReturnMessage Logout(int userId)
         {
             var message     = new { action = "Logout", userId };
             var jsonMessage = sendMessage(message);
-            var response    = jsonMessage.ToObject<Boolean>();
+            var responseJson = getResponse(jsonMessage);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response = responseJson.ToObject<ReturnMessage>();
 
             return response;
         }
@@ -86,8 +114,14 @@ namespace CLClient
                 isLeague
             };
 
-            var jsonMessage = sendMessage(message);
-            var response    = jsonMessage.ToObject<TexasHoldemGame>();
+            var jsonMessage     = sendMessage(message);
+            var responseJson    = getResponse(jsonMessage);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response = responseJson.ToObject<TexasHoldemGame>();
 
             return response;
         }
@@ -96,7 +130,13 @@ namespace CLClient
         {
             var message     = new { action = "GetGame", gameId };
             var jsonMessage = sendMessage(message);
-            var response    = jsonMessage.ToObject<TexasHoldemGame>();
+            var responseJson = getResponse(jsonMessage);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response = responseJson.ToObject<TexasHoldemGame>();
 
             return response;
         }
@@ -105,7 +145,13 @@ namespace CLClient
         {
             var message     = new { action = "JoinActiveGame", userId, gameId };
             var jsonMessage = sendMessage(message);
-            var response    = jsonMessage.ToObject<TexasHoldemGame>();
+            var responseJson = getResponse(jsonMessage);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response = responseJson.ToObject<TexasHoldemGame>();
 
             return response;
         }
@@ -114,16 +160,28 @@ namespace CLClient
         {
             var message     = new { action = "SpectateActiveGame", userId, gameId };
             var jsonMessage = sendMessage(message);
-            var response    = jsonMessage.ToObject<TexasHoldemGame>();
+            var responseJson = getResponse(jsonMessage);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+
+            var response    = responseJson.ToObject<TexasHoldemGame>();
 
             return response;
         }
 
         public static List<TexasHoldemGame> findAllActiveAvailableGames()
         {
-            var message     = new { action = "FindAllActiveAvailableGames" };
-            var jsonMessage = sendMessage(message);
-            var response    = jsonMessage.ToObject<List<TexasHoldemGame>>();
+            var message         = new { action = "FindAllActiveAvailableGames" };
+            var jsonMessage     = sendMessage(message);
+            var responseJson    = getResponse(jsonMessage);
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response = responseJson.ToObject<List<TexasHoldemGame>>();
 
             return response;
         }
@@ -144,7 +202,13 @@ namespace CLClient
             };
 
             var jsonMessage = sendMessage(message);
-            var response = jsonMessage.ToObject<List<TexasHoldemGame>>();
+            var responseJson = getResponse(jsonMessage);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response = responseJson.ToObject<List<TexasHoldemGame>>();
 
             return response;
         }
@@ -154,7 +218,13 @@ namespace CLClient
             var message = new { action = "FilterActiveGamesByPotSize", potSize };
 
             var jsonMessage = sendMessage(message);
-            var response = jsonMessage.ToObject<List<TexasHoldemGame>>();
+            var responseJson = getResponse(jsonMessage);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response = responseJson.ToObject<List<TexasHoldemGame>>();
 
             return response;
         }
@@ -164,17 +234,61 @@ namespace CLClient
             var message = new { action = "FilterActiveGamesByPlayerName", playerName };
 
             var jsonMessage = sendMessage(message);
-            var response = jsonMessage.ToObject<List<TexasHoldemGame>>();
+            var responseJson = getResponse(jsonMessage);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response = responseJson.ToObject<List<TexasHoldemGame>>();
 
             return response;
         }
+
+        public static SystemUser Register(string username, string password, string email, string userImage)
+        {
+            var message = new { action = "Register", username, password, email, userImage };
+            var jsonMessage = sendMessage(message);
+            var responseJson = getResponse(jsonMessage);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response = responseJson.ToObject<SystemUser>();
+
+            return response;
+        }
+
+        public static bool? editUserProfile(int userId, string name, string password, string email, string avatar, int amount)
+        {
+            var message = new { action = "EditUserProfile", userId, name, password, email, avatar, amount };
+            var jsonMessage = sendMessage(message);
+            var responseJson = getResponse(jsonMessage);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response = responseJson.ToObject<Boolean>();
+
+            return response;
+        }
+
+        #endregion
 
         #region gameWindow
         public static ReturnMessage Bet(int gameId, int playerIndex, int coins)
         {
             var message     = new { action = "Bet", gameId, playerIndex, coins };
             var jsonMessage = sendMessage(message);
-            var response    = jsonMessage.ToObject<ReturnMessage>();
+            var responseJson = getResponse(jsonMessage);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response = responseJson.ToObject<ReturnMessage>();
 
             return response;
         }
@@ -182,7 +296,13 @@ namespace CLClient
         {
             var message = new { action = "AddMessage", gameId, playerIndex, messageText };
             var jsonMessage = sendMessage(message);
-            var response = jsonMessage.ToObject<ReturnMessage>();
+            var responseJson = getResponse(jsonMessage);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response = responseJson.ToObject<ReturnMessage>();
 
             return response;
         }
@@ -190,7 +310,13 @@ namespace CLClient
         {
             var message = new { action = "Fold", gameId, playerIndex };
             var jsonMessage = sendMessage(message);
-            var response = jsonMessage.ToObject<ReturnMessage>();
+            var responseJson = getResponse(jsonMessage);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response = responseJson.ToObject<ReturnMessage>();
 
             return response;
         }
@@ -198,7 +324,13 @@ namespace CLClient
         {
             var message = new { action = "Check", gameId, playerIndex };
             var jsonMessage = sendMessage(message);
-            var response = jsonMessage.ToObject<ReturnMessage>();
+            var responseJson = getResponse(jsonMessage);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response = responseJson.ToObject<ReturnMessage>();
 
             return response;
         }
@@ -206,7 +338,13 @@ namespace CLClient
         {
             var message = new { action = "GetGameState", gameId };
             var jsonMessage = sendMessage(message);
-            var response = jsonMessage.ToObject<TexasHoldemGame>();
+            var responseJson = getResponse(jsonMessage);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response = responseJson.ToObject<TexasHoldemGame>();
 
             return response;
         }
@@ -214,7 +352,13 @@ namespace CLClient
         {
             var message = new { action = "ChoosePlayerSeat", gameId, playerSeatIndex };
             var jsonMessage = sendMessage(message);
-            var response = jsonMessage.ToObject<ReturnMessage>();
+            var responseJson = getResponse(jsonMessage);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response = responseJson.ToObject<ReturnMessage>();
 
             return response;
         }
@@ -222,7 +366,13 @@ namespace CLClient
         {
             var message = new { action = "GetPlayer", gameId, playerSeatIndex };
             var jsonMessage = sendMessage(message);
-            var response = jsonMessage.ToObject<Player>();
+            var responseJson = getResponse(jsonMessage);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response = responseJson.ToObject<Player>();
 
             return response;
         }
@@ -230,7 +380,13 @@ namespace CLClient
         {
             var message = new { action = "GetPlayerCards", gameId, playerSeatIndex };
             var jsonMessage = sendMessage(message);
-            var response = jsonMessage.ToObject<Card[]>();
+            var responseJson = getResponse(jsonMessage);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response = responseJson.ToObject<Card[]>();
 
             return response;
         }
@@ -238,29 +394,16 @@ namespace CLClient
         {
             var message = new { action = "GetShowOff", gameId };
             var jsonMessage = sendMessage(message);
-            var response = jsonMessage.ToObject<IDictionary<int, Card[]>>();
+            var responseJson = getResponse(jsonMessage);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response = responseJson.ToObject<IDictionary<int, Card[]>>();
 
             return response;
         }
-        #endregion
-        public static SystemUser Register(string username, string password, string email, string userImage)
-        {
-            var message     = new { action = "Register", username, password, email, userImage };
-            var jsonMessage = sendMessage(message);
-            var response    = jsonMessage.ToObject<SystemUser>();
-
-            return response;
-        }
-
-        public static Boolean editUserProfile(int userId, string name, string password, string email, string avatar, int amount)
-        {
-            var message     = new { action = "EditUserProfile", userId, name, password, email, avatar, amount };
-            var jsonMessage = sendMessage(message);
-            var response    = jsonMessage.ToObject<Boolean>();
-
-            return response;
-        }
-
         #endregion
     }
 }

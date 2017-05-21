@@ -24,14 +24,23 @@ namespace PL
             List<TexasHoldemGame> allGames = CommClient.findAllActiveAvailableGames();
 
             int i = 0;
-            foreach (TexasHoldemGame game in allGames)
+
+            if (allGames == null)
             {
-                if ((joinOperation.Equals("Spectate") && 
-                    game.GamePreferences.IsSpectatingAllowed.HasValue && 
-                    game.GamePreferences.IsSpectatingAllowed.Value) || (joinOperation.Equals("Join")))
+                MessageBox.Show("No active games.");
+            }
+
+            else
+            {
+                foreach (TexasHoldemGame game in allGames)
                 {
-                    selectGameGrid.Items.Add(new TexasHoldemGameStrings(i, game));
-                    i++;
+                    if ((joinOperation.Equals("Spectate") &&
+                        game.GamePreferences.IsSpectatingAllowed.HasValue &&
+                        game.GamePreferences.IsSpectatingAllowed.Value) || (joinOperation.Equals("Join")))
+                    {
+                        selectGameGrid.Items.Add(new TexasHoldemGameStrings(i, game));
+                        i++;
+                    }
                 }
             }
         }
