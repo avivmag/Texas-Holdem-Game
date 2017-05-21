@@ -20,7 +20,9 @@ namespace ApplicationFacade
         private GameCenter()
         {
             dal = new DALDummy();
-            texasHoldemGames = new List<TexasHoldemGame>();
+            //texasHoldemGames = new List<TexasHoldemGame>();
+            texasHoldemGames = dal.getAllGames();
+            Console.WriteLine(texasHoldemGames);
             leagues = new List<League>();
             loggedInUsers = new List<SystemUser>();
         }

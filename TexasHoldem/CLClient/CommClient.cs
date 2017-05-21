@@ -17,6 +17,11 @@ namespace CLClient
 
         #region Static functionality
 
+        public static void closeConnection()
+        {
+            client.Close();
+        }
+
         public static JObject sendMessage(object obj)
         {
             var jsonObj             = JObject.FromObject(obj);
@@ -35,15 +40,17 @@ namespace CLClient
 
         private static JObject getJsonObjectFromStream(TcpClient client)
         {
-            var message = new byte[1024];
+            var message = new byte[1024 * 10];
 
-            var bytesRead = client.GetStream().Read(message, 0, 1024);
+            var bytesRead = client.GetStream().Read(message, 0, message.Length);
 
             string myObject = Encoding.ASCII.GetString(message);
 
             Object deserializedProduct = JsonConvert.DeserializeObject(myObject);
 
-            return JObject.FromObject(deserializedProduct);
+            var toRet = JObject.FromObject(deserializedProduct);
+
+            return toRet;
         }
 
         private static JToken getResponse(JObject jsonMessage)
@@ -54,7 +61,7 @@ namespace CLClient
                (responseJson.Type == JTokenType.Object && !responseJson.HasValues) ||
                (responseJson.Type == JTokenType.String && responseJson.ToString() == String.Empty) ||
                (responseJson.Type == JTokenType.Null) ||
-               responseJson["exception"] != null)
+               ((responseJson.Type == JTokenType.Object) && (responseJson["exception"] != null)))
             {
                 return null;
             }
