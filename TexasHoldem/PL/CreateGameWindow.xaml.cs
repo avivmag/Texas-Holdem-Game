@@ -123,23 +123,23 @@ namespace PL
                 return null;
             }
 
-            if (spectateAllowedTextbox.Text.Equals(""))
-            {
-                spectateAllowed = true;
-            }
-            else
-            {
+            //if (spectateAllowedTextbox.Text.Equals(""))
+            //{
+            //    spectateAllowed = true;
+            //}
+            //else
+            //{
                 spectateAllowed = Convert.ToBoolean(spectateAllowedTextbox.Text);
-            }
+            //}
 
-            if (isLeagueTextbox.Text.Equals(""))
-            {
-                isLeague = false;
-            }
-            else
-            {
+            //if (isLeagueTextbox.Text.Equals(""))
+            //{
+            //    isLeague = false;
+            //}
+            //else
+            //{
                 isLeague = Convert.ToBoolean(spectateAllowedTextbox.Text);
-            }
+            //}
 
             return CommClient.CreateGame(LoginWindow.user.id, gamePolicy.ToString() , limitPolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed, isLeague);
             //return null;
