@@ -44,6 +44,7 @@
     <Compile Include="Game\Deck.cs" />
     <Compile Include="Game\DecoratorPreferences\OptionalPreferences.cs" />
     <Compile Include="Game\GameLog.cs" />
+    <Compile Include="Game\GameObserver.cs" />
     <Compile Include="Game\GamePreferences.cs" />
     <Compile Include="Game\League.cs" />
     <Compile Include="Game\LeagueTexasHoldemGame.cs" />

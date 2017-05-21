@@ -44,8 +44,6 @@ namespace CLClient
 
             Object deserializedProduct = JsonConvert.DeserializeObject(myObject);
 
-            Console.WriteLine(deserializedProduct);
-
             return JObject.FromObject(deserializedProduct);
         }
 
