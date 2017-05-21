@@ -216,16 +216,11 @@ namespace Backend.Game
         //    {
         //        if (user.tempRank - rankToChange > 0)
         //        {
-
         //        }
-
-
         //        user.setTempGames();
-
         //    }
         //    if (user.rank + rankToChange > 0)
         //    {
-
         //    }
         //}
 

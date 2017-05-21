@@ -27,7 +27,6 @@ namespace PL
         private int playerSeatIndex;
         private int systemUserId;
         private TexasHoldemGame game;
-        private Player mePlayer;
 
 
         private Button[] seatsButtons;
@@ -53,23 +52,23 @@ namespace PL
         Button checkButton;
         Button foldButton;
 
-        // for testing
-        public GameWindow()
-        {
-            InitializeComponent();
+        //// for testing
+        //public GameWindow()
+        //{
+        //    InitializeComponent();
 
-            game = new TexasHoldemGame();
-            game.players = new Player[9];
-            playerSeatIndex = 3;
+        //    game = new TexasHoldemGame();
+        //    game.players = new Player[9];
+        //    playerSeatIndex = 3;
 
-            initializeScreen();
-            placePlayer(playerSeatIndex, "profile_pic", "gil", 1000);
-            placePlayer(4, "profile_pic", "aviv", 100);
-            removePlayer(4);
-            SetDealerBigSmallIcons(0, 8, 7);
-            SetDealerBigSmallIcons(1, 2, 3);
-            movePlayersCoinsToHeap(0);
-        }
+        //    initializeScreen();
+        //    placePlayer(playerSeatIndex, "profile_pic", "gil", 1000);
+        //    placePlayer(4, "profile_pic", "aviv", 100);
+        //    removePlayer(4);
+        //    SetDealerBigSmallIcons(0, 8, 7);
+        //    SetDealerBigSmallIcons(1, 2, 3);
+        //    movePlayersCoinsToHeap(0);
+        //}
 
         public GameWindow(TexasHoldemGame game, int systemUserId)
         {
@@ -77,7 +76,6 @@ namespace PL
             this.game = game;
             this.systemUserId = systemUserId;
             initializeScreen();
-            //getPlayer();
         }
 
         /// <summary>
@@ -363,7 +361,9 @@ namespace PL
         {
             ReturnMessage returnMessage = CommClient.ChoosePlayerSeat(this.game.gameId, seatButtonToSeatIndex[(Button)sender]);
 
-            if(!returnMessage.success)
+            if (returnMessage.success)
+                playerSeatIndex = seatButtonToSeatIndex[(Button)sender];
+            else
                 MessageBox.Show(returnMessage.description);
         }
 

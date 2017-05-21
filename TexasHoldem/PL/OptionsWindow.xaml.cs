@@ -37,9 +37,9 @@ namespace PL
             }
             else
             {
-                Boolean m = CommClient.editUserProfile(LoginWindow.user.id, username.Text, password.Text, email.Text, null, money);
+                bool? m = CommClient.editUserProfile(LoginWindow.user.id, username.Text, password.Text, email.Text, null, money);
 
-                if (m)
+                if (m.HasValue && m.Value)
                 {
                     Hide();
                     MainMenuWindow.Show();

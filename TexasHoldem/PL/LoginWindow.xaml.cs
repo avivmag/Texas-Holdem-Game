@@ -25,6 +25,11 @@ namespace PL
         {
             user = CommClient.Login(username.Text, password.Password);
 
+            if (user == null)
+            {
+                MessageBox.Show("Wrong input.");
+                return;
+            }
             Hide();
             errorMessage.Text = "";
             new MainMenuWindow(this).Show();
@@ -43,8 +48,9 @@ namespace PL
         }
 
         private void Exit_Click(object sender, RoutedEventArgs e)
-        {
+        { 
             Application.Current.Shutdown();
+            CommClient.closeConnection();
         }
     }
 }

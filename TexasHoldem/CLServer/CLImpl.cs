@@ -27,31 +27,32 @@ namespace CLServer
         {
             TcpClient client = (TcpClient)obj;
 
-            try
+            while (true)
             {
-                while (true)
+                var jsonObject = new JObject();
+                try
                 {
-                    var jsonObject = getJsonObjectFromStream(client);
-
+                    jsonObject = getJsonObjectFromStream(client);
+                }
+                catch
+                {
+                    Console.WriteLine("Client closed connection. Terminating thread: {0}", Thread.CurrentThread.ManagedThreadId);
+                    return;
+                }
+                try
+                {
                     tryExecuteAction(client, jsonObject);
                 }
-            }
-            catch (TargetInvocationException tie)
-            {
-                Console.WriteLine(tie.InnerException);
-                SendMessage(client, new { exception = "An Error Has Occured" });
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.StackTrace);
-                SendMessage(client, new { exception = "An Error Has Occured" });
-            }
-            finally
-            {
-                if (client != null)
+                catch (TargetInvocationException tie)
                 {
-                    client.Close();
+                    Console.WriteLine(tie.InnerException);
+                    SendMessage(client, new { exception = "An Error Has Occured" });
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine(e.StackTrace);
+                    SendMessage(client, new { exception = "An Error Has Occured" });
                 }
             }
         }
@@ -63,11 +64,29 @@ namespace CLServer
         /// <param name="message">The message to send. (Optional)</param>
         private static void SendMessage(TcpClient client, object message = null)
         {
-            var messageString       = JObject.FromObject(message);
+            JObject messageJObject = new JObject();
+            Console.WriteLine("message is: {0}",message);
+            if (message != null)
+            {
+                messageJObject["message"] = JToken.FromObject(message);
+            }
+            else
+            {
+                messageJObject["message"] = JToken.FromObject(new object());
+            }
 
-            var serializedMessage   = JsonConvert.SerializeObject(messageString);
+            var serializedMessage   = JsonConvert.SerializeObject(messageJObject,
+                                                                  Newtonsoft.Json.Formatting.None,
+                                                                  new JsonSerializerSettings
+                                                                  {
+                                                                      NullValueHandling = NullValueHandling.Ignore
+                                                                  });
+
+            Console.WriteLine("serializedMessage is: {0}", serializedMessage);
 
             var messageByteArray    = Encoding.ASCII.GetBytes(serializedMessage);
+
+            Console.WriteLine("messageByteArray length is: {0}", messageByteArray.Length);
 
             try
             {
@@ -91,9 +110,9 @@ namespace CLServer
         /// <returns>The JObject</returns>
         private static JObject getJsonObjectFromStream(TcpClient client)
         {
-            var message = new byte[1024];
+            var message = new byte[1024 * 10];
 
-            var bytesRead = client.GetStream().Read(message, 0, 1024);
+            var bytesRead = client.GetStream().Read(message, 0, message.Length);
 
             string myObject = Encoding.ASCII.GetString(message);
             Object deserializedProduct = JsonConvert.DeserializeObject(myObject);
