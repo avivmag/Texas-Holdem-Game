@@ -130,7 +130,7 @@ namespace ApplicationFacade
 
             foreach (SystemUser u in loggedInUsers)
                 if (systemUser.id == u.id)
-                    return new ReturnMessage(false, "The user is already logged in");
+                    throw new ArgumentException("The user is already logged in");
 
             if (systemUser.password.Equals(password))
             {

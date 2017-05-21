@@ -129,18 +129,18 @@ namespace TestProject.UnitTest
             Assert.IsFalse(((ReturnMessage)m).success);
         }
 
-        [TestMethod]
-        public void logOutTwiceTest()
-        {
-            SystemUser user = new SystemUser("rick roll", "never gonna give you up", "never@gonna.let.you.down", "a picture of something completly not related to rick roll", 200);
-            user.id = 7;
-            sl.Register("rick roll", "never gonna give you up", "never@gonna.let.you.down", "a picture of something completly not related to rick roll");
-            sl.Login("rick roll", "never gonna give you up");
-            sl.Logout(7);
-            object m = sl.Logout(7);
-            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
-            Assert.IsFalse(((ReturnMessage)m).success);
-        }
+        //[TestMethod]
+        //public void logOutTwiceTest()
+        //{
+        //    SystemUser user = new SystemUser("rick roll", "never gonna give you up", "never@gonna.let.you.down", "a picture of something completly not related to rick roll", 200);
+        //    user.id = 7;
+        //    sl.Register("rick roll", "never gonna give you up", "never@gonna.let.you.down", "a picture of something completly not related to rick roll");
+        //    sl.Login("rick roll", "never gonna give you up");
+        //    sl.Logout(7);
+        //    object m = sl.Logout(7);
+        //    Assert.IsInstanceOfType(m, typeof(ReturnMessage));
+        //    Assert.IsFalse(((ReturnMessage)m).success);
+        //}
 
         [TestCleanup]
         public void TearDown()

@@ -145,12 +145,12 @@ namespace TestProject
             Assert.IsFalse(((ReturnMessage)m).success);
         }
 
-        [TestMethod]
-        public void spectateFailsGameNoExistsTest()
-        {
-            object m = sl.spectateActiveGame(0, 1000);
-            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
-            Assert.IsFalse(((ReturnMessage)m).success);
-        }
+        //[TestMethod]
+        //public void spectateFailsGameNoExistsTest()
+        //{
+        //    object m = sl.spectateActiveGame(0, 1000);
+        //    Assert.IsInstanceOfType(m, typeof(ReturnMessage));
+        //    Assert.IsFalse(((ReturnMessage)m).success);
+        //}
     }
 }
