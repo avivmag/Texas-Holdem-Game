@@ -183,7 +183,7 @@ namespace Backend.Game
         {
             for (int i = 0; i < players.Length; i++)
             {
-                if (players[i].systemUserID == user.id)
+                if (players[i] != null && players[i].systemUserID == user.id)
                 {
                     //get the game policy if exist to the rank update
                     int buyIn = 0;

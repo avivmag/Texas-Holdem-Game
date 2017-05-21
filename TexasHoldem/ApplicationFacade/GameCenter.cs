@@ -97,8 +97,9 @@ namespace ApplicationFacade
                 return new ReturnMessage(false, "you are active in some games as a player, leave them and then log out.");
             }
 
+            ReturnMessage m = dal.logOutUser(systemUser.name);
             loggedInUsers.Remove(systemUser);
-            return dal.logOutUser(systemUser.name);
+            return m;
         }
 
         public ReturnMessage register(string user, string password, string email, string userImage)
@@ -127,6 +128,10 @@ namespace ApplicationFacade
             if (systemUser == null)
                 throw new ArgumentException("No such user.");
 
+            foreach (SystemUser u in loggedInUsers)
+                if (systemUser.id == u.id)
+                    throw new ArgumentException("The user is already logged in");
+
             if (systemUser.password.Equals(password))
             {
                 loggedInUsers.Add(systemUser);
@@ -153,20 +158,28 @@ namespace ApplicationFacade
         public TexasHoldemGame createGame(int gameCreator, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? minimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague)
         {
             SystemUser user = getUserById(gameCreator);
+            if (user == null)
+                return null;
             League l = null;
             
             if (isLeague.HasValue && isLeague.Value)
                 l = getUserLeague(user);
 
-            
-            MustPreferences mustPref = getMustPref(gamePolicy,gamePolicyLimit,buyInPolicy,startingChipsAmount,minimalBet,minPlayers,maxPlayers,isSpectatingAllowed,isLeague,l.minRank,l.maxRank);
+            MustPreferences mustPref;
+            if (l != null)
+                mustPref = getMustPref(gamePolicy, gamePolicyLimit, buyInPolicy, startingChipsAmount, minimalBet, minPlayers, maxPlayers, isSpectatingAllowed, isLeague, l.minRank, l.maxRank);
+            else
+                mustPref = getMustPref(gamePolicy, gamePolicyLimit, buyInPolicy, startingChipsAmount, minimalBet, minPlayers, maxPlayers, isSpectatingAllowed, isLeague);
 
-           
+
 
             TexasHoldemGame game = new TexasHoldemGame(user, mustPref);
+            texasHoldemGames.Add(game);
             dal.addGame(game);
             return game;
         }
+
+
 
         public List<TexasHoldemGame> getAllGames()
         {
@@ -278,7 +291,7 @@ namespace ApplicationFacade
             {
                 foreach(Player p in game.players)
                 {
-                    if (p.systemUserID == user.id)
+                    if (p!=null && p.systemUserID == user.id)
                         return true;
                 }
             }
@@ -368,6 +381,11 @@ namespace ApplicationFacade
                 }
             }
             return ans;
+        }
+
+        private MustPreferences getMustPref(string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? minimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague)
+        {
+            return getMustPref(gamePolicy,gamePolicyLimit,buyInPolicy,startingChipsAmount,minimalBet,minPlayers,maxPlayers,isSpectatingAllowed,isLeague,-2,-2);
         }
 
         private MustPreferences getMustPref(string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? minimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague, int minRank, int maxRank)
