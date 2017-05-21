@@ -3,6 +3,7 @@ using Backend.Game;
 using SL;
 using ApplicationFacade;
 using Backend.Game.DecoratorPreferences;
+using Backend;
 
 public class SLImpl : SLInterface
 {
@@ -17,18 +18,22 @@ public class SLImpl : SLInterface
     public object spectateActiveGame(int userId, int gameID)
     {
         TexasHoldemGame game = gameCenter.getGameById(gameID);
+        if (game == null)
+            return new ReturnMessage(false, "couldn't find the game.");
         SystemUser user = gameCenter.getUserById(userId);
-        if (game == null || user == null)
-            return null;
+        if (user == null)
+            return new ReturnMessage(false, "couldn't find the user.");
         return game.joinSpectate(user);
     }
 
     public object joinActiveGame(int userId, int gameID)
     {
         TexasHoldemGame game = gameCenter.getGameById(gameID);
+        if (game == null)
+            return new ReturnMessage(false, "couldn't find the game.");
         SystemUser user = gameCenter.getUserById(userId);
-        if (game == null || user == null)
-            return null;
+        if (user == null)
+            return new ReturnMessage(false,"couldn't find the user.");
         return game.joinGame(user);
     }
 

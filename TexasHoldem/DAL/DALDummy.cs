@@ -29,10 +29,13 @@ namespace DAL
                 new SystemUser("Or", "111111", "email2", "image2", 700),
                 new SystemUser("Aviv", "Aa123456", "email3", "image3", 1500)
             };
-            
 
+            int j = 10;
             for (int i = 0; i < 4; i++)
             {
+                userList[i].rank = j;
+                userList[i].newPlayer = false;
+                j += 5;
                 userList[i].id = i;
             }
                 

@@ -1,8 +1,5 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Backend.Game;
-using System.Diagnostics;
-using System.Threading;
 
 namespace TestProject.UnitTest
 {
