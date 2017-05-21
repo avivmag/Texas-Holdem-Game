@@ -8,7 +8,7 @@ namespace Backend.Game
 {
     public class TexasHoldemGame : Messages.Notification
     {
-        public enum HandsRanks { HighCard, Pair, TwoPairs, ThreeOfAKind, Straight, Flush, FullHouse, FourOfAKind, StraightFlush, RoyalFlush }
+        public enum HandsRanks { HighCard = 9, Pair = 8, TwoPairs = 6, ThreeOfAKind = 5, Straight, Flush = 4, FullHouse = 3, FourOfAKind = 2, StraightFlush = 1, RoyalFlush = 0 }
         public enum BetAction { fold, bet, call, check, raise }
 
         public int gameId { get; set; }
@@ -402,11 +402,32 @@ namespace Backend.Game
                 for (int i = 0; i < players.Length; i++)
                 {
                     if (players[i].playerState.Equals(Player.PlayerState.in_round))
-                        checkHandRank(players[i]);
+                        players[i].handRank = checkHandRank(players[i]);
                 }
 
                 //gameStatesObserver.Update();
+
+
             }
+        }
+
+        private  void checkWhoWins()
+        {
+            int highRank = -1;
+            int winnerIndex = -1;
+
+            for (int i = 0; i < players.Length - 1; i++)
+            {
+                if (players[i].playerState.Equals(Player.PlayerState.in_round))
+                    if ((int)players[i].handRank > highRank)
+                    {
+                        winnerIndex = i;
+                        highRank = (int)players[i].handRank;
+                    }
+            }
+
+            players[winnerIndex].playerState = PlayerState.winner;
+            //gameStatesObserver.Update();
         }
 
         public void playersSetsTheirBets(bool firstBets)
@@ -645,18 +666,24 @@ namespace Backend.Game
                 return HandsRanks.FourOfAKind;
             if (checkFullHouse(fullHand, 3) != -1)
                 return HandsRanks.FullHouse;
+            if (checkFlush(fullHand) != -1)
+                return HandsRanks.Flush;
+            if (checkStraight(fullHand) != -1)
+                return HandsRanks.Straight;
+            if (checkThreeOfAKind(fullHand) != -1)
+                return HandsRanks.ThreeOfAKind;
+            if (checkTwoPairs(fullHand) != -1)
+                return HandsRanks.TwoPairs;
+
+            //for (int i = 0; i < fullHand.Count; i++)
+            //{
+            //    Console.Out.Write(fullHand[i].Value + "  ");
+            //    Console.Out.Write(fullHand[i].Type.ToString() + "  ");
+            //    Console.Out.WriteLine();
+            //}
 
 
-
-            for (int i = 0; i < fullHand.Count; i++)
-            {
-                Console.Out.Write(fullHand[i].Value + "  ");
-                Console.Out.Write(fullHand[i].Type.ToString() + "  ");
-                Console.Out.WriteLine();
-            }
-
-
-            return HandsRanks.Flush;
+            return HandsRanks.HighCard;
         }
 
         private void addToPot(int sum)
@@ -797,6 +824,21 @@ namespace Backend.Game
 
         }
 
+        public int checkFlush(List<Card> fullHand)
+        {
+            int[] shape = new int[4];
+
+            for (int i = 0; i < 4; i++)
+            {
+                shape[i] = 0;
+            }
+
+            for (int i = 0; i < 4; i++)
+                if (shape[i] == 5)
+                    return 0;
+            return -1;
+        }
+
         public int checkStraight(List<Card> fullHand)
         {
             int valueCounter = 0;
@@ -837,6 +879,63 @@ namespace Backend.Game
             }
             return -1;
         }
+
+        public int checkThreeOfAKind(List<Card> fullHand)
+        {
+            int[] threeOfAKindCounter = new int[13];
+            for (int i = 0; i < 13; i++)
+                threeOfAKindCounter[i] = 0;
+
+            for (int i = 0; i < 7; i++)
+                threeOfAKindCounter[fullHand[i].Value - 1]++;
+
+            for (int i = 0; i < 13; i++)
+                if (threeOfAKindCounter[i] == 3)
+                    return 0;
+
+            return -1;
+        }
+
+        public int checkTwoPairs(List<Card> fullHand)
+        {
+            int[] twoOfAKindCounterA = new int[13];
+            int[] twoOfAKindCounterB = new int[13];
+
+            for (int i = 0; i < 13; i++)
+            {
+                twoOfAKindCounterA[i] = 0;
+                twoOfAKindCounterB[i] = 0;
+            }
+
+            for (int i = 0; i < 7; i++)
+            {
+                twoOfAKindCounterA[fullHand[i].Value - 1]++;
+                twoOfAKindCounterB[fullHand[i].Value - 1]++;
+            }
+
+            for (int i = 0; i < 13; i++)
+                if (twoOfAKindCounterA[i] == 2 && twoOfAKindCounterB[i] == 2)
+                    return 0;
+            return -1;
+        }
+
+        public int checkPair(List<Card> fullHand)
+        {
+            int[] pairCounter = new int[13];
+            for (int i = 0; i < 13; i++)
+                pairCounter[i] = 0;
+
+            for (int i = 0; i < 7; i++)
+                pairCounter[fullHand[i].Value - 1]++;
+
+            for (int i = 0; i < 13; i++)
+                if (pairCounter[i] == 2)
+                    return 0;
+
+            return -1;
+        }
+
+
 
         // TODO: Gili - tries to position a player where he wants (on a seat)
         public ReturnMessage ChoosePlayerSeat(int playerIndex)
