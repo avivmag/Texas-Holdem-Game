@@ -30,10 +30,15 @@ namespace Backend.Game
         public List<SystemUser> spectators;
         
         public bool active { get; set; }
-                
+        private bool isGameActive;
+
         public List<Card> flop { get; set; }
         public Card turn { get; set; }
         public Card river { get; set; }
+
+        public GameObserver playersChatObserver;
+        public GameObserver spectateChatObserver;
+        public GameObserver gameStatesObserver;
 
         // TODO: Gili - notice Gil decorator pattern and Aviv player.TokensInBet - you should use them in your logic
 
@@ -66,6 +71,12 @@ namespace Backend.Game
             }
 
             flop = new List<Card>();
+
+            isGameActive = false;
+
+            playersChatObserver = new GameObserver(GameObserver.ObserverType.PlayersChat);
+            spectateChatObserver = new GameObserver(GameObserver.ObserverType.SpectateChat);
+            gameStatesObserver = new GameObserver(GameObserver.ObserverType.GameStates);
 
             currentDealer = 0;
         }
@@ -256,7 +267,8 @@ namespace Backend.Game
                     break;
                 }
             }
-
+            playersChatObserver.Subscribe(p);
+            gameStatesObserver.Subscribe(p);
             return new ReturnMessage(true, "");
         }
 
@@ -319,6 +331,9 @@ namespace Backend.Game
 
             spectators.Add(user);
             GameLog.logLine(gameId, GameLog.Actions.Spectate_Join, user.id.ToString());
+            //gameStatesObserver.Subscribe(p);
+            //spectateChatObserver(players);
+            //playersChatObserver(players);
             return new ReturnMessage(true, "");
         }
 
@@ -344,75 +359,88 @@ namespace Backend.Game
         private void playGame()
         {
             GameLog.logLine(gameId, GameLog.Actions.Game_Start, DateTime.Now.ToString());
-            deck.Shuffle();
-            dealCards();
-            currentSmall = setSmallBlind();
-            currentBig = setBigBlind();
-            betBlinds();
-            //players sets their bets
-            for (int i = nextToSeat(currentBig); i < maxPlayers; i++)
+            isGameActive = true;
+            while (isGameActive)
             {
-                if (players[i] != null && players[i].playerState == PlayerState.in_round)
+                deck.Shuffle();
+                dealCards();
+                currentSmall = setSmallBlind();
+                currentBig = setBigBlind();
+                betBlinds();
+                
+                playersSetsTheirBets(true);
+
+                addToPot(tempPot);
+
+                //flop
+                for (int i = 0; i < 3; i++)
                 {
-                    BetAction action = BetAction.check;
-                    chooseBetAction(players[i], action, 0);
+                    Card flopCard = deck.Top();
+                    flop.Add(flopCard);
+                    GameLog.logLine(gameId, GameLog.Actions.Flop, i.ToString(), flopCard.ToString());
                 }
-            }
 
-            addToPot(tempPot);
+                playersSetsTheirBets(false);
 
-            //flop
-            for (int i = 0; i < 3; i++)
-            {
-                Card flopCard = deck.Top();
-                flop.Add(flopCard);
-                GameLog.logLine(gameId, GameLog.Actions.Flop, i.ToString(), flopCard.ToString());
-            }
+                addToPot(tempPot);
 
-            //players sets their bets
-            for (int i = nextToSeat(currentDealer); i < maxPlayers; i++)
-            {
-                if (players[i] != null && players[i].playerState == Player.PlayerState.in_round)
+                turn = deck.Top();
+                GameLog.logLine(
+                    gameId,
+                    GameLog.Actions.Turn,
+                    turn.ToString());
+
+                playersSetsTheirBets(false);
+
+                addToPot(tempPot);
+
+                river = deck.Top();
+                GameLog.logLine(
+                    gameId,
+                    GameLog.Actions.River,
+                    turn.ToString());
+
+                playersSetsTheirBets(false);
+                addToPot(tempPot);
+                gameStatesObserver.Update();
+
+                for (int i = 0; i < players.Length; i++)
                 {
-                    chooseBetAction(players[i], BetAction.check, 0);
+                    if (players[i].playerState.Equals(Player.PlayerState.in_round))
+                        checkHandRank(players[i]);
                 }
+
+                gameStatesObserver.Update();
             }
+        }
 
-            addToPot(tempPot);
-
-            turn = deck.Top();
-            GameLog.logLine(
-                gameId,
-                GameLog.Actions.Turn,
-                turn.ToString());
-
-            //players sets their bets
-            for (int i = nextToSeat(currentDealer); i < maxPlayers; i++)
-            {
-                if (players[i] != null && players[i].playerState == Player.PlayerState.in_round)
+        public void playersSetsTheirBets(bool firstBets)
+        {
+            if (firstBets)
+                for (int i = nextToSeat(currentBig); i < maxPlayers; i++)
                 {
-                    chooseBetAction(players[i], BetAction.check, 0);
+                    if (players[i] != null && players[i].playerState == PlayerState.in_round)
+                    {
+                        players[i].playerState = PlayerState.my_turn;
+                        //UPDATE everybody
+                        gameStatesObserver.Update();
+                    }
                 }
-            }
-
-            addToPot(tempPot);
-
-            river = deck.Top();
-            GameLog.logLine(
-                gameId,
-                GameLog.Actions.River,
-                turn.ToString());
-
-            //players sets their bets
-            for (int i = nextToSeat(currentDealer); i < maxPlayers; i++)
-            {
-                if (players[i] != null && players[i].playerState == Player.PlayerState.in_round)
+            else
+                for (int i = nextToSeat(currentDealer); i < maxPlayers; i++)
                 {
-                    chooseBetAction(players[i], BetAction.check, 0);
+                    if (players[i] != null && players[i].playerState == Player.PlayerState.in_round)
+                    {
+                        players[i].playerState = PlayerState.my_turn;
+                        //UPDATE everybody
+                        gameStatesObserver.Update();
+                    }
                 }
-            }
+        }
 
-            addToPot(tempPot);
+        public BetAction chooseWhatToDo(Player p)
+        {
+            return BetAction.check;
         }
 
         public void setInitialState()
@@ -582,28 +610,6 @@ namespace Backend.Game
             return null; // TODO: Gili!
         }
 
-        public void chooseBetAction(Player p, BetAction betAction, int amount)
-        {
-            switch (betAction)
-            {
-                case BetAction.bet:
-                    bet(p, amount);
-                    break;
-                case BetAction.call:
-                    call(p);
-                    break;
-                case BetAction.check:
-                    check(p);
-                    break;
-                case BetAction.fold:
-                    fold(p);
-                    break;
-                case BetAction.raise:
-                    //raise(p, amount);
-                    break;
-            }
-        }
-
         public int nextToSeat(int seat)
         {
             int i = seat;
@@ -640,6 +646,10 @@ namespace Backend.Game
                 return HandsRanks.RoyalFlush;
             if (checkStraightFlush(fullHand) != -1)
                 return HandsRanks.StraightFlush;
+            if (checkFourOfAKind(fullHand) != -1)
+                return HandsRanks.FourOfAKind;
+            if (checkFullHouse(fullHand, 3) != -1)
+                return HandsRanks.FullHouse;
 
 
 
