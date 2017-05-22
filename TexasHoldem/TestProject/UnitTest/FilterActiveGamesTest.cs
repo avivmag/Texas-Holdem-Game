@@ -94,11 +94,13 @@ namespace TestProject
             //    new TexasHoldemGame(userList[3], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 0, 1000)),
             //    new TexasHoldemGame(userList[3], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 1000, 2000))
             };
+
             for (int i=0; i<gamesList.Count; i++)
             {
                 gamesList[i].gameId = i;
                 center.texasHoldemGames.Add(gamesList[i]);
             }
+
             Mock<DALInterface> dalMock = new Mock<DALInterface>();
             dalMock.Setup(x => x.getAllGames()).Returns(gamesList);
             dalMock.Setup(x => x.getUserById(It.IsAny<int>())).Returns((int i) => userList[i]);

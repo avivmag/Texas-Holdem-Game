@@ -24,14 +24,22 @@ namespace PL
             List<TexasHoldemGame> allGames = CommClient.findAllActiveAvailableGames();
 
             int i = 0;
-            foreach (TexasHoldemGame game in allGames)
+
+            if (allGames == null)
             {
-                if ((joinOperation.Equals("Spectate") && 
-                    game.GamePreferences.IsSpectatingAllowed.HasValue && 
-                    game.GamePreferences.IsSpectatingAllowed.Value) || (joinOperation.Equals("Join")))
+                MessageBox.Show("No active games.");
+            }
+
+            else
+            {
+                foreach (TexasHoldemGame game in allGames)
                 {
-                    selectGameGrid.Items.Add(new TexasHoldemGameStrings(i, game));
-                    i++;
+                    if (joinOperation.Equals("Spectate") &&
+                        (game.gamePreferences.isSpectateAllowed) || (joinOperation.Equals("Join")))
+                    {
+                        selectGameGrid.Items.Add(new TexasHoldemGameStrings(i, game));
+                        i++;
+                    }
                 }
             }
         }
@@ -65,7 +73,7 @@ namespace PL
             else
             {
                 DataGridCellInfo cellValue = (selectGameGrid.SelectedCells.ElementAt(1));
-                gameId = Int32.Parse(cellValue.ToString());
+                gameId = int.Parse(((TexasHoldemGameStrings)cellValue.Item).gameId);
                 var game = CommClient.joinActiveGame(LoginWindow.user.id, gameId);
                 if (game != default(TexasHoldemGame))
                 {

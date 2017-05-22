@@ -2,7 +2,7 @@
 using System.Windows;
 using CLClient;
 using CLClient.Entities;
-using static CLClient.Entities.GamePreferences;
+using CLClient.Entities.DecoratorPreferences;
 
 namespace PL
 {
@@ -43,7 +43,7 @@ namespace PL
         }
         private TexasHoldemGame getGame()
         {
-            GameTypePolicy gamePolicy;
+            Preference.GameTypePolicy gamePolicy = Preference.GameTypePolicy.Undef;
             int limitPolicy;
             int buyInPolicy;
             int startingChips;
@@ -55,14 +55,14 @@ namespace PL
 
             if (GameTypePolicyComboBox.Text.Equals("none") || GameTypePolicyComboBox.Text.Equals(""))
             {
-                gamePolicy = GameTypePolicy.Undef;
+                gamePolicy = Preference.GameTypePolicy.Undef;
             }
             else
             {
-                gamePolicy = (GameTypePolicy)Enum.Parse(typeof(GameTypePolicy), GameTypePolicyComboBox.Text);
+                gamePolicy = (Preference.GameTypePolicy)Enum.Parse(typeof(Preference.GameTypePolicy), GameTypePolicyComboBox.Text);
             }
 
-            if (gamePolicy == GameTypePolicy.Limit)
+            if (gamePolicy == Preference.GameTypePolicy.Limit)
             {
                 if (limitPolicyTextbox.Text.Equals("") || !Int32.TryParse(buyInTextbox.Text, out limitPolicy) || limitPolicy < 0)
                 {

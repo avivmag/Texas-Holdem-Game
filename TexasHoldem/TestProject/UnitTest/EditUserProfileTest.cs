@@ -55,7 +55,7 @@ namespace TestProject
         }
 
         [TestMethod]
-        public void emptyUserNameTest()
+        public void editUserEmptyUserNameTest()
         {
             object obj = sl.editUserProfile(0, "", "12345", "email7", "image5", 100);
             Assert.IsInstanceOfType(obj, typeof(ReturnMessage));
@@ -63,7 +63,7 @@ namespace TestProject
         }
 
         [TestMethod]
-        public void emptyPasswordTest()
+        public void editUserEmptyPasswordTest()
         {
             object obj = sl.editUserProfile(0, "gil", "", "email7", "image5",100);
             Assert.IsInstanceOfType(obj, typeof(ReturnMessage));

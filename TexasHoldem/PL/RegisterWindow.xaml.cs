@@ -25,7 +25,7 @@ namespace PL
 
         private void Register_Click(object sender, RoutedEventArgs e)
         {
-            var user = CommClient.Register(username.Text, password.Text, email.Text, "");
+            var user = CommClient.Register(username.Text, password.Text, email.Text, "profile_pic");
 
             if (user != default(SystemUser)){
                 LoginWindow.user = user;
