@@ -274,9 +274,11 @@ namespace PL
         {
             seatsButtons[i] = new Button();
             playerCards[i] = new Image[2];
-            playerCards[i][0] = DrawCard(cardType.unknown, CARD_TYPE);
+            playerCards[i][0] = new Image();
+            playerCards[i][0].Source = DrawCard(cardType.unknown, CARD_TYPE);
             playerCards[i][0].Margin = new Thickness(5);
-            playerCards[i][1] = DrawCard(cardType.unknown, CARD_TYPE);
+            playerCards[i][1] = new Image();
+            playerCards[i][1].Source = DrawCard(cardType.unknown, CARD_TYPE);
             playerCards[i][1].Margin = new Thickness(5);
             playerNames[i] = new Label();
             allInIcons[i] = new Image();
@@ -412,7 +414,7 @@ namespace PL
             playerCoinsGambled[i].Content = playerCoinsNumberGambled;
         }
         
-        private Image DrawCard(cardType type, int cardNumber)
+        private CroppedBitmap DrawCard(cardType type, int cardNumber)
         {
             // matching to the sprite
             int col = cardNumber - 1;
@@ -436,7 +438,7 @@ namespace PL
                     break;
             }
             // Create an Image element.
-            Image croppedImage = new Image();
+            //Image croppedImage = new Image();
             //croppedImage.Width = 72;
             //croppedImage.Height = 100;
             //croppedImage.Margin = new Thickness(5);
@@ -445,8 +447,7 @@ namespace PL
             CroppedBitmap cb = new CroppedBitmap(
                new BitmapImage(new Uri("pack://application:,,,/resources/cards_sprite.gif")),
                new Int32Rect(col * 72, row * 100, 72, 100));       //select region rect
-            croppedImage.Source = cb;                 //set image source to cropped
-            return croppedImage;
+            return cb;
         }
 
         private void AddCommunityCards()
@@ -456,7 +457,8 @@ namespace PL
             communityCards = new Image[5];
             for (int i = 0; i < communityCards.Length; i++)
             {
-                communityCards[i] = DrawCard(cardType.unknown, CARD_TYPE);
+                communityCards[i] = new Image();
+                communityCards[i].Source = DrawCard(cardType.unknown, CARD_TYPE);
                 communityCards[i].Margin = new Thickness(5);
                 ug.Children.Add(communityCards[i]);
             }
@@ -628,7 +630,7 @@ namespace PL
         {
             Card[] cards = CommClient.GetPlayerCards(this.game.gameId, playerSeatIndex);
             for(int i = 0; i < playerCards[playerSeatIndex].Length; i++)
-                playerCards[playerSeatIndex][i] = DrawCard(cards[i].Type, cards[i].Value);
+                playerCards[playerSeatIndex][i].Source = DrawCard(cards[i].Type, cards[i].Value);
         }
 
         public void cardsShowOff()
@@ -637,7 +639,7 @@ namespace PL
             foreach (KeyValuePair<int, Card[]> entry in seatIndexToCards)
             {
                 for (int i = 0; i < entry.Value.Length; i++)
-                    playerCards[entry.Key][i] = DrawCard(entry.Value[i].Type, entry.Value[i].Value);
+                    playerCards[entry.Key][i].Source = DrawCard(entry.Value[i].Type, entry.Value[i].Value);
             }
         }
 
@@ -652,20 +654,20 @@ namespace PL
             for(int i = 0; i < game.flop.Count; i++)
             {
                 if(game.flop[i] == null)
-                    communityCards[i] = DrawCard(cardType.unknown, CARD_TYPE);
+                    communityCards[i].Source = DrawCard(cardType.unknown, CARD_TYPE);
                 else
-                    communityCards[i] = DrawCard(game.flop[i].Type, game.flop[i].Value);
+                    communityCards[i].Source = DrawCard(game.flop[i].Type, game.flop[i].Value);
             }
             //Card turn;
             if (game.turn == null)
-                communityCards[3] = DrawCard(cardType.unknown, CARD_TYPE);
+                communityCards[3].Source = DrawCard(cardType.unknown, CARD_TYPE);
             else
-                communityCards[3] = DrawCard(game.turn.Type, game.turn.Value);
+                communityCards[3].Source = DrawCard(game.turn.Type, game.turn.Value);
             //Card river;
             if (game.river == null)
-                communityCards[4] = DrawCard(cardType.unknown, CARD_TYPE);
+                communityCards[4].Source = DrawCard(cardType.unknown, CARD_TYPE);
             else
-                communityCards[4] = DrawCard(game.river.Type, game.river.Value);
+                communityCards[4].Source = DrawCard(game.river.Type, game.river.Value);
             
             //Player[] players;
             //int currentDealer;

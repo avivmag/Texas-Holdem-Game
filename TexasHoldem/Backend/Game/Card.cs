@@ -10,13 +10,19 @@ namespace Backend.Game
 		public const int HIGHEST_CARD = 13;
         
         public enum cardType { club = 0, diamond = 1, heart = 2, spade = 3 };
-		public int Value { get; }
-		public cardType Type { get; }
+		public int Value { get; set; }
+		public cardType Type { get; set; }
 
-		public Card(cardType type, int value)
+        public Card(int Type, int Value)
+        {
+            this.Type = (cardType)Type;
+            this.Value = Value;
+        }
+
+		public Card(cardType Type, int Value)
 		{
-			this.Type = type;
-			this.Value = value;
+			this.Type   = Type;
+			this.Value  = Value;
 		}
         
         public override bool Equals(object obj)
