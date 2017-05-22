@@ -234,10 +234,10 @@ namespace CLServer
             {
                 throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Get Game State."));
             }
+            
+            var response = sl.GetGameState((int)gameIdToken);
 
-            var gameId = (int)gameIdToken;
-
-            SendMessage(client, new { response = sl.GetGameState(gameId) });
+            SendMessage(client, response);
         }
         private static void ChoosePlayerSeat(TcpClient client, JObject jsonObject)
         {
@@ -321,7 +321,6 @@ namespace CLServer
             var loginResponse = sl.Login((string)usernameToken, (string)passwordToken);
 
             SendMessage(client, loginResponse);
-            return;
         }
         private static void CreateGame(TcpClient client, JObject jsonObject) {
             var gameCreatorIdToken = jsonObject["gameCreatorId"];
@@ -365,6 +364,8 @@ namespace CLServer
             }
 
             var getGameResponse = sl.getGameById((int)gameIdToken);
+
+            Console.WriteLine(getGameResponse);
 
             SendMessage(client, getGameResponse);
             return;

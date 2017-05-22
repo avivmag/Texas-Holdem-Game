@@ -8,8 +8,7 @@ namespace Backend.Game
 		public const int NUMBER_OF_CARDS = 52;
 		public const int LOWEST_CARD = 1;
 		public const int HIGHEST_CARD = 13;
-        private cardType club;
-
+        
         public enum cardType { club = 0, diamond = 1, heart = 2, spade = 3 };
 		public int Value { get; }
 		public cardType Type { get; }
@@ -19,12 +18,7 @@ namespace Backend.Game
 			this.Type = type;
 			this.Value = value;
 		}
-
-        public Card(cardType club)
-        {
-            this.club = club;
-        }
-
+        
         public override bool Equals(object obj)
         {
             if (!(obj.GetType().Equals(typeof(Card))))
