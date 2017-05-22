@@ -175,6 +175,7 @@ namespace PL
         {
             List<TexasHoldemGame> ans = new List<TexasHoldemGame>();
             string gamePolicy;
+            int? gamePolicyLimit;
             int? buyInPolicy;
             int? startingChips;
             int? minimalBet;
@@ -193,9 +194,19 @@ namespace PL
             {
                 gamePolicy = GameTypePolicyComboBox.Text;
             }
+            //set the limit
+            if (LimitPolicyTextbox.Text.Equals(""))
+                gamePolicyLimit = null;
+            else if (!Int32.TryParse(LimitPolicyTextbox.Text, out value) || value < 0)
+            {
+                errorMessage.Text = "Wrong Input - limit policy should be int and positive.";
+                return ans;
+            }
+            else
+                gamePolicyLimit = value;
 
             //set the buy in
-            if (!buyInTextbox.Text.Equals(""))
+            if (buyInTextbox.Text.Equals(""))
                 buyInPolicy = null;
             else if (!Int32.TryParse(buyInTextbox.Text, out value) || value < 0)
             {
@@ -261,7 +272,7 @@ namespace PL
             //else
             isLeague = Convert.ToBoolean(spectateAllowedTextbox.Text);
 
-            return CommClient.filterActiveGamesByGamePreferences(gamePolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed, isLeague);
+            return CommClient.filterActiveGamesByGamePreferences(gamePolicy, gamePolicyLimit, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed, isLeague);
         }
 
         private void Join_Game_Click(object sender, RoutedEventArgs e)
@@ -269,12 +280,13 @@ namespace PL
             errorMessage.Text = "";
             int gameId;
             DataGridCellInfo cellValue = (searchResultGrid.SelectedCells.ElementAt(1));
-            gameId = Int32.Parse(cellValue.ToString());
+            gameId = Int32.Parse(((TexasHoldemGameStrings)cellValue.Item).gameId);
             var game = CommClient.joinActiveGame(LoginWindow.user.id, gameId);
             if (game != default(TexasHoldemGame))
             {
                 Close();
-                //new GameWindow(mainMenuWindow,game).Show();
+                mainMenuWindow.Show();
+                new GameWindow(game,LoginWindow.user.id).Show();
             }
             else
             {
@@ -334,6 +346,21 @@ namespace PL
             {
                 joinGameBtn.IsEnabled = true;
                 spectateGameBtn.IsEnabled = true;
+            }
+        }
+
+        private void GameTypePolicyComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (GameTypePolicyComboBox.SelectedValue.ToString().Equals("System.Windows.Controls.ComboBoxItem: Limit"))
+        
+            {
+                LimitPolicyTextbox.IsEnabled = true;
+                LimitPolicyTextbox.Text = "0";
+            }
+            else if (LimitPolicyTextbox != null)
+            {
+                LimitPolicyTextbox.IsEnabled = false;
+                LimitPolicyTextbox.Text = "0";
             }
         }
     }

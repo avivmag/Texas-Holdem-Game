@@ -4,7 +4,7 @@ namespace Backend.Game.DecoratorPreferences
 {
     public class MinPlayersDecPref : OptionalPreferences
     {
-        private int minPlayers;
+        public int minPlayers { get; }
 
         public MinPlayersDecPref(int minPlayers, OptionalPreferences nextDecPref): base (nextDecPref)
         {
@@ -58,6 +58,11 @@ namespace Backend.Game.DecoratorPreferences
             //if we couldent found or if we found pref with different value.
             else
                 return false;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("minPlayers: {0}, {1}", minPlayers, nextDecPref);
         }
     }
 }

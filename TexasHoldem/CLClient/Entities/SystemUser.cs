@@ -23,6 +23,7 @@ namespace CLClient.Entities
             this.name       = name;
             this.password   = password;
             this.userImage  = userImage;
+            this.email      = email;
             this.money      = money;
             this.newPlayer  = true;
             }

@@ -99,7 +99,6 @@ namespace CLServer
         private static void SendMessage(TcpClient client, object message = null)
         {
             JObject messageJObject = new JObject();
-            Console.WriteLine("message is: {0}",message);
             if (message != null)
             {
                 messageJObject["message"] = JToken.FromObject(message);
@@ -109,6 +108,9 @@ namespace CLServer
                 messageJObject["message"] = JToken.FromObject(new object());
             }
 
+
+            Console.WriteLine(messageJObject["message"]);
+
             var serializedMessage   = JsonConvert.SerializeObject(messageJObject,
                                                                   Newtonsoft.Json.Formatting.None,
                                                                   new JsonSerializerSettings
@@ -116,11 +118,7 @@ namespace CLServer
                                                                       NullValueHandling = NullValueHandling.Ignore
                                                                   });
 
-            Console.WriteLine("serializedMessage is: {0}", serializedMessage);
-
             var messageByteArray    = Encoding.ASCII.GetBytes(serializedMessage);
-
-            Console.WriteLine("messageByteArray length is: {0}", messageByteArray.Length);
 
             try
             {
@@ -431,7 +429,7 @@ namespace CLServer
                 (string)passwordToken, 
                 (string)emailToken, 
                 (string)userImageToken);
-
+            
             SendMessage(client, registerResponse);
             return;
         }
@@ -491,13 +489,30 @@ namespace CLServer
         //TODO:: Obsolete because game preferences is now decorator. Not finished.
         private static void FilterActiveGamesByGamePreferences(TcpClient client, JObject jsonObject)
         {
-            var gamePolicy = jsonObject.Value<int?>("gamePolicy");
-            var buyInPolicy = jsonObject.Value<int?>("buyInPolicy");
-            var startingChips = jsonObject.Value<int?>("startingChips");
-            var minimalBet = jsonObject.Value<int?>("minimalBet");
-            var minimalPlayers = jsonObject.Value<int?>("minimalPlayers");
-            var maximalPlayers = jsonObject.Value<int?>("maximalPlayers");
-            var spectateAllowed = jsonObject.Value<bool?>("spectateAllowed");
+            var gamePolicy = jsonObject["gamePolicy"];
+            var limitPolicy = jsonObject["gamePolicyLimit"];
+            var buyInPolicy = jsonObject["buyInPolicy"];
+            var startingChips = jsonObject["startingChips"];
+            var minimalBet = jsonObject["minimalBet"];
+            var minimalPlayers = jsonObject["minimalPlayers"];
+            var maximalPlayers = jsonObject["maximalPlayers"];
+            var spectateAllowed = jsonObject["spectateAllowed"];
+            var isLeague        = jsonObject["isLeague"];
+
+            var filterActiveGamesByGamePreferencesResponse = sl.filterActiveGamesByGamePreferences(
+                (string)gamePolicy,
+                (int?)limitPolicy,
+                (int?)buyInPolicy,
+                (int?)startingChips,
+                (int?)minimalBet,
+                (int?)minimalPlayers,
+                (int?)maximalPlayers,
+                (bool?)spectateAllowed,
+                (bool?)isLeague);
+
+            SendMessage(client, filterActiveGamesByGamePreferencesResponse);
+            return;
+
         }
         private static void FilterActiveGamesByPotSize(TcpClient client, JObject jsonObject)
         {

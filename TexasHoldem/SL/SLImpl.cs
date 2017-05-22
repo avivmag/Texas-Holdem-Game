@@ -1,6 +1,7 @@
 ﻿using Backend.User;
 using Backend.Game;
 using SL;
+using System;
 using ApplicationFacade;
 using Backend.Game.DecoratorPreferences;
 using Backend;
@@ -19,18 +20,24 @@ public class SLImpl : SLInterface
     {
         TexasHoldemGame game = gameCenter.getGameById(gameID);
         if (game == null)
-            return new ReturnMessage(false, "couldn't find the game.");
+            return null;
         SystemUser user = gameCenter.getUserById(userId);
         if (user == null)
-            return new ReturnMessage(false, "couldn't find the user.");
-        return game.joinSpectate(user);
+            return null;
+        var joinSpec = game.joinSpectate(user);
+
+        if (joinSpec.success)
+        {
+            return game;
+        }
+        return null;
     }
 
     public object joinActiveGame(int userId, int gameID)
     {
         TexasHoldemGame game = gameCenter.getGameById(gameID);
         SystemUser user = gameCenter.getUserById(userId);
-
+        Console.WriteLine("gameId: {0}, userId: {1}, game: {2}, user: {3}", gameID, userId, game, user);
         if (game == null || user == null)
         {
             return null;
@@ -44,6 +51,7 @@ public class SLImpl : SLInterface
         }
         else
         {
+            Console.WriteLine(response.description);
             return null;
         }
     }
@@ -72,29 +80,74 @@ public class SLImpl : SLInterface
 
     public object filterActiveGamesByPlayerName(string name)
     {
+        var games = gameCenter.filterActiveGamesByPlayerName(name);
+
+        if (games.Count == 0)
+        {
+            return null;
+        }
         return gameCenter.filterActiveGamesByPlayerName(name);
     }
 
     public object filterActiveGamesByPotSize(int? size)
     {
-        return gameCenter.filterActiveGamesByPotSize(size);
+        var games = gameCenter.filterActiveGamesByPotSize(size);
+
+        if (games.Count == 0)
+        {
+            return null;
+        }
+        return games;
     }
 
     public object filterActiveGamesByGamePreferences(object pref)
     {
         if (pref.GetType() == typeof(MustPreferences))
-            return gameCenter.filterActiveGamesByGamePreferences((MustPreferences)pref);
+        {
+            var game = gameCenter.filterActiveGamesByGamePreferences((MustPreferences)pref);
+
+            if (game.Count == 0)
+            {
+                return null;
+            }
+
+            return game;
+        }
         return null;
     }
 
     public object filterActiveGamesByGamePreferences(string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague, int minRank, int maxRank)
     {
-        return gameCenter.filterActiveGamesByGamePreferences(gamePolicy, gamePolicyLimit, buyInPolicy, startingChipsAmount, MinimalBet, minPlayers, maxPlayers, isSpectatingAllowed, isLeague, minRank, maxRank);
+        var game = gameCenter.filterActiveGamesByGamePreferences(gamePolicy, gamePolicyLimit, buyInPolicy, startingChipsAmount, MinimalBet, minPlayers, maxPlayers, isSpectatingAllowed, isLeague, minRank, maxRank);
+
+        if (game.Count == 0)
+        {
+            return null;
+        }
+
+        return game;
+    }
+
+    public object filterActiveGamesByGamePreferences(string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague)
+    {
+        var game = gameCenter.filterActiveGamesByGamePreferences(gamePolicy, gamePolicyLimit, buyInPolicy, startingChipsAmount, MinimalBet, minPlayers, maxPlayers, isSpectatingAllowed, isLeague);
+
+        if (game.Count == 0)
+        {
+            return null;
+        }
+
+        return game;
     }
 
     public object getAllGames()
     {
-        return gameCenter.getAllGames();
+        var games = gameCenter.getAllGames();
+        if (games.Count == 0)
+        {
+            return null;
+        }
+        return games;
     }
 
     public object createGame(int gameCreatorId, object pref)

@@ -22,9 +22,9 @@ namespace ApplicationFacade
             dal = new DALDummy();
             //texasHoldemGames = new List<TexasHoldemGame>();
             texasHoldemGames = dal.getAllGames();
-            Console.WriteLine(texasHoldemGames);
             leagues = new List<League>();
-            loggedInUsers = new List<SystemUser>();
+            //loggedInUsers = new List<SystemUser>();
+            loggedInUsers = dal.getAllUsers();
         }
 
         public static GameCenter getGameCenter()
@@ -96,27 +96,36 @@ namespace ApplicationFacade
             {
                 return new ReturnMessage(false, "you are active in some games as a player, leave them and then log out.");
             }
-
-            ReturnMessage m = dal.logOutUser(systemUser.name);
-            loggedInUsers.Remove(systemUser);
-            return m;
+            if (loggedInUsers.Contains(systemUser)){
+                loggedInUsers.Remove(systemUser);
+                return new ReturnMessage(true, null);
+            }
+            return new ReturnMessage(false, "you are not logged in.");
         }
 
-        public ReturnMessage register(string user, string password, string email, string userImage)
+        public SystemUser register(string user, string password, string email, string userImage)
         {
             if (user == null || password == null || email == null || userImage == null || user.Equals("") || password.Equals("") || email.Equals("") || userImage.Equals(""))
-                return new ReturnMessage(false, "all attributes must be filled.");
+                throw new ArgumentException("Not all parameters were given.");
 
             SystemUser systemUser = dal.getUserByName(user);
             if (systemUser != null)
-                return new ReturnMessage(false, "user name or email already taken");
+                throw new ArgumentException("User already exists.");
 
             //creating the user.
             systemUser = new SystemUser(user, password, email, userImage, 0);
             //after a registeration the user stay login
             loggedInUsers.Add(systemUser);
             //adding the user to the db.
-            return dal.registerUser(systemUser);
+            var response = dal.registerUser(systemUser);
+            if (response.success)
+            {
+                return systemUser;
+            }
+            else
+            {
+                throw new InvalidOperationException("Could not register user.");
+            }
         }
 
         public SystemUser login(string user, string password)
@@ -179,8 +188,6 @@ namespace ApplicationFacade
             return game;
         }
 
-
-
         public List<TexasHoldemGame> getAllGames()
         {
             return new List<TexasHoldemGame>(texasHoldemGames);
@@ -204,6 +211,17 @@ namespace ApplicationFacade
                     ans.Add(game);
             return ans;
         }
+
+        public List<TexasHoldemGame> filterActiveGamesByGamePreferences(string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? minimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague)
+        {
+            MustPreferences mustPref = getMustPref(gamePolicy, gamePolicyLimit, buyInPolicy, startingChipsAmount, minimalBet, minPlayers, maxPlayers, isSpectatingAllowed, isLeague);
+            List<TexasHoldemGame> ans = new List<TexasHoldemGame>();
+            foreach (TexasHoldemGame game in dal.getAllGames())
+                if (game.gamePreferences.isContain(mustPref))
+                    ans.Add(game);
+            return ans;
+        }
+
 
         public List<TexasHoldemGame> filterActiveGamesByPotSize(int? size)
         {
@@ -271,6 +289,7 @@ namespace ApplicationFacade
             user.password = password;
             user.email = email;
             user.userImage = avatar;
+            user.money += money;
             dal.editUser(user);
             return new ReturnMessage(true,"");
         }
@@ -396,10 +415,18 @@ namespace ApplicationFacade
             else
                 mustPref = new MustPreferences(null, isSpectatingAllowed.Value);
 
-            OptionalPreferences nextPref = null;
+            
 
+            OptionalPreferences nextPref = null;
+            OptionalPreferences temp = null;
+            bool found = false;
             //game type policy settings
             GamePolicyDecPref gamePolicyDec = null;
+            BuyInPolicyDecPref buyInPolicyPref = buyInPolicy.HasValue ? new BuyInPolicyDecPref(buyInPolicy.Value, null) : null;
+            StartingAmountChipsCedPref startingChipsAmountPref = startingChipsAmount.HasValue ? new StartingAmountChipsCedPref(startingChipsAmount.Value, null) : null;
+            MinBetDecPref MinimalBetPref = minimalBet.HasValue ? new MinBetDecPref(minimalBet.Value, null) : null;
+            MinPlayersDecPref minimalPlayerPref = minPlayers.HasValue ? new MinPlayersDecPref(minPlayers.Value, null) : null;
+            MaxPlayersDecPref maximalPlayerPref = maxPlayers.HasValue ? new MaxPlayersDecPref(maxPlayers.Value, null) : null;
             if (gamePolicy != null)
             {
                 GameTypePolicy policy;
@@ -412,44 +439,85 @@ namespace ApplicationFacade
             if (gamePolicyDec != null)
             {
                 nextPref = gamePolicyDec;
-                nextPref = nextPref.nextDecPref;
+                found = true;
+                temp = nextPref.nextDecPref;
             }
+
+            var optPreferences = new List<OptionalPreferences>();
+            optPreferences.Add(gamePolicyDec);
+            optPreferences.Add(buyInPolicyPref);
+            optPreferences.Add(startingChipsAmountPref);
+            optPreferences.Add(MinimalBetPref);
+            optPreferences.Add(minimalPlayerPref);
+            optPreferences.Add(maximalPlayerPref);
+
+            var index = optPreferences.Count - 1;
+            OptionalPreferences iterator = null;
+            while(index >= 0)
+            {
+                if (optPreferences[index] == null){
+                    index--;
+                    continue;
+                }
+                else if (iterator == null)
+                {
+                    iterator = optPreferences[index];
+                }
+                else
+                {
+                    optPreferences[index].nextDecPref = iterator;
+                    iterator = optPreferences[index];
+                }
+                index--;
+                continue;
+            }
+
+            mustPref.firstDecPref = iterator;
+
+
+            /*
 
             //buy in policy settings
-            BuyInPolicyDecPref buyInPolicyPref = buyInPolicy.HasValue ? new BuyInPolicyDecPref(buyInPolicy.Value, null) : null;
             if (buyInPolicyPref != null)
             {
-                nextPref = buyInPolicyPref;
-                nextPref = nextPref.nextDecPref;
+                if (found)
+                {
+
+                }
+                else
+                {
+                    found = true;
+                    nextPref = buyInPolicyPref;
+                    temp = nextPref.nextDecPref;
+                }
+                
+                
             }
 
-            StartingAmountChipsCedPref startingChipsAmountPref = startingChipsAmount.HasValue ? new StartingAmountChipsCedPref(startingChipsAmount.Value, null) : null;
             if (startingChipsAmountPref != null)
             {
                 nextPref = startingChipsAmountPref;
                 nextPref = nextPref.nextDecPref;
             }
 
-            MinBetDecPref MinimalBetPref = minimalBet.HasValue ? new MinBetDecPref(minimalBet.Value, null) : null;
             if (MinimalBetPref != null)
             {
                 nextPref = MinimalBetPref;
                 nextPref = nextPref.nextDecPref;
             }
 
-            MinPlayersDecPref minimalPlayerPref = minPlayers.HasValue ? new MinPlayersDecPref(minPlayers.Value, null) : null;
             if (minimalPlayerPref != null)
             {
                 nextPref = minimalPlayerPref;
                 nextPref = nextPref.nextDecPref;
             }
 
-            MaxPlayersDecPref maximalPlayerPref = maxPlayers.HasValue ? new MaxPlayersDecPref(maxPlayers.Value, null) : null;
             if (maximalPlayerPref != null)
             {
                 nextPref = maximalPlayerPref;
                 nextPref = nextPref.nextDecPref;
-            }
+            }*/
+
             return mustPref;
         }
 
