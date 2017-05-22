@@ -292,6 +292,7 @@ namespace PL
             smallIcons[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/small_icon.png"));
             smallIcons[i].Visibility = Visibility.Hidden;
             playerCoins[i] = new Label();
+            playerCoins[i].Content = game.players[i].Tokens;
             playerCoinsGambled[i] = new Label();
             playerStateBackground[i] = new Image();
             playersImage[i] = new Image();

@@ -336,7 +336,8 @@ namespace CLServer
             var isLeagueToken = jsonObject["isLeague"];
 
             if ((gameCreatorIdToken == null) || (gameCreatorIdToken.Type != JTokenType.Integer) ||
-                (gamePolicyToken == null) || (gamePolicyToken.Type != JTokenType.Integer))
+                (gamePolicyToken == null) || (gamePolicyToken.Type != JTokenType.String) ||
+                String.IsNullOrWhiteSpace((string)(gamePolicyToken)))
             {
                 throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Create Game."));
             }
