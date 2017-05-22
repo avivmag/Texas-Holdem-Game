@@ -283,9 +283,9 @@ namespace CLClient
             {
                 return null;
             }
-            var response = responseJson.ToObject<Boolean>();
+            var response = responseJson.ToObject<ReturnMessage>();
 
-            return response;
+            return response.success;
         }
 
         #endregion
