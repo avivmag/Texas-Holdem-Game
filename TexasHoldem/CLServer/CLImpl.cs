@@ -57,6 +57,40 @@ namespace CLServer
             }
         }
 
+        private static void ProcessServerRequests(Object obj)
+        {
+            TcpClient client = (TcpClient)obj;
+
+            while (true)
+            {
+                var jsonObject = new JObject();
+                try
+                {
+                    jsonObject = getJsonObjectFromStream(client); 
+                }
+                catch
+                {
+                    Console.WriteLine("Client closed connection. Terminating thread: {0}", Thread.CurrentThread.ManagedThreadId);
+                    return;
+                }
+                try
+                {
+                    tryExecuteAction(client, jsonObject);
+                }
+                catch (TargetInvocationException tie)
+                {
+                    Console.WriteLine(tie.InnerException);
+                    SendMessage(client, new { exception = "An Error Has Occured" });
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine(e.StackTrace);
+                    SendMessage(client, new { exception = "An Error Has Occured" });
+                }
+            }
+        }
+
         /// <summary>
         /// Sends an exception message to the client.
         /// </summary>
@@ -523,8 +557,11 @@ namespace CLServer
             return;
         }
 
+        private static List<Thread> threadPool;
+
         static void Main()
         {
+            threadPool = new List<Thread>();
             TcpListener listener = null;
             try
             {
@@ -546,9 +583,11 @@ namespace CLServer
                     TcpClient client = listener.AcceptTcpClient();
 
                     Console.WriteLine("Accepted new client");
-
-                    Thread t = new Thread(ProcessClientRequests);
-                    t.Start(client);
+                    
+                    Thread clientThread = new Thread(ProcessClientRequests);
+                    
+                    clientThread.Start(client);
+                    threadPool.Add(clientThread);
                 }
             }
             catch(Exception e)

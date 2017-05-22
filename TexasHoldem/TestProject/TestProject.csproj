@@ -70,6 +70,7 @@
     <Compile Include="Bridge\ProxyBridge.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="AcceptanceTests\Tests.cs" />
+    <Compile Include="Stress Testing\LoginsTest.cs" />
     <Compile Include="UnitTest\FilterActiveGamesTest.cs" />
     <Compile Include="UnitTest\JoinActiveGameTest.cs" />
     <Compile Include="UnitTest\FindActiveAvailableGamesTest.cs" />
@@ -93,6 +94,10 @@
       <Project>{9951A575-8F22-40E4-B7F9-F59A66494AF1}</Project>
       <Name>Backend</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CLClient\CLClient.csproj">
+      <Project>{b66a3c92-bd02-44a2-a020-cf49be0f79ac}</Project>
+      <Name>CLClient</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DAL\DAL.csproj">
       <Project>{C338435B-70E3-40BB-93B7-A8CC89F73744}</Project>
       <Name>DAL</Name>
@@ -105,6 +110,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
