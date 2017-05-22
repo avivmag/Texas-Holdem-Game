@@ -128,6 +128,18 @@ public class SLImpl : SLInterface
         return game;
     }
 
+    public object filterActiveGamesByGamePreferences(string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague)
+    {
+        var game = gameCenter.filterActiveGamesByGamePreferences(gamePolicy, gamePolicyLimit, buyInPolicy, startingChipsAmount, MinimalBet, minPlayers, maxPlayers, isSpectatingAllowed, isLeague);
+
+        if (game.Count == 0)
+        {
+            return null;
+        }
+
+        return game;
+    }
+
     public object getAllGames()
     {
         var games = gameCenter.getAllGames();

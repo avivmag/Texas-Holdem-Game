@@ -182,6 +182,13 @@ namespace TestProject
         }
 
         [TestMethod]
+        public void filterActiveGamesBySomePreferencesTest()
+        {
+            Assert.AreEqual(center.filterActiveGamesByGamePreferences(null, null, 100, null,null,null,null,true,false).Count, 2);
+        }
+
+
+        [TestMethod]
         public void filterActiveGamesByPreferencesThreeGamesTest()
         {
             MustPreferences mustPref = new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit, 0,

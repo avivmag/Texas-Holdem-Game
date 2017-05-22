@@ -212,6 +212,17 @@ namespace ApplicationFacade
             return ans;
         }
 
+        public List<TexasHoldemGame> filterActiveGamesByGamePreferences(string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? minimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague)
+        {
+            MustPreferences mustPref = getMustPref(gamePolicy, gamePolicyLimit, buyInPolicy, startingChipsAmount, minimalBet, minPlayers, maxPlayers, isSpectatingAllowed, isLeague);
+            List<TexasHoldemGame> ans = new List<TexasHoldemGame>();
+            foreach (TexasHoldemGame game in dal.getAllGames())
+                if (game.gamePreferences.isContain(mustPref))
+                    ans.Add(game);
+            return ans;
+        }
+
+
         public List<TexasHoldemGame> filterActiveGamesByPotSize(int? size)
         {
             List<TexasHoldemGame> ans = new List<TexasHoldemGame> { };
@@ -404,10 +415,18 @@ namespace ApplicationFacade
             else
                 mustPref = new MustPreferences(null, isSpectatingAllowed.Value);
 
-            OptionalPreferences nextPref = null;
+            
 
+            OptionalPreferences nextPref = null;
+            OptionalPreferences temp = null;
+            bool found = false;
             //game type policy settings
             GamePolicyDecPref gamePolicyDec = null;
+            BuyInPolicyDecPref buyInPolicyPref = buyInPolicy.HasValue ? new BuyInPolicyDecPref(buyInPolicy.Value, null) : null;
+            StartingAmountChipsCedPref startingChipsAmountPref = startingChipsAmount.HasValue ? new StartingAmountChipsCedPref(startingChipsAmount.Value, null) : null;
+            MinBetDecPref MinimalBetPref = minimalBet.HasValue ? new MinBetDecPref(minimalBet.Value, null) : null;
+            MinPlayersDecPref minimalPlayerPref = minPlayers.HasValue ? new MinPlayersDecPref(minPlayers.Value, null) : null;
+            MaxPlayersDecPref maximalPlayerPref = maxPlayers.HasValue ? new MaxPlayersDecPref(maxPlayers.Value, null) : null;
             if (gamePolicy != null)
             {
                 GameTypePolicy policy;
@@ -420,44 +439,85 @@ namespace ApplicationFacade
             if (gamePolicyDec != null)
             {
                 nextPref = gamePolicyDec;
-                nextPref = nextPref.nextDecPref;
+                found = true;
+                temp = nextPref.nextDecPref;
             }
+
+            var optPreferences = new List<OptionalPreferences>();
+            optPreferences.Add(gamePolicyDec);
+            optPreferences.Add(buyInPolicyPref);
+            optPreferences.Add(startingChipsAmountPref);
+            optPreferences.Add(MinimalBetPref);
+            optPreferences.Add(minimalPlayerPref);
+            optPreferences.Add(maximalPlayerPref);
+
+            var index = optPreferences.Count - 1;
+            OptionalPreferences iterator = null;
+            while(index >= 0)
+            {
+                if (optPreferences[index] == null){
+                    index--;
+                    continue;
+                }
+                else if (iterator == null)
+                {
+                    iterator = optPreferences[index];
+                }
+                else
+                {
+                    optPreferences[index].nextDecPref = iterator;
+                    iterator = optPreferences[index];
+                }
+                index--;
+                continue;
+            }
+
+            mustPref.firstDecPref = iterator;
+
+
+            /*
 
             //buy in policy settings
-            BuyInPolicyDecPref buyInPolicyPref = buyInPolicy.HasValue ? new BuyInPolicyDecPref(buyInPolicy.Value, null) : null;
             if (buyInPolicyPref != null)
             {
-                nextPref = buyInPolicyPref;
-                nextPref = nextPref.nextDecPref;
+                if (found)
+                {
+
+                }
+                else
+                {
+                    found = true;
+                    nextPref = buyInPolicyPref;
+                    temp = nextPref.nextDecPref;
+                }
+                
+                
             }
 
-            StartingAmountChipsCedPref startingChipsAmountPref = startingChipsAmount.HasValue ? new StartingAmountChipsCedPref(startingChipsAmount.Value, null) : null;
             if (startingChipsAmountPref != null)
             {
                 nextPref = startingChipsAmountPref;
                 nextPref = nextPref.nextDecPref;
             }
 
-            MinBetDecPref MinimalBetPref = minimalBet.HasValue ? new MinBetDecPref(minimalBet.Value, null) : null;
             if (MinimalBetPref != null)
             {
                 nextPref = MinimalBetPref;
                 nextPref = nextPref.nextDecPref;
             }
 
-            MinPlayersDecPref minimalPlayerPref = minPlayers.HasValue ? new MinPlayersDecPref(minPlayers.Value, null) : null;
             if (minimalPlayerPref != null)
             {
                 nextPref = minimalPlayerPref;
                 nextPref = nextPref.nextDecPref;
             }
 
-            MaxPlayersDecPref maximalPlayerPref = maxPlayers.HasValue ? new MaxPlayersDecPref(maxPlayers.Value, null) : null;
             if (maximalPlayerPref != null)
             {
                 nextPref = maximalPlayerPref;
                 nextPref = nextPref.nextDecPref;
-            }
+            }*/
+
             return mustPref;
         }
 

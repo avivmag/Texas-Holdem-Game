@@ -5,7 +5,7 @@ namespace Backend.Game.DecoratorPreferences
 {
     public class MinBetDecPref : OptionalPreferences
     {
-        private int minimalBet;
+        public int minimalBet { get; }
 
         public MinBetDecPref(int minimalBet, OptionalPreferences nextDecPref): base(nextDecPref)
         {
