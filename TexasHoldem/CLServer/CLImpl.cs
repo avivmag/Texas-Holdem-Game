@@ -57,6 +57,40 @@ namespace CLServer
             }
         }
 
+        private static void ProcessServerRequests(Object obj)
+        {
+            TcpClient client = (TcpClient)obj;
+
+            while (true)
+            {
+                var jsonObject = new JObject();
+                try
+                {
+                    jsonObject = getJsonObjectFromStream(client); 
+                }
+                catch
+                {
+                    Console.WriteLine("Client closed connection. Terminating thread: {0}", Thread.CurrentThread.ManagedThreadId);
+                    return;
+                }
+                try
+                {
+                    tryExecuteAction(client, jsonObject);
+                }
+                catch (TargetInvocationException tie)
+                {
+                    Console.WriteLine(tie.InnerException);
+                    SendMessage(client, new { exception = "An Error Has Occured" });
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine(e.StackTrace);
+                    SendMessage(client, new { exception = "An Error Has Occured" });
+                }
+            }
+        }
+
         /// <summary>
         /// Sends an exception message to the client.
         /// </summary>
@@ -73,9 +107,6 @@ namespace CLServer
             {
                 messageJObject["message"] = JToken.FromObject(new object());
             }
-
-
-            Console.WriteLine(messageJObject["message"]);
 
             var serializedMessage   = JsonConvert.SerializeObject(messageJObject,
                                                                   Newtonsoft.Json.Formatting.None,
@@ -335,7 +366,8 @@ namespace CLServer
             var isLeagueToken = jsonObject["isLeague"];
 
             if ((gameCreatorIdToken == null) || (gameCreatorIdToken.Type != JTokenType.Integer) ||
-                (gamePolicyToken == null) || (gamePolicyToken.Type != JTokenType.Integer))
+                (gamePolicyToken == null) || (gamePolicyToken.Type != JTokenType.String) ||
+                String.IsNullOrWhiteSpace((string)(gamePolicyToken)))
             {
                 throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Create Game."));
             }
@@ -364,8 +396,6 @@ namespace CLServer
             }
 
             var getGameResponse = sl.getGameById((int)gameIdToken);
-
-            Console.WriteLine(getGameResponse);
 
             SendMessage(client, getGameResponse);
             return;
@@ -539,12 +569,40 @@ namespace CLServer
             return;
         }
 
+        public static string GetLocalIPAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+            throw new Exception("Local IP Address Not Found!");
+        }
+        private static List<Thread> threadPool;
+
         static void Main()
         {
+            threadPool = new List<Thread>();
             TcpListener listener = null;
+
+            string IP = null;
+
             try
             {
-                var address = IPAddress.Parse("127.0.0.1");
+                IP = GetLocalIPAddress();
+                Console.WriteLine("this is the IP: {0}", IP);
+            }
+            catch
+            {
+                Console.WriteLine("Not connected to internet. aborting.");
+                return;
+            }
+            try
+            {
+                var address = IPAddress.Parse(IP);
                 var port    = 2345;
                 listener    = new TcpListener(address, port);
 
@@ -562,9 +620,11 @@ namespace CLServer
                     TcpClient client = listener.AcceptTcpClient();
 
                     Console.WriteLine("Accepted new client");
-
-                    Thread t = new Thread(ProcessClientRequests);
-                    t.Start(client);
+                    
+                    Thread clientThread = new Thread(ProcessClientRequests);
+                    
+                    clientThread.Start(client);
+                    threadPool.Add(clientThread);
                 }
             }
             catch(Exception e)
