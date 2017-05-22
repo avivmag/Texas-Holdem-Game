@@ -22,9 +22,9 @@ namespace ApplicationFacade
             dal = new DALDummy();
             //texasHoldemGames = new List<TexasHoldemGame>();
             texasHoldemGames = dal.getAllGames();
-            Console.WriteLine(texasHoldemGames);
             leagues = new List<League>();
-            loggedInUsers = new List<SystemUser>();
+            //loggedInUsers = new List<SystemUser>();
+            loggedInUsers = dal.getAllUsers();
         }
 
         public static GameCenter getGameCenter()
@@ -102,21 +102,29 @@ namespace ApplicationFacade
             return m;
         }
 
-        public ReturnMessage register(string user, string password, string email, string userImage)
+        public SystemUser register(string user, string password, string email, string userImage)
         {
             if (user == null || password == null || email == null || userImage == null || user.Equals("") || password.Equals("") || email.Equals("") || userImage.Equals(""))
-                return new ReturnMessage(false, "all attributes must be filled.");
+                throw new ArgumentException("Not all parameters were given.");
 
             SystemUser systemUser = dal.getUserByName(user);
             if (systemUser != null)
-                return new ReturnMessage(false, "user name or email already taken");
+                throw new ArgumentException("User already exists.");
 
             //creating the user.
             systemUser = new SystemUser(user, password, email, userImage, 0);
             //after a registeration the user stay login
             loggedInUsers.Add(systemUser);
             //adding the user to the db.
-            return dal.registerUser(systemUser);
+            var response = dal.registerUser(systemUser);
+            if (response.success)
+            {
+                return systemUser;
+            }
+            else
+            {
+                throw new InvalidOperationException("Could not register user.");
+            }
         }
 
         public SystemUser login(string user, string password)
@@ -178,8 +186,6 @@ namespace ApplicationFacade
             dal.addGame(game);
             return game;
         }
-
-
 
         public List<TexasHoldemGame> getAllGames()
         {

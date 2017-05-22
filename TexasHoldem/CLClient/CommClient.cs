@@ -130,6 +130,8 @@ namespace CLClient
             }
             var response = responseJson.ToObject<TexasHoldemGame>();
 
+            response.gamePreferences.flatten();
+
             return response;
         }
 
@@ -144,6 +146,8 @@ namespace CLClient
                 return null;
             }
             var response = responseJson.ToObject<TexasHoldemGame>();
+
+            response.gamePreferences.flatten();
 
             return response;
         }
@@ -160,6 +164,8 @@ namespace CLClient
             }
             var response = responseJson.ToObject<TexasHoldemGame>();
 
+            response.gamePreferences.flatten();
+
             return response;
         }
 
@@ -175,6 +181,8 @@ namespace CLClient
             }
 
             var response    = responseJson.ToObject<TexasHoldemGame>();
+
+            response.gamePreferences.flatten();
 
             return response;
         }
@@ -223,6 +231,11 @@ namespace CLClient
             }
             var response = responseJson.ToObject<List<TexasHoldemGame>>();
 
+            foreach (var thg in response)
+            {
+                thg.gamePreferences.flatten();
+            }
+
             return response;
         }
 
@@ -239,6 +252,11 @@ namespace CLClient
             }
             var response = responseJson.ToObject<List<TexasHoldemGame>>();
 
+            foreach (var thg in response)
+            {
+                thg.gamePreferences.flatten();
+            }
+
             return response;
         }
 
@@ -254,6 +272,11 @@ namespace CLClient
                 return null;
             }
             var response = responseJson.ToObject<List<TexasHoldemGame>>();
+
+            foreach (var thg in response)
+            {
+                thg.gamePreferences.flatten();
+            }
 
             return response;
         }
@@ -358,6 +381,8 @@ namespace CLClient
                 return null;
             }
             var response = responseJson.ToObject<TexasHoldemGame>();
+
+            response.gamePreferences.flatten();
 
             return response;
         }
