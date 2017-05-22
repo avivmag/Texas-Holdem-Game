@@ -9,6 +9,7 @@ using Backend.Game;
 using Backend.Game.DecoratorPreferences;
 using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
 using Backend;
+using System;
 
 namespace TestProject.UnitTest
 {
@@ -40,7 +41,8 @@ namespace TestProject.UnitTest
             for (int i = 0; i < 4; i++)
             {
                 userList[i].id = i;
-                center.login(userList[i].name, userList[i].password);
+                center.loggedInUsers.Add(userList[i]);
+                //center.login(userList[i].name, userList[i].password);
             }
 
             //set the leagues
@@ -110,16 +112,16 @@ namespace TestProject.UnitTest
             sl = new SLImpl();
         }
 
-        //[TestMethod]
-        //public void successTest()
-        //{
-        //    SystemUser user = center.getUserById(2);
-        //    sl.leaveGame(user, 4);
-        //    sl.leaveGame(user, 5);
-        //    object o = sl.Logout(user.id);
-        //    Assert.IsInstanceOfType(o,typeof(ReturnMessage));
-        //    Assert.IsTrue(((ReturnMessage)o).success);
-        //}
+        [TestMethod]
+        public void successTest()
+        {
+            SystemUser user = center.getUserById(2);
+            sl.leaveGame(user, 4);
+            sl.leaveGame(user, 5);
+            object o = sl.Logout(user.id);
+            Assert.IsInstanceOfType(o, typeof(ReturnMessage));
+            Assert.IsTrue(((ReturnMessage)o).success);
+        }
 
         [TestMethod]
         public void notLoggedInTest()
@@ -129,18 +131,19 @@ namespace TestProject.UnitTest
             Assert.IsFalse(((ReturnMessage)m).success);
         }
 
-        //[TestMethod]
-        //public void logOutTwiceTest()
-        //{
-        //    SystemUser user = new SystemUser("rick roll", "never gonna give you up", "never@gonna.let.you.down", "a picture of something completly not related to rick roll", 200);
-        //    user.id = 7;
-        //    sl.Register("rick roll", "never gonna give you up", "never@gonna.let.you.down", "a picture of something completly not related to rick roll");
-        //    sl.Login("rick roll", "never gonna give you up");
-        //    sl.Logout(7);
-        //    object m = sl.Logout(7);
-        //    Assert.IsInstanceOfType(m, typeof(ReturnMessage));
-        //    Assert.IsFalse(((ReturnMessage)m).success);
-        //}
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException), "The user is already logged in")]
+        public void logOutTwiceTest()
+        {
+            SystemUser user = new SystemUser("rick roll", "never gonna give you up", "never@gonna.let.you.down", "a picture of something completly not related to rick roll", 200);
+            user.id = 7;
+            sl.Register("rick roll", "never gonna give you up", "never@gonna.let.you.down", "a picture of something completly not related to rick roll");
+            sl.Login("rick roll", "never gonna give you up");
+            sl.Logout(7);
+            object m = sl.Logout(7);
+            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
+            Assert.IsFalse(((ReturnMessage)m).success);
+        }
 
         [TestCleanup]
         public void TearDown()

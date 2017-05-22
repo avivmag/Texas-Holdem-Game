@@ -57,6 +57,10 @@
       <Project>{C338435B-70E3-40BB-93B7-A8CC89F73744}</Project>
       <Name>DAL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Obser\Obser.csproj">
+      <Project>{7500fa3e-1231-437f-89cd-8a6f8087fe44}</Project>
+      <Name>Obser</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

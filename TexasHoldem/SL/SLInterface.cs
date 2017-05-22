@@ -1,4 +1,6 @@
 ﻿using Backend.User;
+using Obser;
+using System.Net.Sockets;
 
 namespace SL
 {
@@ -48,6 +50,7 @@ namespace SL
         object GetPlayer(int gameId, int playerIndex);
         object GetPlayerCards(int gameId, int playerIndex);
         object GetShowOff(int gameId);
+        object Subscribe(ObserverAbstract<TcpClient> client, int gameID);
         #endregion
         }
 }

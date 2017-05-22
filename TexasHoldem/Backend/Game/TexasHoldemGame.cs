@@ -36,6 +36,7 @@ namespace Backend.Game
         public Card turn { get; set; }
         public Card river { get; set; }
 
+        GameObserver gameStatesObserver;
         //public GameObserver playersChatObserver;
         //public GameObserver spectateChatObserver;
         //public GameObserver gameStatesObserver;
@@ -80,9 +81,16 @@ namespace Backend.Game
             //playersChatObserver = new GameObserver(GameObserver.ObserverType.PlayersChat);
             //spectateChatObserver = new GameObserver(GameObserver.ObserverType.SpectateChat);
             //gameStatesObserver = new GameObserver(GameObserver.ObserverType.GameStates);
+             gameStatesObserver = new GameObserver();
+
 
             currentDealer = 0;
         }
+
+        //public object Subscribe(object client)
+        //{
+        //    go.Subscribe(client);
+        //}
         
         //public TexasHoldemGame(SystemUser user, GamePreferences gamePreferences)
         //{
@@ -237,7 +245,9 @@ namespace Backend.Game
             int startingChips = 1000;
             BuyInPolicyDecPref buyInPref = (BuyInPolicyDecPref)gamePreferences.getOptionalPref(new BuyInPolicyDecPref(0, null));
             if (buyInPref != null)
+            {
                 startingChips = buyInPref.buyInPolicy;
+            }
             Player p = new Player(user.id, user.name, startingChips, user.rank);
             
             //check that the player is not already in the game
@@ -400,7 +410,7 @@ namespace Backend.Game
 
                 playersSetsTheirBets(false);
                 addToPot(tempPot);
-                //gameStatesObserver.Update();
+                gameStatesObserver.Update();
 
                 for (int i = 0; i < players.Length; i++)
                 {
@@ -408,7 +418,7 @@ namespace Backend.Game
                         players[i].handRank = checkHandRank(players[i]);
                 }
 
-                //gameStatesObserver.Update();
+                gameStatesObserver.Update();
 
 
             }
@@ -430,7 +440,7 @@ namespace Backend.Game
             }
 
             players[winnerIndex].playerState = PlayerState.winner;
-            //gameStatesObserver.Update();
+            gameStatesObserver.Update();
         }
 
         public void playersSetsTheirBets(bool firstBets)
@@ -442,7 +452,7 @@ namespace Backend.Game
                     {
                         players[i].playerState = PlayerState.my_turn;
                         //UPDATE everybody
-                        //gameStatesObserver.Update();
+                        gameStatesObserver.Update();
                     }
                 }
             else
@@ -452,7 +462,7 @@ namespace Backend.Game
                     {
                         players[i].playerState = PlayerState.my_turn;
                         //UPDATE everybody
-                        //gameStatesObserver.Update();
+                        gameStatesObserver.Update();
                     }
                 }
         }

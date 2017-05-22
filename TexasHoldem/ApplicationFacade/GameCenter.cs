@@ -20,11 +20,11 @@ namespace ApplicationFacade
         private GameCenter()
         {
             dal = new DALDummy();
-            //texasHoldemGames = new List<TexasHoldemGame>();
-            texasHoldemGames = dal.getAllGames();
+            texasHoldemGames = new List<TexasHoldemGame>();
+            //texasHoldemGames = dal.getAllGames();
             leagues = new List<League>();
-            //loggedInUsers = new List<SystemUser>();
-            loggedInUsers = dal.getAllUsers();
+            loggedInUsers = new List<SystemUser>();
+            //loggedInUsers = dal.getAllUsers();
         }
 
         public static GameCenter getGameCenter()
