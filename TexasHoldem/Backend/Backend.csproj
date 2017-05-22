@@ -50,6 +50,11 @@
     <Compile Include="Game\LeagueTexasHoldemGame.cs" />
     <Compile Include="Game\Player.cs" />
     <Compile Include="Game\TexasHoldemGame.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Include="Tools\ReturnMessage.cs" />
     <Compile Include="Messages\Notification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -63,6 +68,17 @@
     <Compile Include="Game\DecoratorPreferences\MustPreferences.cs" />
     <Compile Include="Game\DecoratorPreferences\StartingAmountChipsCedPref.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Obser\Obser.csproj">
+      <Project>{7500fa3e-1231-437f-89cd-8a6f8087fe44}</Project>
+      <Name>Obser</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

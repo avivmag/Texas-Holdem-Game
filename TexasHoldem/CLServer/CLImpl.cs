@@ -18,7 +18,7 @@ namespace CLServer
     public class CLImpl
     {
         private static SLInterface sl = new SLImpl();
-
+        private List<ServerObserver> sol = new List<ServerObserver>();
         /// <summary>
         /// Task to proccess the client's requests.
         /// </summary>
@@ -96,7 +96,7 @@ namespace CLServer
         /// </summary>
         /// <param name="client">The client to send to.</param>
         /// <param name="message">The message to send. (Optional)</param>
-        private static void SendMessage(TcpClient client, object message = null)
+        public static void SendMessage(TcpClient client, object message = null)
         {
             JObject messageJObject = new JObject();
             if (message != null)
@@ -456,7 +456,8 @@ namespace CLServer
             }
 
             var joinActiveGameResponse = sl.joinActiveGame((int)userIdToken, (int)gameIdToken);
-
+            if (sl != null)
+                sl.Subscribe(new ServerObserver(client), (int)gameIdToken);
             SendMessage(client, joinActiveGameResponse);
             return;
         }
@@ -472,7 +473,8 @@ namespace CLServer
             }
 
             var spectateActiveGameResponse = sl.spectateActiveGame((int)userIdToken, (int)gameIdToken);
-
+            if (sl != null)
+                sl.Subscribe(new ServerObserver(client), (int)gameIdToken);
             SendMessage(client, spectateActiveGameResponse);
             return;
         }
