@@ -456,6 +456,7 @@ namespace CLServer
         private static void FilterActiveGamesByGamePreferences(TcpClient client, JObject jsonObject)
         {
             var gamePolicy = jsonObject.Value<int?>("gamePolicy");
+            var limitPolicy = jsonObject.Value<int?>("gamePolicyLimit");
             var buyInPolicy = jsonObject.Value<int?>("buyInPolicy");
             var startingChips = jsonObject.Value<int?>("startingChips");
             var minimalBet = jsonObject.Value<int?>("minimalBet");

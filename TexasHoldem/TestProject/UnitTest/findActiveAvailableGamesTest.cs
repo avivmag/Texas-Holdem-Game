@@ -18,8 +18,7 @@ namespace TestProject
         private SLInterface sl;
         private GameCenter center = GameCenter.getGameCenter();
         private List<TexasHoldemGame> gamesList;
-
-
+        
         [TestInitialize]
         public void SetUp()
         {
