@@ -395,7 +395,14 @@ namespace PL
             }
 
             playerStateBackground[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/" + playerStateImageUrl + ".png"));
-            playersImage[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/" + playerImageUrl + ".png"));
+            try
+            {
+                playersImage[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/" + playerImageUrl + ".png"));
+            }
+            catch(Exception e)
+            {
+                playersImage[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/profile_pic.png"));
+            }
 
             playerNames[i].Content = playerName;
             playerCoins[i].Content = playerCoinsNumber;

@@ -13,7 +13,7 @@ namespace CLClient.Entities
         public int TokensInBet { get; set; }
         //public int userRank { get; set; }
         public bool spectator { get; set; }
-        public enum PlayerState { folded, in_round, not_in_round, my_turn }
+        public enum PlayerState { folded, in_round, not_in_round, my_turn, winner }
         public string imageUrl { get; set; }
         public PlayerState playerState { get; set; }
         public string name { get; set; }
