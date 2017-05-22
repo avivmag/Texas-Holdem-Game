@@ -238,7 +238,6 @@ namespace Backend.Game
             BuyInPolicyDecPref buyInPref = (BuyInPolicyDecPref)gamePreferences.getOptionalPref(new BuyInPolicyDecPref(0, null));
             if (buyInPref != null)
             {
-                Console.WriteLine("buyInPref is {0}", buyInPref.buyInPolicy);
                 startingChips = buyInPref.buyInPolicy;
             }
             Player p = new Player(user.id, user.name, startingChips, user.rank);
