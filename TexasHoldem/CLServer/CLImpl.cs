@@ -74,6 +74,9 @@ namespace CLServer
                 messageJObject["message"] = JToken.FromObject(new object());
             }
 
+
+            Console.WriteLine(messageJObject["message"]);
+
             var serializedMessage   = JsonConvert.SerializeObject(messageJObject,
                                                                   Newtonsoft.Json.Formatting.None,
                                                                   new JsonSerializerSettings
@@ -392,7 +395,7 @@ namespace CLServer
                 (string)passwordToken, 
                 (string)emailToken, 
                 (string)userImageToken);
-
+            
             SendMessage(client, registerResponse);
             return;
         }

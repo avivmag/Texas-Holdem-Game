@@ -109,5 +109,10 @@ namespace Backend.Game.DecoratorPreferences
             }
             return null;
         }
+
+        public override string ToString()
+        {
+            return string.Format("isSpectateAllowed: {0}, isLeague: {1}, {2}", isSpectateAllowed, isLeague, firstDecPref);
+        }
     }
 }

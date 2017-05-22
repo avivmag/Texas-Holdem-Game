@@ -19,11 +19,17 @@ public class SLImpl : SLInterface
     {
         TexasHoldemGame game = gameCenter.getGameById(gameID);
         if (game == null)
-            return new ReturnMessage(false, "couldn't find the game.");
+            return null;
         SystemUser user = gameCenter.getUserById(userId);
         if (user == null)
-            return new ReturnMessage(false, "couldn't find the user.");
-        return game.joinSpectate(user);
+            return null;
+        var joinSpec = game.joinSpectate(user);
+
+        if (joinSpec.success)
+        {
+            return game;
+        }
+        return null;
     }
 
     public object joinActiveGame(int userId, int gameID)

@@ -32,6 +32,9 @@ namespace Backend.User
             tempRank = 0;
             tempGames = 0;
             newPlayer = true;
+
+            Random rnd = new Random();
+            this.id = rnd.Next(0, 999999);
         }
 
 		public void update(String str)
