@@ -90,7 +90,7 @@ namespace Backend.Game.DecoratorPreferences
                 return false;
             MustPreferences mustPref = (MustPreferences)pref;
             if (mustPref.isLeague == isLeague && mustPref.isSpectateAllowed == isSpectateAllowed)
-                if (firstDecPref != null)
+                if (mustPref.firstDecPref != null)
                     return firstDecPref.isContain(mustPref.firstDecPref);
                 else
                     return true;
@@ -108,6 +108,11 @@ namespace Backend.Game.DecoratorPreferences
                 temp = temp.nextDecPref;
             }
             return null;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("isSpectateAllowed: {0}, isLeague: {1}, {2}", isSpectateAllowed, isLeague, firstDecPref);
         }
     }
 }

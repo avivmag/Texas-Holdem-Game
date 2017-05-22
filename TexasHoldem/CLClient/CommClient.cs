@@ -130,6 +130,8 @@ namespace CLClient
             }
             var response = responseJson.ToObject<TexasHoldemGame>();
 
+            response.gamePreferences.flatten();
+
             return response;
         }
 
@@ -144,6 +146,8 @@ namespace CLClient
                 return null;
             }
             var response = responseJson.ToObject<TexasHoldemGame>();
+
+            response.gamePreferences.flatten();
 
             return response;
         }
@@ -160,6 +164,8 @@ namespace CLClient
             }
             var response = responseJson.ToObject<TexasHoldemGame>();
 
+            response.gamePreferences.flatten();
+
             return response;
         }
 
@@ -175,6 +181,8 @@ namespace CLClient
             }
 
             var response    = responseJson.ToObject<TexasHoldemGame>();
+
+            response.gamePreferences.flatten();
 
             return response;
         }
@@ -199,12 +207,13 @@ namespace CLClient
             return response;
         }
 
-        public static List<TexasHoldemGame> filterActiveGamesByGamePreferences(string gamePolicy, int? buyInPolicy, int? startingChips, int? minimalBet, int? minimalPlayers, int? maximalPlayers, bool? spectateAllowed, bool? isLeague)
+        public static List<TexasHoldemGame> filterActiveGamesByGamePreferences(string gamePolicy,int? gamePolicyLimit, int? buyInPolicy, int? startingChips, int? minimalBet, int? minimalPlayers, int? maximalPlayers, bool? spectateAllowed, bool? isLeague)
         {
             var message = new
             {
                 action = "FilterActiveGamesByGamePreferences",
                 gamePolicy,
+                gamePolicyLimit,
                 buyInPolicy,
                 startingChips,
                 minimalBet,
@@ -223,6 +232,11 @@ namespace CLClient
             }
             var response = responseJson.ToObject<List<TexasHoldemGame>>();
 
+            foreach (var thg in response)
+            {
+                thg.gamePreferences.flatten();
+            }
+
             return response;
         }
 
@@ -239,6 +253,11 @@ namespace CLClient
             }
             var response = responseJson.ToObject<List<TexasHoldemGame>>();
 
+            foreach (var thg in response)
+            {
+                thg.gamePreferences.flatten();
+            }
+
             return response;
         }
 
@@ -254,6 +273,11 @@ namespace CLClient
                 return null;
             }
             var response = responseJson.ToObject<List<TexasHoldemGame>>();
+
+            foreach (var thg in response)
+            {
+                thg.gamePreferences.flatten();
+            }
 
             return response;
         }
@@ -358,6 +382,8 @@ namespace CLClient
                 return null;
             }
             var response = responseJson.ToObject<TexasHoldemGame>();
+
+            response.gamePreferences.flatten();
 
             return response;
         }

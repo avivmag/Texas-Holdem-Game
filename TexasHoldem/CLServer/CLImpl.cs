@@ -65,7 +65,6 @@ namespace CLServer
         private static void SendMessage(TcpClient client, object message = null)
         {
             JObject messageJObject = new JObject();
-            Console.WriteLine("message is: {0}",message);
             if (message != null)
             {
                 messageJObject["message"] = JToken.FromObject(message);
@@ -75,6 +74,9 @@ namespace CLServer
                 messageJObject["message"] = JToken.FromObject(new object());
             }
 
+
+            Console.WriteLine(messageJObject["message"]);
+
             var serializedMessage   = JsonConvert.SerializeObject(messageJObject,
                                                                   Newtonsoft.Json.Formatting.None,
                                                                   new JsonSerializerSettings
@@ -82,11 +84,7 @@ namespace CLServer
                                                                       NullValueHandling = NullValueHandling.Ignore
                                                                   });
 
-            Console.WriteLine("serializedMessage is: {0}", serializedMessage);
-
             var messageByteArray    = Encoding.ASCII.GetBytes(serializedMessage);
-
-            Console.WriteLine("messageByteArray length is: {0}", messageByteArray.Length);
 
             try
             {
@@ -236,10 +234,10 @@ namespace CLServer
             {
                 throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Get Game State."));
             }
+            
+            var response = sl.GetGameState((int)gameIdToken);
 
-            var gameId = (int)gameIdToken;
-
-            SendMessage(client, new { response = sl.GetGameState(gameId) });
+            SendMessage(client, response);
         }
         private static void ChoosePlayerSeat(TcpClient client, JObject jsonObject)
         {
@@ -323,7 +321,6 @@ namespace CLServer
             var loginResponse = sl.Login((string)usernameToken, (string)passwordToken);
 
             SendMessage(client, loginResponse);
-            return;
         }
         private static void CreateGame(TcpClient client, JObject jsonObject) {
             var gameCreatorIdToken = jsonObject["gameCreatorId"];
@@ -368,6 +365,8 @@ namespace CLServer
 
             var getGameResponse = sl.getGameById((int)gameIdToken);
 
+            Console.WriteLine(getGameResponse);
+
             SendMessage(client, getGameResponse);
             return;
         }
@@ -397,7 +396,7 @@ namespace CLServer
                 (string)passwordToken, 
                 (string)emailToken, 
                 (string)userImageToken);
-
+            
             SendMessage(client, registerResponse);
             return;
         }
@@ -457,13 +456,30 @@ namespace CLServer
         //TODO:: Obsolete because game preferences is now decorator. Not finished.
         private static void FilterActiveGamesByGamePreferences(TcpClient client, JObject jsonObject)
         {
-            var gamePolicy = jsonObject.Value<int?>("gamePolicy");
-            var buyInPolicy = jsonObject.Value<int?>("buyInPolicy");
-            var startingChips = jsonObject.Value<int?>("startingChips");
-            var minimalBet = jsonObject.Value<int?>("minimalBet");
-            var minimalPlayers = jsonObject.Value<int?>("minimalPlayers");
-            var maximalPlayers = jsonObject.Value<int?>("maximalPlayers");
-            var spectateAllowed = jsonObject.Value<bool?>("spectateAllowed");
+            var gamePolicy = jsonObject["gamePolicy"];
+            var limitPolicy = jsonObject["gamePolicyLimit"];
+            var buyInPolicy = jsonObject["buyInPolicy"];
+            var startingChips = jsonObject["startingChips"];
+            var minimalBet = jsonObject["minimalBet"];
+            var minimalPlayers = jsonObject["minimalPlayers"];
+            var maximalPlayers = jsonObject["maximalPlayers"];
+            var spectateAllowed = jsonObject["spectateAllowed"];
+            var isLeague        = jsonObject["isLeague"];
+
+            var filterActiveGamesByGamePreferencesResponse = sl.filterActiveGamesByGamePreferences(
+                (string)gamePolicy,
+                (int?)limitPolicy,
+                (int?)buyInPolicy,
+                (int?)startingChips,
+                (int?)minimalBet,
+                (int?)minimalPlayers,
+                (int?)maximalPlayers,
+                (bool?)spectateAllowed,
+                (bool?)isLeague);
+
+            SendMessage(client, filterActiveGamesByGamePreferencesResponse);
+            return;
+
         }
         private static void FilterActiveGamesByPotSize(TcpClient client, JObject jsonObject)
         {

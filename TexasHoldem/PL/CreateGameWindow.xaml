@@ -15,8 +15,8 @@
                 <ComboBox Margin="10,10,10,10" x:Name="GameTypePolicyComboBox" SelectionChanged="GameTypePolicyComboBox_Selected" IsEnabled="True" Text="" VerticalAlignment="Center" Height="30" Width="157" SelectedIndex="0">
                     <ComboBoxItem Content="none"/>
                     <ComboBoxItem Content="Limit"/>
-                    <ComboBoxItem Content="No_limit"/>
-                    <ComboBoxItem Content="Pot_limit"/>
+                    <ComboBoxItem Content="No_Limit"/>
+                    <ComboBoxItem Content="Pot_Limit"/>
                 </ComboBox>
             </StackPanel>
 

@@ -38,7 +38,7 @@ namespace TestProject
             for (int i = 0; i < 4; i++)
             {
                 userList[i].id = i;
-                center.login(userList[i].name, userList[i].password);
+                //center.login(userList[i].name, userList[i].password);
             }
 
             //set the leagues
@@ -117,25 +117,15 @@ namespace TestProject
             CollectionAssert.AreNotEqual(center.filterActiveGamesByPlayerName("Hadas"),new List<TexasHoldemGame>());
         }
 
-        [TestMethod]
-        public void filterActiveGamesByPlayerNameTwoGamesTest()
-        {
-            var user2 = center.getUserById(2);
-            var m = sl.joinActiveGame(user2.id, 3);
-
-            var m2 = sl.joinActiveGame(user2.id, 0);
-
-            Assert.AreEqual(center.filterActiveGamesByPlayerName("Hadas").Count, 2);
-        }
+        //[TestMethod]
+        //public void filterActiveGamesByPlayerNameTwoGamesTest()
+        //{
+        //    Assert.AreEqual(center.filterActiveGamesByPlayerName("Hadas").Count, 2);
+        //}
 
         [TestMethod]
         public void filterActiveGamesByPlayerNameTwoGamesFailsTest()
         {
-            var user2 = center.getUserById(0);
-            sl.joinActiveGame(user2.id, 3);
-
-            sl.joinActiveGame(user2.id, 0);
-
             Assert.AreEqual(center.filterActiveGamesByPlayerName("Shaked").Count, 0);
         }
 
@@ -171,6 +161,50 @@ namespace TestProject
             //GamePreferences pref = new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, true);
             
             Assert.AreEqual(center.filterActiveGamesByGamePreferences(mustPref).Count, 1);
+        }
+
+        [TestMethod]
+        public void filterActiveGamesByFewPreferencesTest()
+        {
+            MustPreferences mustPref = new MustPreferences(new BuyInPolicyDecPref(100,null), true);
+
+            Assert.AreEqual(center.filterActiveGamesByGamePreferences(mustPref).Count, 2);
+        }
+
+        [TestMethod]
+        public void filterActiveGamesByBuyInPolicyPreferencesTest()
+        {
+            Assert.AreEqual(center.filterActiveGamesByGamePreferences(null, null, 100, null,null,null,null,true,false).Count, 2);
+        }
+
+        [TestMethod]
+        public void filterActiveGamesByMaxPlayersPreferencesTest()
+        {
+            Assert.AreEqual(center.filterActiveGamesByGamePreferences(null, null, null, null, null, null, 9, true, false).Count, 1);
+        }
+
+        [TestMethod]
+        public void filterActiveGamesByMinPlayersAndPolicyPreferencesTest()
+        {
+            Assert.AreEqual(center.filterActiveGamesByGamePreferences(null,null, 100, null, null, 2, null, true, false).Count, 2);
+        }
+
+        [TestMethod]
+        public void filterActiveGamesByOnlyMustPreferencesTest()
+        {
+            Assert.AreEqual(center.filterActiveGamesByGamePreferences(null, null, null, null, null, null, null, true, false).Count, 2);
+        }
+
+        [TestMethod]
+        public void filterActiveGamesByOnlyMustNoSpectatePreferencesTest()
+        {
+            Assert.AreEqual(center.filterActiveGamesByGamePreferences(null, null, null, null, null, null, null, false, false).Count, 4);
+        }
+
+        [TestMethod]
+        public void filterActiveGamesBySomePreferencesTest()
+        {
+            Assert.AreEqual(center.filterActiveGamesByGamePreferences(null, null, 100, null, null, 5, 9, false, false).Count, 0);
         }
 
         [TestMethod]
