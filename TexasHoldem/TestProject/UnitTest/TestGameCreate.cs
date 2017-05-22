@@ -41,7 +41,8 @@ namespace TestProject.UnitTest
             for (int i = 0; i < 4; i++)
             {
                 userList[i].id = i;
-                center.login(userList[i].name, userList[i].password);
+                center.loggedInUsers.Add(userList[i]);
+                //center.login(userList[i].name, userList[i].password);
             }
 
             //set the leagues
@@ -125,86 +126,6 @@ namespace TestProject.UnitTest
 
             Assert.IsNotInstanceOfType(game, typeof(TexasHoldemGame));
         }
-
-        //[TestMethod]
-        //public void TestCreateGameWithNegativeBuyIn()
-        //{
-        //    GamePreferences pref = new GamePreferences(
-        //        GamePreferences.GameTypePolicy.limit,
-        //        -100,
-        //        15000,
-        //        120,
-        //        4,
-        //        8,
-        //        true);
-        //    var gameCreationMessage = sl.createGame(0, pref);
-
-        //    Assert.IsFalse(gameCreationMessage.success);
-        //}
-
-        //[TestMethod]
-        //public void TestCreateGameWithNegativeChipsCount()
-        //{
-        //    GamePreferences pref = new GamePreferences(
-        //        GamePreferences.GameTypePolicy.limit,
-        //        100,
-        //        -15000,
-        //        120,
-        //        4,
-        //        8,
-        //        true);
-        //    var gameCreationMessage = sl.createGame(0, pref);
-
-        //    Assert.IsFalse(gameCreationMessage.success);
-        //}
-
-        //[TestMethod]
-        //public void TestCreateGameWithMinimalBetHigherThanChipsCount()
-        //{
-        //    GamePreferences pref = new GamePreferences(
-        //        GamePreferences.GameTypePolicy.limit,
-        //        100,
-        //        15,
-        //        120,
-        //        4,
-        //        8,
-        //        true);
-        //    var gameCreationMessage = sl.createGame(0, pref);
-
-        //    Assert.IsFalse(gameCreationMessage.success);
-        //}
-
-        //[TestMethod]
-        //public void TestCreateGameWithOneMinPlayer()
-        //{
-        //    GamePreferences pref = new GamePreferences(
-        //        GamePreferences.GameTypePolicy.limit,
-        //        100,
-        //        15000,
-        //        120,
-        //        1,
-        //        8,
-        //        true);
-        //    var gameCreationMessage = sl.createGame(0, pref);
-
-        //    Assert.IsFalse(gameCreationMessage.success);
-        //}
-
-        //[TestMethod]
-        //public void TestCreateGameWithMaxPlayersLowerThanMinPlayers()
-        //{
-        //    GamePreferences pref = new GamePreferences(
-        //        GamePreferences.GameTypePolicy.limit,
-        //        100,
-        //        15000,
-        //        120,
-        //        4,
-        //        3,
-        //        true);
-        //    var gameCreationMessage = sl.createGame(0, pref);
-
-        //    Assert.IsFalse(gameCreationMessage.success);
-        //}
 
         [TestCleanup]
         public void TearDown()

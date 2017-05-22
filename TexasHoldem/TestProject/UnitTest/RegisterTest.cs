@@ -9,6 +9,7 @@ using ApplicationFacade;
 using Backend.Game;
 using Backend.Game.DecoratorPreferences;
 using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
+using System;
 
 namespace TestProject.UnitTest
 {
@@ -41,7 +42,8 @@ namespace TestProject.UnitTest
             for (int i = 0; i < 4; i++)
             {
                 userList[i].id = i;
-                center.login(userList[i].name, userList[i].password);
+                center.loggedInUsers.Add(userList[i]);
+                //center.login(userList[i].name, userList[i].password);
             }
 
             //set the leagues
@@ -115,32 +117,29 @@ namespace TestProject.UnitTest
         public void successTest()
         {
             object m = sl.Register("Scorpion", "GET OVER HERE!!", "scorpy@winnig.tournament.mk", "deadly skull behind a mask");
-            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
-            Assert.IsTrue(((ReturnMessage)m).success);
+            Assert.IsInstanceOfType(m, typeof(SystemUser));
+            Assert.AreEqual(((SystemUser)m).name, "Scorpion");
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ArgumentException), "Not all parameters were given.")]
         public void emptyUserNameTest()
         {
-            object m = sl.Register("", "P@SSW0RD", "gmail@gmail.com", "none");
-           Assert.IsInstanceOfType(m, typeof(ReturnMessage));
-            Assert.IsFalse(((ReturnMessage)m).success);
+            sl.Register("", "P@SSW0RD", "gmail@gmail.com", "none");
         }
 
-        //[TestMethod]
-        //public void emptyPasswordTest()
-        //{
-        //    object m = sl.Register("NeverPassworded", "", "no@password.com", "ying yang photo");
-        //    Assert.IsInstanceOfType(m, typeof(ReturnMessage));
-        //    Assert.IsFalse(((ReturnMessage)m).success);
-        //}
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException), "Not all parameters were given.")]
+        public void emptyPasswordTest()
+        {
+            sl.Register("NeverPassworded", "", "no@password.com", "ying yang photo");
+        }
 
         [TestMethod]
+        [ExpectedException(typeof(ArgumentException), "Not all parameters were given.")]
         public void alreadyExistsEmailTest()
         {
             object m = sl.Register("NeverPassworded", "", "no@password.com", "ying yang photo");
-            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
-            Assert.IsFalse(((ReturnMessage)m).success);
         }
     }
 

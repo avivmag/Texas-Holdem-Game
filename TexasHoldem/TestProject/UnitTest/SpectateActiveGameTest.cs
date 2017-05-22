@@ -41,7 +41,8 @@ namespace TestProject
             for (int i = 0; i < 4; i++)
             {
                 userList[i].id = i;
-                center.login(userList[i].name, userList[i].password);
+                center.loggedInUsers.Add(userList[i]);
+                //center.login(userList[i].name, userList[i].password);
             }
 
             //set the leagues
@@ -115,16 +116,15 @@ namespace TestProject
         public void spectateSuccessTest()
         {
             object m = sl.spectateActiveGame(2, 0);
-            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
-            Assert.IsTrue(((ReturnMessage)m).success);
+            Assert.IsInstanceOfType(m, typeof(TexasHoldemGame));
+            Assert.AreEqual(((TexasHoldemGame)m).spectators.Count,1);
         }
 
         [TestMethod]
         public void spectateFailesPreferencesTest()
         {
             object m = sl.spectateActiveGame(2, 1);
-            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
-            Assert.IsFalse(((ReturnMessage)m).success);
+            Assert.AreEqual(m, null);
         }
 
         [TestMethod]
@@ -132,8 +132,7 @@ namespace TestProject
         {
             sl.spectateActiveGame(3, 0);
             object m = sl.spectateActiveGame(3, 0);
-            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
-            Assert.IsFalse(((ReturnMessage)m).success);
+            Assert.AreEqual(m, null);
         }
 
         [TestMethod]
@@ -141,16 +140,14 @@ namespace TestProject
         {
             sl.joinActiveGame(3, 0);
             object m = sl.spectateActiveGame(3, 0);
-            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
-            Assert.IsFalse(((ReturnMessage)m).success);
+            Assert.AreEqual(m, null);
         }
 
-        //[TestMethod]
-        //public void spectateFailsGameNoExistsTest()
-        //{
-        //    object m = sl.spectateActiveGame(0, 1000);
-        //    Assert.IsInstanceOfType(m, typeof(ReturnMessage));
-        //    Assert.IsFalse(((ReturnMessage)m).success);
-        //}
+        [TestMethod]
+        public void spectateFailsGameNoExistsTest()
+        {
+            object m = sl.spectateActiveGame(0, 1000);
+            Assert.AreEqual(m, null);
+        }
     }
 }

@@ -9,6 +9,7 @@ using ApplicationFacade;
 using Backend.Game;
 using Backend.Game.DecoratorPreferences;
 using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
+using System;
 
 namespace TestProject.UnitTest
 {
@@ -40,7 +41,8 @@ namespace TestProject.UnitTest
             for (int i = 0; i < 4; i++)
             {
                 userList[i].id = i;
-                center.login(userList[i].name, userList[i].password);
+                center.loggedInUsers.Add(userList[i]);
+                //center.login(userList[i].name, userList[i].password);
             }
 
             //set the leagues
@@ -126,42 +128,39 @@ namespace TestProject.UnitTest
         public void successRegisterTest()
         {
             object m = sl.Register("crash bandicoot", "green boxes are the worst", "crash@bash.bugabugabuga", "hedgehog photo");
-            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
-            Assert.IsTrue(((ReturnMessage)m).success);
+            Assert.IsInstanceOfType(m, typeof(SystemUser));
+            Assert.AreEqual(((SystemUser)m).name, "crash bandicoot");
         }
 
-        //[TestMethod]
-        //public void alreadyLoggedInTest()
-        //{
-        //    sl.Register("crash bandicoot", "green boxes are the worst", "crash@bash.bugabugabuga", "hedgehog photo");
-        //    //sl.Login("crash bandicoot", "green boxes are the worst");
-        //    object m = sl.Login("crash bandicoot", "green boxes are the worst");
-        //    Assert.IsFalse(((ReturnMessage)m).success);
-        //}
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException), "The user is already logged in")]
+        public void alreadyLoggedInTest()
+        {
+            sl.Register("crash bandicoottt", "green boxes are the worst", "crash@bash.bugabugabuga", "hedgehog photo");
+            
+            object m = sl.Login("crash bandicoottt", "green boxes are the worst");
+        }
 
-        //[TestMethod]
-        //public void notRegisteredTest()
-        //{
-        //    object o = sl.Login("a worm from worms world party", "for a donkey, for a donkey, my kindom for a donkey");
-        //    Assert.IsInstanceOfType(o, typeof(ReturnMessage));
-        //    Assert.IsFalse(((ReturnMessage)o).success);
-        //}
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException), "No such user.")]
+        public void notRegisteredTest()
+        {
+            object o = sl.Login("a worm from worms world party", "for a donkey, for a donkey, my kindom for a donkey");
+        }
 
-        //[TestMethod]
-        //public void emptyUserNameTest()
-        //{
-        //    object m = sl.Login("", "Transparancy is overwhelming");
-        //    Assert.IsInstanceOfType(m, typeof(ReturnMessage));
-        //    Assert.IsFalse(((ReturnMessage)m).success);
-        //}
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException), "No such user.")]
+        public void emptyUserNameTest()
+        {
+            object m = sl.Login("", "Transparancy is overwhelming");
+        }
 
-        //[TestMethod]
-        //public void emptyPasswordTest()
-        //{
-        //    object m = sl.Login("sandro the living dead", "");
-        //    Assert.IsInstanceOfType(m, typeof(ReturnMessage));
-        //    Assert.IsFalse(((ReturnMessage)m).success);
-        //}
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException), "No such user.")]
+        public void emptyPasswordTest()
+        {
+            object m = sl.Login("sandro the living dead", "");
+        }
 
         [TestCleanup]
         public void TearDown()
