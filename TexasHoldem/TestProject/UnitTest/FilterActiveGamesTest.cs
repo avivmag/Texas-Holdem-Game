@@ -118,7 +118,7 @@ namespace TestProject
         [TestMethod]
         public void filterActiveGamesByPlayerNameFewGamesTest()
         {
-            Assert.AreEqual(center.filterActiveGamesByPlayerName("Hadas").Count, 4);
+            Assert.AreEqual(center.filterActiveGamesByPlayerName("Hadas").Count, 2);
         }
 
         [TestMethod]
