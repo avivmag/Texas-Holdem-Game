@@ -31,7 +31,7 @@ namespace PL
             var game = getGame();
             if (game == null)
             {
-                errorMessage.Text = "Could not create the game";
+                //errorMessage.Text = "Could not create the game";
             }
             else
             {

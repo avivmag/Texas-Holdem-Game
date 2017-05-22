@@ -98,6 +98,11 @@ namespace CLServer
         /// <param name="message">The message to send. (Optional)</param>
         public static void SendMessage(TcpClient client, object message = null)
         {
+            if (message.Equals("UpdatedGame"))
+            {
+                Console.WriteLine("GGGGG");
+            }
+
             JObject messageJObject = new JObject();
             if (message != null)
             {
@@ -331,7 +336,6 @@ namespace CLServer
             var gameId = (int)gameIdToken;
             var playerSeatIndex = (int)playerSeatIndexToken;
 
-
             var response = sl.GetPlayerCards((int)gameIdToken, (int)playerSeatIndexToken);
             Console.WriteLine(response);
 
@@ -473,8 +477,10 @@ namespace CLServer
             }
 
             var joinActiveGameResponse = sl.joinActiveGame((int)userIdToken, (int)gameIdToken);
+
             if (sl != null)
                 sl.Subscribe(new ServerObserver(client), (int)gameIdToken);
+
             SendMessage(client, joinActiveGameResponse);
             return;
         }

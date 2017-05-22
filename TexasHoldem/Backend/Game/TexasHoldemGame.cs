@@ -3,6 +3,7 @@ using Backend.User;
 using System;
 using static Backend.Game.Player;
 using Backend.Game.DecoratorPreferences;
+using System.Diagnostics;
 
 namespace Backend.Game
 {
@@ -36,7 +37,7 @@ namespace Backend.Game
         public Card turn { get; set; }
         public Card river { get; set; }
 
-        GameObserver gameStatesObserver;
+        public GameObserver gameStatesObserver { get; set; }
         //public GameObserver playersChatObserver;
         //public GameObserver spectateChatObserver;
         //public GameObserver gameStatesObserver;
@@ -57,6 +58,7 @@ namespace Backend.Game
             MaxPlayersDecPref maxPlayersDec =(MaxPlayersDecPref) gamePreferences.getOptionalPref(new MaxPlayersDecPref(0, null));
             if (maxPlayersDec != null)
                 maxPlayers = maxPlayersDec.maxPlayers;
+            Debug.WriteLine("/n/n" + maxPlayers + "/n/n");
             players = new Player[maxPlayers];
             availableSeats = maxPlayers - 1;
 
