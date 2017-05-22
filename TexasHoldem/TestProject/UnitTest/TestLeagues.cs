@@ -86,6 +86,74 @@ namespace TestProject.UnitTest
         }
 
         [TestMethod]
+        public void TestMaintainSmallUsers()
+        {
+            List<SystemUser> allUsers = new List<SystemUser>();
+            for (int i = 0; i < 9; i++)
+            {
+                SystemUser u = new SystemUser("", "", "", "", 100);
+                u.rank = rnd.Next(0, 999999);
+                allUsers.Add(u);
+            }
+            center.maintainLeagues(allUsers);
+            Assert.IsTrue(center.leagues.Count == 3);
+
+            for (int i = 0; i < center.leagues.Count; i++)
+            {
+                Assert.IsTrue(center.leagues[i].maxRank >= center.leagues[i].minRank);
+            }
+
+            for (int i = 0; i < center.leagues.Count - 1; i++)
+            {
+                Assert.IsTrue(center.leagues[i].minRank >= center.leagues[i + 1].maxRank);
+            }
+
+            for (int i = 0; i < center.leagues.Count; i++)
+            {
+                for (int j = i; j < center.leagues.Count; j++)
+                {
+                    Assert.IsTrue(center.leagues[i].Users.Count == center.leagues[j].Users.Count + 1 ||
+                        center.leagues[i].Users.Count == center.leagues[j].Users.Count - 1 ||
+                        center.leagues[i].Users.Count == center.leagues[j].Users.Count);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void TestMaintainMediumUsers()
+        {
+            List<SystemUser> allUsers = new List<SystemUser>();
+            for (int i = 0; i < 50; i++)
+            {
+                SystemUser u = new SystemUser("", "", "", "", 100);
+                u.rank = rnd.Next(0, 999999);
+                allUsers.Add(u);
+            }
+            center.maintainLeagues(allUsers);
+            Assert.IsTrue(center.leagues.Count == 8);
+
+            for (int i = 0; i < center.leagues.Count; i++)
+            {
+                Assert.IsTrue(center.leagues[i].maxRank >= center.leagues[i].minRank);
+            }
+
+            for (int i = 0; i < center.leagues.Count - 1; i++)
+            {
+                Assert.IsTrue(center.leagues[i].minRank >= center.leagues[i + 1].maxRank);
+            }
+
+            for (int i = 0; i < center.leagues.Count; i++)
+            {
+                for (int j = i; j < center.leagues.Count; j++)
+                {
+                    Assert.IsTrue(center.leagues[i].Users.Count == center.leagues[j].Users.Count + 1 ||
+                        center.leagues[i].Users.Count == center.leagues[j].Users.Count - 1 ||
+                        center.leagues[i].Users.Count == center.leagues[j].Users.Count);
+                }
+            }
+        }
+
+        [TestMethod]
         public void TestMaintainBigUsers()
         {
             List<SystemUser> allUsers = new List<SystemUser>();
@@ -117,104 +185,6 @@ namespace TestProject.UnitTest
                         center.leagues[i].Users.Count == center.leagues[j].Users.Count);
                 }
             }
-
-            //var duplicateRemoveMessage = sl.addLeague(300, 400, "Starter League");
-
-            //Assert.IsFalse(duplicateRemoveMessage.success);
         }
-
-        //[TestMethod]
-        //public void AddLeagueWithNegativeMinRank()
-        //{
-        //    var NegativeRankMessage = sl.addLeague(-5, 100, "test.");
-
-        //    Assert.IsTrue(NegativeRankMessage.success == false && NegativeRankMessage.description.Contains("invalid minRank"));
-        //}
-
-        //[TestMethod]
-        //public void AddLeagueWithMaxRankLowerThanMinRank()
-        //{
-        //    var LowMaxRankMessage = sl.addLeague(2, -2, "test.");
-
-        //    Assert.IsTrue(LowMaxRankMessage.success == false && LowMaxRankMessage.description.Contains("maxRank has to be bigger than minRank"));
-        //}
-
-        //[TestMethod]
-        //public void AddLeagueWithMinRankHigherThanMaxRank()
-        //{
-        //    var HighMinRankMessage = sl.addLeague(2, 1, "test.");
-
-        //    Assert.IsTrue(HighMinRankMessage.success == false && HighMinRankMessage.description.Contains("maxRank has to be bigger than minRank"));
-
-        //}
-
-        //[TestMethod]
-        //public void TestGetLeagueByName()
-        //{
-        //    var league = sl.getLeagueByName("Starter League");
-
-        //    Assert.IsTrue(league != null);
-        //}
-
-        //[TestMethod]
-        //public void TestGetLeagueById()
-        //{
-        //    var league = sl.getLeagueByName("Starter League");
-
-        //    var league2 = sl.getLeagueById(league.leagueId);
-        //    Assert.IsTrue(league2 != null && league.leagueId == league2.leagueId);
-        //}
-
-        //[TestMethod]
-        //public void TestGetNonExistsLeagueById()
-        //{
-        //    var league = sl.getLeagueById(Guid.NewGuid());
-
-        //    Assert.IsTrue(league == null);
-        //}
-
-        //[TestMethod]
-        //public void TestGetNonExistsLeagueByName()
-        //{
-        //    var league = sl.getLeagueByName(String.Empty);
-
-        //    Assert.IsTrue(league == null);
-        //}
-
-        //[TestMethod]
-        //public void TestSetCriteria()
-        //{
-        //    var highestPlayerId = sl.getUserById(3).id;
-        //    var league = sl.getLeagueByName("Experienced League");
-        //    var setCriteriaMessage = sl.setLeagueCriteria(2100, 3100, "Experienced League", league.leagueId, highestPlayerId);
-        //    Assert.IsTrue(setCriteriaMessage.success);
-        //}
-
-        //[TestMethod]
-        //public void TestSetCriteriaWithTakenName()
-        //{
-        //    var highestPlayerId = sl.getUserById(3).id;
-        //    var league = sl.getLeagueByName("Experienced League");
-        //    var setCriteriaMessage = sl.setLeagueCriteria(2000, 3000, "Starter League", league.leagueId, highestPlayerId);
-        //    Assert.IsFalse(setCriteriaMessage.success);
-        //}
-
-        //[TestMethod]
-        //public void TestSetCriteriaWithBadMinRank()
-        //{
-        //    var highestPlayerId = sl.getUserById(3).id;
-        //    var league = sl.getLeagueByName("Experienced League");
-        //    var setCriteriaMessage = sl.setLeagueCriteria(-100, 3000, "Experienced League", league.leagueId, highestPlayerId);
-        //    Assert.IsFalse(setCriteriaMessage.success);
-        //}
-
-        //[TestMethod]
-        //public void TestSetCriteriaWithBadMaxRank()
-        //{
-        //    var highestPlayerId = sl.getUserById(3).id;
-        //    var league = sl.getLeagueByName("Experienced League");
-        //    var setCriteriaMessage = sl.setLeagueCriteria(2000, -300, "Experienced League", league.leagueId, highestPlayerId);
-        //    Assert.IsFalse(setCriteriaMessage.success);
-        //}
     }
 }

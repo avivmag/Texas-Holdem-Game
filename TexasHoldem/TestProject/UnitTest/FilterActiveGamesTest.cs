@@ -38,6 +38,7 @@ namespace TestProject
             for (int i = 0; i < 4; i++)
             {
                 userList[i].id = i;
+                center.loggedInUsers.Add(userList[i]);
                 //center.login(userList[i].name, userList[i].password);
             }
 
@@ -108,20 +109,17 @@ namespace TestProject
             sl = new SLImpl();
         }
 
-        [TestMethod]
-        public void filterActiveGamesByPlayerNameSuccessTest()
-        {
-            var user2 = center.getUserById(2);
-            var m = sl.joinActiveGame(user2.id, 3);
-            
-            CollectionAssert.AreNotEqual(center.filterActiveGamesByPlayerName("Hadas"),new List<TexasHoldemGame>());
-        }
-
         //[TestMethod]
-        //public void filterActiveGamesByPlayerNameTwoGamesTest()
+        //public void filterActiveGamesByPlayerNameSuccessTest()
         //{
         //    Assert.AreEqual(center.filterActiveGamesByPlayerName("Hadas").Count, 2);
         //}
+
+        [TestMethod]
+        public void filterActiveGamesByPlayerNameFewGamesTest()
+        {
+            Assert.AreEqual(center.filterActiveGamesByPlayerName("Hadas").Count, 4);
+        }
 
         [TestMethod]
         public void filterActiveGamesByPlayerNameTwoGamesFailsTest()

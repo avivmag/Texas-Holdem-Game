@@ -29,7 +29,8 @@ namespace TestProject
             for (int i = 0; i<4; i++)
             {
                 userList[i].id = i;
-                center.login(userList[i].name, userList[i].password);
+                center.loggedInUsers.Add(userList[i]);
+                //center.login(userList[i].name, userList[i].password);
             }
 
             Mock<DALInterface> dalMock = new Mock<DALInterface>();

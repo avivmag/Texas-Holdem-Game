@@ -37,7 +37,6 @@ public class SLImpl : SLInterface
     {
         TexasHoldemGame game = gameCenter.getGameById(gameID);
         SystemUser user = gameCenter.getUserById(userId);
-        Console.WriteLine("gameId: {0}, userId: {1}, game: {2}, user: {3}", gameID, userId, game, user);
         if (game == null || user == null)
         {
             return null;
