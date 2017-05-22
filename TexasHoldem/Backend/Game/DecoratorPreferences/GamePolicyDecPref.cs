@@ -1,12 +1,13 @@
 ﻿using Backend.User;
+using System;
 
 namespace Backend.Game.DecoratorPreferences
 {
     public class GamePolicyDecPref : OptionalPreferences
     {
         public enum GameTypePolicy { Undef, Limit, No_Limit, Pot_Limit };
-        private GameTypePolicy gamePolicy;
-        private int limit;
+        public GameTypePolicy gamePolicy { get; }
+        public int limit { get; }
 
         public GamePolicyDecPref(GameTypePolicy gamePolicy, int limit, OptionalPreferences nextDecPref) : base(nextDecPref)
         {
@@ -86,6 +87,10 @@ namespace Backend.Game.DecoratorPreferences
 
         public override bool isContain(DecoratorPreferencesInterface pref)
         {
+            if (pref == null)
+            {
+                return false;
+            }
             if (pref.GetType().IsAssignableFrom(typeof(OptionalPreferences)))
                 //if (pref.GetType() != typeof(OptionalPreferences))
                 return false;
@@ -104,6 +109,11 @@ namespace Backend.Game.DecoratorPreferences
                 return nextDecPref.isContain(opPref);
             else
                 return false;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("limit: {0}, gamePolicy {1}, {2}", limit, gamePolicy.ToString(), nextDecPref);
         }
     }
 }

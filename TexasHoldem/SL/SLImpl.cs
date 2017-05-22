@@ -1,6 +1,7 @@
 ﻿using Backend.User;
 using Backend.Game;
 using SL;
+using System;
 using ApplicationFacade;
 using Backend.Game.DecoratorPreferences;
 using Backend;
@@ -36,7 +37,7 @@ public class SLImpl : SLInterface
     {
         TexasHoldemGame game = gameCenter.getGameById(gameID);
         SystemUser user = gameCenter.getUserById(userId);
-
+        Console.WriteLine("gameId: {0}, userId: {1}, game: {2}, user: {3}", gameID, userId, game, user);
         if (game == null || user == null)
         {
             return null;
@@ -50,6 +51,7 @@ public class SLImpl : SLInterface
         }
         else
         {
+            Console.WriteLine(response.description);
             return null;
         }
     }
@@ -117,6 +119,18 @@ public class SLImpl : SLInterface
     public object filterActiveGamesByGamePreferences(string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague, int minRank, int maxRank)
     {
         var game = gameCenter.filterActiveGamesByGamePreferences(gamePolicy, gamePolicyLimit, buyInPolicy, startingChipsAmount, MinimalBet, minPlayers, maxPlayers, isSpectatingAllowed, isLeague, minRank, maxRank);
+
+        if (game.Count == 0)
+        {
+            return null;
+        }
+
+        return game;
+    }
+
+    public object filterActiveGamesByGamePreferences(string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague)
+    {
+        var game = gameCenter.filterActiveGamesByGamePreferences(gamePolicy, gamePolicyLimit, buyInPolicy, startingChipsAmount, MinimalBet, minPlayers, maxPlayers, isSpectatingAllowed, isLeague);
 
         if (game.Count == 0)
         {

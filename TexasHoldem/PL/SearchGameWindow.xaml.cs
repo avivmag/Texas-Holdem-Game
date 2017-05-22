@@ -194,11 +194,10 @@ namespace PL
             {
                 gamePolicy = GameTypePolicyComboBox.Text;
             }
-
             //set the limit
             if (LimitPolicyTextbox.Text.Equals(""))
                 gamePolicyLimit = null;
-            else if (!Int32.TryParse(buyInTextbox.Text, out value) || value < 0)
+            else if (!Int32.TryParse(LimitPolicyTextbox.Text, out value) || value < 0)
             {
                 errorMessage.Text = "Wrong Input - limit policy should be int and positive.";
                 return ans;

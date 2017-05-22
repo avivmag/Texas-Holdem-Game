@@ -71,5 +71,9 @@ namespace Backend.Game.DecoratorPreferences
             else
                 return false;
         }
+        public override string ToString()
+        {
+            return string.Format("maxPlayers: {0}, {1}", maxPlayers, nextDecPref);
+        }
     }
 }
