@@ -71,6 +71,9 @@ namespace Backend.Game
             }
 
             flop = new List<Card>();
+            flop.Add(new Card(Card.cardType.club, 5));
+            flop.Add(new Card(Card.cardType.diamond, 6));
+            flop.Add(new Card(Card.cardType.heart, 7));
 
             isGameActive = false;
 
@@ -937,9 +940,7 @@ namespace Backend.Game
 
             return -1;
         }
-
-
-
+        
         // TODO: Gili - tries to position a player where he wants (on a seat)
         public ReturnMessage ChoosePlayerSeat(int playerIndex)
         {

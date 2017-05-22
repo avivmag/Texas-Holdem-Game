@@ -68,6 +68,8 @@ namespace Backend.Game.DecoratorPreferences
                 //if we don't have anything else to check return true.
                 else return true;
             //if we couldent found or if we found pref with different value.
+            else if (matchingPref == null && nextDecPref != null)
+                return nextDecPref.isContain(opPref);
             else
                 return false;
         }

@@ -88,8 +88,14 @@ namespace DAL
                 //new TexasHoldemGame(userDummies[3], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 0, 1000)),
                 //new TexasHoldemGame(userDummies[3], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 1000, 2000))
             };
-            for (int i = 0; i < 6; i++)
-                gameDummies[i].gameId = i;
+            //for (int i = 0; i < 6; i++)
+            //{
+            //    gameDummies[i].flop = new List<Card>();
+            //    gameDummies[i].flop.Add(new Card(Card.cardType.club, 5));
+            //    gameDummies[i].flop.Add(new Card(Card.cardType.diamond, 6));
+            //    gameDummies[i].flop.Add(new Card(Card.cardType.heart, 7));
+            //    gameDummies[i].gameId = i;
+            //}
 
             playerDummies = new List<Player>
             {
