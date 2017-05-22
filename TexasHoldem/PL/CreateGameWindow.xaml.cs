@@ -149,7 +149,7 @@ namespace PL
         {
             if (GameTypePolicyComboBox.Text.Equals("Limit"))
                 limitPolicyTextbox.IsEnabled = true;
-            else
+            else if (limitPolicyTextbox != null)
                 limitPolicyTextbox.IsEnabled = false;
         }
 

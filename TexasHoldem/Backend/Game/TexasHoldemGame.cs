@@ -237,7 +237,9 @@ namespace Backend.Game
             int startingChips = 1000;
             BuyInPolicyDecPref buyInPref = (BuyInPolicyDecPref)gamePreferences.getOptionalPref(new BuyInPolicyDecPref(0, null));
             if (buyInPref != null)
+            {
                 startingChips = buyInPref.buyInPolicy;
+            }
             Player p = new Player(user.id, user.name, startingChips, user.rank);
             
             //check that the player is not already in the game

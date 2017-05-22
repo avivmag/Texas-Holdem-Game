@@ -108,9 +108,6 @@ namespace CLServer
                 messageJObject["message"] = JToken.FromObject(new object());
             }
 
-
-            Console.WriteLine(messageJObject["message"]);
-
             var serializedMessage   = JsonConvert.SerializeObject(messageJObject,
                                                                   Newtonsoft.Json.Formatting.None,
                                                                   new JsonSerializerSettings
@@ -369,7 +366,8 @@ namespace CLServer
             var isLeagueToken = jsonObject["isLeague"];
 
             if ((gameCreatorIdToken == null) || (gameCreatorIdToken.Type != JTokenType.Integer) ||
-                (gamePolicyToken == null) || (gamePolicyToken.Type != JTokenType.Integer))
+                (gamePolicyToken == null) || (gamePolicyToken.Type != JTokenType.String) ||
+                String.IsNullOrWhiteSpace((string)(gamePolicyToken)))
             {
                 throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Create Game."));
             }
@@ -398,8 +396,6 @@ namespace CLServer
             }
 
             var getGameResponse = sl.getGameById((int)gameIdToken);
-
-            Console.WriteLine(getGameResponse);
 
             SendMessage(client, getGameResponse);
             return;
@@ -573,15 +569,40 @@ namespace CLServer
             return;
         }
 
+        public static string GetLocalIPAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+            throw new Exception("Local IP Address Not Found!");
+        }
         private static List<Thread> threadPool;
 
         static void Main()
         {
             threadPool = new List<Thread>();
             TcpListener listener = null;
+
+            string IP = null;
+
             try
             {
-                var address = IPAddress.Parse("127.0.0.1");
+                IP = GetLocalIPAddress();
+                Console.WriteLine("this is the IP: {0}", IP);
+            }
+            catch
+            {
+                Console.WriteLine("Not connected to internet. aborting.");
+                return;
+            }
+            try
+            {
+                var address = IPAddress.Parse(IP);
                 var port    = 2345;
                 listener    = new TcpListener(address, port);
 
