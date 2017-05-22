@@ -90,7 +90,7 @@ namespace Backend.Game.DecoratorPreferences
                 return false;
             MustPreferences mustPref = (MustPreferences)pref;
             if (mustPref.isLeague == isLeague && mustPref.isSpectateAllowed == isSpectateAllowed)
-                if (firstDecPref != null)
+                if (mustPref.firstDecPref != null)
                     return firstDecPref.isContain(mustPref.firstDecPref);
                 else
                     return true;
