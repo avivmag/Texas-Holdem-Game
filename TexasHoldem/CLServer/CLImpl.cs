@@ -257,6 +257,19 @@ namespace CLServer
 
             SendMessage(client, new { response = sl.Check(gameId, playerIndex) });
         }
+        private static void playGame(TcpClient client, JObject jsonObject)
+        {
+            var gameIdToken = jsonObject["gameId"];
+
+            if (((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer)))
+            {
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Check."));
+            }
+            
+            var response = sl.playGame((int)gameIdToken);
+
+            SendMessage(client, response);
+        }
         private static void GetGameState(TcpClient client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
@@ -318,7 +331,11 @@ namespace CLServer
             var gameId = (int)gameIdToken;
             var playerSeatIndex = (int)playerSeatIndexToken;
 
-            SendMessage(client, new { response = sl.GetPlayerCards(gameId, playerSeatIndex) });
+
+            var response = sl.GetPlayerCards((int)gameIdToken, (int)playerSeatIndexToken);
+            Console.WriteLine(response);
+
+            SendMessage(client, response);
         }
         private static void GetShowOff(TcpClient client, JObject jsonObject)
         {
