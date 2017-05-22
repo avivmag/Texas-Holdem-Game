@@ -65,7 +65,6 @@ namespace CLServer
         private static void SendMessage(TcpClient client, object message = null)
         {
             JObject messageJObject = new JObject();
-            Console.WriteLine("message is: {0}",message);
             if (message != null)
             {
                 messageJObject["message"] = JToken.FromObject(message);
@@ -82,11 +81,7 @@ namespace CLServer
                                                                       NullValueHandling = NullValueHandling.Ignore
                                                                   });
 
-            Console.WriteLine("serializedMessage is: {0}", serializedMessage);
-
             var messageByteArray    = Encoding.ASCII.GetBytes(serializedMessage);
-
-            Console.WriteLine("messageByteArray length is: {0}", messageByteArray.Length);
 
             try
             {

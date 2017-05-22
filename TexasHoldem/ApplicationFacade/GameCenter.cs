@@ -22,9 +22,9 @@ namespace ApplicationFacade
             dal = new DALDummy();
             //texasHoldemGames = new List<TexasHoldemGame>();
             texasHoldemGames = dal.getAllGames();
-            Console.WriteLine(texasHoldemGames);
             leagues = new List<League>();
-            loggedInUsers = new List<SystemUser>();
+            //loggedInUsers = new List<SystemUser>();
+            loggedInUsers = dal.getAllUsers();
         }
 
         public static GameCenter getGameCenter()

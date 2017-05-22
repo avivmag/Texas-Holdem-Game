@@ -72,29 +72,62 @@ public class SLImpl : SLInterface
 
     public object filterActiveGamesByPlayerName(string name)
     {
+        var games = gameCenter.filterActiveGamesByPlayerName(name);
+
+        if (games.Count == 0)
+        {
+            return null;
+        }
         return gameCenter.filterActiveGamesByPlayerName(name);
     }
 
     public object filterActiveGamesByPotSize(int? size)
     {
-        return gameCenter.filterActiveGamesByPotSize(size);
+        var games = gameCenter.filterActiveGamesByPotSize(size);
+
+        if (games.Count == 0)
+        {
+            return null;
+        }
+        return games;
     }
 
     public object filterActiveGamesByGamePreferences(object pref)
     {
         if (pref.GetType() == typeof(MustPreferences))
-            return gameCenter.filterActiveGamesByGamePreferences((MustPreferences)pref);
+        {
+            var game = gameCenter.filterActiveGamesByGamePreferences((MustPreferences)pref);
+
+            if (game.Count == 0)
+            {
+                return null;
+            }
+
+            return game;
+        }
         return null;
     }
 
     public object filterActiveGamesByGamePreferences(string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague, int minRank, int maxRank)
     {
-        return gameCenter.filterActiveGamesByGamePreferences(gamePolicy, gamePolicyLimit, buyInPolicy, startingChipsAmount, MinimalBet, minPlayers, maxPlayers, isSpectatingAllowed, isLeague, minRank, maxRank);
+        var game = gameCenter.filterActiveGamesByGamePreferences(gamePolicy, gamePolicyLimit, buyInPolicy, startingChipsAmount, MinimalBet, minPlayers, maxPlayers, isSpectatingAllowed, isLeague, minRank, maxRank);
+
+        if (game.Count == 0)
+        {
+            return null;
+        }
+
+        return game;
     }
 
     public object getAllGames()
     {
-        return gameCenter.getAllGames();
+        var games = gameCenter.getAllGames();
+        if (games.Count == 0)
+        {
+            return null;
+        }
+        return games;
     }
 
     public object createGame(int gameCreatorId, object pref)
