@@ -27,8 +27,7 @@ namespace PL
         private int playerSeatIndex;
         private int systemUserId;
         private TexasHoldemGame game;
-
-
+        
         private Button[] seatsButtons;
         private Label[] playerNames;
         private Image[] playerStateBackground;
@@ -76,11 +75,12 @@ namespace PL
             this.game = game;
             this.systemUserId = systemUserId;
             initializeScreen();
+            updateGame();
         }
 
         /// <summary>
         /// initialization of all arrays and stuff
-        /// </summary>
+        /// </summary>/
         private void initializeScreen()
         {
             seatsButtons = new Button[game.players.Length];
@@ -274,9 +274,11 @@ namespace PL
         {
             seatsButtons[i] = new Button();
             playerCards[i] = new Image[2];
-            playerCards[i][0] = DrawCard(cardType.unknown, CARD_TYPE);
+            playerCards[i][0] = new Image();
+            playerCards[i][0].Source = DrawCard(cardType.unknown, CARD_TYPE);
             playerCards[i][0].Margin = new Thickness(5);
-            playerCards[i][1] = DrawCard(cardType.unknown, CARD_TYPE);
+            playerCards[i][1] = new Image();
+            playerCards[i][1].Source = DrawCard(cardType.unknown, CARD_TYPE);
             playerCards[i][1].Margin = new Thickness(5);
             playerNames[i] = new Label();
             allInIcons[i] = new Image();
@@ -321,31 +323,31 @@ namespace PL
             seatButtonToSeatIndex[seatsButtons[i]] = i;
             seatsButtons[i].Width = 90;
             seatsButtons[i].Height = 90;
-            if (game.players[i] == null)
-                changeSeat(i, true, "gray", "free_seat_icon", "free seat", 0, 0);
-            else
-            {
-                string background = null;
-                switch (game.players[i].playerState)
-                {
-                    case Player.PlayerState.folded:
-                        background = "red";
-                        break;
-                    case Player.PlayerState.in_round:
-                        background = "green";
-                        break;
-                    case Player.PlayerState.my_turn:
-                        background = "blue";
-                        break;
-                    case Player.PlayerState.not_in_round:
-                        background = "gray";
-                        break;
-                    case Player.PlayerState.winner:
-                        background = "yellow";
-                        break;
-                }
-                changeSeat(i, false, background, game.players[i].imageUrl, game.players[i].name, 0, 0);
-            }
+            //if (game.players[i] == null)
+            //    changeSeat(i, true, "gray", "free_seat_icon", "free seat", 0, 0);
+            //else
+            //{
+            //    string background = null;
+            //    switch (game.players[i].playerState)
+            //    {
+            //        case Player.PlayerState.folded:
+            //            background = "red";
+            //            break;
+            //        case Player.PlayerState.in_round:
+            //            background = "green";
+            //            break;
+            //        case Player.PlayerState.my_turn:
+            //            background = "blue";
+            //            break;
+            //        case Player.PlayerState.not_in_round:
+            //            background = "gray";
+            //            break;
+            //        case Player.PlayerState.winner:
+            //            background = "yellow";
+            //            break;
+            //    }
+            //    changeSeat(i, false, background, game.players[i].imageUrl, game.players[i].name, 0, 0);
+            //}
         }
 
         private IDictionary<Button, Image> seatButtonToImageDictionary;
@@ -412,7 +414,7 @@ namespace PL
             playerCoinsGambled[i].Content = playerCoinsNumberGambled;
         }
         
-        private Image DrawCard(cardType type, int cardNumber)
+        private CroppedBitmap DrawCard(cardType type, int cardNumber)
         {
             // matching to the sprite
             int col = cardNumber - 1;
@@ -436,7 +438,7 @@ namespace PL
                     break;
             }
             // Create an Image element.
-            Image croppedImage = new Image();
+            //Image croppedImage = new Image();
             //croppedImage.Width = 72;
             //croppedImage.Height = 100;
             //croppedImage.Margin = new Thickness(5);
@@ -445,8 +447,7 @@ namespace PL
             CroppedBitmap cb = new CroppedBitmap(
                new BitmapImage(new Uri("pack://application:,,,/resources/cards_sprite.gif")),
                new Int32Rect(col * 72, row * 100, 72, 100));       //select region rect
-            croppedImage.Source = cb;                 //set image source to cropped
-            return croppedImage;
+            return cb;
         }
 
         private void AddCommunityCards()
@@ -456,7 +457,8 @@ namespace PL
             communityCards = new Image[5];
             for (int i = 0; i < communityCards.Length; i++)
             {
-                communityCards[i] = DrawCard(cardType.unknown, CARD_TYPE);
+                communityCards[i] = new Image();
+                communityCards[i].Source = DrawCard(cardType.unknown, CARD_TYPE);
                 communityCards[i].Margin = new Thickness(5);
                 ug.Children.Add(communityCards[i]);
             }
@@ -628,7 +630,7 @@ namespace PL
         {
             Card[] cards = CommClient.GetPlayerCards(this.game.gameId, playerSeatIndex);
             for(int i = 0; i < playerCards[playerSeatIndex].Length; i++)
-                playerCards[playerSeatIndex][i] = DrawCard(cards[i].Type, cards[i].Value);
+                playerCards[playerSeatIndex][i].Source = DrawCard(cards[i].Type, cards[i].Value);
         }
 
         public void cardsShowOff()
@@ -637,7 +639,7 @@ namespace PL
             foreach (KeyValuePair<int, Card[]> entry in seatIndexToCards)
             {
                 for (int i = 0; i < entry.Value.Length; i++)
-                    playerCards[entry.Key][i] = DrawCard(entry.Value[i].Type, entry.Value[i].Value);
+                    playerCards[entry.Key][i].Source = DrawCard(entry.Value[i].Type, entry.Value[i].Value);
             }
         }
 
@@ -650,12 +652,23 @@ namespace PL
 
             //List<Card> flop;
             for(int i = 0; i < game.flop.Count; i++)
-                communityCards[i] = DrawCard(game.flop[i].Type, game.flop[i].Value);
+            {
+                if(game.flop[i] == null)
+                    communityCards[i].Source = DrawCard(cardType.unknown, CARD_TYPE);
+                else
+                    communityCards[i].Source = DrawCard(game.flop[i].Type, game.flop[i].Value);
+            }
             //Card turn;
-            communityCards[3] = DrawCard(game.turn.Type, game.turn.Value);
+            if (game.turn == null)
+                communityCards[3].Source = DrawCard(cardType.unknown, CARD_TYPE);
+            else
+                communityCards[3].Source = DrawCard(game.turn.Type, game.turn.Value);
             //Card river;
-            communityCards[4] = DrawCard(game.river.Type, game.river.Value);
-
+            if (game.river == null)
+                communityCards[4].Source = DrawCard(cardType.unknown, CARD_TYPE);
+            else
+                communityCards[4].Source = DrawCard(game.river.Type, game.river.Value);
+            
             //Player[] players;
             //int currentDealer;
             //int currentBig;
