@@ -2,6 +2,7 @@
 using Backend.Game;
 using CLClient;
 using System;
+using System.Threading.Tasks;
 
 namespace TestProject.UnitTest
 {
@@ -12,14 +13,20 @@ namespace TestProject.UnitTest
         [TestMethod]
         public void loginTest()
         {
-            int manyUsers = 1;
+            int manyUsers = 200;
             for (int i = 0; i < manyUsers; i++)
             {
+                //Task.Factory.StartNew(() =>
+                //{
+                //    Console.WriteLine(Convert.ToString(i));
+                //    var sysUser = CommClient.Register(Convert.ToString(i), Convert.ToString(i), Convert.ToString(i), Convert.ToString(i));
+                //});
+
                 Console.WriteLine(Convert.ToString(i));
-                CommClient.Register(Convert.ToString(i), Convert.ToString(i), Convert.ToString(i), "");
+                var sysUser = CommClient.Register(Convert.ToString(i), Convert.ToString(i), Convert.ToString(i), Convert.ToString(i));
             }
 
-            //for (int i = 0; i < manyUsers; i++)
+            //for (int i = 0; i < manyUsers - 1; i++)
             //{
             //    CommClient.Login(Convert.ToString(i), Convert.ToString(i));
             //}

@@ -4,7 +4,8 @@ using SL;
 using System;
 using ApplicationFacade;
 using Backend.Game.DecoratorPreferences;
-using Backend;
+using Obser;
+using System.Net.Sockets;
 
 public class SLImpl : SLInterface
 {
@@ -232,9 +233,16 @@ public class SLImpl : SLInterface
     {
         return gameCenter.GetShowOff(gameId);
     }
+
+
     #endregion
 
-
+    public object Subscribe(ObserverAbstract<TcpClient> client, int gameID)
+    {
+        TexasHoldemGame game = gameCenter.getGameById(gameID);
+        return null;
+        
+    }
 
 
     //public List<TexasHoldemGame> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed)
