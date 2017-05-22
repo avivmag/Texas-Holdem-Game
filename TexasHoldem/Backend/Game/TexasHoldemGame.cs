@@ -72,6 +72,9 @@ namespace Backend.Game
             }
 
             flop = new List<Card>();
+            flop.Add(new Card(Card.cardType.club, 5));
+            flop.Add(new Card(Card.cardType.diamond, 6));
+            flop.Add(new Card(Card.cardType.heart, 7));
 
             isGameActive = false;
 
@@ -242,7 +245,9 @@ namespace Backend.Game
             int startingChips = 1000;
             BuyInPolicyDecPref buyInPref = (BuyInPolicyDecPref)gamePreferences.getOptionalPref(new BuyInPolicyDecPref(0, null));
             if (buyInPref != null)
+            {
                 startingChips = buyInPref.buyInPolicy;
+            }
             Player p = new Player(user.id, user.name, startingChips, user.rank);
             
             //check that the player is not already in the game
@@ -942,9 +947,7 @@ namespace Backend.Game
 
             return -1;
         }
-
-
-
+        
         // TODO: Gili - tries to position a player where he wants (on a seat)
         public ReturnMessage ChoosePlayerSeat(int playerIndex)
         {

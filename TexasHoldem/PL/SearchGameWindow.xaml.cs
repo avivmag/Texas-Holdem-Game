@@ -111,6 +111,7 @@ namespace PL
 
         private void Clear_Click(object sender, RoutedEventArgs e)
         {
+            errorMessage.Text = "";
             playerNameCheckBox.IsChecked = true;
             selectedCheckBox = playerNameCheckBox.Name;
             playerNameTextbox.Clear();
@@ -123,6 +124,8 @@ namespace PL
 
         private void Search_Click(object sender, RoutedEventArgs e)
         {
+            errorMessage.Text = "";
+            searchResultGrid.Items.Clear();
             List<TexasHoldemGame> gamesFound = new List<TexasHoldemGame>();
             if (playerNameCheckBox.IsChecked.HasValue && playerNameCheckBox.IsChecked.Value)
             {
@@ -296,6 +299,7 @@ namespace PL
 
         private void Spectate_Game_Click(object sender, RoutedEventArgs e)
         {
+            errorMessage.Text = "";
             int gameId;
             DataGridCellInfo cellValue = (searchResultGrid.SelectedCells.ElementAt(1));
             gameId = Int32.Parse(((TexasHoldemGameStrings)cellValue.Item).gameId);
