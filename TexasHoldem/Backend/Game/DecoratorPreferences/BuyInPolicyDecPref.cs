@@ -62,7 +62,7 @@ namespace Backend.Game.DecoratorPreferences
             //if we found matchig optinal pref and he have the same policy
             if (matchingPref != null && matchingPref.buyInPolicy== buyInPolicy)
                 //if we still need to check the rest of the chain
-                if (nextDecPref != null)
+                if (matchingPref.nextDecPref != null)
                     //return its result
                     return nextDecPref.isContain(pref);
                 //if we don't have anything else to check return true.

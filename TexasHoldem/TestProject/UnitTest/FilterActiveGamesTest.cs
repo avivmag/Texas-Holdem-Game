@@ -38,7 +38,7 @@ namespace TestProject
             for (int i = 0; i < 4; i++)
             {
                 userList[i].id = i;
-                center.login(userList[i].name, userList[i].password);
+                //center.login(userList[i].name, userList[i].password);
             }
 
             //set the leagues
@@ -171,6 +171,14 @@ namespace TestProject
             //GamePreferences pref = new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, true);
             
             Assert.AreEqual(center.filterActiveGamesByGamePreferences(mustPref).Count, 1);
+        }
+
+        [TestMethod]
+        public void filterActiveGamesByFewPreferencesTest()
+        {
+            MustPreferences mustPref = new MustPreferences(new BuyInPolicyDecPref(100,null), true);
+
+            Assert.AreEqual(center.filterActiveGamesByGamePreferences(mustPref).Count, 2);
         }
 
         [TestMethod]

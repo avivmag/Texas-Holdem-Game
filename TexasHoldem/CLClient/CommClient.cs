@@ -207,12 +207,13 @@ namespace CLClient
             return response;
         }
 
-        public static List<TexasHoldemGame> filterActiveGamesByGamePreferences(string gamePolicy, int? buyInPolicy, int? startingChips, int? minimalBet, int? minimalPlayers, int? maximalPlayers, bool? spectateAllowed, bool? isLeague)
+        public static List<TexasHoldemGame> filterActiveGamesByGamePreferences(string gamePolicy,int? gamePolicyLimit, int? buyInPolicy, int? startingChips, int? minimalBet, int? minimalPlayers, int? maximalPlayers, bool? spectateAllowed, bool? isLeague)
         {
             var message = new
             {
                 action = "FilterActiveGamesByGamePreferences",
                 gamePolicy,
+                gamePolicyLimit,
                 buyInPolicy,
                 startingChips,
                 minimalBet,
