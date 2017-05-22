@@ -103,5 +103,10 @@ namespace Backend.Game.DecoratorPreferences
             else
                 return false;
         }
+
+        public override string ToString()
+        {
+            return string.Format("limit: {0}, gamePolicy {1}, {2}", limit, gamePolicy.ToString(), nextDecPref);
+        }
     }
 }

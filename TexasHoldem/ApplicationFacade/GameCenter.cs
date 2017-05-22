@@ -96,10 +96,11 @@ namespace ApplicationFacade
             {
                 return new ReturnMessage(false, "you are active in some games as a player, leave them and then log out.");
             }
-
-            ReturnMessage m = dal.logOutUser(systemUser.name);
-            loggedInUsers.Remove(systemUser);
-            return m;
+            if (loggedInUsers.Contains(systemUser)){
+                loggedInUsers.Remove(systemUser);
+                return new ReturnMessage(true, null);
+            }
+            return new ReturnMessage(false, "you are not logged in.");
         }
 
         public SystemUser register(string user, string password, string email, string userImage)
@@ -277,6 +278,7 @@ namespace ApplicationFacade
             user.password = password;
             user.email = email;
             user.userImage = avatar;
+            user.money += money;
             dal.editUser(user);
             return new ReturnMessage(true,"");
         }

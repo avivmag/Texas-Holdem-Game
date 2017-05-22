@@ -74,5 +74,9 @@ namespace Backend.Game.DecoratorPreferences
             else
                 return false;
         }
+        public override string ToString()
+        {
+            return string.Format("minBet: {0}, {1}", minimalBet, nextDecPref);
+        }
     }
 }

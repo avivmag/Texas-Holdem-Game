@@ -59,5 +59,10 @@ namespace Backend.Game.DecoratorPreferences
             else
                 return false;
         }
+
+        public override string ToString()
+        {
+            return string.Format("minPlayers: {0}, {1}", minPlayers, nextDecPref);
+        }
     }
 }

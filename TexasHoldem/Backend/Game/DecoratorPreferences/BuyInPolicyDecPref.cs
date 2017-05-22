@@ -71,5 +71,10 @@ namespace Backend.Game.DecoratorPreferences
             else
                 return false;
         }
+
+        public override string ToString()
+        {
+            return string.Format("buyInPolicy: {0}, {1}", buyInPolicy, nextDecPref);
+        }
     }
 }
