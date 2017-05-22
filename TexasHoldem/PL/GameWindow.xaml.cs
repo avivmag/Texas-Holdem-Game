@@ -50,6 +50,7 @@ namespace PL
         Button betButton;
         Button checkButton;
         Button foldButton;
+        Button playButton;
 
         //// for testing
         //public GameWindow()
@@ -83,20 +84,20 @@ namespace PL
         /// </summary>/
         private void initializeScreen()
         {
-            seatsButtons = new Button[game.players.Length];
-            playerNames = new Label[game.players.Length];
-            playerStateBackground = new Image[game.players.Length];
-            playersImage = new Image[game.players.Length];
-            playerCards = new Image[game.players.Length][];
+            seatsButtons = new Button[9];
+            playerNames = new Label[9];
+            playerStateBackground = new Image[9];
+            playersImage = new Image[9];
+            playerCards = new Image[9][];
             seatButtonToImageDictionary = new Dictionary<Button, Image>();
             seatButtonToSeatIndex = new Dictionary<Button, int>();
-            allInIcons = new Image[game.players.Length];
-            dealerIcons = new Image[game.players.Length];
-            bigIcons = new Image[game.players.Length];
-            smallIcons = new Image[game.players.Length];
-            playerCoins = new Label[game.players.Length];
-            playerCoinsGambled = new Label[game.players.Length];
-            alreadyAddedMouseEvents = new bool[game.players.Length];
+            allInIcons = new Image[9];
+            dealerIcons = new Image[9];
+            bigIcons = new Image[9];
+            smallIcons = new Image[9];
+            playerCoins = new Label[9];
+            playerCoinsGambled = new Label[9];
+            alreadyAddedMouseEvents = new bool[9];
 
             for (int i = 0; i < seatsButtons.Length; i++)
             {
@@ -112,15 +113,18 @@ namespace PL
             UniformGrid mainControlBarUg = new UniformGrid();
             UniformGrid checkFoldBetCommentControlBarUg = new UniformGrid();
             UniformGrid checkFoldControlBarUg = new UniformGrid();
+            UniformGrid commentPlayControlBarUg = new UniformGrid();
             UniformGrid betControlBarUg = new UniformGrid();
             mainControlBarUg.Columns = 1;
             checkFoldBetCommentControlBarUg.Columns = 1;
             checkFoldControlBarUg.Rows = 1;
+            commentPlayControlBarUg.Rows = 1;
             betControlBarUg.Rows = 1;
             betButton = new Button();
             checkButton = new Button();
             foldButton = new Button();
             Button commentButton = new Button();
+            playButton = new Button();
             messagesTextBlock = new TextBlock();
             messagesTextBox = new TextBox();
             betTextBox = new TextBox();
@@ -129,12 +133,16 @@ namespace PL
             checkButton.Click += CheckButton_Click;
             foldButton.Click += FoldButton_Click;
             commentButton.Click += CommentButton_Click;
+            playButton.Click += Play_Click;
 
             betButton.Content = "Bet";
             checkButton.Content = "Check";
             foldButton.Content = "Fold";
             commentButton.Content = "Send";
+            playButton.Content = "Play";
 
+            commentPlayControlBarUg.Children.Add(commentButton);
+            commentPlayControlBarUg.Children.Add(playButton);
             checkFoldControlBarUg.Children.Add(checkButton);
             checkFoldControlBarUg.Children.Add(foldButton);
             betControlBarUg.Children.Add(betButton);
@@ -153,7 +161,7 @@ namespace PL
             border.Child = messagesTextBox;
 
             checkFoldBetCommentControlBarUg.Children.Add(border);
-            checkFoldBetCommentControlBarUg.Children.Add(commentButton);
+            checkFoldBetCommentControlBarUg.Children.Add(commentPlayControlBarUg);
             checkFoldBetCommentControlBarUg.Children.Add(checkFoldControlBarUg);
             checkFoldBetCommentControlBarUg.Children.Add(betControlBarUg);
 
@@ -170,7 +178,7 @@ namespace PL
 
             BottomRow.Children.Add(mainControlBarUg);
         }
-
+        
         /// <summary>
         /// Adds the element to the appropriate grid on the screen
         /// </summary>
@@ -472,7 +480,7 @@ namespace PL
             UniformGrid[] ug = new UniformGrid[5];
             coinsImagesInHeap = new Image[5];
             coinsSumInHeap = new Label[5];
-            for (int i = 0; i < communityCards.Length; i++)
+            for (int i = 0; i < coinsSumInHeap.Length; i++)
             {
                 coinsImagesInHeap[i] = new Image();
                 coinsImagesInHeap[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/coins.png"));
@@ -505,7 +513,7 @@ namespace PL
         //// change the dealer, big and small
         //public void SetDealerBigSmallIcons(int dealerIndex, int bigIndex, int smallIndex)
         //{
-        //    for (int i = 0; i < game.players.Length; i++)
+        //    for (int i = 0; i < 9; i++)
         //    {
         //        if (i == dealerIndex)
         //            dealerIcons[i].Visibility = Visibility.Visible;
@@ -529,7 +537,7 @@ namespace PL
         //{
         //    int sum, temp;
         //    int.TryParse(coinsSumInHeap[heapIndex].Content.ToString(), out sum);
-        //    for (int i = 0; i < game.players.Length; i++)
+        //    for (int i = 0; i < 9; i++)
         //    {
         //        int.TryParse(playerCoinsGambled[i].Content.ToString(), out temp);
         //        sum += temp;
@@ -619,7 +627,17 @@ namespace PL
             if (!returnMessage.success)
                 MessageBox.Show(returnMessage.description);
         }
-        
+
+        private void Play_Click(object sender, RoutedEventArgs e)
+        {
+            ReturnMessage returnMessage = CommClient.playGame(game.gameId);
+
+            if (!returnMessage.success)
+                MessageBox.Show(returnMessage.description);
+            else
+                playButton.IsEnabled = false;
+        }
+
         //private void getPlayer()
         //{
         //    mePlayer = CommClient.GetPlayer(this.game.gameId, playerSeatIndex);
@@ -630,7 +648,10 @@ namespace PL
         {
             Card[] cards = CommClient.GetPlayerCards(this.game.gameId, playerSeatIndex);
             for(int i = 0; i < playerCards[playerSeatIndex].Length; i++)
-                playerCards[playerSeatIndex][i].Source = DrawCard(cards[i].Type, cards[i].Value);
+            {
+                if(cards != null && cards[i] != null)
+                    playerCards[playerSeatIndex][i].Source = DrawCard(cards[i].Type, cards[i].Value);
+            }
         }
 
         public void cardsShowOff()
@@ -647,6 +668,7 @@ namespace PL
         public void updateGame()
         {
             TexasHoldemGame game = CommClient.GetGameState(this.game.gameId);
+            updatePlayerCards();
             //int pot;
             coinsSumInHeap[0].Content = game.pot;
 

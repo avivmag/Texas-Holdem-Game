@@ -212,6 +212,10 @@ public class SLImpl : SLInterface
     {
         return gameCenter.check(gameId, playerIndex);
     }
+    public object playGame(int gameId)
+    {
+        return gameCenter.playGame(gameId);
+    }
     public object GetGameState(int gameId)
     {
         return gameCenter.getGameState(gameId);
@@ -226,6 +230,10 @@ public class SLImpl : SLInterface
     }
     public object GetPlayerCards(int gameId, int playerIndex)
     {
+        if (gameCenter.GetPlayerCards(gameId, playerIndex) == null || gameCenter.GetPlayerCards(gameId, playerIndex).Length == 0)
+        {
+            return null;
+        }
         return gameCenter.GetPlayerCards(gameId, playerIndex);
     }
     public object GetShowOff(int gameId)
