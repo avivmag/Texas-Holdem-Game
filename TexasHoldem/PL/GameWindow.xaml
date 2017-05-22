@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:PL"
         mc:Ignorable="d"
         WindowState="Maximized"
-        Title="GameWindow" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+        Title="GameWindow" HorizontalContentAlignment="Stretch" WindowStartupLocation="CenterOwner" VerticalContentAlignment="Stretch">
     <UniformGrid Columns="1">
         <UniformGrid Name="TopRow" Rows="1"/>
         <UniformGrid Name="UpperMiddleRow" Rows="1"/>

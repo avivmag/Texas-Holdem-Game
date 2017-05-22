@@ -2,6 +2,7 @@
 using System.Windows;
 using CLClient;
 using CLClient.Entities;
+using CLClient.Entities.DecoratorPreferences;
 
 namespace PL
 {
@@ -15,12 +16,12 @@ namespace PL
         public CreateGameWindow(Window MainMenuWindow)
         {
             InitializeComponent();
-            this.mainMenuWindow = MainMenuWindow;
+            mainMenuWindow = MainMenuWindow;
         }
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Close();
             mainMenuWindow.Show();
         }
 
@@ -34,28 +35,43 @@ namespace PL
             }
             else
             {
-                this.Close();
-                new GameWindow(mainMenuWindow, game);
+                Close();
+                mainMenuWindow.Show();
+                new GameWindow(game, LoginWindow.user.id).Show();
+
             }
         }
         private TexasHoldemGame getGame()
         {
-            GameTypePolicy gamePolicy;
+            Preference.GameTypePolicy gamePolicy = Preference.GameTypePolicy.Undef;
+            int limitPolicy;
             int buyInPolicy;
             int startingChips;
             int minimalBet;
             int minimalPlayers;
             int maximalPlayers;
             bool? spectateAllowed;
+            bool? isLeague;
 
             if (GameTypePolicyComboBox.Text.Equals("none") || GameTypePolicyComboBox.Text.Equals(""))
             {
-                gamePolicy = GameTypePolicy.Undef;
+                gamePolicy = Preference.GameTypePolicy.Undef;
             }
             else
             {
-                gamePolicy = (GameTypePolicy)Enum.Parse(typeof(GameTypePolicy), GameTypePolicyComboBox.Text);
+                gamePolicy = (Preference.GameTypePolicy)Enum.Parse(typeof(Preference.GameTypePolicy), GameTypePolicyComboBox.Text);
             }
+
+            if (gamePolicy == Preference.GameTypePolicy.Limit)
+            {
+                if (limitPolicyTextbox.Text.Equals("") || !Int32.TryParse(buyInTextbox.Text, out limitPolicy) || limitPolicy < 0)
+                {
+                    errorMessage.Text = "Wrong Input - limit policy should be int and positive.";
+                    return null;
+                }
+            }
+            else
+                limitPolicy = 0;
 
             if (buyInTextbox.Text.Equals(""))
             {
@@ -107,17 +123,48 @@ namespace PL
                 return null;
             }
 
-            if (spectateAllowedTextbox.Text.Equals("") || spectateAllowedTextbox.Text.Equals("none"))
-            {
-                spectateAllowed = null;
-            }
-            else
-            {
+            //if (spectateAllowedTextbox.Text.Equals(""))
+            //{
+            //    spectateAllowed = true;
+            //}
+            //else
+            //{
                 spectateAllowed = Convert.ToBoolean(spectateAllowedTextbox.Text);
-            }
+            //}
 
-            return CommClient.CreateGame(LoginWindow.user.id, gamePolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed);
+            //if (isLeagueTextbox.Text.Equals(""))
+            //{
+            //    isLeague = false;
+            //}
+            //else
+            //{
+                isLeague = Convert.ToBoolean(spectateAllowedTextbox.Text);
+            //}
+
+            return CommClient.CreateGame(LoginWindow.user.id, gamePolicy.ToString() , limitPolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed, isLeague);
             //return null;
+        }
+
+        private void GameTypePolicyComboBox_Selected(object sender, RoutedEventArgs e)
+        {
+            if (GameTypePolicyComboBox.Text.Equals("Limit"))
+                limitPolicyTextbox.IsEnabled = true;
+            else
+                limitPolicyTextbox.IsEnabled = false;
+        }
+
+        private void CleaerBtn_Click(object sender, RoutedEventArgs e)
+        {
+            GameTypePolicyComboBox.SelectedItem = "none";
+            limitPolicyTextbox.IsEnabled = false;
+            limitPolicyTextbox.Text = "";
+            buyInTextbox.Text = "";
+            startingChipsTextbox.Text = "";
+            minimalBetTextbox.Text = "";
+            minimalPlayerTextbox.Text = "";
+            maximalPlayerTextbox.Text = "";
+            spectateAllowedTextbox.Text = "True";
+            isLeagueTextbox.Text = "False";
         }
     }
 }

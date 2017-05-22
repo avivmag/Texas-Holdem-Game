@@ -20,23 +20,33 @@ namespace PL
         {
             InitializeComponent();
             this.mainMenuWindow = mainMenuWindow;
-            this.actionBtn.Content = joinOperation;
+            actionBtn.Content = joinOperation;
             List<TexasHoldemGame> allGames = CommClient.findAllActiveAvailableGames();
 
             int i = 0;
-            foreach (TexasHoldemGame game in allGames)
+
+            if (allGames == null)
             {
-                if ((joinOperation.Equals("Spectate") && game.GamePreferences.IsSpectatingAllowed.HasValue && game.GamePreferences.IsSpectatingAllowed.Value) || (joinOperation.Equals("Join")))
+                MessageBox.Show("No active games.");
+            }
+
+            else
+            {
+                foreach (TexasHoldemGame game in allGames)
                 {
-                    selectGameGrid.Items.Add(new TexasHoldemGameStrings(i, game));
-                    i++;
+                    if (joinOperation.Equals("Spectate") &&
+                        (game.gamePreferences.isSpectateAllowed) || (joinOperation.Equals("Join")))
+                    {
+                        selectGameGrid.Items.Add(new TexasHoldemGameStrings(i, game));
+                        i++;
+                    }
                 }
             }
         }
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Close();
             mainMenuWindow.Show();
         }
 
@@ -48,11 +58,12 @@ namespace PL
             {
                 DataGridCellInfo cellValue = (selectGameGrid.SelectedCells.ElementAt(1));
                 gameId = Int32.Parse(((TexasHoldemGameStrings)cellValue.Item).gameId);
-                var game = CommClient.spectateActiveGame(LoginWindow.user, gameId);
+                var game = CommClient.spectateActiveGame(LoginWindow.user.id, gameId);
                 if (game != default(TexasHoldemGame))
                 {
                     this.Close();
-                    new GameWindow(mainMenuWindow, game).Show();
+                    mainMenuWindow.Show();
+                    new GameWindow(game, LoginWindow.user.id).Show();
                 }
                 else
                 {
@@ -62,12 +73,13 @@ namespace PL
             else
             {
                 DataGridCellInfo cellValue = (selectGameGrid.SelectedCells.ElementAt(1));
-                gameId = Int32.Parse(cellValue.ToString());
-                var game = CommClient.joinActiveGame(LoginWindow.user, gameId);
+                gameId = int.Parse(((TexasHoldemGameStrings)cellValue.Item).gameId);
+                var game = CommClient.joinActiveGame(LoginWindow.user.id, gameId);
                 if (game != default(TexasHoldemGame))
                 {
                     this.Close();
-                    new GameWindow(mainMenuWindow, game).Show();
+                    mainMenuWindow.Show();
+                    new GameWindow(game, LoginWindow.user.id).Show();
                 }
                 else
                 {
@@ -80,7 +92,7 @@ namespace PL
         {
             if (selectGameGrid.SelectedIndex != -1)
             {
-                this.actionBtn.IsEnabled = true;   
+                actionBtn.IsEnabled = true;   
             }
         }
     }

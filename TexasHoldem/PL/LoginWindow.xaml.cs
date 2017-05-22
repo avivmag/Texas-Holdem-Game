@@ -18,21 +18,26 @@ namespace PL
 
         public void Run()
         {
-            this.Show();
+            Show();
         }
 
         private void Login_Click(object sender, RoutedEventArgs e)
         {
-            user = CommClient.Login(this.username.Text, this.password.Password);
+            user = CommClient.Login(username.Text, password.Password);
 
-            this.Hide();
+            if (user == null)
+            {
+                MessageBox.Show("Wrong input.");
+                return;
+            }
+            Hide();
             errorMessage.Text = "";
             new MainMenuWindow(this).Show();
         }
 
         private void Register_Click(object sender, RoutedEventArgs e)
         {
-            this.Hide();
+            Hide();
             errorMessage.Text = "";
             new RegisterWindow(this).Show();
         }
@@ -43,8 +48,9 @@ namespace PL
         }
 
         private void Exit_Click(object sender, RoutedEventArgs e)
-        {
+        { 
             Application.Current.Shutdown();
+            CommClient.closeConnection();
         }
     }
 }

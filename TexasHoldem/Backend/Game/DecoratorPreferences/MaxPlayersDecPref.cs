@@ -4,29 +4,39 @@ namespace Backend.Game.DecoratorPreferences
 {
     public class MaxPlayersDecPref : OptionalPreferences
     {
-        private int maxPlayers;
+        public int maxPlayers { get; }
 
         public MaxPlayersDecPref(int maxPlayers, OptionalPreferences nextDecPref): base(nextDecPref)
         {
             this.maxPlayers = maxPlayers;
         }
 
-        public override ReturnMessage canPerformUserActions(TexasHoldemGame game, Player p, SystemUser user, string action)
+        public override ReturnMessage canPerformUserActions(TexasHoldemGame game, SystemUser user, string action)
         {
             switch (action)
             {
+                case "create":
+                    if (maxPlayers >= 2 && maxPlayers <= 9)
+                        if (nextDecPref != null)
+                            return nextDecPref.canPerformUserActions(game, user, action);
+                        else
+                            return new ReturnMessage(true, "");
+                    else
+                        return
+                            new ReturnMessage(false, "max players must be between 2 and 9");
+
                 case "join":
-                    if (game.AvailableSeats >= maxPlayers)
-                        return new ReturnMessage(false, "The game is alredy full");
+                    if (game.AvailableSeats == 0)
+                        return new ReturnMessage(false, "There are no available seats.");
                     else if (nextDecPref != null)
-                        return nextDecPref.canPerformUserActions(game, p, user, action);
+                        return nextDecPref.canPerformUserActions(game, user, action);
                     else
                         return new ReturnMessage(true, "");
 
                 case "spectate":
                 case "leave":
                     if (nextDecPref != null)
-                        return nextDecPref.canPerformUserActions(game, p, user, action);
+                        return nextDecPref.canPerformUserActions(game, user, action);
                     else
                         return new ReturnMessage(true, "");
                 default:
@@ -44,7 +54,8 @@ namespace Backend.Game.DecoratorPreferences
 
         public override bool isContain(DecoratorPreferencesInterface pref)
         {
-            if (pref.GetType() != typeof(OptionalPreferences))
+            if (pref.GetType().IsAssignableFrom(typeof(OptionalPreferences)))
+                //if (pref.GetType() != typeof(OptionalPreferences))
                 return false;
             OptionalPreferences opPref = ((OptionalPreferences)pref);
             MaxPlayersDecPref matchingPref = (MaxPlayersDecPref)getMatchingOptionalPref(opPref);

@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{7154C0B2-8DC9-484D-BB64-42A63893263A}</ProjectGuid>
+    <ProjectGuid>{4C020F04-D40B-47A2-B8DC-E3BB2804D4E9}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>PL</RootNamespace>
-    <AssemblyName>PL</AssemblyName>
+    <RootNamespace>ApplicationFacade</RootNamespace>
+    <AssemblyName>ApplicationFacade</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -36,8 +36,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -56,68 +54,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="CreateGameWindow.xaml.cs">
-      <DependentUpon>CreateGameWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="GameWindow.xaml.cs">
-      <DependentUpon>GameWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="OptionsWindow.xaml.cs">
-      <DependentUpon>OptionsWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="RegisterWindow.xaml.cs">
-      <DependentUpon>RegisterWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="SearchGameWindow.xaml.cs">
-      <DependentUpon>SearchGameWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="SelectGameWindow.xaml.cs">
-      <DependentUpon>SelectGameWindow.xaml</DependentUpon>
-    </Compile>
-    <Page Include="CreateGameWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="GameWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="LoginWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainMenuWindow.xaml.cs">
-      <DependentUpon>MainMenuWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="PLInterface.cs" />
-    <Compile Include="LoginWindow.xaml.cs">
-      <DependentUpon>LoginWindow.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Page Include="MainMenuWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="OptionsWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="RegisterWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="SearchGameWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="SelectGameWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
+    <Compile Include="GameCenter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -146,35 +87,13 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="resources\current_turn.png" />
-    <Resource Include="resources\red.png" />
-    <Resource Include="resources\gray.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="resources\profile_pic.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="resources\free_seat_icon.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="resources\green.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="resources\cards_sprite.gif" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="resources\coins.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="resources\all_in_icon.png" />
-    <Resource Include="resources\big_icon.png" />
-    <Resource Include="resources\dealer_icon.png" />
-    <Resource Include="resources\small_icon.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CLClient\CLClient.csproj">
-      <Project>{b66a3c92-bd02-44a2-a020-cf49be0f79ac}</Project>
-      <Name>CLClient</Name>
+    <ProjectReference Include="..\Backend\Backend.csproj">
+      <Project>{9951a575-8f22-40e4-b7f9-f59a66494af1}</Project>
+      <Name>Backend</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DAL\DAL.csproj">
+      <Project>{c338435b-70e3-40bb-93b7-a8cc89f73744}</Project>
+      <Name>DAL</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

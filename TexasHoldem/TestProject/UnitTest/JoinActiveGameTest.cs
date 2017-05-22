@@ -5,14 +5,18 @@ using System.Collections.Generic;
 using Moq;
 using DAL;
 using Backend.Game;
+using ApplicationFacade;
+using Backend.Game.DecoratorPreferences;
+using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
+using Backend;
 
 namespace TestProject
 {
     [TestClass]
     public class JoinActiveGameTest
     {
-        SLInterface sl;
-
+        private SLInterface sl;
+        private GameCenter center = GameCenter.getGameCenter();
         [TestInitialize]
         public void SetUp()
         {
@@ -25,95 +29,185 @@ namespace TestProject
                 new SystemUser("Aviv", "Aa123456", "email3", "image3", 1500)
             };
 
+            //set users ranks.
+            int j = 10;
+            for (int i = 0; i < 4; i++)
+            {
+                userList[i].rank = j;
+                userList[i].newPlayer = false;
+                j += 5;
+                userList[i].id = i;
+                center.login(userList[i].name, userList[i].password);
+            }
 
-            //var leagues = new List<League>
-            //{
-            //    new League(0, 1000, "Starter League"),
-            //    new League(1000, 2000, "Experienced League")
-            //};
+            //set the leagues
+            center.maintainLeagues(userList);
 
+            //get the league of user 3
+            League l = center.getUserLeague(userList[3]);
+
+            //setting the games
+            //pref order: mustpref(spectate,league)->game type , buy in policy, starting chips, minimal bet, minimum players, maximum players.
             var gamesList = new List<TexasHoldemGame>
             {
-                new TexasHoldemGame(userList[0], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, true)),
-                new TexasHoldemGame(userList[0], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, false)),
-                new TexasHoldemGame(userList[1], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, true)),
-                new TexasHoldemGame(userList[1], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false)),
-                new TexasHoldemGame(userList[3], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 0, 1000)),
-                new TexasHoldemGame(userList[3], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 1000, 2000))
+                //regular games
+                new TexasHoldemGame(userList[0],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
+                                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                                                                    new MinBetDecPref(20,new MinPlayersDecPref(2,
+                                                                    new MaxPlayersDecPref (9,null) ))))),true)),
+                new TexasHoldemGame(userList[0],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
+                                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                                                                    new MinBetDecPref(20,new MinPlayersDecPref(2,
+                                                                    new MaxPlayersDecPref (9,null) ))))),false)),
+                new TexasHoldemGame(userList[1],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
+                                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                                                                    new MinBetDecPref(20,new MinPlayersDecPref(2,
+                                                                    new MaxPlayersDecPref (2,null) ))))),true)),
+                new TexasHoldemGame(userList[1],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
+                                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                                                                    new MinBetDecPref(20,new MinPlayersDecPref(2,
+                                                                    new MaxPlayersDecPref (2,null) ))))),false)),
+                new TexasHoldemGame(userList[2],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
+                                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                                                                    new MinBetDecPref(20,new MinPlayersDecPref(2,
+                                                                    new MaxPlayersDecPref (2,null) ))))),false)),
+                new TexasHoldemGame(userList[2],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
+                                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                                                                    new MinBetDecPref(20,new MinPlayersDecPref(2,
+                                                                    new MaxPlayersDecPref (2,null) ))))),false)),
+                //league games
+                new TexasHoldemGame(userList[3],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
+                                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                                                                    new MinBetDecPref(20,new MinPlayersDecPref(2,
+                                                                    new MaxPlayersDecPref (2,null) ))))),false,l.minRank,l.maxRank)),
+                new TexasHoldemGame(userList[3],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
+                                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                                                                    new MinBetDecPref(20,new MinPlayersDecPref(2,
+                                                                    new MaxPlayersDecPref (2,null) ))))),false,l.minRank,l.maxRank))
+                //new TexasHoldemGame(userList[0], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, true)),
+                //new TexasHoldemGame(userList[0], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, false)),
+                //new TexasHoldemGame(userList[1], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, true)),
+                //new TexasHoldemGame(userList[1], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false)),
+                //new TexasHoldemGame(userList[3], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 0, 1000)),
+                //new TexasHoldemGame(userList[3], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 1000, 2000))
             };
+
+            for (int i = 0; i < gamesList.Count; i++)
+            {
+                gamesList[i].gameId = i;
+                center.texasHoldemGames.Add(gamesList[i]);
+            }
 
             Mock<DALInterface> dalMock = new Mock<DALInterface>();
             dalMock.Setup(x => x.getAllUsers()).Returns(userList);
             dalMock.Setup(x => x.getUserById(It.IsAny<int>())).Returns((int i) => userList[i]);
             dalMock.Setup(x => x.getGameById(It.IsAny<int>())).Returns((int i) => gamesList.Find(g => (g.gameId == i)));
             dalMock.Setup(x => x.getAllGames()).Returns(gamesList);
-            this.sl = new SLImpl(dalMock.Object);
+            sl = new SLImpl();
         }
 
         [TestMethod]
         public void joinSuccessTest()
         {
-            SystemUser user = sl.getUserById(0);
+            object m = sl.joinActiveGame(0, 4);
 
-            Assert.IsTrue(sl.joinActiveGame(user, sl.getAllGames()[4].gameId).success);
+            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
+
+            Assert.IsTrue(((ReturnMessage)m).success);
         }
 
         [TestMethod]
         public void joinSuccessLeagueGameTest()
         {
-            SystemUser user = sl.getUserById(2);
-            var m = sl.joinActiveGame(user, sl.getAllGames()[4].gameId);
-            Assert.IsTrue(m.success);
-        }
+            object m = sl.joinActiveGame(2, 7);
 
-        [TestMethod]
-        public void joinFailesNoSeatsTest()
-        {
-            SystemUser user2 = sl.getUserById(2);
-            sl.joinActiveGame(user2, 2);
+            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
 
-            SystemUser user3 = sl.getUserById(3);
-            sl.joinActiveGame(user3,3);
-
-            SystemUser user0 = sl.getUserById(0);
-            Assert.IsFalse(sl.spectateActiveGame(user0, 1).success);
-        }
-
-        [TestMethod]
-        public void joinFailesNoMoneyTest()
-        {
-            SystemUser user1 = sl.getUserById(1);
-            Assert.IsFalse(sl.spectateActiveGame(user1, 1).success);
+            Assert.IsTrue(((ReturnMessage)m).success);
         }
 
         [TestMethod]
         public void joinFailsLeagueGameTest()
         {
-            SystemUser user = sl.getUserById(0);
-            Assert.IsFalse(sl.joinActiveGame(user, 5).success);
+            object m = sl.joinActiveGame(0, 7);
+
+            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
+
+            Assert.IsFalse(((ReturnMessage)m).success);
+        }
+
+        [TestMethod]
+        public void joinFailesNoSeatsTest()
+        {
+            sl.joinActiveGame(2, 3);
+            
+            sl.joinActiveGame(3, 3);
+
+            object m = sl.joinActiveGame(0, 3);
+
+            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
+
+            Assert.IsFalse(((ReturnMessage)m).success);
+        }
+
+        [TestMethod]
+        public void joinFailesNoMoneyTest()
+        {
+            object m = sl.joinActiveGame(1, 1);
+
+            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
+
+            Assert.IsFalse(((ReturnMessage)m).success);
         }
 
         [TestMethod]
         public void joinFailsAlreadyPlayTest()
         {
-            SystemUser user = sl.getUserById(0);
-            sl.joinActiveGame(user, 3);
-            Assert.IsFalse(sl.joinActiveGame(user, 3).success);
+            sl.joinActiveGame(0, 3);
+
+            object m = sl.joinActiveGame(0, 3);
+
+            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
+
+            Assert.IsFalse(((ReturnMessage)m).success);
         }
 
         [TestMethod]
         public void joinFailsAlreadySpectatingTest()
         {
-            SystemUser user = sl.getUserById(0);
-            var m = sl.spectateActiveGame(user, 2);
-            Assert.IsFalse(sl.joinActiveGame(user, 2).success);
+            sl.spectateActiveGame(0, 2);
+
+            object m = sl.joinActiveGame(0, 2);
+
+            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
+
+            Assert.IsFalse(((ReturnMessage)m).success);
         }
 
         [TestMethod]
         public void joinFailsGameNoExistsTest()
         {
-            SystemUser user = sl.getUserById(0);
-            Assert.IsFalse(sl.joinActiveGame(user, 1000).success);
+            object m = sl.joinActiveGame(0, 1000);
+
+            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
+
+            Assert.IsFalse(((ReturnMessage)m).success);
+        }
+
+        [TestMethod]
+        public void joinFailsUserDontExistsTest()
+        {
+            object m = sl.joinActiveGame(70, 1000);
+
+            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
+
+            Assert.IsFalse(((ReturnMessage)m).success);
+        }
+
+        [TestCleanup]
+        public void TearDown()
+        {
+            center.shutDown();
         }
     }
 }

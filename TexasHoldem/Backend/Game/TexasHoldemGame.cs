@@ -2,12 +2,13 @@
 using Backend.User;
 using System;
 using static Backend.Game.Player;
+using Backend.Game.DecoratorPreferences;
 
 namespace Backend.Game
 {
     public class TexasHoldemGame : Messages.Notification
     {
-        public enum HandsRanks { HighCard, Pair, TwoPairs, ThreeOfAKind, Straight, Flush, FullHouse, FourOfAKind, StraightFlush, RoyalFlush }
+        public enum HandsRanks { HighCard = 9, Pair = 8, TwoPairs = 6, ThreeOfAKind = 5, Straight, Flush = 4, FullHouse = 3, FourOfAKind = 2, StraightFlush = 1, RoyalFlush = 0 }
         public enum BetAction { fold, bet, call, check, raise }
 
         public int gameId { get; set; }
@@ -21,28 +22,42 @@ namespace Backend.Game
         private int gameCreatorUserId;
         private int availableSeats;
 
-        public GamePreferences GamePreferences { get; }
+        //public GamePreferences GamePreferences { get; }
+        public MustPreferences gamePreferences { get;set;}
         public Deck deck { get; }
+        private int maxPlayers = 9;
         public Player[] players { get; set; }
         public List<SystemUser> spectators;
         
         public bool active { get; set; }
-                
+        private bool isGameActive;
+
         public List<Card> flop { get; set; }
         public Card turn { get; set; }
         public Card river { get; set; }
-        
-        public TexasHoldemGame(SystemUser user, GamePreferences gamePreferences)
+
+        //public GameObserver playersChatObserver;
+        //public GameObserver spectateChatObserver;
+        //public GameObserver gameStatesObserver;
+
+        // TODO: Gili - notice Gil decorator pattern and Aviv player.TokensInBet - you should use them in your logic
+
+        public TexasHoldemGame(SystemUser user, MustPreferences gamePreferences)
         {
-            this.gameCreatorUserId = user.id;
-            this.GamePreferences = gamePreferences;
+            gameCreatorUserId = user.id;
+            this.gamePreferences = gamePreferences;
             pot = 0;
             active = true;
             deck = new Deck();
             spectators = new List<SystemUser>();
-            
-            players = new Player[GamePreferences.MaxPlayers];
-            availableSeats = GamePreferences.MaxPlayers - 1;
+
+            //setting the players array according to the max players pref if entered else 9 players is the max.
+            maxPlayers = 9;
+            MaxPlayersDecPref maxPlayersDec =(MaxPlayersDecPref) gamePreferences.getOptionalPref(new MaxPlayersDecPref(0, null));
+            if (maxPlayersDec != null)
+                maxPlayers = maxPlayersDec.maxPlayers;
+            players = new Player[maxPlayers];
+            availableSeats = maxPlayers - 1;
 
             // TODO: remove when the db is created.
             Random rnd = new Random();
@@ -50,97 +65,205 @@ namespace Backend.Game
             GameLog.setLog(gameId, DateTime.Now);
             GameLog.logLine(gameId, GameLog.Actions.Game_Start, DateTime.Now.ToString());
             var m = joinGame(user);
-            for (int i = 1; i < GamePreferences.MaxPlayers; i++)
+            for (int i = 1; i < maxPlayers; i++)
             {
                 players[i] = null;
             }
 
             flop = new List<Card>();
 
+            isGameActive = false;
+
+            //playersChatObserver = new GameObserver(GameObserver.ObserverType.PlayersChat);
+            //spectateChatObserver = new GameObserver(GameObserver.ObserverType.SpectateChat);
+            //gameStatesObserver = new GameObserver(GameObserver.ObserverType.GameStates);
+
             currentDealer = 0;
         }
+        
+        //public TexasHoldemGame(SystemUser user, GamePreferences gamePreferences)
+        //{
+        //    this.gameCreatorUserId = user.id;
+        //    this.GamePreferences = gamePreferences;
+        //    pot = 0;
+        //    active = true;
+        //    deck = new Deck();
+        //    spectators = new List<SystemUser>();
 
-        public void removeUser(SystemUser user)
+        //    players = new Player[GamePreferences.MaxPlayers];
+        //    availableSeats = GamePreferences.MaxPlayers - 1;
+
+        //    // TODO: remove when the db is created.
+        //    Random rnd = new Random();
+        //    this.gameId = rnd.Next(0, 999999);
+        //    GameLog.setLog(gameId, DateTime.Now);
+        //    GameLog.logLine(gameId, GameLog.Actions.Game_Start, DateTime.Now.ToString());
+        //    var m = joinGame(user);
+        //    for (int i = 1; i < GamePreferences.MaxPlayers; i++)
+        //    {
+        //        players[i] = null;
+        //    }
+
+        //    flop = new List<Card>();
+
+        //    currentDealer = 0;
+        //}
+
+        //public void removeUser(SystemUser user)
+        //{
+        //    for (int i=0; i<players.Length; i++)
+        //    {
+        //        if (players[i].systemUserID == user.id)
+        //        {
+        //            // updates the money and rank of the user.
+        //            user.money += players[i].Tokens;
+        //            user.updateRank(players[i].Tokens - gamePreferences.BuyInPolicy);
+        //            players[i] = null;
+        //            return;
+        //        }
+        //    }
+        //    foreach(SystemUser u in spectators)
+        //    {
+        //        if (u.id == user.id)
+        //        {
+        //            spectators.Remove(u);
+        //            u.spectatingGame.Remove(this);
+        //        }
+        //    }
+        //}
+
+        //public ReturnMessage joinGame(SystemUser user)
+        //{
+        //    ReturnMessage m = gamePreferences.canPerformUserActions(this, user, "join");
+        //    if (!m.success)
+        //        return m;
+
+        //    //check the user money
+        //    //if (user.money < gamePreferences.BuyInPolicy)
+        //    //    return new ReturnMessage(false, "Could not join the game because the user dont have enough money to join.");
+
+        //    //check if there are available seats.
+        //    //if (AvailableSeats == 0)
+        //    //    return new ReturnMessage(false, "There are no available seats.");
+
+
+        //    Player p = new Player(user.id, gamePreferences.BuyInPolicy, user.rank);
+
+        //    //check that the player stands in the league ranks.
+        //    //if (GamePreferences.isLeague && (p.userRank < GamePreferences.MinRank || p.userRank > GamePreferences.MaxRank))
+        //    //    return new ReturnMessage(false, "The rank of the user is not standing in the league game policy.");
+
+        //    //check that the player is not already in the game
+        //    for (int i = 0; i < players.Length; i++)
+        //    {
+        //        if (players[i] != null && players[i].systemUserID == user.id)
+        //            return new ReturnMessage(false, "The player is already taking part in the wanted game.");
+        //    }
+
+        //    //check that the player is not spectating
+        //    foreach (SystemUser u in spectators)
+        //        if (u.id == user.id)
+        //            return new ReturnMessage(false, "Couldn't join the game because the user is already spectating the game.");
+
+        //    //seats the player in the first available seat
+        //    for (int i = 0; i < players.Length; i++)
+        //    {
+        //        if (players[i] == null)
+        //        {
+        //            players[i] = p;
+        //            GameLog.logLine(gameId, GameLog.Actions.Player_Join, user.id.ToString());
+        //            break;
+        //        }
+        //    }
+
+        //    return new ReturnMessage(true, "");
+        //}
+
+        public ReturnMessage removeUser(SystemUser user)
         {
-            for (int i=0; i<players.Length; i++)
+            for (int i = 0; i < players.Length; i++)
             {
-                if (players[i].systemUserID == user.id)
+                if (players[i] != null && players[i].systemUserID == user.id)
                 {
+                    //get the game policy if exist to the rank update
+                    int buyIn = 0;
+                    BuyInPolicyDecPref buyInPref = (BuyInPolicyDecPref)gamePreferences.getOptionalPref(new BuyInPolicyDecPref(0, null));
+                    if (buyInPref != null)
+                        buyIn = buyInPref.buyInPolicy;
                     // updates the money and rank of the user.
                     user.money += players[i].Tokens;
-                    user.updateRank(players[i].Tokens - GamePreferences.BuyInPolicy);
+                    user.updateRank(players[i].Tokens - buyIn);
                     players[i] = null;
-                    return;
+                    return new ReturnMessage(true, "");
                 }
             }
-            foreach(SystemUser u in spectators)
+            foreach (SystemUser u in spectators)
             {
                 if (u.id == user.id)
                 {
                     spectators.Remove(u);
                     u.spectatingGame.Remove(this);
+                    return new ReturnMessage(true, "");
                 }
             }
+            return new ReturnMessage(false, "");
         }
 
-        private void removePlayer(SystemUser user,Player p)
+        ///////////////  UNUSED ///////////////
+        //private void removePlayer(SystemUser user,Player p)
+        //{
+        //    if (user.isNewPlayer())
+        //    {
+        //        if (user.tempRank - rankToChange > 0)
+        //        {
+        //        }
+        //        user.setTempGames();
+        //    }
+        //    if (user.rank + rankToChange > 0)
+        //    {
+        //    }
+        //}
+
+        public ReturnMessage joinGame(SystemUser user)
         {
-            //if (user.isNewPlayer())
-            //{
-            //    if (user.tempRank - rankToChange > 0)
-            //    {
+            ReturnMessage m = gamePreferences.canPerformUserActions(this, user, "join");
+            if (!m.success)
+                return m;
 
-            //    }
-
-
-            //    user.setTempGames();
-
-            //}
-            //if (user.rank + rankToChange > 0)
-            //{
-
-            //}
-        }
-
-        public virtual ReturnMessage joinGame(SystemUser user)
-        {
-            //check the user money
-            if (user.money < GamePreferences.BuyInPolicy)
-                return new ReturnMessage(false, "Could not join the game because the user dont have enough money to join.");
-
-            //check if there are available seats.
-            if (AvailableSeats == 0)
-                return new ReturnMessage(false, "There are no available seats.");
-
-            Player p = new Player(user.id, GamePreferences.BuyInPolicy, user.rank);
-
-            //check that the player stands in the league ranks.
-            //if (GamePreferences.isLeague && (p.userRank < GamePreferences.MinRank || p.userRank > GamePreferences.MaxRank))
-            //    return new ReturnMessage(false, "The rank of the user is not standing in the league game policy.");
-
+            //getting the buy in policy if exists to pay for the chips else getting 1000 for free.
+            int startingChips = 1000;
+            BuyInPolicyDecPref buyInPref = (BuyInPolicyDecPref)gamePreferences.getOptionalPref(new BuyInPolicyDecPref(0, null));
+            if (buyInPref != null)
+                startingChips = buyInPref.buyInPolicy;
+            Player p = new Player(user.id, user.name, startingChips, user.rank);
+            
             //check that the player is not already in the game
-            for (int i = 0; i < GamePreferences.MaxPlayers; i++)
+            for (int i = 0; i < players.Length; i++)
             {
-                if (players[i] != null && players[i].systemUserID == p.systemUserID)
+                if (players[i] != null && players[i].systemUserID == user.id)
                     return new ReturnMessage(false, "The player is already taking part in the wanted game.");
             }
 
             //check that the player is not spectating
             foreach (SystemUser u in spectators)
-                    if (u.id == p.systemUserID)
+                    if (u.id == user.id)
                         return new ReturnMessage(false, "Couldn't join the game because the user is already spectating the game.");
-            
-            //seats the player in the first available seat
-            for (int i = 0; i < GamePreferences.MaxPlayers; i++)
+
+            //TODO: Gili - the player should position itself
+            // seats the player in the first available seat
+            for (int i = 0; i < players.Length; i++)
             {
                 if (players[i] == null)
                 {
                     players[i] = p;
-                    GameLog.logLine(gameId, GameLog.Actions.Player_Join, p.systemUserID.ToString());
+                    if (buyInPref != null)
+                        user.money -= buyInPref.buyInPolicy;
+                    GameLog.logLine(gameId, GameLog.Actions.Player_Join, user.id.ToString());
                     break;
                 }
             }
-
+            //playersChatObserver.Subscribe(p);
+            //gameStatesObserver.Subscribe(p);
             return new ReturnMessage(true, "");
         }
 
@@ -149,7 +272,7 @@ namespace Backend.Game
             get
             {
                 int ans = 0;
-                for (int i = 0; i < GamePreferences.MaxPlayers; i++)
+                for (int i = 0; i < players.Length; i++)
                 {
                     if (players[i] == null)
                         ans++;
@@ -158,11 +281,35 @@ namespace Backend.Game
             }
         }
 
+        //public ReturnMessage joinSpectate(SystemUser user)
+        //{
+        //    //check that the game aloow to spectate
+        //    if (!gamePreferences.IsSpectatingAllowed.Value)
+        //        return new ReturnMessage(false, "Couldn't spectate the game because the game preferences is not alowing.");
+
+        //    //check that the user is not playing
+        //    foreach (Player p in players)
+        //        if (p != null)
+        //        {
+        //            if (p.systemUserID == user.id)
+        //                return new ReturnMessage(false, "Couldn't spectate the game because the user is already playing the game.");
+        //        }
+
+        //    //check that the user is not spectating
+        //    foreach (SystemUser spectateUser in spectators)
+        //        if (spectateUser.id == user.id)
+        //            return new ReturnMessage(false, "Couldn't spectate the game because the user is already spectating the game.");
+
+        //    spectators.Add(user);
+        //    GameLog.logLine(gameId, GameLog.Actions.Spectate_Join, user.id.ToString());
+        //    return new ReturnMessage(true,"");
+        //}
+
         public ReturnMessage joinSpectate(SystemUser user)
         {
-            //check that the game aloow to spectate
-            if (!GamePreferences.IsSpectatingAllowed.Value)
-                return new ReturnMessage(false, "Couldn't spectate the game because the game preferences is not alowing.");
+            ReturnMessage m = gamePreferences.canPerformUserActions(this, user, "spectate");
+            if (!m.success)
+                return m;
 
             //check that the user is not playing
             foreach (Player p in players)
@@ -179,12 +326,15 @@ namespace Backend.Game
 
             spectators.Add(user);
             GameLog.logLine(gameId, GameLog.Actions.Spectate_Join, user.id.ToString());
-            return new ReturnMessage(true,"");
+            //gameStatesObserver.Subscribe(p);
+            //spectateChatObserver(players);
+            //playersChatObserver(players);
+            return new ReturnMessage(true, "");
         }
 
         public void leaveGamePlayer(Player p)
         {
-            for (int i = 0; i < GamePreferences.MaxPlayers; i++)
+            for (int i = 0; i < maxPlayers; i++)
             {
                 if (players[i] != null && players[i].systemUserID == p.systemUserID)
                 {
@@ -204,83 +354,117 @@ namespace Backend.Game
         private void playGame()
         {
             GameLog.logLine(gameId, GameLog.Actions.Game_Start, DateTime.Now.ToString());
-            deck.Shuffle();
-            dealCards();
-            currentSmall = setSmallBlind();
-            currentBig = setBigBlind();
-            betBlinds();
-            //players sets their bets
-            for (int i = nextToSeat(currentBig); i < GamePreferences.MaxPlayers; i++)
+            isGameActive = true;
+            while (isGameActive)
             {
-                if (players[i] != null && players[i].playerState == PlayerState.in_round)
+                deck.Shuffle();
+                dealCards();
+                currentSmall = setSmallBlind();
+                currentBig = setBigBlind();
+                betBlinds();
+                
+                playersSetsTheirBets(true);
+
+                addToPot(tempPot);
+
+                //flop
+                for (int i = 0; i < 3; i++)
                 {
-                    BetAction action = BetAction.check;
-                    chooseBetAction(players[i], action, 0);
+                    Card flopCard = deck.Top();
+                    flop.Add(flopCard);
+                    GameLog.logLine(gameId, GameLog.Actions.Flop, i.ToString(), flopCard.ToString());
                 }
-            }
 
-            addToPot(tempPot);
+                playersSetsTheirBets(false);
 
-            //flop
-            for (int i = 0; i < 3; i++)
-            {
-                Card flopCard = deck.Top();
-                flop.Add(flopCard);
-                GameLog.logLine(gameId, GameLog.Actions.Flop, i.ToString(), flopCard.ToString());
-            }
+                addToPot(tempPot);
 
-            //players sets their bets
-            for (int i = nextToSeat(currentDealer); i < GamePreferences.MaxPlayers; i++)
-            {
-                if (players[i] != null && players[i].playerState == Player.PlayerState.in_round)
+                turn = deck.Top();
+                GameLog.logLine(
+                    gameId,
+                    GameLog.Actions.Turn,
+                    turn.ToString());
+
+                playersSetsTheirBets(false);
+
+                addToPot(tempPot);
+
+                river = deck.Top();
+                GameLog.logLine(
+                    gameId,
+                    GameLog.Actions.River,
+                    turn.ToString());
+
+                playersSetsTheirBets(false);
+                addToPot(tempPot);
+                //gameStatesObserver.Update();
+
+                for (int i = 0; i < players.Length; i++)
                 {
-                    chooseBetAction(players[i], BetAction.check, 0);
+                    if (players[i].playerState.Equals(Player.PlayerState.in_round))
+                        players[i].handRank = checkHandRank(players[i]);
                 }
+
+                //gameStatesObserver.Update();
+
+
             }
+        }
 
-            addToPot(tempPot);
+        private  void checkWhoWins()
+        {
+            int highRank = -1;
+            int winnerIndex = -1;
 
-            turn = deck.Top();
-            GameLog.logLine(
-                gameId,
-                GameLog.Actions.Turn,
-                turn.ToString());
-
-            //players sets their bets
-            for (int i = nextToSeat(currentDealer); i < GamePreferences.MaxPlayers; i++)
+            for (int i = 0; i < players.Length - 1; i++)
             {
-                if (players[i] != null && players[i].playerState == Player.PlayerState.in_round)
-                {
-                    chooseBetAction(players[i], BetAction.check, 0);
-                }
+                if (players[i].playerState.Equals(Player.PlayerState.in_round))
+                    if ((int)players[i].handRank > highRank)
+                    {
+                        winnerIndex = i;
+                        highRank = (int)players[i].handRank;
+                    }
             }
 
-            addToPot(tempPot);
+            players[winnerIndex].playerState = PlayerState.winner;
+            //gameStatesObserver.Update();
+        }
 
-            river = deck.Top();
-            GameLog.logLine(
-                gameId,
-                GameLog.Actions.River,
-                turn.ToString());
-
-            //players sets their bets
-            for (int i = nextToSeat(currentDealer); i < GamePreferences.MaxPlayers; i++)
-            {
-                if (players[i] != null && players[i].playerState == Player.PlayerState.in_round)
+        public void playersSetsTheirBets(bool firstBets)
+        {
+            if (firstBets)
+                for (int i = nextToSeat(currentBig); i < maxPlayers; i++)
                 {
-                    chooseBetAction(players[i], BetAction.check, 0);
+                    if (players[i] != null && players[i].playerState == PlayerState.in_round)
+                    {
+                        players[i].playerState = PlayerState.my_turn;
+                        //UPDATE everybody
+                        //gameStatesObserver.Update();
+                    }
                 }
-            }
+            else
+                for (int i = nextToSeat(currentDealer); i < maxPlayers; i++)
+                {
+                    if (players[i] != null && players[i].playerState == Player.PlayerState.in_round)
+                    {
+                        players[i].playerState = PlayerState.my_turn;
+                        //UPDATE everybody
+                        //gameStatesObserver.Update();
+                    }
+                }
+        }
 
-            addToPot(tempPot);
+        public BetAction chooseWhatToDo(Player p)
+        {
+            return BetAction.check;
         }
 
         public void setInitialState()
         {
-            for (int i = 0; i < GamePreferences.MaxPlayers; i++)
+            for (int i = 0; i < maxPlayers; i++)
             {
                 if (players[i] != null)
-                    players[i].playerState = Player.PlayerState.in_round;
+                    players[i].playerState = PlayerState.in_round;
             }
         }
 
@@ -289,7 +473,7 @@ namespace Backend.Game
             int index = nextToSeat(currentDealer);
 
             //deal first card
-            for (int i = 0; i < GamePreferences.MaxPlayers; i++)
+            for (int i = 0; i < maxPlayers; i++)
             {
                 if (players[index] != null)
                 {
@@ -302,12 +486,12 @@ namespace Backend.Game
                     players[index].playerCards.Add(newCard);
                     GameLog.logLine(gameId, GameLog.Actions.Deal_Card, newCard.ToString());
                 }
-                index = (index + 1) % GamePreferences.MaxPlayers;
+                index = (index + 1) % maxPlayers;
             }
 
             index = nextToSeat(currentDealer);
             //deal second card
-            for (int i = 0; i < GamePreferences.MaxPlayers; i++)
+            for (int i = 0; i < maxPlayers; i++)
             {
                 if (players[index] != null)
                 {
@@ -315,14 +499,14 @@ namespace Backend.Game
                     players[index].playerCards.Add(newCard);
                     GameLog.logLine(gameId, GameLog.Actions.Deal_Card, newCard.ToString());
                 }
-                index = (index + 1) % GamePreferences.MaxPlayers;
+                index = (index + 1) % maxPlayers;
             }
         }
 
         public int setSmallBlind()
         {
             int i = currentDealer;
-            int j = (currentDealer + 1) % GamePreferences.MaxPlayers;
+            int j = (currentDealer + 1) % maxPlayers;
             while (i != j)
             {
                 if (players[j] != null && players[j].playerState == Player.PlayerState.in_round)
@@ -330,7 +514,7 @@ namespace Backend.Game
                     GameLog.logLine(gameId, GameLog.Actions.Small_Blind, players[j].systemUserID.ToString());
                     return j;
                 }
-                j = (j + 1) % GamePreferences.MaxPlayers;
+                j = (j + 1) % maxPlayers;
             }
             return -1;
         }
@@ -338,14 +522,14 @@ namespace Backend.Game
         public int setBigBlind()
         {
             int i = currentDealer;
-            int j = (currentDealer + 1) % GamePreferences.MaxPlayers;
+            int j = (currentDealer + 1) % maxPlayers;
             while (i != j)
             {
                 if (players[j] != null && players[j].playerState == Player.PlayerState.in_round)
                     break;
-                j = (j + 1) % GamePreferences.MaxPlayers;
+                j = (j + 1) % maxPlayers;
             }
-            j = (j + 1) % GamePreferences.MaxPlayers;
+            j = (j + 1) % maxPlayers;
             while (i != j)
             {
                 if (players[j] != null && players[j].playerState == Player.PlayerState.in_round)
@@ -353,7 +537,7 @@ namespace Backend.Game
                     GameLog.logLine(gameId, GameLog.Actions.Big_Blind, players[j].systemUserID.ToString());
                     return j;
                 }
-                j = (j + 1) % GamePreferences.MaxPlayers;
+                j = (j + 1) % maxPlayers;
             }
             return -1;
         }
@@ -377,17 +561,39 @@ namespace Backend.Game
             tempPot += ((currentBlindBet + (currentBlindBet / 2)));
         }
 
-        public void bet(Player p, int amount)
+        //public void bet(Player p, int amount)
+        //{
+        //    p.Tokens -= amount;
+        //    GameLog.logLine(
+        //        gameId,
+        //        GameLog.Actions.Action_Bet,
+        //        p.systemUserID.ToString(),
+        //        amount.ToString());
+
+        //    tempPot += amount;
+        //    currentBet = amount;
+        //}
+
+        public ReturnMessage bet(Player p, int amount)
         {
+            if(p.Tokens - amount < 0)
+                return new ReturnMessage(false, "not enough coins");
+            if(currentBet > amount && amount != p.Tokens)
+                return new ReturnMessage(false, "need to bet more");
+
+            currentBet = Math.Max(amount, currentBet);
+
             p.Tokens -= amount;
+
             GameLog.logLine(
                 gameId,
-                GameLog.Actions.Action_Bet,
+                GameLog.Actions.Action_Raise,
                 p.systemUserID.ToString(),
                 amount.ToString());
 
             tempPot += amount;
-            currentBet = amount;
+            // TODO: Gili, you need to send the message to the other players
+            return new ReturnMessage(true, "");
         }
 
         public void call(Player p)
@@ -400,66 +606,35 @@ namespace Backend.Game
                 currentBet.ToString());
             tempPot += currentBet;
         }
-
-        public void fold(Player p)
+        
+        public ReturnMessage fold(Player p)
         {
             p.playerState = Player.PlayerState.folded;
             GameLog.logLine(
                 gameId,
                 GameLog.Actions.Action_Fold,
                 p.systemUserID.ToString());
+            return null; // TODO: Gili!
         }
 
-        public void check(Player p)
+        public ReturnMessage check(Player p)
         {
             GameLog.logLine(
                 gameId,
                 GameLog.Actions.Action_Check,
                 p.systemUserID.ToString());
-        }
-
-        public void raise(Player p, int amount)
-        {
-            p.Tokens -= (amount + currentBet);
-            GameLog.logLine(
-                gameId,
-                GameLog.Actions.Action_Raise,
-                p.systemUserID.ToString(),
-                amount.ToString());
-            tempPot += (amount + currentBet);
-        }
-
-        public void chooseBetAction(Player p, BetAction betAction, int amount)
-        {
-            switch (betAction)
-            {
-                case BetAction.bet:
-                    bet(p, amount);
-                    break;
-                case BetAction.call:
-                    call(p);
-                    break;
-                case BetAction.check:
-                    check(p);
-                    break;
-                case BetAction.fold:
-                    fold(p);
-                    break;
-                case BetAction.raise:
-                    raise(p, amount);
-                    break;
-            }
+            return null; // TODO: Gili!
         }
 
         public int nextToSeat(int seat)
         {
             int i = seat;
-            int j = (i + 1) % GamePreferences.MaxPlayers;
+            int j = (i + 1) % maxPlayers;
             while (i != j)
             {
                 if (players[j] != null && players[j].playerState == Player.PlayerState.in_round)
                     return j;
-                j = (j + 1) % GamePreferences.MaxPlayers;
+                j = (j + 1) % maxPlayers;
             }
             return -1;
         }
@@ -487,18 +662,28 @@ namespace Backend.Game
                 return HandsRanks.RoyalFlush;
             if (checkStraightFlush(fullHand) != -1)
                 return HandsRanks.StraightFlush;
+            if (checkFourOfAKind(fullHand) != -1)
+                return HandsRanks.FourOfAKind;
+            if (checkFullHouse(fullHand, 3) != -1)
+                return HandsRanks.FullHouse;
+            if (checkFlush(fullHand) != -1)
+                return HandsRanks.Flush;
+            if (checkStraight(fullHand) != -1)
+                return HandsRanks.Straight;
+            if (checkThreeOfAKind(fullHand) != -1)
+                return HandsRanks.ThreeOfAKind;
+            if (checkTwoPairs(fullHand) != -1)
+                return HandsRanks.TwoPairs;
+
+            //for (int i = 0; i < fullHand.Count; i++)
+            //{
+            //    Console.Out.Write(fullHand[i].Value + "  ");
+            //    Console.Out.Write(fullHand[i].Type.ToString() + "  ");
+            //    Console.Out.WriteLine();
+            //}
 
 
-
-            for (int i = 0; i < fullHand.Count; i++)
-            {
-                Console.Out.Write(fullHand[i].Value + "  ");
-                Console.Out.Write(fullHand[i].Type.ToString() + "  ");
-                Console.Out.WriteLine();
-            }
-
-
-            return HandsRanks.Flush;
+            return HandsRanks.HighCard;
         }
 
         private void addToPot(int sum)
@@ -639,6 +824,21 @@ namespace Backend.Game
 
         }
 
+        public int checkFlush(List<Card> fullHand)
+        {
+            int[] shape = new int[4];
+
+            for (int i = 0; i < 4; i++)
+            {
+                shape[i] = 0;
+            }
+
+            for (int i = 0; i < 4; i++)
+                if (shape[i] == 5)
+                    return 0;
+            return -1;
+        }
+
         public int checkStraight(List<Card> fullHand)
         {
             int valueCounter = 0;
@@ -678,6 +878,87 @@ namespace Backend.Game
                     return highestCardValue;
             }
             return -1;
+        }
+
+        public int checkThreeOfAKind(List<Card> fullHand)
+        {
+            int[] threeOfAKindCounter = new int[13];
+            for (int i = 0; i < 13; i++)
+                threeOfAKindCounter[i] = 0;
+
+            for (int i = 0; i < 7; i++)
+                threeOfAKindCounter[fullHand[i].Value - 1]++;
+
+            for (int i = 0; i < 13; i++)
+                if (threeOfAKindCounter[i] == 3)
+                    return 0;
+
+            return -1;
+        }
+
+        public int checkTwoPairs(List<Card> fullHand)
+        {
+            int[] twoOfAKindCounterA = new int[13];
+            int[] twoOfAKindCounterB = new int[13];
+
+            for (int i = 0; i < 13; i++)
+            {
+                twoOfAKindCounterA[i] = 0;
+                twoOfAKindCounterB[i] = 0;
+            }
+
+            for (int i = 0; i < 7; i++)
+            {
+                twoOfAKindCounterA[fullHand[i].Value - 1]++;
+                twoOfAKindCounterB[fullHand[i].Value - 1]++;
+            }
+
+            for (int i = 0; i < 13; i++)
+                if (twoOfAKindCounterA[i] == 2 && twoOfAKindCounterB[i] == 2)
+                    return 0;
+            return -1;
+        }
+
+        public int checkPair(List<Card> fullHand)
+        {
+            int[] pairCounter = new int[13];
+            for (int i = 0; i < 13; i++)
+                pairCounter[i] = 0;
+
+            for (int i = 0; i < 7; i++)
+                pairCounter[fullHand[i].Value - 1]++;
+
+            for (int i = 0; i < 13; i++)
+                if (pairCounter[i] == 2)
+                    return 0;
+
+            return -1;
+        }
+
+
+
+        // TODO: Gili - tries to position a player where he wants (on a seat)
+        public ReturnMessage ChoosePlayerSeat(int playerIndex)
+        {
+            return null;
+        }
+        public Player GetPlayer(int playerIndex)
+        {
+            return players[playerIndex];
+        }
+        public Card[] GetPlayerCards(int playerIndex)
+        {
+            return players[playerIndex].playerCards.ToArray();
+        }
+        // TODO: Gili - when showoff happends this method would be called to get all the cards - so dont forget to update when a showoff happens
+        public IDictionary<int, Card[]> GetShowOff()
+        {
+            IDictionary<int, Card[]> ans = new Dictionary<int, Card[]>();
+            for(int i = 0; i < players.Length; i++)
+            {
+                ans[i] = players[i].playerCards.ToArray();
+            }
+            return ans;
         }
     }
 }

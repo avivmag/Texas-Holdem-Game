@@ -4,18 +4,31 @@ namespace Backend.Game.DecoratorPreferences
 {
     public class StartingAmountChipsCedPref : OptionalPreferences
     {
-        private int startingChipsPolicy;
+        public int startingChipsPolicy { get; }
 
         public StartingAmountChipsCedPref(int startingChipsPolicy, OptionalPreferences nextDecPref) : base(nextDecPref)
         {
             this.startingChipsPolicy = startingChipsPolicy;
         }
 
-        public override ReturnMessage canPerformUserActions(TexasHoldemGame game, Player p, SystemUser user, string action)
+        public override ReturnMessage canPerformUserActions(TexasHoldemGame game, SystemUser user, string action)
         {
-            if (nextDecPref != null)
-                return nextDecPref.canPerformUserActions(game, p, user, action);
-            return new ReturnMessage(true,"");
+            switch (action)
+            {
+                case "create":
+                    if (startingChipsPolicy >= 0)
+                        if (nextDecPref != null)
+                            return nextDecPref.canPerformUserActions(game, user, action);
+                        else
+                            return new ReturnMessage(true, "");
+                    else
+                        return
+                            new ReturnMessage(false, "Starting chips policy must be positive");
+                default:
+                    if (nextDecPref != null)
+                        return nextDecPref.canPerformUserActions(game, user, action);
+                    return new ReturnMessage(true, "");
+            }
         }
 
         public override ReturnMessage canPerformGameActions(TexasHoldemGame game, SystemUser user, int amount, string action)
@@ -27,7 +40,8 @@ namespace Backend.Game.DecoratorPreferences
 
         public override bool isContain(DecoratorPreferencesInterface pref)
         {
-            if (pref.GetType() != typeof(OptionalPreferences))
+            if (pref.GetType().IsAssignableFrom(typeof(OptionalPreferences)))
+                //if (pref.GetType() != typeof(OptionalPreferences))
                 return false;
             OptionalPreferences opPref = ((OptionalPreferences)pref);
             StartingAmountChipsCedPref matchingPref = (StartingAmountChipsCedPref)getMatchingOptionalPref(opPref);

@@ -1,25 +1,203 @@
 ﻿using Backend.User;
 using Backend.Game;
-using System.Collections.Generic;
-using System;
-using Backend.System;
-using static Backend.Game.GamePreferences;
 using SL;
+using ApplicationFacade;
+using Backend.Game.DecoratorPreferences;
+using Backend;
 
-public class SLImpl
+public class SLImpl : SLInterface
 {
-	/*private GameCenter gameCenter;
+	private GameCenter gameCenter;
 
-    //public SLImpl()
+    public SLImpl()
+    {
+        gameCenter = GameCenter.getGameCenter();
+    }
+
+
+    public object spectateActiveGame(int userId, int gameID)
+    {
+        TexasHoldemGame game = gameCenter.getGameById(gameID);
+        if (game == null)
+            return new ReturnMessage(false, "couldn't find the game.");
+        SystemUser user = gameCenter.getUserById(userId);
+        if (user == null)
+            return new ReturnMessage(false, "couldn't find the user.");
+        return game.joinSpectate(user);
+    }
+
+    public object joinActiveGame(int userId, int gameID)
+    {
+        TexasHoldemGame game = gameCenter.getGameById(gameID);
+        SystemUser user = gameCenter.getUserById(userId);
+
+        if (game == null || user == null)
+        {
+            return null;
+        }
+
+        var response = game.joinGame(user);
+
+        if (response.success)
+        {
+            return game;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    public object leaveGame(SystemUser user, int gameID)
+    {
+        TexasHoldemGame game = gameCenter.getGameById(gameID);
+        if (game == null)
+            return null;
+        return game.removeUser(user);
+    }
+
+    public object editUserProfile(int userId, string name, string password, string email, string avatar, int money)
+    {
+        return gameCenter.editUserProfile(userId,name,password,email,avatar,money);
+    }
+
+    public object findAllActiveAvailableGames()
+    {
+        if (gameCenter.texasHoldemGames.Count == 0)
+        {
+            return null;
+        }
+        return gameCenter.texasHoldemGames;
+    }
+
+    public object filterActiveGamesByPlayerName(string name)
+    {
+        return gameCenter.filterActiveGamesByPlayerName(name);
+    }
+
+    public object filterActiveGamesByPotSize(int? size)
+    {
+        return gameCenter.filterActiveGamesByPotSize(size);
+    }
+
+    public object filterActiveGamesByGamePreferences(object pref)
+    {
+        if (pref.GetType() == typeof(MustPreferences))
+            return gameCenter.filterActiveGamesByGamePreferences((MustPreferences)pref);
+        return null;
+    }
+
+    public object filterActiveGamesByGamePreferences(string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague, int minRank, int maxRank)
+    {
+        return gameCenter.filterActiveGamesByGamePreferences(gamePolicy, gamePolicyLimit, buyInPolicy, startingChipsAmount, MinimalBet, minPlayers, maxPlayers, isSpectatingAllowed, isLeague, minRank, maxRank);
+    }
+
+    public object getAllGames()
+    {
+        return gameCenter.getAllGames();
+    }
+
+    public object createGame(int gameCreatorId, object pref)
+    {
+        if (pref.GetType() == typeof(MustPreferences))
+            return gameCenter.createGame(gameCreatorId, (MustPreferences)pref);
+        else
+            return null;
+    }
+
+    public object createGame(int gameCreator, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague)
+    {
+        return gameCenter.createGame(gameCreator, gamePolicy, gamePolicyLimit, buyInPolicy, startingChipsAmount, MinimalBet, minPlayers, maxPlayers, isSpectatingAllowed, isLeague);
+    }
+
+    public object Login(string user, string password)
+    {
+        return gameCenter.login(user, password);
+    }
+
+    public object Register(string user, string password, string email, string userImage)
+    {
+        return gameCenter.register(user, password, email, userImage);
+    }
+
+    public object Logout(int userId)
+    {
+        return gameCenter.logout(userId);
+    }
+
+    public object getUserByName(string name)
+    {
+        return gameCenter.getUserByName(name);
+    }
+
+    public object getUserById(int userId)
+    {
+        return gameCenter.getUserById(userId);
+    }
+
+    public object getGameById(int gameId)
+    {
+        return gameCenter.getGameById(gameId);
+    }
+
+    #region GameWindow
+    public object Bet(int gameId, int playerIndex, int coins)
+    {
+        return gameCenter.bet(gameId, playerIndex, coins);
+    }
+    public object AddMessage(int gameId, int playerIndex, string messageText)
+    {
+        // TODO: Gili, you need to send the message to the other players
+        // return gameCenter.addMessage(gameId, playerIndex, messageText);
+        return null;
+    }
+    public object Fold(int gameId, int playerIndex)
+    {
+        return gameCenter.fold(gameId, playerIndex);
+    }
+    public object Check(int gameId, int playerIndex)
+    {
+        return gameCenter.check(gameId, playerIndex);
+    }
+    public object GetGameState(int gameId)
+    {
+        return gameCenter.getGameState(gameId);
+    }
+    public object ChoosePlayerSeat(int gameId, int playerIndex)
+    {
+        return gameCenter.ChoosePlayerSeat(gameId, playerIndex);
+    }
+    public object GetPlayer(int gameId, int playerIndex)
+    {
+        return gameCenter.GetPlayer(gameId, playerIndex);
+    }
+    public object GetPlayerCards(int gameId, int playerIndex)
+    {
+        return gameCenter.GetPlayerCards(gameId, playerIndex);
+    }
+    public object GetShowOff(int gameId)
+    {
+        return gameCenter.GetShowOff(gameId);
+    }
+    #endregion
+
+
+
+
+    //public List<TexasHoldemGame> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed)
     //{
-    //    dal = new DALDummy();
+    //    throw new NotImplementedException();
     //}
 
-    public SLImpl(GameCenter gameCenter)
-    {
-        this.gameCenter = gameCenter;
-    }
-	public ReturnMessage spectateActiveGame(SystemUser user, int gameID)
+
+    //public void replayGame(int gameId)
+    //{
+    //    throw new NotImplementedException();
+    //}
+
+
+
+    /*public ReturnMessage spectateActiveGame(SystemUser user, int gameID)
 	{
 		ReturnMessage m = new ReturnMessage();
 		TexasHoldemGame existingGame = dal.getGameById(gameID);

@@ -4,22 +4,31 @@ namespace Backend.Game.DecoratorPreferences
 {
     public class BuyInPolicyDecPref : OptionalPreferences
     {
-        private int buyInPolicy;
+        public int buyInPolicy { get; }
 
         public BuyInPolicyDecPref(int buyInPolicy, OptionalPreferences nextDecPref): base(nextDecPref)
         {
             this.buyInPolicy = buyInPolicy;
         }
 
-        public override ReturnMessage canPerformUserActions(TexasHoldemGame game, Player p, SystemUser user, string action)
+        public override ReturnMessage canPerformUserActions(TexasHoldemGame game, SystemUser user, string action)
         {
             ReturnMessage m = new ReturnMessage();
             switch (action)
             {
+                case "create":
+                    if (buyInPolicy >= 0)
+                        if (nextDecPref != null)
+                            return nextDecPref.canPerformUserActions(game, user, "create");
+                        else
+                            return new ReturnMessage(true, "");
+                    else
+                        return new ReturnMessage(false, "Buy in policy can't be negative");
+
                 case "join":
                     if (user.money >= buyInPolicy)
                         if (nextDecPref != null)
-                            return nextDecPref.canPerformUserActions(game, p, user, action);
+                            return nextDecPref.canPerformUserActions(game, user, action);
                         else
                             return new ReturnMessage(true, "");
                     else
@@ -28,7 +37,7 @@ namespace Backend.Game.DecoratorPreferences
                 case "spectate":
                 case "leave":
                     if (nextDecPref !=null)
-                        return nextDecPref.canPerformUserActions(game, p, user, action);
+                        return nextDecPref.canPerformUserActions(game, user, action);
                     return new ReturnMessage(true, "");
 
                 default:
@@ -45,7 +54,8 @@ namespace Backend.Game.DecoratorPreferences
 
         public override bool isContain(DecoratorPreferencesInterface pref)
         {
-            if (pref.GetType() != typeof(OptionalPreferences))
+            if (pref.GetType().IsAssignableFrom(typeof(OptionalPreferences)))
+                //if (pref.GetType() != typeof(OptionalPreferences))
                 return false;
             OptionalPreferences opPref = ((OptionalPreferences)pref);
             BuyInPolicyDecPref matchingPref = (BuyInPolicyDecPref)getMatchingOptionalPref(opPref);

@@ -12,11 +12,24 @@ namespace Backend.Game.DecoratorPreferences
             this.minimalBet = minimalBet;
         }
 
-        public override ReturnMessage canPerformUserActions(TexasHoldemGame game, Player p, SystemUser user, string action)
+        public override ReturnMessage canPerformUserActions(TexasHoldemGame game, SystemUser user, string action)
         {
-            if (nextDecPref != null)
-                return nextDecPref.canPerformUserActions(game,p, user, action);
-            return new ReturnMessage(true, "");
+            switch (action)
+            {
+                case "create":
+                    if (minimalBet >= 0)
+                        if (nextDecPref != null)
+                            return nextDecPref.canPerformUserActions(game, user, action);
+                        else
+                            return new ReturnMessage(true, "");
+                    else
+                        return
+                            new ReturnMessage(false, "Minimal bet must be positive");
+                default:
+                    if (nextDecPref != null)
+                        return nextDecPref.canPerformUserActions(game, user, action);
+                    return new ReturnMessage(true, "");
+            }
         }
 
         public override ReturnMessage canPerformGameActions(TexasHoldemGame game, SystemUser user, int amount, string action)
@@ -44,7 +57,8 @@ namespace Backend.Game.DecoratorPreferences
 
         public override bool isContain(DecoratorPreferencesInterface pref)
         {
-            if (pref.GetType() != typeof(OptionalPreferences))
+            if (pref.GetType().IsAssignableFrom(typeof(OptionalPreferences)))
+                //if (pref.GetType() != typeof(OptionalPreferences))
                 return false;
             OptionalPreferences opPref = ((OptionalPreferences)pref);
             MinBetDecPref matchingPref = (MinBetDecPref)getMatchingOptionalPref(opPref);

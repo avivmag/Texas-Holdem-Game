@@ -20,28 +20,33 @@ namespace PL
             username.Text = user.name;
             password.Text = user.password;
             email.Text = user.email;
-            MoneyDeposit.Text = user.money.ToString();
+            MoneyDeposit.Text = "0";
+            MoneyCurrent.Text = user.money.ToString();
         }
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Close();
             MainMenuWindow.Show();
         }
 
         private void Update_Click(object sender, RoutedEventArgs e)
         {
             int money;
-            if (!Int32.TryParse(MoneyDeposit.Text,out money) || money<=0){
+            if (!Int32.TryParse(MoneyDeposit.Text,out money) || money<0){
                 errorMessage.Text = "Please enter a positive number";
             }
             else
             {
-                Boolean m = CommClient.editUserProfile(LoginWindow.user.id, username.Text, password.Text, email.Text, null);
+                bool? m = CommClient.editUserProfile(LoginWindow.user.id, username.Text, password.Text, email.Text, null, money);
 
-                if (m)
+                if (m.HasValue && m.Value)
                 {
-                    this.Hide();
+                    Hide();
+                    LoginWindow.user.name = username.Text;
+                    LoginWindow.user.password = password.Text;
+                    LoginWindow.user.email = email.Text;
+                    LoginWindow.user.money += money;
                     MainMenuWindow.Show();
                 }
                 else

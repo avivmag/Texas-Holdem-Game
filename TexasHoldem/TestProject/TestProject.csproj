@@ -85,6 +85,10 @@
     <Compile Include="UnitTest\TestGameCreate.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ApplicationFacade\ApplicationFacade.csproj">
+      <Project>{4C020F04-D40B-47A2-B8DC-E3BB2804D4E9}</Project>
+      <Name>ApplicationFacade</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Backend\Backend.csproj">
       <Project>{9951A575-8F22-40E4-B7F9-F59A66494AF1}</Project>
       <Name>Backend</Name>

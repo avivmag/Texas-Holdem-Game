@@ -8,7 +8,7 @@ namespace Backend.Game.DecoratorPreferences
         private int maxRank;
         public bool isSpectateAllowed { get; set; }
         public bool isLeague { get; set; }
-        public OptionalPreferences firstDecPref { get; }
+        public OptionalPreferences firstDecPref { get; set; }
 
         public MustPreferences(OptionalPreferences firstDecPref, bool isSpectateAllowed)
         {
@@ -28,23 +28,34 @@ namespace Backend.Game.DecoratorPreferences
             isLeague = true;
         }
 
-        public ReturnMessage canPerformUserActions(TexasHoldemGame game, Player p, SystemUser user, string action)
+        public ReturnMessage canPerformUserActions(TexasHoldemGame game, SystemUser user, string action)
         {
             switch (action)
             {
+                case "create":
+                    if ((isLeague && minRank >= 0 && maxRank >= 0 && maxRank >= minRank) || !isLeague)
+                    {
+                        if (firstDecPref != null)
+                            return firstDecPref.canPerformUserActions(game, user, "create");
+                        else
+                            return new ReturnMessage(true, "");
+                    }
+                    else
+                        return new ReturnMessage(false, "The attributes of the league are not matching");
+
                 case "join":
                     if (isLeague)
                     {
                         //if the user stands in the rank or he is a new player
                         if ((user.rank >= minRank && user.rank <= maxRank) || user.newPlayer)
-                            return firstDecPref.canPerformUserActions(game, p, user, action);
+                            return firstDecPref.canPerformUserActions(game, user, action);
                         else
                             return new ReturnMessage(false, "The user can't join to this league game because his rank not matching.");
                     }
                     else
                     {
                         if (firstDecPref != null)
-                            return firstDecPref.canPerformUserActions(game, p, user, action);
+                            return firstDecPref.canPerformUserActions(game, user, action);
                         else
                             return new ReturnMessage(true,"");
                     }
@@ -57,7 +68,7 @@ namespace Backend.Game.DecoratorPreferences
 
                 case "leave":
                     if (firstDecPref != null)
-                        return firstDecPref.canPerformUserActions(game, p, user, action);
+                        return firstDecPref.canPerformUserActions(game, user, action);
                     else
                         return new ReturnMessage(true, "");
                 default:
@@ -85,6 +96,18 @@ namespace Backend.Game.DecoratorPreferences
                     return true;
             else
                 return false;
+        }
+
+        public OptionalPreferences getOptionalPref(OptionalPreferences wantedPref)
+        {
+            OptionalPreferences temp = firstDecPref;
+            while (temp != null)
+            {
+                if (temp.GetType() == wantedPref.GetType())
+                    return temp;
+                temp = temp.nextDecPref;
+            }
+            return null;
         }
     }
 }
