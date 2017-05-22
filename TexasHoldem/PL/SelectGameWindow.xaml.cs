@@ -61,7 +61,7 @@ namespace PL
                 var game = CommClient.spectateActiveGame(LoginWindow.user.id, gameId);
                 if (game != default(TexasHoldemGame))
                 {
-                    this.Close();
+                    Close();
                     mainMenuWindow.Show();
                     new GameWindow(game, LoginWindow.user.id).Show();
                 }
@@ -77,7 +77,7 @@ namespace PL
                 var game = CommClient.joinActiveGame(LoginWindow.user.id, gameId);
                 if (game != default(TexasHoldemGame))
                 {
-                    this.Close();
+                    Close();
                     mainMenuWindow.Show();
                     new GameWindow(game, LoginWindow.user.id).Show();
                 }

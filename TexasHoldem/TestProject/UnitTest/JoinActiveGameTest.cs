@@ -9,6 +9,7 @@ using ApplicationFacade;
 using Backend.Game.DecoratorPreferences;
 using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
 using Backend;
+using System;
 
 namespace TestProject
 {
@@ -37,7 +38,8 @@ namespace TestProject
                 userList[i].newPlayer = false;
                 j += 5;
                 userList[i].id = i;
-                center.login(userList[i].name, userList[i].password);
+                center.loggedInUsers.Add(userList[i]);
+                //center.login(userList[i].name, userList[i].password);
             }
 
             //set the leagues
@@ -111,9 +113,9 @@ namespace TestProject
         {
             object m = sl.joinActiveGame(0, 4);
 
-            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
+            Assert.IsInstanceOfType(m, typeof(TexasHoldemGame));
 
-            Assert.IsTrue(((ReturnMessage)m).success);
+            Assert.AreEqual(((TexasHoldemGame)m).gameId,4);
         }
 
         [TestMethod]
@@ -121,9 +123,9 @@ namespace TestProject
         {
             object m = sl.joinActiveGame(2, 7);
 
-            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
+            Assert.IsInstanceOfType(m, typeof(TexasHoldemGame));
 
-            Assert.IsTrue(((ReturnMessage)m).success);
+            Assert.AreEqual(((TexasHoldemGame)m).gameId,7);
         }
 
         [TestMethod]
@@ -133,21 +135,19 @@ namespace TestProject
 
             Assert.IsInstanceOfType(m, typeof(ReturnMessage));
 
-            Assert.IsFalse(((ReturnMessage)m).success);
+            Assert.AreEqual(m, null);
         }
 
         [TestMethod]
         public void joinFailesNoSeatsTest()
         {
             sl.joinActiveGame(2, 3);
-            
+
             sl.joinActiveGame(3, 3);
 
             object m = sl.joinActiveGame(0, 3);
 
-            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
-
-            Assert.IsFalse(((ReturnMessage)m).success);
+            Assert.AreEqual(m,null);
         }
 
         [TestMethod]
@@ -155,9 +155,7 @@ namespace TestProject
         {
             object m = sl.joinActiveGame(1, 1);
 
-            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
-
-            Assert.IsFalse(((ReturnMessage)m).success);
+            Assert.AreEqual(m, null);
         }
 
         [TestMethod]
@@ -167,9 +165,7 @@ namespace TestProject
 
             object m = sl.joinActiveGame(0, 3);
 
-            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
-
-            Assert.IsFalse(((ReturnMessage)m).success);
+            Assert.AreEqual(m, null);
         }
 
         [TestMethod]
@@ -179,9 +175,7 @@ namespace TestProject
 
             object m = sl.joinActiveGame(0, 2);
 
-            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
-
-            Assert.IsFalse(((ReturnMessage)m).success);
+            Assert.AreEqual(m,null);
         }
 
         [TestMethod]
@@ -189,9 +183,7 @@ namespace TestProject
         {
             object m = sl.joinActiveGame(0, 1000);
 
-            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
-
-            Assert.IsFalse(((ReturnMessage)m).success);
+            Assert.AreEqual(m, null);
         }
 
         [TestMethod]
@@ -199,9 +191,7 @@ namespace TestProject
         {
             object m = sl.joinActiveGame(70, 1000);
 
-            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
-
-            Assert.IsFalse(((ReturnMessage)m).success);
+            Assert.AreEqual(m, null);
         }
 
         [TestCleanup]

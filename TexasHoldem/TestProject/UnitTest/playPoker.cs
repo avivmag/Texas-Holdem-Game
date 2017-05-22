@@ -38,7 +38,8 @@ namespace TestProject.UnitTest
             for (int i = 0; i < 4; i++)
             {
                 userList[i].id = i;
-                center.login(userList[i].name, userList[i].password);
+                center.loggedInUsers.Add(userList[i]);
+                //center.login(userList[i].name, userList[i].password);
             }
 
             sl = new SLImpl();
@@ -47,8 +48,8 @@ namespace TestProject.UnitTest
             game = (TexasHoldemGame) sl.createGame(0, "No_limit", 1000, 30, 50, 10, 2, 10, true, false);
             game.gameId = 1;
 
-            sl.joinActiveGame(1, 1);
-            sl.joinActiveGame(2, 1);
+            game.players[1] = new Player(userList[1].id, userList[1].name, 50, userList[1].rank);
+            game.players[2] = new Player(userList[2].id, userList[2].name, 50, userList[2].rank);
             
             for (int i = 0; i < 3; i++)
             {
@@ -96,72 +97,6 @@ namespace TestProject.UnitTest
             game.betBlinds();
             Assert.AreEqual(game.tempPot, 30, "The blindes bet are not correct, tempPot = " + game.tempPot);
         }
-
-        //[TestMethod]
-        //public void TestActionsCheck()
-        //{
-        //    int index = game.nextToSeat(game.currentBig);
-        //    for (int i = game.nextToSeat(game.currentBig); i < game.players.Length; i++)
-        //    {
-        //        if (game.players[i] != null && game.players[i].playerState == Player.PlayerState.in_round)
-        //        {
-        //            game.chooseBetAction(game.players[i], TexasHoldemGame.BetAction.check, 0);
-        //            index = game.nextToSeat(index);
-        //        }
-        //    }
-        //    Assert.AreEqual(game.tempPot, 0, "Not everybody check, tempPot = " + game.tempPot);
-        //}
-
-
-        //[TestMethod]
-        //public void TestActionsBet()
-        //{
-        //    int index = game.nextToSeat(game.currentBig);
-        //    if (game.players[index] != null && game.players[index].playerState == Player.PlayerState.in_round)
-        //    {
-        //        game.chooseBetAction(game.players[index], TexasHoldemGame.BetAction.bet, 20);
-        //        index = game.nextToSeat(index);
-        //    }
-
-        //    if (game.players[index] != null && game.players[index].playerState == Player.PlayerState.in_round)
-        //    {
-        //        game.chooseBetAction(game.players[index], TexasHoldemGame.BetAction.call, 0);
-        //        index = game.nextToSeat(index);
-        //    }
-
-        //    if (game.players[index] != null && game.players[index].playerState == Player.PlayerState.in_round)
-        //    {
-        //        game.chooseBetAction(game.players[index], TexasHoldemGame.BetAction.call, 0);
-        //        index = game.nextToSeat(index);
-        //    }
-
-        //    Assert.AreEqual(game.tempPot, 60, "Not everybody call or bet, tempPot = " + game.tempPot);
-        //}
-
-        //[TestMethod]
-        //public void TestActionsRaise()
-        //{
-        //    int index = game.nextToSeat(game.currentBig);
-        //    if (game.players[index] != null && game.players[index].playerState == Player.PlayerState.in_round)
-        //    {
-        //        game.chooseBetAction(game.players[index], TexasHoldemGame.BetAction.bet, 20);
-        //        index = game.nextToSeat(index);
-        //    }
-
-        //    if (game.players[index] != null && game.players[index].playerState == Player.PlayerState.in_round)
-        //    {
-        //        game.chooseBetAction(game.players[index], TexasHoldemGame.BetAction.raise, 10);
-        //        index = game.nextToSeat(index);
-        //    }
-
-        //    if (game.players[index] != null && game.players[index].playerState == Player.PlayerState.in_round)
-        //    {
-        //        game.chooseBetAction(game.players[index], TexasHoldemGame.BetAction.raise, 20);
-        //        index = game.nextToSeat(index);
-        //    }
-
-        //    Assert.AreEqual(game.tempPot, 90, "Not everybody raise the exact money, tempPot = " + game.tempPot);
-        //}
 
         [TestMethod]
         public void TestRoyalFlush()

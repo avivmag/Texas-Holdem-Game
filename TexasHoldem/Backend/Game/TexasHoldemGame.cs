@@ -364,7 +364,7 @@ namespace Backend.Game
             spectators.Remove(user);
         }
 
-        private void playGame()
+        public void playGame()
         {
             GameLog.logLine(gameId, GameLog.Actions.Game_Start, DateTime.Now.ToString());
             isGameActive = true;
