@@ -269,12 +269,13 @@ namespace PL
             errorMessage.Text = "";
             int gameId;
             DataGridCellInfo cellValue = (searchResultGrid.SelectedCells.ElementAt(1));
-            gameId = Int32.Parse(cellValue.ToString());
+            gameId = Int32.Parse(((TexasHoldemGameStrings)cellValue.Item).gameId);
             var game = CommClient.joinActiveGame(LoginWindow.user.id, gameId);
             if (game != default(TexasHoldemGame))
             {
                 Close();
-                //new GameWindow(mainMenuWindow,game).Show();
+                mainMenuWindow.Show();
+                new GameWindow(game,LoginWindow.user.id).Show();
             }
             else
             {
