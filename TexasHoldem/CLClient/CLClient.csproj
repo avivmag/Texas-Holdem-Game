@@ -51,10 +51,13 @@
     <Compile Include="CommClient.cs" />
     <Compile Include="Entities\Card.cs" />
     <Compile Include="Entities\DecoratorPreferences\Preference.cs" />
+    <Compile Include="Entities\Notification.cs" />
     <Compile Include="Entities\Player.cs" />
     <Compile Include="Entities\ReturnMessage.cs" />
     <Compile Include="Entities\SystemUser.cs" />
     <Compile Include="Entities\TexasHoldemGame.cs" />
+    <Compile Include="IObserver.cs" />
+    <Compile Include="IObservable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

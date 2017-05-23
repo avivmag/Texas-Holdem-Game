@@ -22,7 +22,6 @@ namespace Backend.Game
         public void Subscribe(ObserverAbstract<TcpClient> p)
         {
             playersList.Add(p);
-            p.update();
         }
 
         public void Unsubscribe(ObserverAbstract<TcpClient> p)
@@ -30,11 +29,11 @@ namespace Backend.Game
             playersList.Remove(p);
         }
 
-        public void Update()
+        public void Update(object obj)
         {
             foreach (ObserverAbstract<TcpClient> p in playersList)
             {
-                p.update();
+                p.update(obj);
             }
         }
     }

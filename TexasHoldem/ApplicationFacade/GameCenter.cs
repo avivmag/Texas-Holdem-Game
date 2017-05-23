@@ -480,8 +480,6 @@ namespace ApplicationFacade
 
             mustPref.firstDecPref = iterator;
 
-            Console.WriteLine(mustPref);
-
             /*
 
             //buy in policy settings

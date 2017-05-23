@@ -7,11 +7,11 @@ using CLClient.Entities.DecoratorPreferences;
 
 namespace CLClient.Entities
 {
-    public class TexasHoldemGame
+    public class TexasHoldemGame : IObservable
     {
         public enum HandsRanks { HighCard, Pair, TwoPairs, ThreeOfAKind, Straight, Flush, FullHouse, FourOfAKind, StraightFlush, RoyalFlush }
         public enum BetAction { fold, bet, call, check, raise }
-
+        private List<IObserver> gameObservers;
         public int gameId { get; set; }
         public int currentDealer { get; set; }
         public int currentBig { get; set; }
@@ -45,10 +45,35 @@ namespace CLClient.Entities
             }
         }
 
-        //public GameObserver playersChatObserver;
-        //public GameObserver spectateChatObserver;
-        //public GameObserver gameStatesObserver;
+        public void Subscribe(IObserver obs)
+        {
+            if (gameObservers == null)
+            {
+                gameObservers = new List<IObserver>
+                {
+                    obs
+                };
+            }
+            else if (!gameObservers.Contains(obs))
+            {
+                this.gameObservers.Add(obs);
+            }
+        }
 
-        // TODO: Gili - notice Gil decorator pattern and Aviv player.TokensInBet - you should use them in your logic
+        public void Unsubscribe(IObserver obs)
+        {
+            if ((gameObservers != null) && (gameObservers.Contains(obs)))
+            {
+                this.gameObservers.Remove(obs);
+            }
+        }
+
+        public void update(object obj)
+        {
+            foreach (var obs in gameObservers)
+            {
+                obs.update(obj);
+            }
+        }
     }
 }

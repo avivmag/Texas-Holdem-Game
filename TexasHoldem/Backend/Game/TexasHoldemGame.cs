@@ -52,11 +52,10 @@ namespace Backend.Game
             active = true;
             deck = new Deck();
             spectators = new List<SystemUser>();
-
+            gameStatesObserver = new GameObserver();
             //setting the players array according to the max players pref if entered else 9 players is the max.
             maxPlayers = 9;
             MaxPlayersDecPref maxPlayersDec =(MaxPlayersDecPref) gamePreferences.getOptionalPref(new MaxPlayersDecPref(0, null));
-            Console.WriteLine(maxPlayersDec);
             if (maxPlayersDec != null)
                 maxPlayers = maxPlayersDec.maxPlayers;
             players = new Player[maxPlayers];
@@ -83,8 +82,6 @@ namespace Backend.Game
             //playersChatObserver = new GameObserver(GameObserver.ObserverType.PlayersChat);
             //spectateChatObserver = new GameObserver(GameObserver.ObserverType.SpectateChat);
             //gameStatesObserver = new GameObserver(GameObserver.ObserverType.GameStates);
-             gameStatesObserver = new GameObserver();
-
 
             currentDealer = 0;
         }
@@ -278,7 +275,7 @@ namespace Backend.Game
                 }
             }
             //playersChatObserver.Subscribe(p);
-            //gameStatesObserver.Subscribe(p);
+            gameStatesObserver.Update(this);
             return new ReturnMessage(true, "");
         }
 
@@ -412,7 +409,7 @@ namespace Backend.Game
 
                 playersSetsTheirBets(false);
                 addToPot(tempPot);
-                gameStatesObserver.Update();
+                gameStatesObserver.Update(this);
 
                 for (int i = 0; i < players.Length; i++)
                 {
@@ -420,7 +417,7 @@ namespace Backend.Game
                         players[i].handRank = checkHandRank(players[i]);
                 }
 
-                gameStatesObserver.Update();
+                gameStatesObserver.Update(this);
 
 
             }
@@ -442,7 +439,7 @@ namespace Backend.Game
             }
 
             players[winnerIndex].playerState = PlayerState.winner;
-            gameStatesObserver.Update();
+            gameStatesObserver.Update(this);
         }
 
         public void playersSetsTheirBets(bool firstBets)
@@ -454,7 +451,7 @@ namespace Backend.Game
                     {
                         players[i].playerState = PlayerState.my_turn;
                         //UPDATE everybody
-                        gameStatesObserver.Update();
+                        gameStatesObserver.Update(this);
                     }
                 }
             else
@@ -464,7 +461,7 @@ namespace Backend.Game
                     {
                         players[i].playerState = PlayerState.my_turn;
                         //UPDATE everybody
-                        gameStatesObserver.Update();
+                        gameStatesObserver.Update(this);
                     }
                 }
         }

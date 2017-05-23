@@ -16,7 +16,6 @@ public class SLImpl : SLInterface
         gameCenter = GameCenter.getGameCenter();
     }
 
-
     public object spectateActiveGame(int userId, int gameID)
     {
         TexasHoldemGame game = gameCenter.getGameById(gameID);
