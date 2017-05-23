@@ -13,7 +13,7 @@ namespace CLClient
 {
     public static class CommClient
     {
-        private static TcpClient client = new TcpClient("192.168.126.1", 2345);
+        private static TcpClient client = new TcpClient("192.168.209.1", 2345);
 
         #region Static functionality
 
