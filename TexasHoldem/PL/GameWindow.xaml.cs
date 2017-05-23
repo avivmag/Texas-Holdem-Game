@@ -668,7 +668,7 @@ namespace PL
         public void updateGame()
         {
             TexasHoldemGame game = CommClient.GetGameState(this.game.gameId);
-            updatePlayerCards();
+            //updatePlayerCards();
             //int pot;
             coinsSumInHeap[0].Content = game.pot;
 

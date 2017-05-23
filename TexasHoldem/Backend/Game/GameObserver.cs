@@ -22,6 +22,7 @@ namespace Backend.Game
         public void Subscribe(ObserverAbstract<TcpClient> p)
         {
             playersList.Add(p);
+           // p.update();
         }
 
         public void Unsubscribe(ObserverAbstract<TcpClient> p)

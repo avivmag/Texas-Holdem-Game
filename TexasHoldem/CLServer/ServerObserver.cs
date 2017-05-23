@@ -16,14 +16,13 @@ namespace CLServer
 
         public ServerObserver(TcpClient c)
         {
-            Console.WriteLine("ServerObserver " + client.ToString());
             client = c;
         }
 
         public override void update()
         {
             Console.WriteLine("UPDATE " + client.ToString());
-            CLImpl.SendMessage(client, new { response = "Updated game" });
+            CLImpl.SendMessage(client, new { response = "UpdatedGame" });
         }
     }
 }
