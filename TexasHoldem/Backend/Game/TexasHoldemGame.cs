@@ -56,9 +56,9 @@ namespace Backend.Game
             //setting the players array according to the max players pref if entered else 9 players is the max.
             maxPlayers = 9;
             MaxPlayersDecPref maxPlayersDec =(MaxPlayersDecPref) gamePreferences.getOptionalPref(new MaxPlayersDecPref(0, null));
+            Console.WriteLine(maxPlayersDec);
             if (maxPlayersDec != null)
                 maxPlayers = maxPlayersDec.maxPlayers;
-            Debug.WriteLine("/n/n" + maxPlayers + "/n/n");
             players = new Player[maxPlayers];
             availableSeats = maxPlayers - 1;
 

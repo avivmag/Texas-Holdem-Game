@@ -480,6 +480,7 @@ namespace ApplicationFacade
 
             mustPref.firstDecPref = iterator;
 
+            Console.WriteLine(mustPref);
 
             /*
 

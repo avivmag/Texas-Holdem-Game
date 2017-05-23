@@ -98,11 +98,6 @@ namespace CLServer
         /// <param name="message">The message to send. (Optional)</param>
         public static void SendMessage(TcpClient client, object message = null)
         {
-            if (message.Equals("UpdatedGame"))
-            {
-                Console.WriteLine("GGGGG");
-            }
-
             JObject messageJObject = new JObject();
             if (message != null)
             {
@@ -392,7 +387,7 @@ namespace CLServer
             {
                 throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Create Game."));
             }
-
+            
             var createGameResponse = sl.createGame(
                 (int)gameCreatorIdToken, 
                 (string)gamePolicyToken,
@@ -613,11 +608,16 @@ namespace CLServer
             threadPool = new List<Thread>();
             TcpListener listener = null;
 
-            string IP = null;
+            string IP = "127.0.0.1";
+
+            var realIP = false;
 
             try
             {
-                IP = GetLocalIPAddress();
+                if (realIP)
+                {
+                    IP = GetLocalIPAddress();
+                }
                 Console.WriteLine("this is the IP: {0}", IP);
             }
             catch
@@ -643,7 +643,7 @@ namespace CLServer
                     Console.WriteLine("Waiting for new connection.");
 
                     TcpClient client = listener.AcceptTcpClient();
-
+                    
                     Console.WriteLine("Accepted new client");
                     
                     Thread clientThread = new Thread(ProcessClientRequests);

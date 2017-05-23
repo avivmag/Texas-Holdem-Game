@@ -21,8 +21,7 @@ namespace CLServer
 
         public override void update()
         {
-            Console.WriteLine("UPDATE " + client.ToString());
-            CLImpl.SendMessage(client, new { response = "UpdatedGame" });
+            CLImpl.SendMessage(client, new { message = "UpdatedGame" });
         }
     }
 }
