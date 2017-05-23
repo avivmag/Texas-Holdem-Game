@@ -22,7 +22,7 @@ namespace SL
         //List<object> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed);
         object getAllGames();
 
-        object createGame(int gameCreatorId, object pref);
+        //object createGame(int gameCreatorId, object pref);
         object createGame(int gameCreator, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague);
 
         object Login(string user, string password);

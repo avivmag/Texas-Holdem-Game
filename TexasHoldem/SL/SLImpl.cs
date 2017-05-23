@@ -151,13 +151,13 @@ public class SLImpl : SLInterface
         return games;
     }
 
-    public object createGame(int gameCreatorId, object pref)
-    {
-        if (pref.GetType() == typeof(MustPreferences))
-            return gameCenter.createGame(gameCreatorId, (MustPreferences)pref);
-        else
-            return null;
-    }
+    //public object createGame(int gameCreatorId, object pref)
+    //{
+    //    if (pref.GetType() == typeof(MustPreferences))
+    //        return gameCenter.createGame(gameCreatorId, (MustPreferences)pref);
+    //    else
+    //        return null;
+    //}
 
     public object createGame(int gameCreator, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague)
     {
