@@ -28,7 +28,7 @@ namespace PL
         private void Create_Game_Click(object sender, RoutedEventArgs e)
         {
             errorMessage.Text = "";
-            var game = getGame();
+            var game = CreateGame();
             if (game == null)
             {
                 //errorMessage.Text = "Could not create the game";
@@ -37,11 +37,13 @@ namespace PL
             {
                 Close();
                 mainMenuWindow.Show();
-                new GameWindow(game, LoginWindow.user.id).Show();
+                GameWindow gw = new GameWindow(game, LoginWindow.user.id);
+                game.Subscribe(gw);
+                gw.Show();
 
             }
         }
-        private TexasHoldemGame getGame()
+        private TexasHoldemGame CreateGame()
         {
             Preference.GameTypePolicy gamePolicy = Preference.GameTypePolicy.Undef;
             int limitPolicy;

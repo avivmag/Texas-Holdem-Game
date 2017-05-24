@@ -21,6 +21,7 @@ namespace PL
         {
             CommClient.Logout(LoginWindow.user.id);
             LoginWindow.user = null;
+            CommClient.closeConnection();
             Close();
             loginWindow.Show();
         }

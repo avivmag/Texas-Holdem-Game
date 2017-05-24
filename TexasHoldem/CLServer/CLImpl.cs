@@ -18,7 +18,16 @@ namespace CLServer
     public class CLImpl
     {
         private static SLInterface sl = new SLImpl();
-        private List<ServerObserver> sol = new List<ServerObserver>();
+
+        #region Constants
+
+        private const string SUBSCRIBE_TO_MESSAGE   = "Messages";
+        private const string SUBSCRIBE_TO_GAME      = "Game";
+
+        #endregion
+
+        #region Server Functions
+
         /// <summary>
         /// Task to proccess the client's requests.
         /// </summary>
@@ -57,52 +66,30 @@ namespace CLServer
             }
         }
 
-        private static void ProcessServerRequests(Object obj)
+        /// <summary>
+        /// Gets IP to open tcp socket to.
+        /// </summary>
+        /// <returns>The server's IP.</returns>
+        private static string GetLocalIPAddress()
         {
-            TcpClient client = (TcpClient)obj;
-
-            while (true)
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
             {
-                var jsonObject = new JObject();
-                try
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
                 {
-                    jsonObject = getJsonObjectFromStream(client); 
-                }
-                catch
-                {
-                    Console.WriteLine("Client closed connection. Terminating thread: {0}", Thread.CurrentThread.ManagedThreadId);
-                    return;
-                }
-                try
-                {
-                    tryExecuteAction(client, jsonObject);
-                }
-                catch (TargetInvocationException tie)
-                {
-                    Console.WriteLine(tie.InnerException);
-                    SendMessage(client, new { exception = "An Error Has Occured" });
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                    Console.WriteLine(e.StackTrace);
-                    SendMessage(client, new { exception = "An Error Has Occured" });
+                    return ip.ToString();
                 }
             }
+            throw new Exception("Local IP Address Not Found!");
         }
 
         /// <summary>
-        /// Sends an exception message to the client.
+        /// Sends a message to the client.
         /// </summary>
         /// <param name="client">The client to send to.</param>
         /// <param name="message">The message to send. (Optional)</param>
         public static void SendMessage(TcpClient client, object message = null)
         {
-            if (message.Equals("UpdatedGame"))
-            {
-                Console.WriteLine("GGGGG");
-            }
-
             JObject messageJObject = new JObject();
             if (message != null)
             {
@@ -110,6 +97,7 @@ namespace CLServer
             }
             else
             {
+                // If no message was to be sent, send an empty message.
                 messageJObject["message"] = JToken.FromObject(new object());
             }
 
@@ -183,7 +171,10 @@ namespace CLServer
             method.Invoke(null, new object[] { client, jsonObject });
         }
 
+        #endregion
+
         #region GameWindow
+
         private static void Bet(TcpClient client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
@@ -205,6 +196,7 @@ namespace CLServer
             
             SendMessage(client, new { response = sl.Bet(gameId, playerIndex, coins) });
         }
+
         private static void AddMessage(TcpClient client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
@@ -226,6 +218,7 @@ namespace CLServer
             
             SendMessage(client, new { response = sl.AddMessage(gameId, playerIndex, messageText) });
         }
+
         private static void Fold(TcpClient client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
@@ -244,6 +237,7 @@ namespace CLServer
             
             SendMessage(client, new { response = sl.Fold(gameId, playerIndex) });
         }
+
         private static void Check(TcpClient client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
@@ -262,6 +256,7 @@ namespace CLServer
 
             SendMessage(client, new { response = sl.Check(gameId, playerIndex) });
         }
+
         private static void playGame(TcpClient client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
@@ -275,6 +270,7 @@ namespace CLServer
 
             SendMessage(client, response);
         }
+
         private static void GetGameState(TcpClient client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
@@ -288,6 +284,7 @@ namespace CLServer
 
             SendMessage(client, response);
         }
+
         private static void ChoosePlayerSeat(TcpClient client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
@@ -306,6 +303,7 @@ namespace CLServer
 
             SendMessage(client, response);
         }
+
         private static void GetPlayer(TcpClient client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
@@ -322,6 +320,7 @@ namespace CLServer
 
             SendMessage(client, new { response = sl.GetPlayer(gameId, playerSeatIndex) });
         }
+
         private static void GetPlayerCards(TcpClient client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
@@ -337,10 +336,10 @@ namespace CLServer
             var playerSeatIndex = (int)playerSeatIndexToken;
 
             var response = sl.GetPlayerCards((int)gameIdToken, (int)playerSeatIndexToken);
-            Console.WriteLine(response);
 
             SendMessage(client, response);
         }
+
         private static void GetShowOff(TcpClient client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
@@ -354,7 +353,10 @@ namespace CLServer
 
             SendMessage(client, new { response = sl.GetShowOff(gameId) });
         }
+        
         #endregion
+
+        #region Actions
 
         private static void Login(TcpClient client, JObject jsonObject)
         {
@@ -374,6 +376,7 @@ namespace CLServer
 
             SendMessage(client, loginResponse);
         }
+
         private static void CreateGame(TcpClient client, JObject jsonObject) {
             var gameCreatorIdToken = jsonObject["gameCreatorId"];
             var gamePolicyToken = jsonObject["gamePolicy"];
@@ -392,7 +395,7 @@ namespace CLServer
             {
                 throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Create Game."));
             }
-
+            
             var createGameResponse = sl.createGame(
                 (int)gameCreatorIdToken, 
                 (string)gamePolicyToken,
@@ -408,6 +411,7 @@ namespace CLServer
             SendMessage(client, createGameResponse);
             return;
         }
+
         private static void getGame(TcpClient client, JObject jsonObject) {
             var gameIdToken = jsonObject["gameId"];
 
@@ -421,6 +425,7 @@ namespace CLServer
             SendMessage(client, getGameResponse);
             return;
         }
+
         private static void Register(TcpClient client, JObject jsonObject)
         {
             var usernameToken   = jsonObject["username"];
@@ -451,6 +456,7 @@ namespace CLServer
             SendMessage(client, registerResponse);
             return;
         }
+
         private static void Logout(TcpClient client, JObject jsonObject)
         {
             var userIdToken = jsonObject["userId"];
@@ -465,6 +471,7 @@ namespace CLServer
             SendMessage(client, logoutResponse);
             return;
         }
+
         private static void JoinActiveGame(TcpClient client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
@@ -477,13 +484,11 @@ namespace CLServer
             }
 
             var joinActiveGameResponse = sl.joinActiveGame((int)userIdToken, (int)gameIdToken);
-
-            if (sl != null)
-                sl.Subscribe(new ServerObserver(client), (int)gameIdToken);
-
+            
             SendMessage(client, joinActiveGameResponse);
             return;
         }
+
         private static void SpectateActiveGame(TcpClient client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
@@ -501,6 +506,7 @@ namespace CLServer
             SendMessage(client, spectateActiveGameResponse);
             return;
         }
+
         private static void FindAllActiveAvailableGames(TcpClient client, JObject jsonObject)
         {
             var findAllActiveAvailableGamesResponse = sl.findAllActiveAvailableGames();
@@ -508,7 +514,7 @@ namespace CLServer
             SendMessage(client, findAllActiveAvailableGamesResponse);
             return;
         }
-        //TODO:: Obsolete because game preferences is now decorator. Not finished.
+
         private static void FilterActiveGamesByGamePreferences(TcpClient client, JObject jsonObject)
         {
             var gamePolicy = jsonObject["gamePolicy"];
@@ -536,6 +542,7 @@ namespace CLServer
             return;
 
         }
+
         private static void FilterActiveGamesByPotSize(TcpClient client, JObject jsonObject)
         {
             var potSizeToken = jsonObject["potSize"];
@@ -551,6 +558,7 @@ namespace CLServer
             SendMessage(client, filterActiveGamesByPotSizeResponse);
             return;
         }
+
         private static void FilterActiveGamesByPlayerName(TcpClient client, JObject jsonObject)
         {
             var playerNameToken = jsonObject["playerName"];
@@ -567,6 +575,7 @@ namespace CLServer
             SendMessage(client, filterActiveGamesByPotSizeResponse);
             return;
         }
+
         private static void EditUserProfile(TcpClient client, JObject jsonObject)
         {
             var userIdToken     = jsonObject["userId"];
@@ -594,31 +603,73 @@ namespace CLServer
             return;
         }
 
-        public static string GetLocalIPAddress()
+        private static void Subscribe(TcpClient client, JObject jsonObject)
         {
-            var host = Dns.GetHostEntry(Dns.GetHostName());
-            foreach (var ip in host.AddressList)
+            var subscribeToToken = jsonObject["to"];
+
+            if ((subscribeToToken == null) ||
+                (subscribeToToken.Type != JTokenType.String) ||
+                (String.IsNullOrWhiteSpace((string)subscribeToToken)))
             {
-                if (ip.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    return ip.ToString();
-                }
+                Console.WriteLine("Parameters mismatch at Subscribe -- subscribeTo.");
+                SendMessage(client, new { exception = "Could not register." });
+                return;
             }
-            throw new Exception("Local IP Address Not Found!");
+
+            var subscribeTo = (string)subscribeToToken;
+
+            if (subscribeTo == SUBSCRIBE_TO_GAME)
+            {
+                SubscribeToGame(client, jsonObject);
+                return;
+            }
+
+            if (subscribeTo == SUBSCRIBE_TO_MESSAGE)
+            {
+                // TODO:: MESSAGE SYSTEM!! ^^
+            }
+
         }
-        private static List<Thread> threadPool;
+
+        private static void SubscribeToGame(TcpClient client, JObject jsonObject)
+        {
+            var optionalToken = jsonObject["optional"];
+
+            if ((optionalToken == null) ||
+                (optionalToken.Type != JTokenType.Integer))
+            {
+                Console.WriteLine("Parameters mismatch at Subscribe -- optional.");
+                SendMessage(client, new { exception = "Could not register." });
+                return;
+            }
+
+            var optional = (int)optionalToken;
+
+            // Check if game exists.
+            if (sl.getGameById(optional) != null)
+            {
+                // Subscribe this channel to game.
+                sl.Subscribe(new ServerObserver(client), (int)optionalToken);
+            }
+        }
+
+        #endregion 
 
         static void Main()
         {
-            threadPool = new List<Thread>();
             TcpListener listener = null;
 
-            string IP = null;
+            string IP = "127.0.0.1";
+
+            var realIP = false;
 
             try
             {
-                IP = GetLocalIPAddress();
-                Console.WriteLine("this is the IP: {0}", IP);
+                if (realIP)
+                {
+                    IP = GetLocalIPAddress();
+                }
+                Console.WriteLine("Server IP is: {0}", IP);
             }
             catch
             {
@@ -643,13 +694,12 @@ namespace CLServer
                     Console.WriteLine("Waiting for new connection.");
 
                     TcpClient client = listener.AcceptTcpClient();
-
+                    
                     Console.WriteLine("Accepted new client");
                     
                     Thread clientThread = new Thread(ProcessClientRequests);
                     
                     clientThread.Start(client);
-                    threadPool.Add(clientThread);
                 }
             }
             catch(Exception e)

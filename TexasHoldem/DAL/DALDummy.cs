@@ -45,7 +45,7 @@ namespace DAL
             loggedInUserDummies = new List<SystemUser>();
             //setting the games
             //pref order: mustpref(spectate,league)->game type , buy in policy, starting chips, minimal bet, minimum players, maximum players.
-            gameDummies = new List<TexasHoldemGame>
+           /* gameDummies = new List<TexasHoldemGame>
             {
                 //regular games
                 new TexasHoldemGame(userList[0],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
@@ -87,7 +87,7 @@ namespace DAL
                 //new TexasHoldemGame(userDummies[1], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false)),
                 //new TexasHoldemGame(userDummies[3], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 0, 1000)),
                 //new TexasHoldemGame(userDummies[3], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 1000, 2000))
-            };
+            };*/
             //for (int i = 0; i < 6; i++)
             //{
             //    gameDummies[i].flop = new List<Card>();

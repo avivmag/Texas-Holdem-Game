@@ -513,7 +513,6 @@ namespace ApplicationFacade
 
             mustPref.firstDecPref = iterator;
 
-
             /*
 
             //buy in policy settings

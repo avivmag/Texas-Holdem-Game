@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using Obser;
 using System.Net.Sockets;
-
-using System.Net;
 
 namespace CLServer
 {
-    public class ServerObserver : Obser.ObserverAbstract<TcpClient>
+    public class ServerObserver : ObserverAbstract<TcpClient>
     {
         private TcpClient client;
 
@@ -19,10 +12,9 @@ namespace CLServer
             client = c;
         }
 
-        public override void update()
+        public override void update(object obj)
         {
-            Console.WriteLine("UPDATE " + client.ToString());
-            CLImpl.SendMessage(client, new { response = "UpdatedGame" });
+            CLImpl.SendMessage(client, new { response = "Game", obj });
         }
     }
 }
