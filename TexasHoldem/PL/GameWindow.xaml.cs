@@ -98,6 +98,8 @@ namespace PL
             playerCoins = new Label[9];
             playerCoinsGambled = new Label[9];
             alreadyAddedMouseEvents = new bool[9];
+            for (int i = 0; i < alreadyAddedMouseEvents.Length; i++)
+                alreadyAddedMouseEvents[i] = false;
 
             for (int i = 0; i < seatsButtons.Length; i++)
             {
