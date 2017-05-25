@@ -20,6 +20,6 @@ namespace Obser
             subscribers.Remove(t);
         }
 
-        public abstract void update();
+        public abstract void update(object obj);
     }
 }

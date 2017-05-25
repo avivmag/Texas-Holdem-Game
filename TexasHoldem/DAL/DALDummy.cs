@@ -49,7 +49,7 @@ namespace DAL
             {
                 //regular games
                 new TexasHoldemGame(userList[0],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
-                                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                                                                   new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
                                                                     new MinBetDecPref(20,new MinPlayersDecPref(2,
                                                                     new MaxPlayersDecPref (9,null) ))))),true)),
                 new TexasHoldemGame(userList[0],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,

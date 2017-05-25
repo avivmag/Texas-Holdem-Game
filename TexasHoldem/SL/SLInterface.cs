@@ -22,7 +22,7 @@ namespace SL
         //List<object> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed);
         object getAllGames();
 
-        object createGame(int gameCreatorId, object pref);
+        //object createGame(int gameCreatorId, object pref);
         object createGame(int gameCreator, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague);
 
         object Login(string user, string password);
@@ -50,7 +50,7 @@ namespace SL
         object GetPlayer(int gameId, int playerIndex);
         object GetPlayerCards(int gameId, int playerIndex);
         object GetShowOff(int gameId);
-        object Subscribe(ObserverAbstract<TcpClient> client, int gameID);
+        void Subscribe(ObserverAbstract<TcpClient> client, int gameID);
         #endregion
         }
 }

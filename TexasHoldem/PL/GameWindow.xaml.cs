@@ -22,7 +22,7 @@ namespace PL
     /// <summary>
     /// Interaction logic for GameWindow.xaml
     /// </summary>
-    public partial class GameWindow : Window
+    public partial class GameWindow : Window, IObserver
     {
         private int playerSeatIndex;
         private int systemUserId;
@@ -76,7 +76,7 @@ namespace PL
             this.game = game;
             this.systemUserId = systemUserId;
             initializeScreen();
-            updateGame();
+            updateGame(game);
         }
 
         /// <summary>
@@ -98,6 +98,8 @@ namespace PL
             playerCoins = new Label[9];
             playerCoinsGambled = new Label[9];
             alreadyAddedMouseEvents = new bool[9];
+            for (int i = 0; i < alreadyAddedMouseEvents.Length; i++)
+                alreadyAddedMouseEvents[i] = false;
 
             for (int i = 0; i < seatsButtons.Length; i++)
             {
@@ -664,11 +666,10 @@ namespace PL
             }
         }
 
-        // TODO: Gili or Or, this is the function that needs to be called when updating the state of the game
-        public void updateGame()
+        public void updateGame(TexasHoldemGame updatedGame)
         {
-            TexasHoldemGame game = CommClient.GetGameState(this.game.gameId);
-            updatePlayerCards();
+            this.game = updatedGame;
+            //updatePlayerCards();
             //int pot;
             coinsSumInHeap[0].Content = game.pot;
 
@@ -749,10 +750,27 @@ namespace PL
             }
         }
 
-        // TODO: Gili or Or, this is the function that needs to be called when someone sends a chat message
         public void updateChatBox(string appendedLine)
         {
             messagesTextBlock.Text += appendedLine + "\n";
+        }
+
+        public void update(object obj)
+        {
+            if (obj.GetType() == typeof(TexasHoldemGame))
+            {
+                this.Dispatcher.Invoke(() =>
+                {
+                    updateGame((TexasHoldemGame)obj);
+                });
+            }
+            else if (obj.GetType() == typeof(Notification))
+            {
+                this.Dispatcher.Invoke(() =>
+                {
+                    updateChatBox(((Notification)obj).getMessage());
+                });
+            }
         }
     }
 }

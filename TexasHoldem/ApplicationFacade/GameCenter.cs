@@ -14,23 +14,42 @@ namespace ApplicationFacade
 		public List<TexasHoldemGame> texasHoldemGames { get; set; }
         public List<League> leagues { get; set; }
         public List<SystemUser> loggedInUsers { get; set; }
-        private DALDummy dal;
+        public List<SystemUser> userList { get; set; }
+        //private DALDummy dal;
         private static GameCenter center;
 
         private GameCenter()
         {
-            dal = new DALDummy();
+            //dal = new DALDummy();
             texasHoldemGames = new List<TexasHoldemGame>();
             //texasHoldemGames = dal.getAllGames();
             leagues = new List<League>();
+            userList = new List<SystemUser>();
             loggedInUsers = new List<SystemUser>();
             //loggedInUsers = dal.getAllUsers();
+
         }
 
         public static GameCenter getGameCenter()
         {
             if (center == null)
+            {
                 center = new GameCenter();
+
+                ReturnMessage rm;
+                // aviv - for testing purposes only
+                center.register("aviv", "1", "1", "profile_pic");
+                int userId = center.getUserByName("aviv").id;
+                //Console.WriteLine(userId);
+                rm = center.editUserProfile(userId, "aviv", "1", "1", "profile_pic", 2000000);
+                if (!rm.success)
+                    Console.WriteLine("0 " + rm.description);
+                rm = center.logout(userId);
+                if (!rm.success)
+                    Console.WriteLine("1 " + rm.description);
+                center.register("avivImaginaryFriend", "1", "1", "profile_pic");
+                center.createGame(center.getUserByName("avivImaginaryFriend").id, "no_limit", 100, 10, 10, 10, 2, 9, false, false);
+            }
             return center;
         }
 
@@ -83,7 +102,7 @@ namespace ApplicationFacade
             }
         }
 
-        public object logout(int userId)
+        public ReturnMessage logout(int userId)
         {
             SystemUser systemUser = getUserById(userId);
             if (systemUser == null)
@@ -103,29 +122,37 @@ namespace ApplicationFacade
             return new ReturnMessage(false, "you are not logged in.");
         }
 
-        public SystemUser register(string user, string password, string email, string userImage)
+        public SystemUser register(string userName, string password, string email, string userImage)
         {
-            if (user == null || password == null || email == null || userImage == null || user.Equals("") || password.Equals("") || email.Equals("") || userImage.Equals(""))
+            if (userName == null || password == null || email == null || userImage == null || userName.Equals("") || password.Equals("") || email.Equals("") || userImage.Equals(""))
                 throw new ArgumentException("Not all parameters were given.");
 
-            SystemUser systemUser = dal.getUserByName(user);
-            if (systemUser != null)
+            SystemUser user = getUserByName(userName);
+            if (user != null)
                 throw new ArgumentException("User already exists.");
 
             //creating the user.
-            systemUser = new SystemUser(user, password, email, userImage, 0);
+            user = new SystemUser(userName, password, email, userImage, 0);
             //after a registeration the user stay login
-            loggedInUsers.Add(systemUser);
-            //adding the user to the db.
-            var response = dal.registerUser(systemUser);
-            if (response.success)
-            {
-                return systemUser;
-            }
-            else
-            {
-                throw new InvalidOperationException("Could not register user.");
-            }
+            loggedInUsers.Add(user);
+
+            ////adding the user to the db.
+            //var response = dal.registerUser(user);
+            //if (response.success)
+            //{
+            //    return user;
+            //}
+            //else
+            //{
+            //    
+            //}
+
+            foreach (SystemUser systemUser in userList)
+                if (systemUser.name.Equals(user.name))
+                    throw new InvalidOperationException("This user name is already taken.");
+
+            userList.Add(user);
+            return user;
         }
 
         public SystemUser login(string user, string password)
@@ -133,7 +160,7 @@ namespace ApplicationFacade
             if (user == null || password == null || user.Equals("") || password.Equals(""))
                 throw new ArgumentException("No such user.");
 
-            SystemUser systemUser = dal.getUserByName(user);
+            SystemUser systemUser = getUserByName(user);
             if (systemUser == null)
                 throw new ArgumentException("No such user.");
 
@@ -150,19 +177,19 @@ namespace ApplicationFacade
                 throw new InvalidOperationException("Incorrect password");
         }
 
-        public TexasHoldemGame createGame(int gameCreatorId, MustPreferences pref)
-        {
-            SystemUser user = getUserById(gameCreatorId);
-            if (user == null)
-                return null;
+        //public TexasHoldemGame createGame(int gameCreatorId, MustPreferences pref)
+        //{
+        //    SystemUser user = getUserById(gameCreatorId);
+        //    if (user == null)
+        //        return null;
             
-            TexasHoldemGame game = new TexasHoldemGame(user, pref);
-            ReturnMessage m = game.gamePreferences.canPerformUserActions(game, user, "create");
-
-            if (m.success)
-                dal.addGame(game);
-            return game;
-        }
+        //    TexasHoldemGame game = new TexasHoldemGame(user, pref);
+        //    ReturnMessage m = game.gamePreferences.canPerformUserActions(game, user, "create");
+            
+        //    if (m.success)
+        //        dal.addGame(game);
+        //    return game;
+        //}
 
         public TexasHoldemGame createGame(int gameCreator, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? minimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague)
         {
@@ -184,7 +211,7 @@ namespace ApplicationFacade
 
             TexasHoldemGame game = new TexasHoldemGame(user, mustPref);
             texasHoldemGames.Add(game);
-            dal.addGame(game);
+            //dal.addGame(game);
             return game;
         }
 
@@ -206,7 +233,7 @@ namespace ApplicationFacade
         {
             MustPreferences mustPref = getMustPref(gamePolicy,gamePolicyLimit,buyInPolicy,startingChipsAmount,minimalBet,minPlayers,maxPlayers,isSpectatingAllowed,isLeague,minRank,maxRank);
             List<TexasHoldemGame> ans = new List<TexasHoldemGame>();
-            foreach (TexasHoldemGame game in dal.getAllGames())
+            foreach (TexasHoldemGame game in getAllGames())
                 if (game.gamePreferences.isContain(mustPref))
                     ans.Add(game);
             return ans;
@@ -216,7 +243,7 @@ namespace ApplicationFacade
         {
             MustPreferences mustPref = getMustPref(gamePolicy, gamePolicyLimit, buyInPolicy, startingChipsAmount, minimalBet, minPlayers, maxPlayers, isSpectatingAllowed, isLeague);
             List<TexasHoldemGame> ans = new List<TexasHoldemGame>();
-            foreach (TexasHoldemGame game in dal.getAllGames())
+            foreach (TexasHoldemGame game in getAllGames())
                 if (game.gamePreferences.isContain(mustPref))
                     ans.Add(game);
             return ans;
@@ -271,7 +298,7 @@ namespace ApplicationFacade
             SystemUser user = getUserById(userId);
             if (user == null)
                 return new ReturnMessage(false, "Could not find the logged user.");
-            List<SystemUser> allUsers = dal.getAllUsers();
+            //List<SystemUser> allUsers = getAllUsers();
 
             //Validates attributes.
             if (name.Equals("") || password.Equals(""))
@@ -280,9 +307,9 @@ namespace ApplicationFacade
                 return new ReturnMessage(false, "Can't change money to a negative value.");
 
             //Check that attributes are not already exists.
-            foreach (SystemUser u in allUsers)
+            foreach (SystemUser u in userList)
                 if (u.id != userId && (u.name.Equals(name, StringComparison.OrdinalIgnoreCase) || u.email.Equals(email, StringComparison.OrdinalIgnoreCase))) //comparing two passwords including cases i.e AbC = aBc
-                    return new ReturnMessage(false, "Username or email already exists.");
+                    return new ReturnMessage(false, "Username or email already exists." + u.id + " " + userId + " " + user.id);
 
             //changes the attributes
             user.name = name;
@@ -290,7 +317,9 @@ namespace ApplicationFacade
             user.email = email;
             user.userImage = avatar;
             user.money += money;
-            dal.editUser(user);
+            //dal.editUser(user);
+            if (user.id < userList.Count)
+                userList[user.id] = user;
             return new ReturnMessage(true,"");
         }
 
@@ -327,7 +356,11 @@ namespace ApplicationFacade
 
         public SystemUser getUserByName(string name)
         {
-            return dal.getUserByName(name);
+            //return dal.getUserByName(name);
+            for (int i = 0; i < userList.Count; i++)
+                if (userList[i].name.Equals(name))
+                    return userList[i];
+            return null;
         }
 
         public SystemUser getUserById(int userId)
@@ -479,7 +512,6 @@ namespace ApplicationFacade
             }
 
             mustPref.firstDecPref = iterator;
-
 
             /*
 

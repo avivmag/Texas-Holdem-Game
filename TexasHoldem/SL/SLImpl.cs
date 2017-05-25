@@ -16,7 +16,6 @@ public class SLImpl : SLInterface
         gameCenter = GameCenter.getGameCenter();
     }
 
-
     public object spectateActiveGame(int userId, int gameID)
     {
         TexasHoldemGame game = gameCenter.getGameById(gameID);
@@ -151,13 +150,13 @@ public class SLImpl : SLInterface
         return games;
     }
 
-    public object createGame(int gameCreatorId, object pref)
-    {
-        if (pref.GetType() == typeof(MustPreferences))
-            return gameCenter.createGame(gameCreatorId, (MustPreferences)pref);
-        else
-            return null;
-    }
+    //public object createGame(int gameCreatorId, object pref)
+    //{
+    //    if (pref.GetType() == typeof(MustPreferences))
+    //        return gameCenter.createGame(gameCreatorId, (MustPreferences)pref);
+    //    else
+    //        return null;
+    //}
 
     public object createGame(int gameCreator, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague)
     {
@@ -245,11 +244,10 @@ public class SLImpl : SLInterface
 
     #endregion
 
-    public object Subscribe(ObserverAbstract<TcpClient> client, int gameID)
+    public void Subscribe(ObserverAbstract<TcpClient> client, int gameID)
     {
         TexasHoldemGame game = gameCenter.getGameById(gameID);
-        return null;
-        
+        game.gameStatesObserver.Subscribe(client);
     }
 
 
