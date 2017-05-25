@@ -17,7 +17,13 @@ namespace Backend.User
 
         private int tempRank;
         private int tempGames ;
-        public bool newPlayer { get; set; } 
+        public bool newPlayer { get; set; }
+
+        static int currentId = 0;
+        static int getNextId()
+        {
+            return ++currentId;
+        }
 
         public SystemUser(String name, String password, String email, String userImage, int money)
         {
@@ -33,8 +39,11 @@ namespace Backend.User
             tempGames = 0;
             newPlayer = true;
 
-            Random rnd = new Random();
-            this.id = rnd.Next(0, 999999);
+            // NO MORE FUCKING RANDOM!!!
+            // IT RUINES MY LIFE EVERY TIME!!!!!!
+            //Random rnd = new Random();
+            //this.id = rnd.Next(0, 999999);
+            this.id = SystemUser.getNextId();
         }
 
 		public void update(String str)
