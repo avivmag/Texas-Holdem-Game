@@ -81,14 +81,14 @@ namespace TestProject.UnitTest
         public void TestSmallBlindFirst()
         {
             game.currentDealer = 0;
-            Assert.IsTrue(game.setSmallBlind() == 1);
+            Assert.IsTrue(game.getNextPlayer(game.currentDealer) == 1);
         }
 
         [TestMethod]
         public void TestSmallBlindLast()
         {
             game.currentDealer = 2;
-            Assert.IsTrue(game.setSmallBlind() == 0);
+            Assert.IsTrue(game.getNextPlayer(game.currentDealer) == 0);
         }
 
         [TestMethod]

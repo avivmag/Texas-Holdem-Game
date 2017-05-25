@@ -84,6 +84,7 @@ namespace PL
         /// </summary>/
         private void initializeScreen()
         {
+            playerSeatIndex = -1;
             seatsButtons = new Button[9];
             playerNames = new Label[9];
             playerStateBackground = new Image[9];
@@ -105,8 +106,6 @@ namespace PL
             {
                 initializeVariables(i);
                 positionElementsOnScreen(i);
-                if (i == 7)
-                    addControlBar();
             }
         }
 
@@ -205,8 +204,11 @@ namespace PL
             }
             else if (i == 6)
                 LowerMiddleRow.Children.Add(playerUg);
-            else
+            else 
                 BottomRow.Children.Add(playerUg);
+
+            if (i == 7)
+                addControlBar();
         }
 
         /// <summary>
@@ -649,11 +651,14 @@ namespace PL
         public void updatePlayerCards()
         {
             Card[] cards = CommClient.GetPlayerCards(this.game.gameId, playerSeatIndex);
-            for(int i = 0; i < playerCards[playerSeatIndex].Length; i++)
-            {
-                if(cards != null && cards[i] != null)
-                    playerCards[playerSeatIndex][i].Source = DrawCard(cards[i].Type, cards[i].Value);
-            }
+            if(cards != null)
+                for(int i = 0; i < cards.Length; i++)
+                {
+                    if (cards[i] == null)
+                        playerCards[playerSeatIndex][i].Source = DrawCard(cards[i].Type, cards[i].Value);
+                    else
+                        playerCards[playerSeatIndex][i].Source = DrawCard(cardType.unknown, CARD_TYPE);
+                }
         }
 
         public void cardsShowOff()
@@ -669,7 +674,11 @@ namespace PL
         public void updateGame(TexasHoldemGame updatedGame)
         {
             this.game = updatedGame;
-            //updatePlayerCards();
+            for (int i = 0; i < game.players.Length; i++)
+                if (game.players[i] != null && game.players[i].systemUserID == systemUserId)
+                    playerSeatIndex = i;
+            
+            updatePlayerCards();
             //int pot;
             coinsSumInHeap[0].Content = game.pot;
 

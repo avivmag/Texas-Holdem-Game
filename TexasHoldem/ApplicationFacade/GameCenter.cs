@@ -36,19 +36,23 @@ namespace ApplicationFacade
             {
                 center = new GameCenter();
 
-                ReturnMessage rm;
                 // aviv - for testing purposes only
                 center.register("aviv", "1", "1", "profile_pic");
+                center.register("avivImaginaryFriend", "1", "2", "profile_pic");
                 int userId = center.getUserByName("aviv").id;
+                int friendId = center.getUserByName("avivImaginaryFriend").id;
                 //Console.WriteLine(userId);
+                ReturnMessage rm;
                 rm = center.editUserProfile(userId, "aviv", "1", "1", "profile_pic", 2000000);
                 if (!rm.success)
-                    Console.WriteLine("0 " + rm.description);
+                    Console.WriteLine("00000000000000000 " + rm.description);
+                rm = center.editUserProfile(friendId, "avivImaginaryFriend", "1", "2", "profile_pic", 2000000);
+                if (!rm.success)
+                    Console.WriteLine("00000000000000000 " + rm.description);
                 rm = center.logout(userId);
                 if (!rm.success)
-                    Console.WriteLine("1 " + rm.description);
-                center.register("avivImaginaryFriend", "1", "1", "profile_pic");
-                center.createGame(center.getUserByName("avivImaginaryFriend").id, "no_limit", 100, 10, 10, 10, 2, 9, false, false);
+                    Console.WriteLine("11111111111111111 " + rm.description);
+                center.createGame(friendId, "no_limit", 100, 10, 10, 10, 2, 9, false, false);
             }
             return center;
         }
@@ -318,8 +322,9 @@ namespace ApplicationFacade
             user.userImage = avatar;
             user.money += money;
             //dal.editUser(user);
-            if (user.id < userList.Count)
-                userList[user.id] = user;
+            // (userList[user.id]) - it is a bug and pretty much unnecessary - you are changing the reference
+            //if (user.id < userList.Count)
+            //    userList[user.id] = user;
             return new ReturnMessage(true,"");
         }
 
