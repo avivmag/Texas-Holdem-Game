@@ -14,9 +14,8 @@ namespace CLClient
 {
     public static class CommClient
     {
-<<<<<<< HEAD
         private static TcpClient client = new TcpClient("192.168.43.62", 2345);
-=======
+
         #region Constants
 
         private const string SERVER_IP              = "127.0.0.1";
@@ -47,7 +46,7 @@ namespace CLClient
                 this.toUpdate = toUpdate;
             }
         }
->>>>>>> 4fba15fc72729fffef10f41bbe9fb79e6f82060e
+
 
         #region Static functionality
 
@@ -402,38 +401,38 @@ namespace CLClient
             return response;
         }
 
-        public static List<TexasHoldemGame> filterActiveGamesByGamePreferences(string gamePolicy,int? gamePolicyLimit, int? buyInPolicy, int? startingChips, int? minimalBet, int? minimalPlayers, int? maximalPlayers, bool? spectateAllowed, bool? isLeague)
-        {
-            var message = new
-            {
-                action = "FilterActiveGamesByGamePreferences",
-                gamePolicy,
-                gamePolicyLimit,
-                buyInPolicy,
-                startingChips,
-                minimalBet,
-                minimalPlayers,
-                maximalPlayers,
-                spectateAllowed,
-                isLeague
-            };
+        //public static List<TexasHoldemGame> filterActiveGamesByGamePreferences(string gamePolicy,int? gamePolicyLimit, int? buyInPolicy, int? startingChips, int? minimalBet, int? minimalPlayers, int? maximalPlayers, bool? spectateAllowed, bool? isLeague)
+        //{
+        //    var message = new
+        //    {
+        //        action = "FilterActiveGamesByGamePreferences",
+        //        gamePolicy,
+        //        gamePolicyLimit,
+        //        buyInPolicy,
+        //        startingChips,
+        //        minimalBet,
+        //        minimalPlayers,
+        //        maximalPlayers,
+        //        spectateAllowed,
+        //        isLeague
+        //    };
 
-            var jsonMessage = sendMessage(message);
-            var responseJson = getResponse(jsonMessage);
+        //    var jsonMessage = sendMessage(message);
+        //    var responseJson = getResponse(jsonMessage);
 
-            if (responseJson == null)
-            {
-                return null;
-            }
-            var response = responseJson.ToObject<List<TexasHoldemGame>>();
+        //    if (responseJson == null)
+        //    {
+        //        return null;
+        //    }
+        //    var response = responseJson.ToObject<List<TexasHoldemGame>>();
 
-            foreach (var thg in response)
-            {
-                thg.gamePreferences.flatten();
-            }
+        //    foreach (var thg in response)
+        //    {
+        //        thg.gamePreferences.flatten();
+        //    }
 
-            return response;
-        }
+        //    return response;
+        //}
 
         public static List<TexasHoldemGame> filterActiveGamesByPotSize(int potSize)
         {
