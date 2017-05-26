@@ -43,6 +43,12 @@ namespace Backend.Game
         //public GameObserver gameStatesObserver;
 
         // TODO: Gili - notice Gil decorator pattern and Aviv player.TokensInBet - you should use them in your logic
+        static int currentId;
+        static int getNextId()
+        {
+            return ++currentId;
+        }
+
 
         public TexasHoldemGame(SystemUser user, MustPreferences gamePreferences)
         {
@@ -61,12 +67,19 @@ namespace Backend.Game
             players = new Player[maxPlayers];
             availableSeats = maxPlayers - 1;
 
+
             // TODO: remove when the db is created.
-            Random rnd = new Random();
-            this.gameId = rnd.Next(0, 999999);
+
+            // NO MORE FUCKING RANDOM!!!
+            // IT RUINES MY LIFE EVERY TIME!!!!!!
+            //Random rnd = new Random();
+            //this.gameId = rnd.Next(0, 999999);
+            this.gameId = TexasHoldemGame.getNextId();
             GameLog.setLog(gameId, DateTime.Now);
             GameLog.logLine(gameId, GameLog.Actions.Game_Start, DateTime.Now.ToString());
             var m = joinGame(user);
+            if(!m.success)
+                Console.WriteLine(m.description);
             for (int i = 1; i < maxPlayers; i++)
             {
                 players[i] = null;
@@ -367,14 +380,19 @@ namespace Backend.Game
         {
             GameLog.logLine(gameId, GameLog.Actions.Game_Start, DateTime.Now.ToString());
             isGameActive = true;
+            preparePlayersState();
+
             while (isGameActive)
-            {
+                if (isGameActive)
+                {
                 deck.Shuffle();
                 dealCards();
-                currentSmall = setSmallBlind();
-                currentBig = setBigBlind();
+                currentSmall = getNextPlayer(currentDealer);
+                Console.WriteLine("small " + currentSmall);
+                currentBig = getNextPlayer(currentSmall);
+                Console.WriteLine("big " + currentBig);
                 betBlinds();
-                
+
                 playersSetsTheirBets(true);
 
                 addToPot(tempPot);
@@ -413,13 +431,22 @@ namespace Backend.Game
 
                 for (int i = 0; i < players.Length; i++)
                 {
-                    if (players[i].playerState.Equals(Player.PlayerState.in_round))
+                    if (players[i] != null && players[i].playerState == Player.PlayerState.in_round)
                         players[i].handRank = checkHandRank(players[i]);
                 }
 
                 gameStatesObserver.Update(this);
 
 
+            }
+        }
+
+        private void preparePlayersState()
+        {
+            for (int i = 0; i < players.Length; i++)
+            {
+                if (players[i] != null)
+                    players[i].playerState = Player.PlayerState.in_round;
             }
         }
 
@@ -515,44 +542,59 @@ namespace Backend.Game
             }
         }
 
-        public int setSmallBlind()
+        //public int setSmallBlind()
+        //{
+        //    int i = currentDealer;
+        //    int j = (currentDealer + 1) % maxPlayers;
+        //    while (i != j)
+        //    {
+        //        if (players[j] != null && players[j].playerState == Player.PlayerState.in_round)
+        //        {
+        //            GameLog.logLine(gameId, GameLog.Actions.Small_Blind, players[j].systemUserID.ToString());
+        //            return j;
+        //        }
+        //        j = (j + 1) % maxPlayers;
+        //    }
+        //    return -1;
+        //}
+        public int getNextPlayer(int current)
         {
-            int i = currentDealer;
-            int j = (currentDealer + 1) % maxPlayers;
-            while (i != j)
+            int i = (current + 1) % maxPlayers;
+            while(i != current)
             {
-                if (players[j] != null && players[j].playerState == Player.PlayerState.in_round)
+                if (players[i] != null && players[i].playerState == Player.PlayerState.in_round)
                 {
-                    GameLog.logLine(gameId, GameLog.Actions.Small_Blind, players[j].systemUserID.ToString());
-                    return j;
+                    GameLog.logLine(gameId, GameLog.Actions.Small_Blind, players[i].systemUserID.ToString());
+                    return i;
                 }
-                j = (j + 1) % maxPlayers;
+                i = (i + 1) % maxPlayers;
             }
-            return -1;
+            throw new ArgumentException("cannot locate next player");
         }
 
-        public int setBigBlind()
-        {
-            int i = currentDealer;
-            int j = (currentDealer + 1) % maxPlayers;
-            while (i != j)
-            {
-                if (players[j] != null && players[j].playerState == Player.PlayerState.in_round)
-                    break;
-                j = (j + 1) % maxPlayers;
-            }
-            j = (j + 1) % maxPlayers;
-            while (i != j)
-            {
-                if (players[j] != null && players[j].playerState == Player.PlayerState.in_round)
-                {
-                    GameLog.logLine(gameId, GameLog.Actions.Big_Blind, players[j].systemUserID.ToString());
-                    return j;
-                }
-                j = (j + 1) % maxPlayers;
-            }
-            return -1;
-        }
+        //public int setBigBlind()
+        //{
+        //    int i = currentSmall;
+        //    int j = (currentSmall + 1) % maxPlayers;
+        //    while (i != j)
+        //    {
+        //        if (players[j] != null && players[j].playerState == Player.PlayerState.in_round)
+        //            break;
+        //        j = (j + 1) % maxPlayers;
+        //    }
+
+        //    j = (j + 1) % maxPlayers;
+        //    while (i != j)
+        //    {
+        //        if (players[j] != null && players[j].playerState == Player.PlayerState.in_round)
+        //        {
+        //            GameLog.logLine(gameId, GameLog.Actions.Big_Blind, players[j].systemUserID.ToString());
+        //            return j;
+        //        }
+        //        j = (j + 1) % maxPlayers;
+        //    }
+        //    return -1;
+        //}
 
         public void betBlinds()
         {
@@ -648,7 +690,7 @@ namespace Backend.Game
                     return j;
                 j = (j + 1) % maxPlayers;
             }
-            return -1;
+            return j;
         }
         
         public HandsRanks checkHandRank(Player p)
