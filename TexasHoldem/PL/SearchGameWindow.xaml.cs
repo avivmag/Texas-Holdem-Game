@@ -211,7 +211,7 @@ namespace PL
             }
 
             //set the buy in
-            if (!buyInTextbox.Text.Equals(""))
+            if (buyInTextbox.Text.Equals(""))
                 buyInPolicy = null;
             else if (!Int32.TryParse(buyInTextbox.Text, out value) || value < 0)
             {
@@ -266,16 +266,10 @@ namespace PL
                 maximalPlayers = value;
 
             //set spectator
-            //if (spectateAllowedTextbox.Text.Equals(""))
-            //    spectateAllowed = true ;
-            //else
             spectateAllowed = Convert.ToBoolean(spectateAllowedTextbox.Text);
 
             //set leagues
-            //if (isLeagueTextbox.Text.Equals(""))
-            //    isLeague = false;
-            //else
-            isLeague = Convert.ToBoolean(spectateAllowedTextbox.Text);
+            isLeague = Convert.ToBoolean(isLeagueTextbox.Text);
 
             return CommClient.filterActiveGamesByGamePreferences(gamePolicy, gameLimitPolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed, isLeague);
         }
@@ -351,6 +345,21 @@ namespace PL
             {
                 joinGameBtn.IsEnabled = true;
                 spectateGameBtn.IsEnabled = true;
+            }
+        }
+
+        private void GameTypePolicyComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (GameTypePolicyComboBox.SelectedValue.ToString().Equals("System.Windows.Controls.ComboBoxItem: Limit"))
+
+            {
+                LimitPolicyTextbox.IsEnabled = true;
+                LimitPolicyTextbox.Text = "0";
+            }
+            else if (LimitPolicyTextbox != null)
+            {
+                LimitPolicyTextbox.IsEnabled = false;
+                LimitPolicyTextbox.Text = "0";
             }
         }
     }

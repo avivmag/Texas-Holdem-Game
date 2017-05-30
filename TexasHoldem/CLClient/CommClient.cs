@@ -274,7 +274,7 @@ namespace CLClient
             return response;
         }
 
-        public static TexasHoldemGame CreateGame(int gameCreatorId, string gamePolicy, int gamePolicyLimit, int buyInPolicy, int startingChips, int minimalBet, int minimalPlayers, int maximalPlayers, bool? spectateAllowed, bool? isLeague)
+        public static TexasHoldemGame CreateGame(int gameCreatorId, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChips, int? minimalBet, int? minimalPlayers, int? maximalPlayers, bool? spectateAllowed, bool? isLeague)
         {
             var message = new
             {
