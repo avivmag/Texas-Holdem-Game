@@ -517,15 +517,15 @@ namespace CLServer
 
         private static void FilterActiveGamesByGamePreferences(TcpClient client, JObject jsonObject)
         {
-            var gamePolicy = jsonObject["gamePolicy"];
-            var limitPolicy = jsonObject["gamePolicyLimit"];
-            var buyInPolicy = jsonObject["buyInPolicy"];
-            var startingChips = jsonObject["startingChips"];
-            var minimalBet = jsonObject["minimalBet"];
-            var minimalPlayers = jsonObject["minimalPlayers"];
-            var maximalPlayers = jsonObject["maximalPlayers"];
-            var spectateAllowed = jsonObject["spectateAllowed"];
-            var isLeague        = jsonObject["isLeague"];
+            var gamePolicy          = jsonObject["gamePolicy"];
+            var limitPolicy         = jsonObject["gamePolicyLimit"];
+            var buyInPolicy         = jsonObject["buyInPolicy"];
+            var startingChips       = jsonObject["startingChips"];
+            var minimalBet          = jsonObject["minimalBet"];
+            var minimalPlayers      = jsonObject["minimalPlayers"];
+            var maximalPlayers      = jsonObject["maximalPlayers"];
+            var spectateAllowed     = jsonObject["spectateAllowed"];
+            var isLeague            = jsonObject["isLeague"];
 
             var filterActiveGamesByGamePreferencesResponse = sl.filterActiveGamesByGamePreferences(
                 (string)gamePolicy,
