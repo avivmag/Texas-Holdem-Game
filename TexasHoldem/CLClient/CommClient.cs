@@ -14,9 +14,6 @@ namespace CLClient
 {
     public static class CommClient
     {
-<<<<<<< HEAD
-        private static TcpClient client = new TcpClient("192.168.43.62", 2345);
-=======
         #region Constants
 
         private const string SERVER_IP              = "127.0.0.1";
@@ -47,7 +44,6 @@ namespace CLClient
                 this.toUpdate = toUpdate;
             }
         }
->>>>>>> 4fba15fc72729fffef10f41bbe9fb79e6f82060e
 
         #region Static functionality
 
