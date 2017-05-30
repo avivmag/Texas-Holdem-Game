@@ -175,6 +175,7 @@ namespace PL
         {
             List<TexasHoldemGame> ans = new List<TexasHoldemGame>();
             string gamePolicy;
+            int? gameLimitPolicy;
             int? buyInPolicy;
             int? startingChips;
             int? minimalBet;
@@ -192,6 +193,21 @@ namespace PL
             else
             {
                 gamePolicy = GameTypePolicyComboBox.Text;
+            }
+
+            // Set the game limit policy.
+            if (LimitPolicyTextbox.Text.Equals(""))
+            {
+                gameLimitPolicy = null;
+            }
+            else if (!Int32.TryParse(LimitPolicyTextbox.Text, out value) || value < 0)
+            {
+                errorMessage.Text = "Wrong Input - limit policy text box should be int and positive.";
+                return ans;
+            }
+            else
+            {
+                gameLimitPolicy = value;
             }
 
             //set the buy in
@@ -261,7 +277,7 @@ namespace PL
             //else
             isLeague = Convert.ToBoolean(spectateAllowedTextbox.Text);
 
-            return CommClient.filterActiveGamesByGamePreferences(gamePolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed, isLeague);
+            return CommClient.filterActiveGamesByGamePreferences(gamePolicy, gameLimitPolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed, isLeague);
         }
 
         private void Join_Game_Click(object sender, RoutedEventArgs e)
