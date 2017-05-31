@@ -389,9 +389,10 @@ namespace CLServer
             var spectateAllowedToken = jsonObject["spectateAllowed"];
             var isLeagueToken = jsonObject["isLeague"];
 
-            if ((gameCreatorIdToken == null) || (gameCreatorIdToken.Type != JTokenType.Integer) ||
+
+            if ((gameCreatorIdToken == null) || (gameCreatorIdToken.Type != JTokenType.Integer) /*||
                 (gamePolicyToken == null) || (gamePolicyToken.Type != JTokenType.String) ||
-                String.IsNullOrWhiteSpace((string)(gamePolicyToken)))
+                String.IsNullOrWhiteSpace((string)(gamePolicyToken))*/)
             {
                 throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Create Game."));
             }
@@ -517,15 +518,15 @@ namespace CLServer
 
         private static void FilterActiveGamesByGamePreferences(TcpClient client, JObject jsonObject)
         {
-            var gamePolicy = jsonObject["gamePolicy"];
-            var limitPolicy = jsonObject["gamePolicyLimit"];
-            var buyInPolicy = jsonObject["buyInPolicy"];
-            var startingChips = jsonObject["startingChips"];
-            var minimalBet = jsonObject["minimalBet"];
-            var minimalPlayers = jsonObject["minimalPlayers"];
-            var maximalPlayers = jsonObject["maximalPlayers"];
-            var spectateAllowed = jsonObject["spectateAllowed"];
-            var isLeague        = jsonObject["isLeague"];
+            var gamePolicy          = jsonObject["gamePolicy"];
+            var limitPolicy         = jsonObject["gamePolicyLimit"];
+            var buyInPolicy         = jsonObject["buyInPolicy"];
+            var startingChips       = jsonObject["startingChips"];
+            var minimalBet          = jsonObject["minimalBet"];
+            var minimalPlayers      = jsonObject["minimalPlayers"];
+            var maximalPlayers      = jsonObject["maximalPlayers"];
+            var spectateAllowed     = jsonObject["spectateAllowed"];
+            var isLeague            = jsonObject["isLeague"];
 
             var filterActiveGamesByGamePreferencesResponse = sl.filterActiveGamesByGamePreferences(
                 (string)gamePolicy,

@@ -46,11 +46,19 @@ namespace Backend.Game.DecoratorPreferences
                 case "join":
                     if (isLeague)
                     {
-                        //if the user stands in the rank or he is a new player
-                        if ((user.rank >= minRank && user.rank <= maxRank) || user.newPlayer)
-                            return firstDecPref.canPerformUserActions(game, user, action);
+                        if (firstDecPref != null)
+                        {
+                            //if the user stands in the rank or he is a new player
+                            if ((user.rank >= minRank && user.rank <= maxRank) || user.newPlayer)
+                                return firstDecPref.canPerformUserActions(game, user, action);
+                            else
+                                return new ReturnMessage(false, "The user can't join to this league game because his rank not matching.");
+
+                        }
                         else
-                            return new ReturnMessage(false, "The user can't join to this league game because his rank not matching.");
+                        {
+                            return new ReturnMessage(true, "");
+                        }
                     }
                     else
                     {

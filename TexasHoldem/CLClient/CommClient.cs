@@ -14,8 +14,11 @@ namespace CLClient
 {
     public static class CommClient
     {
+<<<<<<< HEAD
         private static TcpClient client = new TcpClient("192.168.43.62", 2345);
 
+=======
+>>>>>>> 2b8c1c8fd11f48f01b7a133f6e7533ff02f31f92
         #region Constants
 
         private const string SERVER_IP              = "127.0.0.1";
@@ -46,7 +49,10 @@ namespace CLClient
                 this.toUpdate = toUpdate;
             }
         }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2b8c1c8fd11f48f01b7a133f6e7533ff02f31f92
 
         #region Static functionality
 
@@ -277,7 +283,7 @@ namespace CLClient
             return response;
         }
 
-        public static TexasHoldemGame CreateGame(int gameCreatorId, string gamePolicy, int gamePolicyLimit, int buyInPolicy, int startingChips, int minimalBet, int minimalPlayers, int maximalPlayers, bool? spectateAllowed, bool? isLeague)
+        public static TexasHoldemGame CreateGame(int gameCreatorId, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChips, int? minimalBet, int? minimalPlayers, int? maximalPlayers, bool? spectateAllowed, bool? isLeague)
         {
             var message = new
             {
