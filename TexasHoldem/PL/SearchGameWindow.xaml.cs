@@ -269,9 +269,14 @@ namespace PL
             spectateAllowed = Convert.ToBoolean(spectateAllowedTextbox.Text);
 
             //set leagues
+            //if (isLeagueTextbox.Text.Equals(""))
+            //    isLeague = false;
+            //else
+           
             isLeague = Convert.ToBoolean(isLeagueTextbox.Text);
 
             return CommClient.filterActiveGamesByGamePreferences(gamePolicy, gameLimitPolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed, isLeague);
+
         }
 
         private void Join_Game_Click(object sender, RoutedEventArgs e)
