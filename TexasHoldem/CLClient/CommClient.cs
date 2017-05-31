@@ -401,38 +401,38 @@ namespace CLClient
             return response;
         }
 
-        //public static List<TexasHoldemGame> filterActiveGamesByGamePreferences(string gamePolicy,int? gamePolicyLimit, int? buyInPolicy, int? startingChips, int? minimalBet, int? minimalPlayers, int? maximalPlayers, bool? spectateAllowed, bool? isLeague)
-        //{
-        //    var message = new
-        //    {
-        //        action = "FilterActiveGamesByGamePreferences",
-        //        gamePolicy,
-        //        gamePolicyLimit,
-        //        buyInPolicy,
-        //        startingChips,
-        //        minimalBet,
-        //        minimalPlayers,
-        //        maximalPlayers,
-        //        spectateAllowed,
-        //        isLeague
-        //    };
+        public static List<TexasHoldemGame> filterActiveGamesByGamePreferences(string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChips, int? minimalBet, int? minimalPlayers, int? maximalPlayers, bool? spectateAllowed, bool? isLeague)
+        {
+            var message = new
+            {
+                action = "FilterActiveGamesByGamePreferences",
+                gamePolicy,
+                gamePolicyLimit,
+                buyInPolicy,
+                startingChips,
+                minimalBet,
+                minimalPlayers,
+                maximalPlayers,
+                spectateAllowed,
+                isLeague
+            };
 
-        //    var jsonMessage = sendMessage(message);
-        //    var responseJson = getResponse(jsonMessage);
+            var jsonMessage = sendMessage(message);
+            var responseJson = getResponse(jsonMessage);
 
-        //    if (responseJson == null)
-        //    {
-        //        return null;
-        //    }
-        //    var response = responseJson.ToObject<List<TexasHoldemGame>>();
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response = responseJson.ToObject<List<TexasHoldemGame>>();
 
-        //    foreach (var thg in response)
-        //    {
-        //        thg.gamePreferences.flatten();
-        //    }
+            foreach (var thg in response)
+            {
+                thg.gamePreferences.flatten();
+            }
 
-        //    return response;
-        //}
+            return response;
+        }
 
         public static List<TexasHoldemGame> filterActiveGamesByPotSize(int potSize)
         {

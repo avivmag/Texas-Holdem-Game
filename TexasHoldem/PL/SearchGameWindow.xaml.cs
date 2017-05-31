@@ -260,8 +260,8 @@ namespace PL
             //    isLeague = false;
             //else
             isLeague = Convert.ToBoolean(spectateAllowedTextbox.Text);
-            return null;
-            //return CommClient.filterActiveGamesByGamePreferences(gamePolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed, isLeague);
+           
+            return CommClient.filterActiveGamesByGamePreferences(gamePolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed, isLeague);
         }
 
         private void Join_Game_Click(object sender, RoutedEventArgs e)
