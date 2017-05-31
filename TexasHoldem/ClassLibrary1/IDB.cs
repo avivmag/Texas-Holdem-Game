@@ -12,6 +12,7 @@ namespace ClassLibrary1
 
         DataTable uploadSystemUser();
         string getEnterMessage(string stringCommand);
-        
+        void editUserName(int userID, string newData);
+
     }
 }

@@ -49,6 +49,7 @@
             this.Controls.Add(this.listSystemUsers);
             this.Name = "Test";
             this.Text = "TestExample";
+            this.Load += new System.EventHandler(this.Test_Load);
             this.ResumeLayout(false);
 
         }

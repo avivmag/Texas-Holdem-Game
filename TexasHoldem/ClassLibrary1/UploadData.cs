@@ -38,8 +38,6 @@ namespace DB
             return systemUserTable;
         }
 
-        
-
         public string getEnterMessage(string stringCommand)
         {
             string ans;
@@ -49,17 +47,42 @@ namespace DB
                                     "WHERE M.commandName = @command ";
             SqlCommand command = new SqlCommand(queryMessage, connection);
             adapter = new SqlDataAdapter(command);
+
             using (connection)
             using (command)
             using (adapter)
             {
+                //connection.open();
                 command.Parameters.AddWithValue("@command", stringCommand);
+                //command.ExecuteNonQuery();
                 adapter.Fill(messagesTableEnter);
                 ans = messagesTableEnter.ToString();
             }
             //I think it should all presented in messageBox.Show
                 return ans;
         }
+
+        public void editUserName(int userID, string newData)
+        {
+
+            string queryUpdate = "UPDATE SystemUser SET UserName = @UserName " +
+                                    "WHERE UserID = @userID ";
+            connection = new SqlConnection(connectionString);
+            SqlCommand command = new SqlCommand(queryUpdate, connection);
+            using (connection)
+            using (command)
+            {
+                connection.Open();
+
+                command.Parameters.AddWithValue("@userID", userID);
+                command.Parameters.AddWithValue("@UserName", newData);
+
+                command.ExecuteScalar();
+            }
+
+
+        }
+
 
 
 

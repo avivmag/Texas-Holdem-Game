@@ -26,8 +26,9 @@ namespace ClassLibrary1
             connectionString = ConfigurationManager.ConnectionStrings["ClassLibrary1.Properties.Settings.DatabaseConnectionString"].ConnectionString;
         }
 
-        public void uploadSystemUser()
+        private void Test_Load(object sender, EventArgs e)
         {
+
             DataTable systemUserTable = new DataTable();
 
             using (connection = new SqlConnection(connectionString))
@@ -67,5 +68,7 @@ namespace ClassLibrary1
         {
 
         }
+
+       
     }
 }
