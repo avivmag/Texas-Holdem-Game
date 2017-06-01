@@ -27,7 +27,7 @@ namespace PL
         private int playerSeatIndex;
         private int systemUserId;
         private TexasHoldemGame game;
-        
+
         private Button[] seatsButtons;
         private Label[] playerNames;
         private Image[] playerStateBackground;
@@ -105,8 +105,16 @@ namespace PL
             for (int i = 0; i < seatsButtons.Length; i++)
             {
                 initializeVariables(i);
-                positionElementsOnScreen(i);
             }
+            positionElementsOnScreen(8);
+            positionElementsOnScreen(0);
+            positionElementsOnScreen(1);
+            positionElementsOnScreen(7);
+            positionElementsOnScreen(2);
+            positionElementsOnScreen(6);
+            positionElementsOnScreen(3);
+            positionElementsOnScreen(5);
+            positionElementsOnScreen(4);
         }
 
         private void addControlBar()
@@ -179,7 +187,7 @@ namespace PL
 
             BottomRow.Children.Add(mainControlBarUg);
         }
-        
+
         /// <summary>
         /// Adds the element to the appropriate grid on the screen
         /// </summary>
@@ -188,26 +196,20 @@ namespace PL
         {
             UniformGrid playerUg = makePlayerUniformGrid(i);
 
-            if (i < 3)
+            if (i == 0 || i == 1 || i == 8)
                 TopRow.Children.Add(playerUg);
-            else if (i == 3)
-            {
+            else if (i == 2 || i == 7)
                 UpperMiddleRow.Children.Add(playerUg);
-                AddCommunityCards();
-            }
-            else if (i == 4)
-                UpperMiddleRow.Children.Add(playerUg);
-            else if (i == 5)
-            {
+            else if (i == 3 || i == 6)
                 LowerMiddleRow.Children.Add(playerUg);
-                AddCoins();
-            }
-            else if (i == 6)
-                LowerMiddleRow.Children.Add(playerUg);
-            else 
+            else
                 BottomRow.Children.Add(playerUg);
 
+            if (i == 6)
+                AddCoins();
             if (i == 7)
+                AddCommunityCards();
+            if (i == 5)
                 addControlBar();
         }
 
@@ -279,7 +281,7 @@ namespace PL
         }
 
         /// <summary>
-        /// simple initialization of seat - just create it on the screen, does not take in account anything about the game state
+        /// simple initialization of seat - just create it, does not take in account anything about the game state
         /// </summary>
         /// <param name="i"></param>
         private void initializeVariables(int i)
@@ -373,7 +375,7 @@ namespace PL
         {
             seatButtonToImageDictionary[(Button)sender].Source = new BitmapImage(new Uri("pack://application:,,,/resources/gray.png"));
         }
-        
+
         private void GameWindow_Click(object sender, RoutedEventArgs e)
         {
             ReturnMessage returnMessage = CommClient.ChoosePlayerSeat(this.game.gameId, seatButtonToSeatIndex[(Button)sender]);
@@ -416,7 +418,7 @@ namespace PL
             {
                 playersImage[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/" + playerImageUrl + ".png"));
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 playersImage[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/profile_pic.png"));
             }
@@ -425,7 +427,7 @@ namespace PL
             playerCoins[i].Content = playerCoinsNumber;
             playerCoinsGambled[i].Content = playerCoinsNumberGambled;
         }
-        
+
         private CroppedBitmap DrawCard(cardType type, int cardNumber)
         {
             // matching to the sprite
@@ -651,8 +653,8 @@ namespace PL
         public void updatePlayerCards()
         {
             Card[] cards = CommClient.GetPlayerCards(this.game.gameId, playerSeatIndex);
-            if(cards != null)
-                for(int i = 0; i < cards.Length; i++)
+            if (cards != null)
+                for (int i = 0; i < cards.Length; i++)
                 {
                     if (cards[i] == null)
                         playerCards[playerSeatIndex][i].Source = DrawCard(cards[i].Type, cards[i].Value);
@@ -677,15 +679,15 @@ namespace PL
             for (int i = 0; i < game.players.Length; i++)
                 if (game.players[i] != null && game.players[i].systemUserID == systemUserId)
                     playerSeatIndex = i;
-            
+
             updatePlayerCards();
             //int pot;
             coinsSumInHeap[0].Content = game.pot;
 
             //List<Card> flop;
-            for(int i = 0; i < game.flop.Count; i++)
+            for (int i = 0; i < game.flop.Count; i++)
             {
-                if(game.flop[i] == null)
+                if (game.flop[i] == null)
                     communityCards[i].Source = DrawCard(cardType.unknown, CARD_TYPE);
                 else
                     communityCards[i].Source = DrawCard(game.flop[i].Type, game.flop[i].Value);
@@ -700,14 +702,14 @@ namespace PL
                 communityCards[4].Source = DrawCard(cardType.unknown, CARD_TYPE);
             else
                 communityCards[4].Source = DrawCard(game.river.Type, game.river.Value);
-            
+
             //Player[] players;
             //int currentDealer;
             //int currentBig;
             //int currentSmall;
             for (int i = 0; i < game.players.Length; i++)
             {
-                if(playerSeatIndex == -1 && game.players[i] == null)
+                if (playerSeatIndex == -1 && game.players[i] == null)
                     changeSeat(i, true, "gray", "free_seat_icon", "free seat", 0, 0);
                 else if (playerSeatIndex != -1 && game.players[i] == null)
                     changeSeat(i, false, "gray", "free_seat_icon", "free seat", 0, 0);
@@ -726,7 +728,7 @@ namespace PL
                             break;
                         case Player.PlayerState.my_turn:
                             changeSeat(i, false, "blue", game.players[i].imageUrl, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
-                            if(systemUserId == game.players[i].systemUserID)
+                            if (systemUserId == game.players[i].systemUserID)
                             {
                                 betButton.IsEnabled = true;
                                 foldButton.IsEnabled = true;
