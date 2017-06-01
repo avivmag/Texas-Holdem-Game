@@ -12,6 +12,9 @@ using System.Threading;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
+using System.Diagnostics;
+using System.Web.Script.Serialization;
 
 namespace CLServer
 {
@@ -23,10 +26,13 @@ namespace CLServer
 
         private const string SUBSCRIBE_TO_MESSAGE   = "Messages";
         private const string SUBSCRIBE_TO_GAME      = "Game";
+        private const string LOCAL_IP               = "127.0.0.1";
+        private const int APP_PORT                  = 2345;
+        private const int WEB_PORT                  = 4343;
 
         #endregion
-
-        #region Server Functions
+        
+        #region Co-Server Functions
 
         /// <summary>
         /// Task to proccess the client's requests.
@@ -34,34 +40,68 @@ namespace CLServer
         /// <param name="obj">The tcp client.</param>
         private static void ProcessClientRequests(Object obj)
         {
-            TcpClient client = (TcpClient)obj;
+            Console.WriteLine("Entered process client's requests");
+            // Declare tcp client, http listener context, and client's stream.
+            TcpClient tcpClient             = null;
+            HttpListenerContext httpContext = null;
+
+            ClientInfo clientInfo = (ClientInfo)obj;
+
+            // If it is a TCP client, get the client and it's stream.
+            if (clientInfo.type == ClientInfo.CLIENT_TYPE.TCP) {
+                tcpClient       = (TcpClient)clientInfo.client;
+            }
+            // If it is a HTTP client, get it's context.
+            else if (clientInfo.type == ClientInfo.CLIENT_TYPE.HTTP)
+            {
+                httpContext     = (HttpListenerContext)clientInfo.client;
+            }
+            else
+            {
+                Console.WriteLine("Type of connection not supported. aborting.");
+                return;
+            }
 
             while (true)
             {
+                Console.WriteLine("While(true) loop(should be twice)");
                 var jsonObject = new JObject();
                 try
                 {
-                    jsonObject = getJsonObjectFromStream(client);
+                    if (clientInfo.type == ClientInfo.CLIENT_TYPE.HTTP)
+                    {
+                        jsonObject = getJsonObjectFromWebStream(httpContext);
+                    }
+                    else if (clientInfo.type == ClientInfo.CLIENT_TYPE.TCP)
+                    {
+                        jsonObject = getJsonObjectFromDesktopStream(tcpClient);
+                    }
                 }
-                catch
+                catch (Exception e)
                 {
+                    Console.WriteLine("Aborting.");
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine(e.StackTrace);
                     Console.WriteLine("Client closed connection. Terminating thread: {0}", Thread.CurrentThread.ManagedThreadId);
                     return;
                 }
+
+                // If client connected via TCP, execute action, and return a message response via TCP.
                 try
                 {
-                    tryExecuteAction(client, jsonObject);
+                    tryExecuteAction(clientInfo, jsonObject);
                 }
                 catch (TargetInvocationException tie)
                 {
+                    Console.WriteLine("Could not execute action.");
                     Console.WriteLine(tie.InnerException);
-                    SendMessage(client, new { exception = "An Error Has Occured" });
+                    SendMessage(clientInfo, new { exception = "An Error Has Occured" });
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
                     Console.WriteLine(e.StackTrace);
-                    SendMessage(client, new { exception = "An Error Has Occured" });
+                    SendMessage(clientInfo, new { exception = "An Error Has Occured" });
                 }
             }
         }
@@ -84,68 +124,10 @@ namespace CLServer
         }
 
         /// <summary>
-        /// Sends a message to the client.
-        /// </summary>
-        /// <param name="client">The client to send to.</param>
-        /// <param name="message">The message to send. (Optional)</param>
-        public static void SendMessage(TcpClient client, object message = null)
-        {
-            JObject messageJObject = new JObject();
-            if (message != null)
-            {
-                messageJObject["message"] = JToken.FromObject(message);
-            }
-            else
-            {
-                // If no message was to be sent, send an empty message.
-                messageJObject["message"] = JToken.FromObject(new object());
-            }
-
-            var serializedMessage   = JsonConvert.SerializeObject(messageJObject,
-                                                                  Newtonsoft.Json.Formatting.None,
-                                                                  new JsonSerializerSettings
-                                                                  {
-                                                                      NullValueHandling = NullValueHandling.Ignore
-                                                                  });
-
-            var messageByteArray    = Encoding.ASCII.GetBytes(serializedMessage);
-
-            try
-            {
-                if (client.GetStream().CanWrite)
-                {
-                    client.GetStream().Write(messageByteArray, 0, messageByteArray.Length);
-                }
-            }
-
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.StackTrace);
-            }
-        }
-
-        /// <summary>
-        /// returns a JObject as data from the client stream.
-        /// </summary>
-        /// <param name="client">The tcp client</param>
-        /// <returns>The JObject</returns>
-        private static JObject getJsonObjectFromStream(TcpClient client)
-        {
-            var message = new byte[1024 * 10];
-
-            var bytesRead = client.GetStream().Read(message, 0, message.Length);
-
-            string myObject = Encoding.ASCII.GetString(message);
-            Object deserializedProduct = JsonConvert.DeserializeObject(myObject);
-            return JObject.FromObject(deserializedProduct);
-        }
-
-        /// <summary>
         /// Tries to execute the action given by the client.
         /// </summary>
         /// <param name="jsonObject">The Object received from the client.</param>
-        private static void tryExecuteAction(TcpClient client, JObject jsonObject)
+        private static void tryExecuteAction(ClientInfo clientInfo, JObject jsonObject)
         {
             var actionToken = jsonObject["action"];
 
@@ -168,14 +150,248 @@ namespace CLServer
                 throw new ArgumentException("Error: No known action called.");
             }
 
-            method.Invoke(null, new object[] { client, jsonObject });
+            method.Invoke(null, new object[] { clientInfo, jsonObject });
+        }
+
+        /// <summary>
+        /// Sends a message to the client.
+        /// </summary>
+        /// <param name="client">The client to send to.</param>
+        /// <param name="message">The message to send. (Optional)</param>
+        public static void SendMessage(ClientInfo clientInfo, object message = null)
+        {
+            if (clientInfo == null)
+            {
+                return;
+            }
+
+            if (clientInfo.type == ClientInfo.CLIENT_TYPE.TCP)
+            {
+                SendTcpMessage((TcpClient)clientInfo.client, message);
+            }
+            else if (clientInfo.type == ClientInfo.CLIENT_TYPE.HTTP)
+            {
+                SendHttpMessage((HttpListenerContext)clientInfo.client, message);
+            }
+            else
+            {
+                return;
+            }
         }
 
         #endregion
 
+        #region TCP-Server Functions
+
+        /// <summary>
+        /// Starts up the application client listener.
+        /// </summary>
+        /// <param name="address">The address of the server.</param>
+        /// <param name="port">The port of the server.</param>
+        private static void startApplicationListen(IPAddress address, int port)
+        {
+            TcpListener listener = null;
+            try
+            {
+                listener = new TcpListener(address, port);
+
+                listener.Start();
+
+                Console.WriteLine(
+                    String.Format("Server has been initialized at IP: {0} PORT: {1} For application use.",
+                    address.ToString(),
+                    port));
+
+                while (true)
+                {
+                    Console.WriteLine("Waiting for new app connection.");
+
+                    TcpClient client    = listener.AcceptTcpClient();
+
+                    Console.WriteLine("Accepted new app client");
+
+                    Thread clientThread = new Thread(ProcessClientRequests);
+
+                    var clientInfo      = new ClientInfo(client, ClientInfo.CLIENT_TYPE.TCP);
+
+                    clientThread.Start(clientInfo);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+            finally
+            {
+                if (listener != null)
+                {
+                    listener.Stop();
+                }
+            }
+        }
+
+        /// <summary>
+        /// returns a JObject as data from the client stream.
+        /// </summary>
+        /// <param name="client">The tcp client</param>
+        /// <returns>The JObject</returns>
+        private static JObject getJsonObjectFromDesktopStream(TcpClient client)
+        {
+            var message                 = new byte[1024 * 10];
+
+            var bytesRead               = client.GetStream().Read(message, 0, message.Length);
+            string myObject             = Encoding.ASCII.GetString(message);
+            Object deserializedProduct  = JsonConvert.DeserializeObject(myObject);
+
+            return JObject.FromObject(deserializedProduct);
+        }
+
+        private static void SendTcpMessage(TcpClient client, object message = null)
+        {
+            JObject messageJObject = new JObject();
+            if (message != null)
+            {
+                messageJObject["message"] = JToken.FromObject(message);
+            }
+            else
+            {
+                // If no message was to be sent, send an empty message.
+                messageJObject["message"] = JToken.FromObject(new object());
+            }
+
+            var serializedMessage = JsonConvert.SerializeObject(messageJObject,
+                                                                  Newtonsoft.Json.Formatting.None,
+                                                                  new JsonSerializerSettings
+                                                                  {
+                                                                      NullValueHandling = NullValueHandling.Ignore
+                                                                  });
+
+            var messageByteArray = Encoding.ASCII.GetBytes(serializedMessage);
+
+            try
+            {
+                if (client.GetStream().CanWrite)
+                {
+                    client.GetStream().Write(messageByteArray, 0, messageByteArray.Length);
+                }
+            }
+
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+        }
+        #endregion
+
+        #region HTTPS-Server Functions
+
+        /// <summary>
+        /// Starts up the web client listener.
+        /// </summary>
+        /// <param name="address">The server's address.</param>
+        /// <param name="port">The server's port.</param>
+        private static void startWebListen(IPAddress address, int port)
+        {
+            var httpListener = new HttpListener();
+
+            //var httpsUri = String.Format(@"https://{0}:{1}/", address.ToString(), 555);
+            var httpUri = String.Format(@"https://{0}:{1}/", address.ToString(), 4343);
+
+            //httpListener.Prefixes.Add(httpsUri);
+            httpListener.Prefixes.Add(httpUri);
+
+            httpListener.Start();
+
+            Console.WriteLine(
+                String.Format("Server has been initialized at IP: {0} PORT: {1} For web use.",
+                address.ToString(),
+                port));
+
+            while (true)
+            {
+                Console.WriteLine("Waiting for new web connection.");
+
+                var clientContext   = httpListener.GetContext();
+
+                Console.WriteLine("Accepted new web connection.");
+
+                Thread clientThread = new Thread(ProcessClientRequests);
+
+                var clientInfo      = new ClientInfo(clientContext, ClientInfo.CLIENT_TYPE.HTTP);
+
+                clientThread.Start(clientInfo);
+            }
+        }
+
+        /// <summary>
+        /// Sends back OK response to Cross-Origin-Request.
+        /// </summary>
+        /// <param name="httpContext">Http listener context to send response through.</param>
+        private static void sendCORSResponse(HttpListenerContext httpContext)
+        {
+            // Construct the callback message. (Imported code.)
+            httpContext.Response.ContentType    = "application/json";
+            var callback                        = httpContext.Request.QueryString["callback"];
+            var Param1                          = httpContext.Request.QueryString["Param1"];
+            object dataToSend                   = null;
+            var js                              = new JavaScriptSerializer();
+            var JSONstring                      = js.Serialize(dataToSend);
+            var JSONPstring                     = string.Format("{0}({1});", callback, JSONstring);
+
+            // Transform the callback message to byte array.
+            var buf                             = Encoding.ASCII.GetBytes(JSONPstring);
+
+            // Allow access control allow origin.
+            httpContext.Response.StatusCode = 200;
+            httpContext.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With");
+            httpContext.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST");
+            httpContext.Response.AddHeader("Access-Control-Max-Age", "1728000");
+            httpContext.Response.AppendHeader("Access-Control-Allow-Origin", "*");
+
+            // Write back the response to the response stream.
+            httpContext.Response.OutputStream.Write(buf, 0, buf.Length);
+        }
+
+        /// <summary>
+        /// returns a JObject as data from the client stream.
+        /// </summary>
+        /// <param name="httpContext">The http context.</param>
+        /// <returns>The JObject.</returns>
+        private static JObject getJsonObjectFromWebStream(HttpListenerContext httpContext)
+        {
+            if (httpContext.Request.HttpMethod == "OPTIONS")
+            {
+                sendCORSResponse(httpContext);
+            }
+
+            if (!httpContext.Request.HasEntityBody)
+            {
+                return null;
+            }
+            using (System.IO.Stream body = httpContext.Request.InputStream)
+            {
+                using (System.IO.StreamReader reader = new System.IO.StreamReader(body, httpContext.Request.ContentEncoding))
+                {
+                    var myObject = reader.ReadToEnd();
+
+                    Object deserializedProduct = JsonConvert.DeserializeObject(myObject);
+
+                    return JObject.FromObject(deserializedProduct);
+                }
+            }
+        }
+
+        private static void SendHttpMessage(HttpListenerContext httpContext, object message = null)
+        {
+
+        }
+        #endregion
+
         #region GameWindow
 
-        private static void Bet(TcpClient client, JObject jsonObject)
+        private static void Bet(ClientInfo client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
             var playerIndexToken = jsonObject["playerIndex"];
@@ -197,7 +413,7 @@ namespace CLServer
             SendMessage(client, new { response = sl.Bet(gameId, playerIndex, coins) });
         }
 
-        private static void AddMessage(TcpClient client, JObject jsonObject)
+        private static void AddMessage(ClientInfo client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
             var playerIndexToken = jsonObject["playerIndex"];
@@ -219,7 +435,7 @@ namespace CLServer
             SendMessage(client, new { response = sl.AddMessage(gameId, playerIndex, messageText) });
         }
 
-        private static void Fold(TcpClient client, JObject jsonObject)
+        private static void Fold(ClientInfo client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
             var playerIndexToken = jsonObject["playerIndex"];
@@ -238,7 +454,7 @@ namespace CLServer
             SendMessage(client, new { response = sl.Fold(gameId, playerIndex) });
         }
 
-        private static void Check(TcpClient client, JObject jsonObject)
+        private static void Check(ClientInfo client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
             var playerIndexToken = jsonObject["playerIndex"];
@@ -257,7 +473,7 @@ namespace CLServer
             SendMessage(client, new { response = sl.Check(gameId, playerIndex) });
         }
 
-        private static void playGame(TcpClient client, JObject jsonObject)
+        private static void playGame(ClientInfo client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
 
@@ -271,7 +487,7 @@ namespace CLServer
             SendMessage(client, response);
         }
 
-        private static void GetGameState(TcpClient client, JObject jsonObject)
+        private static void GetGameState(ClientInfo client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
 
@@ -285,7 +501,7 @@ namespace CLServer
             SendMessage(client, response);
         }
 
-        private static void ChoosePlayerSeat(TcpClient client, JObject jsonObject)
+        private static void ChoosePlayerSeat(ClientInfo client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
             var playerSeatIndexToken = jsonObject["playerSeatIndex"];
@@ -304,7 +520,7 @@ namespace CLServer
             SendMessage(client, response);
         }
 
-        private static void GetPlayer(TcpClient client, JObject jsonObject)
+        private static void GetPlayer(ClientInfo client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
             var playerSeatIndexToken = jsonObject["playerSeatIndex"];
@@ -321,7 +537,7 @@ namespace CLServer
             SendMessage(client, new { response = sl.GetPlayer(gameId, playerSeatIndex) });
         }
 
-        private static void GetPlayerCards(TcpClient client, JObject jsonObject)
+        private static void GetPlayerCards(ClientInfo client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
             var playerSeatIndexToken = jsonObject["playerSeatIndex"];
@@ -340,7 +556,7 @@ namespace CLServer
             SendMessage(client, response);
         }
 
-        private static void GetShowOff(TcpClient client, JObject jsonObject)
+        private static void GetShowOff(ClientInfo client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
 
@@ -358,8 +574,9 @@ namespace CLServer
 
         #region Actions
 
-        private static void Login(TcpClient client, JObject jsonObject)
+        private static void Login(ClientInfo clientInfo, JObject jsonObject)
         {
+            Console.WriteLine(jsonObject);
             var usernameToken = jsonObject["username"];
             var passwordToken = jsonObject["password"];
 
@@ -371,23 +588,27 @@ namespace CLServer
             {
                 throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Login."));
             }
-            
+
+            Console.WriteLine((string)usernameToken);
+            Console.WriteLine((string)passwordToken);
             var loginResponse = sl.Login((string)usernameToken, (string)passwordToken);
 
-            SendMessage(client, loginResponse);
+            Console.WriteLine(loginResponse);
+
+            SendMessage(clientInfo, loginResponse);
         }
 
-        private static void CreateGame(TcpClient client, JObject jsonObject) {
-            var gameCreatorIdToken = jsonObject["gameCreatorId"];
-            var gamePolicyToken = jsonObject["gamePolicy"];
-            var gamePolicyLimitToken = jsonObject["gamePolicyLimit"];
-            var buyInPolicyToken = jsonObject["buyInPolicy"];
-            var startingChipsToken = jsonObject["startingChips"];
-            var minimalBetToken = jsonObject["minimalBet"];
-            var minimalPlayersToken = jsonObject["minimalPlayers"];
-            var maximalPlayersToken = jsonObject["maximalPlayers"];
-            var spectateAllowedToken = jsonObject["spectateAllowed"];
-            var isLeagueToken = jsonObject["isLeague"];
+        private static void CreateGame(ClientInfo clientInfo, JObject jsonObject) {
+            var gameCreatorIdToken      = jsonObject["gameCreatorId"];
+            var gamePolicyToken         = jsonObject["gamePolicy"];
+            var gamePolicyLimitToken    = jsonObject["gamePolicyLimit"];
+            var buyInPolicyToken        = jsonObject["buyInPolicy"];
+            var startingChipsToken      = jsonObject["startingChips"];
+            var minimalBetToken         = jsonObject["minimalBet"];
+            var minimalPlayersToken     = jsonObject["minimalPlayers"];
+            var maximalPlayersToken     = jsonObject["maximalPlayers"];
+            var spectateAllowedToken    = jsonObject["spectateAllowed"];
+            var isLeagueToken           = jsonObject["isLeague"];
 
             if ((gameCreatorIdToken == null) || (gameCreatorIdToken.Type != JTokenType.Integer) ||
                 (gamePolicyToken == null) || (gamePolicyToken.Type != JTokenType.String) ||
@@ -408,11 +629,11 @@ namespace CLServer
                 (bool?)spectateAllowedToken,
                 (bool?)isLeagueToken);
 
-            SendMessage(client, createGameResponse);
+            SendMessage(clientInfo, createGameResponse);
             return;
         }
 
-        private static void getGame(TcpClient client, JObject jsonObject) {
+        private static void getGame(ClientInfo clientInfo, JObject jsonObject) {
             var gameIdToken = jsonObject["gameId"];
 
             if (gameIdToken == null || gameIdToken.Type != JTokenType.Integer)
@@ -422,11 +643,11 @@ namespace CLServer
 
             var getGameResponse = sl.getGameById((int)gameIdToken);
 
-            SendMessage(client, getGameResponse);
+            SendMessage(clientInfo, getGameResponse);
             return;
         }
 
-        private static void Register(TcpClient client, JObject jsonObject)
+        private static void Register(ClientInfo clientInfo, JObject jsonObject)
         {
             var usernameToken   = jsonObject["username"];
             var passwordToken   = jsonObject["password"];
@@ -453,11 +674,11 @@ namespace CLServer
                 (string)emailToken, 
                 (string)userImageToken);
             
-            SendMessage(client, registerResponse);
+            SendMessage(clientInfo, registerResponse);
             return;
         }
 
-        private static void Logout(TcpClient client, JObject jsonObject)
+        private static void Logout(ClientInfo clientInfo, JObject jsonObject)
         {
             var userIdToken = jsonObject["userId"];
 
@@ -468,11 +689,11 @@ namespace CLServer
 
             var logoutResponse = sl.Logout((int)userIdToken);
 
-            SendMessage(client, logoutResponse);
+            SendMessage(clientInfo, logoutResponse);
             return;
         }
 
-        private static void JoinActiveGame(TcpClient client, JObject jsonObject)
+        private static void JoinActiveGame(ClientInfo clientInfo, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
             var userIdToken = jsonObject["userId"];
@@ -485,11 +706,11 @@ namespace CLServer
 
             var joinActiveGameResponse = sl.joinActiveGame((int)userIdToken, (int)gameIdToken);
             
-            SendMessage(client, joinActiveGameResponse);
+            SendMessage(clientInfo, joinActiveGameResponse);
             return;
         }
 
-        private static void SpectateActiveGame(TcpClient client, JObject jsonObject)
+        private static void SpectateActiveGame(ClientInfo clientInfo, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
             var userIdToken = jsonObject["userId"];
@@ -502,20 +723,20 @@ namespace CLServer
 
             var spectateActiveGameResponse = sl.spectateActiveGame((int)userIdToken, (int)gameIdToken);
             if (sl != null)
-                sl.Subscribe(new ServerObserver(client), (int)gameIdToken);
-            SendMessage(client, spectateActiveGameResponse);
+                sl.Subscribe(new ServerObserver((TcpClient)clientInfo.client), (int)gameIdToken);
+            SendMessage(clientInfo, spectateActiveGameResponse);
             return;
         }
 
-        private static void FindAllActiveAvailableGames(TcpClient client, JObject jsonObject)
+        private static void FindAllActiveAvailableGames(ClientInfo clientInfo, JObject jsonObject)
         {
             var findAllActiveAvailableGamesResponse = sl.findAllActiveAvailableGames();
 
-            SendMessage(client, findAllActiveAvailableGamesResponse);
+            SendMessage(clientInfo, findAllActiveAvailableGamesResponse);
             return;
         }
 
-        private static void FilterActiveGamesByGamePreferences(TcpClient client, JObject jsonObject)
+        private static void FilterActiveGamesByGamePreferences(ClientInfo clientInfo, JObject jsonObject)
         {
             var gamePolicy          = jsonObject["gamePolicy"];
             var limitPolicy         = jsonObject["gamePolicyLimit"];
@@ -538,12 +759,12 @@ namespace CLServer
                 (bool?)spectateAllowed,
                 (bool?)isLeague);
 
-            SendMessage(client, filterActiveGamesByGamePreferencesResponse);
+            SendMessage(clientInfo, filterActiveGamesByGamePreferencesResponse);
             return;
 
         }
 
-        private static void FilterActiveGamesByPotSize(TcpClient client, JObject jsonObject)
+        private static void FilterActiveGamesByPotSize(ClientInfo clientInfo, JObject jsonObject)
         {
             var potSizeToken = jsonObject["potSize"];
 
@@ -555,11 +776,11 @@ namespace CLServer
 
             var filterActiveGamesByPotSizeResponse = sl.filterActiveGamesByPotSize((int?)potSizeToken);
 
-            SendMessage(client, filterActiveGamesByPotSizeResponse);
+            SendMessage(clientInfo, filterActiveGamesByPotSizeResponse);
             return;
         }
 
-        private static void FilterActiveGamesByPlayerName(TcpClient client, JObject jsonObject)
+        private static void FilterActiveGamesByPlayerName(ClientInfo clientInfo, JObject jsonObject)
         {
             var playerNameToken = jsonObject["playerName"];
 
@@ -572,11 +793,11 @@ namespace CLServer
 
             var filterActiveGamesByPotSizeResponse = sl.filterActiveGamesByPlayerName((string)playerNameToken);
 
-            SendMessage(client, filterActiveGamesByPotSizeResponse);
+            SendMessage(clientInfo, filterActiveGamesByPotSizeResponse);
             return;
         }
 
-        private static void EditUserProfile(TcpClient client, JObject jsonObject)
+        private static void EditUserProfile(ClientInfo clientInfo, JObject jsonObject)
         {
             var userIdToken     = jsonObject["userId"];
             var nameToken       = jsonObject["name"];
@@ -599,11 +820,11 @@ namespace CLServer
                 (int)amountToken);
                 
 
-            SendMessage(client, editUserProfileResponse);
+            SendMessage(clientInfo, editUserProfileResponse);
             return;
         }
 
-        private static void Subscribe(TcpClient client, JObject jsonObject)
+        private static void Subscribe(ClientInfo clientInfo, JObject jsonObject)
         {
             var subscribeToToken = jsonObject["to"];
 
@@ -612,7 +833,7 @@ namespace CLServer
                 (String.IsNullOrWhiteSpace((string)subscribeToToken)))
             {
                 Console.WriteLine("Parameters mismatch at Subscribe -- subscribeTo.");
-                SendMessage(client, new { exception = "Could not register." });
+                SendMessage(clientInfo, new { exception = "Could not register." });
                 return;
             }
 
@@ -620,7 +841,7 @@ namespace CLServer
 
             if (subscribeTo == SUBSCRIBE_TO_GAME)
             {
-                SubscribeToGame(client, jsonObject);
+                SubscribeToGame(clientInfo, jsonObject);
                 return;
             }
 
@@ -631,7 +852,7 @@ namespace CLServer
 
         }
 
-        private static void SubscribeToGame(TcpClient client, JObject jsonObject)
+        private static void SubscribeToGame(ClientInfo clientInfo, JObject jsonObject)
         {
             var optionalToken = jsonObject["optional"];
 
@@ -639,17 +860,16 @@ namespace CLServer
                 (optionalToken.Type != JTokenType.Integer))
             {
                 Console.WriteLine("Parameters mismatch at Subscribe -- optional.");
-                SendMessage(client, new { exception = "Could not register." });
+                SendMessage(clientInfo, new { exception = "Could not register." });
                 return;
             }
-
             var optional = (int)optionalToken;
 
             // Check if game exists.
             if (sl.getGameById(optional) != null)
             {
                 // Subscribe this channel to game.
-                sl.Subscribe(new ServerObserver(client), (int)optionalToken);
+                sl.Subscribe(new ServerObserver((TcpClient)clientInfo.client), (int)optionalToken);
             }
         }
 
@@ -657,11 +877,9 @@ namespace CLServer
 
         static void Main()
         {
-            TcpListener listener = null;
-
-            string IP = "127.0.0.1";
-
             var realIP = false;
+
+            var IP = LOCAL_IP;
 
             try
             {
@@ -676,44 +894,21 @@ namespace CLServer
                 Console.WriteLine("Not connected to internet. aborting.");
                 return;
             }
-            try
+            var address = IPAddress.Parse(IP);
+
+            Task.Factory.StartNew(() =>
             {
-                var address = IPAddress.Parse(IP);
-                var port    = 2345;
-                listener    = new TcpListener(address, port);
+                startApplicationListen(address, APP_PORT);
+            });
 
-                listener.Start();
-
-                Console.WriteLine(
-                    String.Format("Server has been initialized at IP: {0} PORT: {1}", 
-                    address.ToString(), 
-                    port));
-
-                while (true)
-                {
-                    Console.WriteLine("Waiting for new connection.");
-
-                    TcpClient client = listener.AcceptTcpClient();
-                    
-                    Console.WriteLine("Accepted new client");
-                    
-                    Thread clientThread = new Thread(ProcessClientRequests);
-                    
-                    clientThread.Start(client);
-                }
-            }
-            catch(Exception e)
+            Task.Factory.StartNew(() =>
             {
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.StackTrace);
-            }
-            finally
-            {
-                if (listener != null)
-                {
-                    listener.Stop();
-                }
-            }
+                startWebListen(address, WEB_PORT);
+            });
+
+            ManualResetEvent manualResetEvent = new ManualResetEvent(false);
+
+            manualResetEvent.WaitOne();
         }
     }
 }
