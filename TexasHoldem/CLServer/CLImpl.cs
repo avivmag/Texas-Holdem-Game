@@ -5,15 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using SL;
 using System.Net.Sockets;
-using System.Xml.Serialization;
-using System.IO;
 using System.Net;
 using System.Threading;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using System.Diagnostics;
 using System.Web.Script.Serialization;
 
 namespace CLServer
@@ -27,84 +23,12 @@ namespace CLServer
         private const string SUBSCRIBE_TO_MESSAGE   = "Messages";
         private const string SUBSCRIBE_TO_GAME      = "Game";
         private const string LOCAL_IP               = "127.0.0.1";
-        private const int APP_PORT                  = 2345;
+        private const int DESKTOP_PORT              = 2345;
         private const int WEB_PORT                  = 4343;
 
         #endregion
         
         #region Co-Server Functions
-
-        /// <summary>
-        /// Task to proccess the client's requests.
-        /// </summary>
-        /// <param name="obj">The tcp client.</param>
-        private static void ProcessClientRequests(Object obj)
-        {
-            Console.WriteLine("Entered process client's requests");
-            // Declare tcp client, http listener context, and client's stream.
-            TcpClient tcpClient             = null;
-            HttpListenerContext httpContext = null;
-
-            ClientInfo clientInfo = (ClientInfo)obj;
-
-            // If it is a TCP client, get the client and it's stream.
-            if (clientInfo.type == ClientInfo.CLIENT_TYPE.TCP) {
-                tcpClient       = (TcpClient)clientInfo.client;
-            }
-            // If it is a HTTP client, get it's context.
-            else if (clientInfo.type == ClientInfo.CLIENT_TYPE.HTTP)
-            {
-                httpContext     = (HttpListenerContext)clientInfo.client;
-            }
-            else
-            {
-                Console.WriteLine("Type of connection not supported. aborting.");
-                return;
-            }
-
-            while (true)
-            {
-                Console.WriteLine("While(true) loop(should be twice)");
-                var jsonObject = new JObject();
-                try
-                {
-                    if (clientInfo.type == ClientInfo.CLIENT_TYPE.HTTP)
-                    {
-                        jsonObject = getJsonObjectFromWebStream(httpContext);
-                    }
-                    else if (clientInfo.type == ClientInfo.CLIENT_TYPE.TCP)
-                    {
-                        jsonObject = getJsonObjectFromDesktopStream(tcpClient);
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Aborting.");
-                    Console.WriteLine(e.Message);
-                    Console.WriteLine(e.StackTrace);
-                    Console.WriteLine("Client closed connection. Terminating thread: {0}", Thread.CurrentThread.ManagedThreadId);
-                    return;
-                }
-
-                // If client connected via TCP, execute action, and return a message response via TCP.
-                try
-                {
-                    tryExecuteAction(clientInfo, jsonObject);
-                }
-                catch (TargetInvocationException tie)
-                {
-                    Console.WriteLine("Could not execute action.");
-                    Console.WriteLine(tie.InnerException);
-                    SendMessage(clientInfo, new { exception = "An Error Has Occured" });
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                    Console.WriteLine(e.StackTrace);
-                    SendMessage(clientInfo, new { exception = "An Error Has Occured" });
-                }
-            }
-        }
 
         /// <summary>
         /// Gets IP to open tcp socket to.
@@ -129,6 +53,11 @@ namespace CLServer
         /// <param name="jsonObject">The Object received from the client.</param>
         private static void tryExecuteAction(ClientInfo clientInfo, JObject jsonObject)
         {
+            if (jsonObject == null)
+            {
+                throw new ArgumentException("jsonObject cannot be null.");
+            }
+
             var actionToken = jsonObject["action"];
 
             // In case the json object does not have property 'action'
@@ -158,7 +87,8 @@ namespace CLServer
         /// </summary>
         /// <param name="client">The client to send to.</param>
         /// <param name="message">The message to send. (Optional)</param>
-        public static void SendMessage(ClientInfo clientInfo, object message = null)
+        /// <param name="response">The response type, (Optional - only refers to HTTP responses.)</param>
+        public static void SendMessage(ClientInfo clientInfo, object message = null, int response = 200)
         {
             if (clientInfo == null)
             {
@@ -171,7 +101,7 @@ namespace CLServer
             }
             else if (clientInfo.type == ClientInfo.CLIENT_TYPE.HTTP)
             {
-                SendHttpMessage((HttpListenerContext)clientInfo.client, message);
+                sendHttpMessage((HttpListenerContext)clientInfo.client, message, response);
             }
             else
             {
@@ -184,11 +114,11 @@ namespace CLServer
         #region TCP-Server Functions
 
         /// <summary>
-        /// Starts up the application client listener.
+        /// Starts up the desktop client listener.
         /// </summary>
         /// <param name="address">The address of the server.</param>
         /// <param name="port">The port of the server.</param>
-        private static void startApplicationListen(IPAddress address, int port)
+        private static void startDesktopListen(IPAddress address, int port)
         {
             TcpListener listener = null;
             try
@@ -198,19 +128,19 @@ namespace CLServer
                 listener.Start();
 
                 Console.WriteLine(
-                    String.Format("Server has been initialized at IP: {0} PORT: {1} For application use.",
+                    String.Format("Server has been initialized at IP: {0} PORT: {1} For desktop use.",
                     address.ToString(),
                     port));
 
                 while (true)
                 {
-                    Console.WriteLine("Waiting for new app connection.");
+                    Console.WriteLine("Waiting for new desktop connection.");
 
                     TcpClient client    = listener.AcceptTcpClient();
 
-                    Console.WriteLine("Accepted new app client");
+                    Console.WriteLine("Accepted new desktop client");
 
-                    Thread clientThread = new Thread(ProcessClientRequests);
+                    Thread clientThread = new Thread(ProcessDesktopClientRequests);
 
                     var clientInfo      = new ClientInfo(client, ClientInfo.CLIENT_TYPE.TCP);
 
@@ -232,6 +162,46 @@ namespace CLServer
         }
 
         /// <summary>
+        /// Task to proccess the client's requests.
+        /// </summary>
+        /// <param name="obj">The tcp client.</param>
+        private static void ProcessDesktopClientRequests(Object obj)
+        {
+            var clientInfo = (ClientInfo)obj;
+
+            TcpClient client = (TcpClient)clientInfo.client;
+
+            while (true)
+            {
+                var jsonObject = new JObject();
+                try
+                {
+                    jsonObject = getJsonObjectFromDesktopStream(client);
+                }
+                catch
+                {
+                    Console.WriteLine("Client closed connection. Terminating thread: {0}", Thread.CurrentThread.ManagedThreadId);
+                    return;
+                }
+                try
+                {
+                    tryExecuteAction(clientInfo, jsonObject);
+                }
+                catch (TargetInvocationException tie)
+                {
+                    Console.WriteLine(tie.InnerException);
+                    SendMessage(clientInfo, new { exception = "An Error Has Occured" });
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine(e.StackTrace);
+                    SendMessage(clientInfo, new { exception = "An Error Has Occured" });
+                }
+            }
+        }
+
+        /// <summary>
         /// returns a JObject as data from the client stream.
         /// </summary>
         /// <param name="client">The tcp client</param>
@@ -247,6 +217,11 @@ namespace CLServer
             return JObject.FromObject(deserializedProduct);
         }
 
+        /// <summary>
+        /// Sends message via tcp network.
+        /// </summary>
+        /// <param name="client">The client to send to.</param>
+        /// <param name="message">The message to send.</param>
         private static void SendTcpMessage(TcpClient client, object message = null)
         {
             JObject messageJObject = new JObject();
@@ -283,6 +258,7 @@ namespace CLServer
                 Console.WriteLine(e.StackTrace);
             }
         }
+        
         #endregion
 
         #region HTTPS-Server Functions
@@ -317,7 +293,7 @@ namespace CLServer
 
                 Console.WriteLine("Accepted new web connection.");
 
-                Thread clientThread = new Thread(ProcessClientRequests);
+                Thread clientThread = new Thread(ProcessWebClientRequests);
 
                 var clientInfo      = new ClientInfo(clientContext, ClientInfo.CLIENT_TYPE.HTTP);
 
@@ -326,25 +302,25 @@ namespace CLServer
         }
 
         /// <summary>
-        /// Sends back OK response to Cross-Origin-Request.
+        /// Sends message through http network.
         /// </summary>
         /// <param name="httpContext">Http listener context to send response through.</param>
-        private static void sendCORSResponse(HttpListenerContext httpContext)
+        private static void sendHttpMessage(HttpListenerContext httpContext, object message = null, int response = 200)
         {
             // Construct the callback message. (Imported code.)
             httpContext.Response.ContentType    = "application/json";
             var callback                        = httpContext.Request.QueryString["callback"];
             var Param1                          = httpContext.Request.QueryString["Param1"];
-            object dataToSend                   = null;
+            object dataToSend                   = message;
             var js                              = new JavaScriptSerializer();
             var JSONstring                      = js.Serialize(dataToSend);
-            var JSONPstring                     = string.Format("{0}({1});", callback, JSONstring);
+            var JSONPstring                     = string.Format("{0}{1}", callback, JSONstring);
 
             // Transform the callback message to byte array.
             var buf                             = Encoding.ASCII.GetBytes(JSONPstring);
 
             // Allow access control allow origin.
-            httpContext.Response.StatusCode = 200;
+            httpContext.Response.StatusCode = response;
             httpContext.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With");
             httpContext.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST");
             httpContext.Response.AddHeader("Access-Control-Max-Age", "1728000");
@@ -363,13 +339,16 @@ namespace CLServer
         {
             if (httpContext.Request.HttpMethod == "OPTIONS")
             {
-                sendCORSResponse(httpContext);
+                sendHttpMessage(httpContext);
             }
 
             if (!httpContext.Request.HasEntityBody)
             {
                 return null;
             }
+
+
+
             using (System.IO.Stream body = httpContext.Request.InputStream)
             {
                 using (System.IO.StreamReader reader = new System.IO.StreamReader(body, httpContext.Request.ContentEncoding))
@@ -377,16 +356,63 @@ namespace CLServer
                     var myObject = reader.ReadToEnd();
 
                     Object deserializedProduct = JsonConvert.DeserializeObject(myObject);
-
+                    
                     return JObject.FromObject(deserializedProduct);
                 }
             }
         }
 
-        private static void SendHttpMessage(HttpListenerContext httpContext, object message = null)
+        /// <summary>
+        /// Task to proccess the client's requests by web.
+        /// </summary>
+        /// <param name="obj">The web client.</param>
+        private static void ProcessWebClientRequests(Object obj)
         {
+            ClientInfo clientInfo = (ClientInfo)obj;
 
+            var httpContext = (HttpListenerContext)clientInfo.client;
+
+            var jsonObject = new JObject();
+            try
+            {
+                jsonObject = getJsonObjectFromWebStream(httpContext);
+            }
+            catch
+            {
+                Console.WriteLine("Client closed connection. Terminating thread: {0}", Thread.CurrentThread.ManagedThreadId);
+                return;
+            }
+
+            // Execute action and return response.
+            if (jsonObject != null)
+            {
+                try
+                {
+                    tryExecuteAction(clientInfo, jsonObject);
+                }
+                catch (TargetInvocationException tie)
+                {
+                    Console.WriteLine(tie.InnerException);
+                    SendMessage(clientInfo, new { exception = "An Error Has Occured" }, 500);
+                    httpContext.Request.InputStream.Close();
+                    httpContext.Response.OutputStream.Close();
+                    return;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine(e.StackTrace);
+                    SendMessage(clientInfo, new { exception = "An Error Has Occured" });
+                    httpContext.Request.InputStream.Close();
+                    httpContext.Response.OutputStream.Close();
+                    return;
+                }
+            }
+
+            httpContext.Request.InputStream.Close();
+            httpContext.Response.OutputStream.Close();
         }
+ 
         #endregion
 
         #region GameWindow
@@ -576,7 +602,6 @@ namespace CLServer
 
         private static void Login(ClientInfo clientInfo, JObject jsonObject)
         {
-            Console.WriteLine(jsonObject);
             var usernameToken = jsonObject["username"];
             var passwordToken = jsonObject["password"];
 
@@ -589,11 +614,7 @@ namespace CLServer
                 throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Login."));
             }
 
-            Console.WriteLine((string)usernameToken);
-            Console.WriteLine((string)passwordToken);
             var loginResponse = sl.Login((string)usernameToken, (string)passwordToken);
-
-            Console.WriteLine(loginResponse);
 
             SendMessage(clientInfo, loginResponse);
         }
@@ -873,7 +894,32 @@ namespace CLServer
             }
         }
 
-        #endregion 
+        #endregion
+
+        #region Web-Requests
+
+        /// <summary>
+        /// Just a dummy leaderboard function and how it has to be, in order to build web client on top of it.
+        /// </summary>
+        /// <param name="clientInfo"></param>
+        /// <param name="jsonObject"></param>
+        private static void LeaderBoard(ClientInfo clientInfo, JObject jsonObject)
+        {
+            var rand = new Random();
+            var dummyList = new List<object>();
+            for (int i=0; i<20; i++)
+            {
+                dummyList.Add(new
+                {
+                    name = "abuya",
+                    tokens = rand.Next(5000, 50000)
+                });
+            }
+
+            SendMessage(clientInfo, dummyList);
+        }
+
+        #endregion
 
         static void Main()
         {
@@ -898,7 +944,7 @@ namespace CLServer
 
             Task.Factory.StartNew(() =>
             {
-                startApplicationListen(address, APP_PORT);
+                startDesktopListen(address, DESKTOP_PORT);
             });
 
             Task.Factory.StartNew(() =>

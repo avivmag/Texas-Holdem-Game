@@ -65,7 +65,14 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="leaderBoard\leaderboard.controller.js" />
+    <Content Include="leaderBoard\leaderboard.html" />
+    <Content Include="login\login.controller.js" />
+    <Content Include="login\login.html" />
+    <Content Include="mainMenu.controller.js" />
+    <Content Include="mainMenu.html" />
     <Content Include="packages.config" />
+    <Content Include="main.route.js" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -74,14 +81,12 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="indexCss.css" />
-    <Content Include="mainMenu.html" />
-    <Content Include="mainMenu.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
