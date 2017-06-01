@@ -14,8 +14,6 @@ namespace CLClient
 {
     public static class CommClient
     {
-        private static TcpClient client = new TcpClient("192.168.43.62", 2345);
-
 
         #region Constants
 
