@@ -378,7 +378,7 @@ namespace PL
 
         private void Sit_Click(object sender, RoutedEventArgs e)
         {
-            ReturnMessage returnMessage = CommClient.JoinGame(seatButtonToSeatIndex[(Button)sender], this.game.gameId, seatButtonToSeatIndex[(Button)sender]);
+            ReturnMessage returnMessage = CommClient.JoinGame(LoginWindow.user.id, this.game.gameId, seatButtonToSeatIndex[(Button)sender]);
 
             if (returnMessage.success)
                 playerSeatIndex = seatButtonToSeatIndex[(Button)sender];
@@ -685,9 +685,9 @@ namespace PL
             coinsSumInHeap[0].Content = game.pot;
 
             //List<Card> flop;
-            for (int i = 0; i < game.flop.Count; i++)
+            for (int i = 0; i < 3; i++)
             {
-                if (game.flop[i] == null)
+                if (game.flop == null || game.flop[i] == null)
                     communityCards[i].Source = DrawCard(cardType.unknown, CARD_TYPE);
                 else
                     communityCards[i].Source = DrawCard(game.flop[i].Type, game.flop[i].Value);
