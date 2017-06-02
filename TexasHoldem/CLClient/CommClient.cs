@@ -333,34 +333,6 @@ namespace CLClient
             return response;
         }
 
-        public static TexasHoldemGame joinActiveGame(int userId, int gameId)
-        {
-            var message     = new { action = "JoinActiveGame", userId, gameId };
-            var jsonMessage = sendMessage(message);
-            var responseJson = getResponse(jsonMessage);
-
-            if (responseJson == null)
-            {
-                return null;
-            }
-
-            var response = responseJson.ToObject<TexasHoldemGame>();
-
-            response.gamePreferences.flatten();
-
-            addClientStream(response.gameId);
-
-            subscribeStreamToServer(response.gameId, SUBSCRIBE_TO_GAME, response.gameId);
-
-            var serverListener = new serverListener(clients[response.gameId], response);
-
-            Thread listenThread = new Thread(Listen);
-
-            listenThread.Start(serverListener);
-
-            return response;
-        }
-
         public static TexasHoldemGame spectateActiveGame(int userId, int gameId)
         {
             var message     = new { action = "SpectateActiveGame", userId, gameId };
@@ -624,9 +596,9 @@ namespace CLClient
             return response;
         }
 
-        public static ReturnMessage ChoosePlayerSeat(int gameId, int playerSeatIndex)
+        public static ReturnMessage JoinGame(int userId, int gameId, int playerSeatIndex)
         {
-            var message = new { action = "ChoosePlayerSeat", gameId, playerSeatIndex };
+            var message = new { action = "JoinGame", userId, gameId, playerSeatIndex };
             var jsonMessage = sendMessage(message);
             var responseJson = getResponse(jsonMessage);
 
@@ -634,7 +606,33 @@ namespace CLClient
             {
                 return null;
             }
-            var response = responseJson.ToObject<ReturnMessage>();
+            return responseJson.ToObject<ReturnMessage>();
+        }
+
+        public static TexasHoldemGame GetGameInstance(int gameId, int userId)
+        {
+            var message = new { action = "GetGameForPlayers", gameId, userId };
+            var jsonMessage = sendMessage(message);
+            var responseJson = getResponse(jsonMessage);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+
+            var response = responseJson.ToObject<TexasHoldemGame>();
+
+            response.gamePreferences.flatten();
+
+            addClientStream(response.gameId);
+
+            subscribeStreamToServer(response.gameId, SUBSCRIBE_TO_GAME, response.gameId);
+
+            var serverListener = new serverListener(clients[response.gameId], response);
+
+            Thread listenThread = new Thread(Listen);
+
+            listenThread.Start(serverListener);
 
             return response;
         }

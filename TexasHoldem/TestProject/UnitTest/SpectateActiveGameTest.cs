@@ -138,7 +138,7 @@ namespace TestProject
         [TestMethod]
         public void spectateFailesAlreadyPlayTest()
         {
-            sl.joinActiveGame(3, 0);
+            sl.GetGameForPlayers(3, 0);
             object m = sl.spectateActiveGame(3, 0);
             Assert.AreEqual(m, null);
         }
