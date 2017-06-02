@@ -39,11 +39,11 @@ namespace TestProject
             userList[2].rank = 20;
             userList[3].rank = 25;
 
-            for (int i = 0; i < 4; i++)
-            {
-                userList[i].id = i;
-                center.login(userList[i].name, userList[i].password);
-            }
+            //for (int i = 0; i < 4; i++)
+            //{
+            //    userList[i].id = i;
+            //    center.login(userList[i].name, userList[i].password);
+            //}
 
             //set the leagues
             center.maintainLeagues(userList);
@@ -123,21 +123,6 @@ namespace TestProject
             game.leaveGameSpectator(user);
             CollectionAssert.AreEqual(game.spectators, new List<SystemUser> { });
         }
-
-        // Aviv - redundent - all players who trys to leave should leave because some of them can join the game and not seat.
-        //[TestMethod]
-        //public void LeavePlayerSuccessTest()
-        //{
-        //    object g = sl.getGameById(3);
-        //    Assert.IsInstanceOfType(g, typeof(TexasHoldemGame));
-        //    TexasHoldemGame game = (TexasHoldemGame)g;
-        //    SystemUser user = center.getUserById(0);
-        //    Player p = new Player(0, "Hadas", 100, user.rank);
-        //    sl.GetGameForPlayers(0, game.gameId);
-        //    game.leaveGamePlayer(p);
-        //    ReturnMessage m = sl.leaveGame(user, game.gameId);
-        //    Assert.AreEqual(game..AvailableSeats, 2);
-        //}
 
         [TestCleanup]
         public void TearDown()

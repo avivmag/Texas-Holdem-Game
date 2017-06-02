@@ -1,106 +1,80 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using Backend.User;
+using Backend.Game;
+using Backend;
 
 namespace TestProject
 {
     [TestClass]
     public class Tests : ProjectTest    {
 
-        string username = "Hadas";
-        string usernameWrong = "Gil";
-        string password = "1234";
-        string statusGame = "Active";
-        string gameOver = "notActive";
-        string game = "Texas1";
-        string highLeague = "league #1";
-        int points = 100;
-        int points2 = 0;
-        string lowLeague = "league #10";
-        string newCriteria = "new league";
-        string criteria = "Points";
-        string players = "Alufim";
+
+        SystemUser hadas;
+        SystemUser other;
+        TexasHoldemGame game;
 
 
-        [TestMethod]
-        public void TestRegister()
+        [TestInitialize]
+        public void SetUp()
         {
+            object objUser = register("Hadas", "1234", "shidlhad", "1");
+            Assert.IsNotNull(objUser);
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            hadas = (SystemUser)objUser;
 
-            //User registared correctly
-            Assert.AreEqual(this.register(username, password), this.getUserbyName(username));
-            //check if User already registered
-            Assert.IsTrue(this.isUserExist(username,password));
-            Assert.IsFalse(this.isUserExist(usernameWrong, password));
-            //User enter wrong input
-            Assert.AreNotEqual(this.register(username, password), this.register(usernameWrong, password));
-            Assert.AreNotEqual(this.register(username, password), this.register("238///", "...."));
+            object objOther = register("Gil", "1234", "gilabadi89", "2");
+            Assert.IsNotNull(objOther);
+            Assert.IsInstanceOfType(objOther, typeof(SystemUser));
+            other = (SystemUser)objOther;
+
+            object objGame = creatGame(hadas.id, "Limit", 1000, 1000, 1000, 100, 2, 9, true, false);
+            Assert.IsNotNull(objGame);
+            Assert.IsInstanceOfType(objGame, typeof(TexasHoldemGame));
+            game = (TexasHoldemGame)objGame;
         }
 
         [TestMethod]
         public void TestLogin()
         {
-            //Hadas login
-            Assert.AreEqual(this.login(username, password),this.getUserbyName(username));
-            //Hadas not equal to another user
-            Assert.AreNotEqual(this.login(username, password), this.getUserbyName(usernameWrong));
-            //Wrong input
-            Assert.AreNotEqual(this.login("1234", password), this.getUserbyName(username));
-            //Hadas is already exist in the system
-            Assert.IsTrue(this.isUserExist(username, password));
-            //Gil didn't login yet
-            Assert.IsFalse(this.isUserExist(usernameWrong, password));
+            Assert.IsNotNull(logout(hadas.id));
+            Assert.IsNotNull(login("Hadas", "1234"));
 
         }
 
         [TestMethod]
         public void TestLogout()
         {
-            //If it is an active game than user can logout
-            Assert.IsTrue(this.checkActiveGame(statusGame));
-            Assert.IsTrue(this.logoutUser(gameOver, username));
-            //can't logout
-            Assert.IsFalse(this.checkActiveGame(gameOver));
-
-            
+            Assert.IsNotNull(logout(hadas.id));
         }
 
-
+        [TestMethod]
+        public void TestLogoutFail()
+        {
+            hadas.money = 100000;
+            Assert.IsNotNull(addPlayerToGame(hadas.id, game.gameId,1));
+            Assert.IsFalse(((ReturnMessage)logout(hadas.id)).success);
+        }
+        
         [TestMethod]
         public void TestLeaveGame()
         {
-            //user can exit game
-            Assert.IsTrue(this.checkActiveGame(statusGame));
-            Assert.IsTrue(this.isLogin(username));
-            Assert.IsTrue(this.exitGame(game));
-            Assert.IsTrue(this.checkAvailibleSeats(game));
-            Assert.IsTrue(this.removeUserFromGame(username, game) >= 0);
-            //user can't exit game
-            Assert.IsFalse(this.removeUserFromGame(username, gameOver) < 0);
-            Assert.IsFalse(this.checkActiveGame(gameOver));
-            Assert.IsFalse(this.isLogin(usernameWrong));
+            hadas.money = 100000;
+            Assert.IsNotNull(addPlayerToGame(hadas.id, game.gameId, 1));
+            Assert.IsFalse(((ReturnMessage)logout(hadas.id)).success);
+            Assert.IsNotNull(removeUserFromGame(hadas, game.gameId));
+            Assert.IsTrue(((ReturnMessage)logout(hadas.id)).success);
         }
 
-        [TestMethod]
-        public void TestReplayGame()
+        [TestCleanup]
+        public void TearDown()
         {
-            //the game is not active and exist in the system
-            Assert.IsFalse(this.checkActiveGame(gameOver));
-            Assert.AreNotEqual(this.selectGameToReplay(gameOver), "");
-            Assert.IsTrue(this.checkActiveGame(statusGame));
-
+            removeGame(game.gameId);
+            logout(hadas.id);
+            logout(other.id);
+            removeUser(hadas.id);
+            removeUser(other.id);
         }
-
-
-        [TestMethod]
-        public void TestStoreGame()
-        {
-            Assert.IsTrue(this.checkActiveGame(statusGame));
-            Assert.IsTrue(this.isLogin(username));
-            Assert.IsTrue(this.storeGameData());
-
-        }
-
-
-
     }
 }

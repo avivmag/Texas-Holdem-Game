@@ -166,7 +166,6 @@ namespace TestProject.UnitTest
         public void TearDown()
         {
             center.shutDown();
-            center.login("Or", "111111");
         }
     }
 }

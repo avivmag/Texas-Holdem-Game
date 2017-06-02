@@ -37,11 +37,11 @@ namespace TestProject
             userList[2].rank = 20;
             userList[3].rank = 25;
 
-            for (int i = 0; i < 4; i++)
-            {
-                userList[i].id = i;
-                center.login(userList[i].name, userList[i].password);
-            }
+            //for (int i = 0; i < 4; i++)
+            //{
+            //    userList[i].id = i;
+            //    center.login(userList[i].name, userList[i].password);
+            //}
 
             //set the leagues
             center.maintainLeagues(userList);
@@ -119,18 +119,11 @@ namespace TestProject
         [TestMethod]
         public void findActiveAvailableGamesFailTest()
         {
-
-            SystemUser user2 = center.getUserById(2);
-            sl.GetGameForPlayers(user2.id, 3);
-
-            SystemUser user3 = center.getUserById(3);
-            sl.GetGameForPlayers(user3.id, 3);
-
             Assert.IsTrue(center.endGame(gamesList[0].gameId).success);
+            sl.removeGame(4);
+            List<TexasHoldemGame> active = (List<TexasHoldemGame>)sl.findAllActiveAvailableGames();
 
-            List<TexasHoldemGame> active = center.getAllGames();
-
-            Assert.AreNotEqual(((List<TexasHoldemGame>)active).Count, gamesList.Count);
+            Assert.AreNotEqual(active.Count, gamesList.Count);
         }
 
         [TestCleanup]

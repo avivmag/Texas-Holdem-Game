@@ -1,11 +1,13 @@
-﻿namespace TestProject
+﻿using TestProject.Bridge;
+
+namespace TestProject
 {
     class Driver
     {
-        public static Bridge getBridge()
+        public static IBridge getBridge()
         {
             ProxyBridge bridge = new ProxyBridge();
-            bridge.setRealBridge(null);
+            bridge.setRealBridge(new RealBridge());
             return bridge;
         }
     }
