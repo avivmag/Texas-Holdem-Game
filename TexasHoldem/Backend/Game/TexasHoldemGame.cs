@@ -9,8 +9,10 @@ namespace Backend.Game
 {
     public class TexasHoldemGame : Messages.Notification
     {
-        public enum HandsRanks { HighCard = 9, Pair = 8, TwoPairs = 6, ThreeOfAKind = 5, Straight, Flush = 4, FullHouse = 3, FourOfAKind = 2, StraightFlush = 1, RoyalFlush = 0 }
+        public enum HandsRanks { HighCard = 8, Pair = 7, TwoPairs = 6, ThreeOfAKind = 5, Straight, Flush = 4, FullHouse = 3, FourOfAKind = 2, StraightFlush = 1, RoyalFlush = 0 }
         public enum BetAction { fold, bet, call, check, raise }
+        public enum GameState { bFlop = 0, bTurn = 1, bRiver = 2, aRiver = 3}
+        private GameState gameState;
 
         public int gameId { get; set; }
         public int currentDealer { get; set; }
@@ -24,12 +26,12 @@ namespace Backend.Game
         private int availableSeats;
 
         //public GamePreferences GamePreferences { get; }
-        public MustPreferences gamePreferences { get;set;}
+        public MustPreferences gamePreferences { get; set; }
         public Deck deck { get; }
         private int maxPlayers = 9;
         public Player[] players { get; set; }
         public List<SystemUser> spectators;
-        
+
         public bool active { get; set; }
         private bool isGameActive;
 
@@ -61,7 +63,7 @@ namespace Backend.Game
             gameStatesObserver = new GameObserver();
             //setting the players array according to the max players pref if entered else 9 players is the max.
             maxPlayers = 9;
-            MaxPlayersDecPref maxPlayersDec =(MaxPlayersDecPref) gamePreferences.getOptionalPref(new MaxPlayersDecPref(0, null));
+            MaxPlayersDecPref maxPlayersDec = (MaxPlayersDecPref)gamePreferences.getOptionalPref(new MaxPlayersDecPref(0, null));
             if (maxPlayersDec != null)
                 maxPlayers = maxPlayersDec.maxPlayers;
             players = new Player[maxPlayers];
@@ -78,7 +80,7 @@ namespace Backend.Game
             GameLog.setLog(gameId, DateTime.Now);
             GameLog.logLine(gameId, GameLog.Actions.Game_Start, DateTime.Now.ToString());
             var m = joinGame(user);
-            if(!m.success)
+            if (!m.success)
                 Console.WriteLine(m.description);
             for (int i = 1; i < maxPlayers; i++)
             {
@@ -103,7 +105,7 @@ namespace Backend.Game
         //{
         //    go.Subscribe(client);
         //}
-        
+
         //public TexasHoldemGame(SystemUser user, GamePreferences gamePreferences)
         //{
         //    this.gameCreatorUserId = user.id;
@@ -261,7 +263,7 @@ namespace Backend.Game
                 startingChips = buyInPref.buyInPolicy;
             }
             Player p = new Player(user.id, user.name, startingChips, user.rank);
-            
+
             //check that the player is not already in the game
             for (int i = 0; i < players.Length; i++)
             {
@@ -271,8 +273,8 @@ namespace Backend.Game
 
             //check that the player is not spectating
             foreach (SystemUser u in spectators)
-                    if (u.id == user.id)
-                        return new ReturnMessage(false, "Couldn't join the game because the user is already spectating the game.");
+                if (u.id == user.id)
+                    return new ReturnMessage(false, "Couldn't join the game because the user is already spectating the game.");
 
             //TODO: Gili - the player should position itself
             // seats the player in the first available seat
@@ -376,69 +378,31 @@ namespace Backend.Game
             spectators.Remove(user);
         }
 
+        private void InitializeGame()
+        {
+            gameState = GameState.bFlop;
+            preparePlayersState();
+            deck.Shuffle();
+            dealCards();
+            currentSmall = getNextPlayer(currentDealer);
+            Console.WriteLine("small " + currentSmall);
+            currentBig = getNextPlayer(currentSmall);
+            Console.WriteLine("big " + currentBig);
+            betBlinds();
+        }
+
         public void playGame()
         {
             GameLog.logLine(gameId, GameLog.Actions.Game_Start, DateTime.Now.ToString());
-            isGameActive = true;
-            preparePlayersState();
-
-            while (isGameActive)
-                if (isGameActive)
-                {
-                deck.Shuffle();
-                dealCards();
-                currentSmall = getNextPlayer(currentDealer);
-                Console.WriteLine("small " + currentSmall);
-                currentBig = getNextPlayer(currentSmall);
-                Console.WriteLine("big " + currentBig);
-                betBlinds();
-
-                playersSetsTheirBets(true);
-
-                addToPot(tempPot);
-
-                //flop
-                for (int i = 0; i < 3; i++)
-                {
-                    Card flopCard = deck.Top();
-                    flop.Add(flopCard);
-                    GameLog.logLine(gameId, GameLog.Actions.Flop, i.ToString(), flopCard.ToString());
-                }
-
-                playersSetsTheirBets(false);
-
-                addToPot(tempPot);
-
-                turn = deck.Top();
-                GameLog.logLine(
-                    gameId,
-                    GameLog.Actions.Turn,
-                    turn.ToString());
-
-                playersSetsTheirBets(false);
-
-                addToPot(tempPot);
-
-                river = deck.Top();
-                GameLog.logLine(
-                    gameId,
-                    GameLog.Actions.River,
-                    turn.ToString());
-
-                playersSetsTheirBets(false);
-                addToPot(tempPot);
-                gameStatesObserver.Update(this);
-
-                for (int i = 0; i < players.Length; i++)
-                {
-                    if (players[i] != null && players[i].playerState == Player.PlayerState.in_round)
-                        players[i].handRank = checkHandRank(players[i]);
-                }
-
-                gameStatesObserver.Update(this);
+            InitializeGame();
+            // playersSetsTheirBets(true);
+            gameStatesObserver.Update(this);
 
 
-            }
+            
+
+
+
         }
 
         private void preparePlayersState()
@@ -450,7 +414,7 @@ namespace Backend.Game
             }
         }
 
-        private  void checkWhoWins()
+        private void checkWhoWins()
         {
             int highRank = -1;
             int winnerIndex = -1;
@@ -560,7 +524,7 @@ namespace Backend.Game
         public int getNextPlayer(int current)
         {
             int i = (current + 1) % maxPlayers;
-            while(i != current)
+            while (i != current)
             {
                 if (players[i] != null && players[i].playerState == Player.PlayerState.in_round)
                 {
@@ -600,8 +564,8 @@ namespace Backend.Game
         {
             players[currentSmall].Tokens -= currentBlindBet / 2;
             GameLog.logLine(
-                gameId, 
-                GameLog.Actions.Action_Bet, 
+                gameId,
+                GameLog.Actions.Action_Bet,
                 players[currentSmall].systemUserID.ToString(),
                 (currentBlindBet / 2).ToString());
 
@@ -615,24 +579,69 @@ namespace Backend.Game
             tempPot += ((currentBlindBet + (currentBlindBet / 2)));
         }
 
-        //public void bet(Player p, int amount)
-        //{
-        //    p.Tokens -= amount;
-        //    GameLog.logLine(
-        //        gameId,
-        //        GameLog.Actions.Action_Bet,
-        //        p.systemUserID.ToString(),
-        //        amount.ToString());
+        private void continueGame()
+        {
+            switch (gameState)
+            {
+                case GameState.bFlop:
+                    //reveal flop
+                    for (int i = 0; i < 3; i++)
+                    {
+                        Card flopCard = deck.Top();
+                        flop.Add(flopCard);
+                        GameLog.logLine(gameId, GameLog.Actions.Flop, i.ToString(), flopCard.ToString());
+                        gameState++;
+                    }
+                    break;
+                case GameState.bTurn:
+                    turn = deck.Top();
+                    GameLog.logLine(
+                        gameId,
+                        GameLog.Actions.Turn,
+                        turn.ToString());
+                    gameState++;
+                    break;
+                case GameState.bRiver:
+                    river = deck.Top();
+                    GameLog.logLine(
+                        gameId,
+                        GameLog.Actions.River,
+                        turn.ToString());
+                    gameState++;
+                    break;
+                case GameState.aRiver:
+                    Player p = decideWhoWon();
+                    p.playerState = PlayerState.winner;
+                    break;
+            }
+        }
 
-        //    tempPot += amount;
-        //    currentBet = amount;
-        //}
+        private Player decideWhoWon()
+        {
+            for (int i = 0; i < players.Length; i++)
+            {
+                if (players[i] != null && players[i].playerState == Player.PlayerState.in_round)
+                    players[i].handRank = checkHandRank(players[i]);
+            }
+
+            int maxHandPlayer = 9;
+            int maxHandIndex = -1;
+            for (int i = 0; i < players.Length; i++)
+            {
+                if (players[i] != null && players[i].playerState == Player.PlayerState.in_round && (int)players[i].handRank <= maxHandPlayer)
+                {
+                    maxHandPlayer = (int)players[i].handRank;
+                    maxHandIndex = i;
+                }
+            }
+            return players[maxHandIndex];
+        }
 
         public ReturnMessage bet(Player p, int amount)
         {
-            if(p.Tokens - amount < 0)
+            if (p.Tokens - amount < 0)
                 return new ReturnMessage(false, "not enough coins");
-            if(currentBet > amount && amount != p.Tokens)
+            if (currentBet > amount && amount != p.Tokens)
                 return new ReturnMessage(false, "need to bet more");
 
             currentBet = Math.Max(amount, currentBet);
@@ -646,6 +655,30 @@ namespace Backend.Game
                 amount.ToString());
 
             tempPot += amount;
+            int bet = -1;
+            for (int i = 0; i < players.Length; i++)
+            {
+                if (players[i] != null && players[i].playerState == PlayerState.in_round && players[i].Tokens != 0)
+                {
+                    bet = players[i].TokensInBet;
+                    break;
+                }
+            }
+            bool isBetOver = true;
+            for (int i = 0; i < players.Length; i++)
+            {
+                if (players[i] != null && players[i].playerState == PlayerState.in_round && players[i].TokensInBet != bet && players[i].Tokens != 0)
+                {
+                    isBetOver = false;
+                }
+            }
+
+            if (isBetOver)
+            {
+                addToPot(tempPot);
+                gameStatesObserver.Update(this);
+                continueGame();
+            }
             // TODO: Gili, you need to send the message to the other players
             return new ReturnMessage(true, "");
         }
@@ -659,8 +692,34 @@ namespace Backend.Game
                 p.systemUserID.ToString(),
                 currentBet.ToString());
             tempPot += currentBet;
+
+            int call = -1;
+            for (int i = 0; i < players.Length; i++)
+            {
+                if (players[i] != null && players[i].playerState == PlayerState.in_round && players[i].Tokens != 0)
+                {
+                    call = players[i].TokensInBet;
+                    break;
+                }
+            }
+
+            bool isCallOver = true;
+            for (int i = 0; i < players.Length; i++)
+            {
+                if (players[i] != null && players[i].playerState == PlayerState.in_round && players[i].TokensInBet != call && players[i].Tokens != 0)
+                {
+                    isCallOver = false;
+                }
+            }
+
+            if (isCallOver)
+            {
+                addToPot(tempPot);
+                gameStatesObserver.Update(this);
+                continueGame();
+            }
         }
-        
+
         public ReturnMessage fold(Player p)
         {
             p.playerState = Player.PlayerState.folded;
@@ -668,6 +727,32 @@ namespace Backend.Game
                 gameId,
                 GameLog.Actions.Action_Fold,
                 p.systemUserID.ToString());
+
+            int fold = -1;
+            for (int i = 0; i < players.Length; i++)
+            {
+                if (players[i] != null && players[i].playerState == PlayerState.in_round && players[i].Tokens != 0)
+                {
+                    fold = players[i].TokensInBet;
+                    break;
+                }
+            }
+
+            bool isFoldOver = true;
+            for (int i = 0; i < players.Length; i++)
+            {
+                if (players[i] != null && players[i].playerState == PlayerState.in_round && players[i].TokensInBet != fold && players[i].Tokens != 0)
+                {
+                    isFoldOver = false;
+                }
+            }
+
+            if (isFoldOver)
+            {
+                addToPot(tempPot);
+                gameStatesObserver.Update(this);
+                continueGame();
+            }
             return null; // TODO: Gili!
         }
 
@@ -677,6 +762,8 @@ namespace Backend.Game
                 gameId,
                 GameLog.Actions.Action_Check,
                 p.systemUserID.ToString());
+            gameStatesObserver.Update(this);
+            continueGame();
             return null; // TODO: Gili!
         }
 
@@ -692,7 +779,7 @@ namespace Backend.Game
             }
             return j;
         }
-        
+
         public HandsRanks checkHandRank(Player p)
         {
             List<Card> fullHand = new List<Card>();
@@ -988,7 +1075,7 @@ namespace Backend.Game
 
             return -1;
         }
-        
+
         // TODO: Gili - tries to position a player where he wants (on a seat)
         public ReturnMessage ChoosePlayerSeat(int playerIndex)
         {
@@ -1006,7 +1093,7 @@ namespace Backend.Game
         public IDictionary<int, Card[]> GetShowOff()
         {
             IDictionary<int, Card[]> ans = new Dictionary<int, Card[]>();
-            for(int i = 0; i < players.Length; i++)
+            for (int i = 0; i < players.Length; i++)
             {
                 ans[i] = players[i].playerCards.ToArray();
             }
