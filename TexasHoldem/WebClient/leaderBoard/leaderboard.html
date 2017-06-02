@@ -1,0 +1,24 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Leaderboard</title>
+    <style>
+        .leaderboard {
+            text-align: center;
+            margin: auto;
+            width: 185px;
+            border: 3px solid blue;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Texas Holdem Leaderboards!!!</h1>
+    <div class="leaderboard">
+        <ul ng-repeat="leader in leaders | orderBy:'-tokens'">
+            <li>{{ $index+1 }}. Name: {{leader.name}}  <br />Tokens: {{leader.tokens}}</li>
+        </ul>
+    </div>
+</body>
+</html>

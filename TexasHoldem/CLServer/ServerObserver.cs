@@ -14,7 +14,9 @@ namespace CLServer
 
         public override void update(object obj)
         {
-            CLImpl.SendMessage(client, new { response = "Game", obj });
+            var clientInfo = new ClientInfo(client, ClientInfo.CLIENT_TYPE.TCP);
+
+            CLImpl.SendMessage(clientInfo, new { response = "Game", obj });
         }
     }
 }
