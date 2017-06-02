@@ -1,174 +1,158 @@
 ﻿using System.Collections.Generic;
+using Backend.Game;
+using Backend.User;
 
 namespace TestProject
 {
     public class ProjectTest
     {
-        private Bridge bridge;
+        private IBridge bridge;
 
         public ProjectTest()
         {
-            this.bridge = Driver.getBridge();
+            bridge = Driver.getBridge();
           
         }
-        public object register(string username, string password)
+        public object register(string username, string password, string email, string picture)
         {
-           return  this.bridge.register(username,password);
+           return  bridge.register(username,password, email, picture);
         }
         public object login(string username, string password)
         {
-           return this.bridge.login(username, password);
+           return bridge.login(username, password);
         }
         public object getUserbyName(string username)
         {
-            return this.bridge.getUserbyName(username);
+            return bridge.getUserbyName(username);
         }
         public bool isUserExist(string username, string password)
         {
-            return this.bridge.isUserExist(username, password);
+            return bridge.isUserExist(username, password);
         }
         public bool checkActiveGame(string statusGame)
         {
-            return this.bridge.checkActiveGame(statusGame);
+            return bridge.checkActiveGame(statusGame);
         }
-        public bool logoutUser(string game, string user)
+        public object logout(int userId)
         {
-            return this.bridge.logoutUser(game, user);
+            return bridge.logout(userId);
         }
-        public object editProfile(string username)
+        public object editProfile(int userId, string username, string password, string email, string picture, int moneyAmount)
         {
-            return this.bridge.editProfile(username);
+            return bridge.editProfile(userId, username, password, email, picture, moneyAmount);
         }
-        public bool editImage(string img)
-        {
-            return this.bridge.editImage(img);
-        }
-        public bool editName(string name)
-        {
-            return this.bridge.editName(name);
-        }
-        public bool editEmail(string email)
-        {
-            return this.bridge.editEmail(email);
-        }
+        //public bool editImage(string img)
+        //{
+        //    return bridge.editImage(img);
+        //}
+        //public bool editName(string name)
+        //{
+        //    return bridge.editName(name);
+        //}
+        //public bool editEmail(string email)
+        //{
+        //    return bridge.editEmail(email);
+        //}
 
-        public object creatGame(string gameDefinitions)
+        public object creatGame(int gameCreator, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague)
         {
-            return this.bridge.creatGame(gameDefinitions);
+            return bridge.creatGame(gameCreator, gamePolicy, gamePolicyLimit, buyInPolicy, startingChipsAmount, MinimalBet, minPlayers, maxPlayers, isSpectatingAllowed, isLeague);
         }
         public bool isLogin(string username)
         {
-            return this.bridge.isLogin(username);
+            return bridge.isLogin(username);
         }
         public bool isGameDefOK(string gameDefinithions)
         {
-            return this.bridge.isGameDefOK(gameDefinithions);
+            return bridge.isGameDefOK(gameDefinithions);
         }
-        public bool addPlayerToGame(string username, string game)
+        public object addPlayerToGame(int userId, int gameId,int seat)
         {
-            return this.bridge.addPlayerToGame(username, game);
+            return bridge.addPlayerToGame(userId,gameId, seat);
         }
-        public  object selectGametoJoin(string game)
+        public object selectGametoJoin(string game)
         {
-            return this.bridge.selectGametoJoin(game);
+            return bridge.selectGametoJoin(game);
         }
         public bool checkAvailibleSeats(string game)
         {
-            return this.bridge.checkAvailibleSeats(game);
+            return bridge.checkAvailibleSeats(game);
         }
-        public bool spectateActiveGame(string game)
+        public object spectateActiveGame(int userId, int gameId)
         {
-            return this.bridge.spectateActiveGame(game);
+            return bridge.spectateActiveGame(userId,gameId);
         }
         public bool exitGame(string game)
         {
-            return this.bridge.exitGame(game);
+            return bridge.exitGame(game);
         }
-        public int removeUserFromGame(string user, string game)
+        public object removeUserFromGame(SystemUser user, int gameId)
         {
-            return this.bridge.removeUserFromGame(user, game);
+            return bridge.removeUserFromGame(user, gameId);
         }
-        public object selectGameToReplay(string game)
+               
+        public object findAllActive()
         {
-            return this.bridge.selectGameToReplay(game);
-        }
-        public bool isWatchingReplay(string game)
-        {
-            return this.bridge.isWatchingReplay(game);
-        }
-        public bool saveTurn(string game)
-        {
-            return this.bridge.saveTurn(game);
-        }
-       
-        public string findAllActive()
-        {
-            return this.bridge.findAllActive();
+            return bridge.findAllActive();
         }
         public string filterByCriteria(string criteria)
         {
-            return this.bridge.filterByCriteria(criteria);
+            return bridge.filterByCriteria(criteria);
         }
-        public bool storeGameData()
+        public bool isGameOver(int gameId)
         {
-            return this.bridge.storeGameData();
+            return bridge.isGameOver(gameId);
         }
-        public bool isGameOver(string game, string username)
+        
+        public bool canBet(TexasHoldemGame game, SystemUser user, int amount)
         {
-            return this.bridge.isGameOver(game, username);
-        }
-        public object joinLeaguePerPoints(int points)
-        {
-            return this.bridge.joinLeaguePerPoints(points);
-        }
-        public bool bet(int amount)
-        {
-            return this.bridge.bet(amount);
+            return bridge.canBet(game, user, amount);
         }
         public bool updatePot(int amount)
         {
-            return this.bridge.updatePot(amount);
+            return bridge.updatePot(amount);
         }
         public bool updateStatePlayer(string statePlayer, int amount)
         {
-            return this.bridge.updateStatePlayer(statePlayer, amount);
+            return bridge.updateStatePlayer(statePlayer, amount);
         }
-        public bool raise(int amount)
+        public bool canRaise(TexasHoldemGame game, SystemUser user, int amount)
         {
-            return this.bridge.raise(amount);
+            return bridge.canRaise(game, user, amount);
         }
-        public bool call(int amount)
-        {
-            return this.bridge.call(amount);
-        }
+        //public bool call(int amount)
+        //{
+        //    return bridge.canCall(amount);
+        //}
         public bool fold()
         {
-            return this.bridge.fold();
+            return bridge.fold();
         }
         public bool check()
         {
-            return this.bridge.check();
+            return bridge.check();
         }
         public bool betSmallBlind(int amount)
         {
-            return this.bridge.betSmallBlind(amount);
+            return bridge.betSmallBlind(amount);
         }
         public bool betBigBlind(int amount)
         {
-            return this.bridge.betBigBlind(amount);
+            return bridge.betBigBlind(amount);
         }
-        public bool isLeagueExist(string criteria)
+
+        public bool removeUser(int userId)
         {
-            return this.bridge.isLeagueExist(criteria);
+            return bridge.removeUser(userId);
         }
-        public bool setCriteriaForNewLeague(string criteria)
+        public bool removeGame(int gameId)
         {
-            return this.bridge.setCriteriaForNewLeague(criteria);
+            return bridge.removeGame(gameId);
         }
-        public bool PlayersWithCriteria(string criteria, string players)
-        {
-            return this.bridge.PlayersWithCriteria(criteria, players);
-        }
+        //public bool PlayersWithCriteria(string criteria, string players)
+        //{
+        //    return this.bridge.PlayersWithCriteria(criteria, players);
+        //}
     }   
 
 }

@@ -68,6 +68,7 @@
     <Compile Include="Bridge\Driver.cs" />
     <Compile Include="AcceptanceTests\ProjectTest.cs" />
     <Compile Include="Bridge\ProxyBridge.cs" />
+    <Compile Include="Bridge\RealBridge.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="AcceptanceTests\Tests.cs" />
     <Compile Include="Stress Testing\LoginsTest.cs" />

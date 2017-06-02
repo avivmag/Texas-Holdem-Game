@@ -50,7 +50,7 @@ namespace TestProject
         [TestMethod]
         public void alreadyExistsUserNameTest()
         {
-            object obj = sl.editUserProfile(0, "gili", "12345", "email7", "image5", 100);
+            object obj = sl.editUserProfile(0, "aviv", "12345", "email7", "image5", 100);
             Assert.IsInstanceOfType(obj, typeof(ReturnMessage));
             Assert.IsFalse(((ReturnMessage)obj).success);
         }
@@ -74,7 +74,7 @@ namespace TestProject
         [TestMethod]
         public void alreadyExistsEmailTest()
         {
-            object obj = sl.editUserProfile(0, "gil", "1111", "email2", "image5", 100);
+            object obj = sl.editUserProfile(0, "gil", "1111", "1", "image5", 100);
             Assert.IsInstanceOfType(obj, typeof(ReturnMessage));
             Assert.IsFalse(((ReturnMessage)obj).success);
         }
