@@ -14,6 +14,7 @@ namespace CLClient
 {
     public static class CommClient
     {
+
         #region Constants
 
         private const string SERVER_IP              = "127.0.0.1";
