@@ -15,12 +15,12 @@ namespace ApplicationFacade
         public List<League> leagues { get; set; }
         public List<SystemUser> loggedInUsers { get; set; }
         public List<SystemUser> userList { get; set; }
-        //private DALDummy dal;
+        private DALDummy dal;
         private static GameCenter center;
 
         private GameCenter()
         {
-            //dal = new DALDummy();
+            dal = new DALDummy();
             texasHoldemGames = new List<TexasHoldemGame>();
             //texasHoldemGames = dal.getAllGames();
             leagues = new List<League>();
@@ -124,6 +124,34 @@ namespace ApplicationFacade
                 return new ReturnMessage(true, null);
             }
             return new ReturnMessage(false, "you are not logged in.");
+        }
+
+        public List<SystemUser> getAllUsers()
+        {
+            return dal.getAllUsers();
+        }
+
+        public bool removeUser(int userId)
+        {
+            foreach (SystemUser u in userList)
+                if (u.id == userId)
+                {
+                    userList.Remove(u);
+                    return true;
+                }
+            return false;
+        }
+        public bool removeGame(int gameId)
+        {
+            foreach (TexasHoldemGame game in texasHoldemGames)
+            {
+                if (gameId == game.gameId)
+                {
+                    texasHoldemGames.Remove(game);
+                    return true;
+                }
+            }
+            return false;
         }
 
         public SystemUser register(string userName, string password, string email, string userImage)

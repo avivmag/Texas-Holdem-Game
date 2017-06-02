@@ -21,6 +21,7 @@ namespace SL
         //List<object> filterActiveGamesByGamePreferences(GamePreferences pref);
         //List<object> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed);
         object getAllGames();
+        
 
         //object createGame(int gameCreatorId, object pref);
         object createGame(int gameCreator, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague);
@@ -52,5 +53,12 @@ namespace SL
         object GetShowOff(int gameId);
         void Subscribe(ObserverAbstract<TcpClient> client, int gameID);
         #endregion
-        }
+
+
+
+        //For test purpose methods
+        object getAllUsers();
+        object removeUser(int userId);
+        object removeGame(int gameId);
+    }
 }

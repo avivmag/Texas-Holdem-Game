@@ -5,6 +5,7 @@ using System.Linq;
 using Backend;
 using Backend.Game.DecoratorPreferences;
 using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
+using System;
 
 namespace DAL
 {
@@ -106,6 +107,19 @@ namespace DAL
             };
             for (int i = 0; i < 4; i++)
                 playerDummies[i].systemUserID = i;
+        }
+
+        public bool removeUser(int userId)
+        {
+            foreach(SystemUser u in userList)
+            {
+                if (u.id == userId)
+                {
+                    userList.Remove(u);
+                    return true;
+                }
+            }
+            return false;
         }
 
         public TexasHoldemGame getGameById(int gameID)

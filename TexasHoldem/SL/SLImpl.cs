@@ -150,6 +150,28 @@ public class SLImpl : SLInterface
         return games;
     }
 
+#region Test purposes methods
+    public object getAllUsers()
+    {
+        var users = gameCenter.getAllUsers();
+        if (users.Count == 0)
+        {
+            return null;
+        }
+        return users;
+    }
+
+    public object removeUser(int userId)
+    {
+        return gameCenter.removeUser(userId);
+    }
+
+    public object removeGame(int gameId)
+    {
+        return gameCenter.removeGame(gameId);
+    }
+#endregion
+
     //public object createGame(int gameCreatorId, object pref)
     //{
     //    if (pref.GetType() == typeof(MustPreferences))

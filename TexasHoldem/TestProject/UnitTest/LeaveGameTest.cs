@@ -39,11 +39,11 @@ namespace TestProject
             userList[2].rank = 20;
             userList[3].rank = 25;
 
-            for (int i = 0; i < 4; i++)
-            {
-                userList[i].id = i;
-                center.login(userList[i].name, userList[i].password);
-            }
+            //for (int i = 0; i < 4; i++)
+            //{
+            //    userList[i].id = i;
+            //    center.login(userList[i].name, userList[i].password);
+            //}
 
             //set the leagues
             center.maintainLeagues(userList);
@@ -130,9 +130,9 @@ namespace TestProject
             object g = sl.getGameById(3);
             Assert.IsInstanceOfType(g, typeof(TexasHoldemGame));
             TexasHoldemGame game = (TexasHoldemGame)g;
-            SystemUser user = center.getUserById(0);
-            Player p = new Player(0, "Hadas", 100, user.rank);
-            sl.joinActiveGame(0, game.gameId);
+            SystemUser user = center.getUserByName("avivImaginaryFriend");
+            Player p = new Player(0, "avivImaginaryFriend", 100, user.rank);
+            sl.joinActiveGame(user.id, game.gameId);
             game.leaveGamePlayer(p);
             sl.leaveGame(user, game.gameId);
             Assert.AreEqual(game.AvailableSeats, 2);
