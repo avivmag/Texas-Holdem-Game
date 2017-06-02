@@ -65,6 +65,8 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="dashboard\dashboard.controller.js" />
+    <Content Include="dashboard\dashboard.html" />
     <Content Include="leaderBoard\leaderboard.controller.js" />
     <Content Include="leaderBoard\leaderboard.html" />
     <Content Include="login\login.controller.js" />

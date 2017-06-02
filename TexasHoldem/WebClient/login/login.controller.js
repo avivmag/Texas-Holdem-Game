@@ -1,4 +1,4 @@
-﻿app.controller("loginCtrl", function ($scope, $http) {
+﻿app.controller("loginCtrl", function ($scope, $http, $state) {
     $scope.inputType = 'password';
     $scope.isPasswordShown = false;
     $scope.login =
@@ -15,7 +15,7 @@
                   }
           }).then(function successCallback(response) {
               console.log('success!');
-              console.log(response);
+              $state.go('dashboard');
           }, function errorCallback(response) {
               console.log('fail!');
               console.log(response);

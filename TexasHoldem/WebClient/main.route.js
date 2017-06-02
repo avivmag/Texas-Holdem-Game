@@ -8,9 +8,14 @@ app.config(function($stateProvider, $urlRouterProvider) {
 			controller: 'loginCtrl'
 			})
 
-			.state('leaderboard', {
+		.state('leaderboard', {
 			url : '/leaderboard',
 			templateUrl: 'leaderBoard/leaderboard.html',
 			controller: 'leaderboardCtrl'
-		});
+			})
+
+        .state('dashboard', {
+            url: '/dashboard',
+            templateUrl: 'dashboard/dashboard.html',
+    });
 });
