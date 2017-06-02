@@ -10,8 +10,8 @@
               data:
                   {
                       action: 'Login',
-                      username: 'user',
-                      password: 'password'
+                      username,
+                      password
                   }
           }).then(function successCallback(response) {
               console.log('success!');

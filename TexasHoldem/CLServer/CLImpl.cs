@@ -195,7 +195,6 @@ namespace CLServer
                 catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
-                    Console.WriteLine(e.StackTrace);
                     SendMessage(clientInfo, new { exception = "An Error Has Occured" });
                 }
             }
@@ -401,7 +400,6 @@ namespace CLServer
                 catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
-                    Console.WriteLine(e.StackTrace);
                     SendMessage(clientInfo, new { exception = "An Error Has Occured" });
                     httpContext.Request.InputStream.Close();
                     httpContext.Response.OutputStream.Close();
