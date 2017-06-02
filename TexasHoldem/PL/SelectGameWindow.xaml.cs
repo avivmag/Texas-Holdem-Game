@@ -74,7 +74,7 @@ namespace PL
             {
                 DataGridCellInfo cellValue = (selectGameGrid.SelectedCells.ElementAt(1));
                 gameId = int.Parse(((TexasHoldemGameStrings)cellValue.Item).gameId);
-                var game = CommClient.joinActiveGame(LoginWindow.user.id, gameId);
+                var game = CommClient.GetGameInstance(gameId, LoginWindow.user.id);
                 if (game != default(TexasHoldemGame))
                 {
                     Close();

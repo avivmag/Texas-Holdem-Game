@@ -71,24 +71,24 @@ namespace Backend.Game
             // TODO: remove when the db is created.
 
             // NO MORE FUCKING RANDOM!!!
-            // IT RUINES MY LIFE EVERY TIME!!!!!!
+            // https://youtu.be/2JM4LZX-oxg?t=6s
             //Random rnd = new Random();
             //this.gameId = rnd.Next(0, 999999);
             this.gameId = TexasHoldemGame.getNextId();
             GameLog.setLog(gameId, DateTime.Now);
             GameLog.logLine(gameId, GameLog.Actions.Game_Start, DateTime.Now.ToString());
-            var m = joinGame(user);
-            if(!m.success)
-                Console.WriteLine(m.description);
+            //var m = joinGame(user);
+            //if(!m.success)
+            //    Console.WriteLine(m.description);
             for (int i = 1; i < maxPlayers; i++)
             {
                 players[i] = null;
             }
 
-            flop = new List<Card>();
-            flop.Add(new Card(Card.cardType.club, 5));
-            flop.Add(new Card(Card.cardType.diamond, 6));
-            flop.Add(new Card(Card.cardType.heart, 7));
+            //flop = new List<Card>();
+            //flop.Add(new Card(Card.cardType.club, 5));
+            //flop.Add(new Card(Card.cardType.diamond, 6));
+            //flop.Add(new Card(Card.cardType.heart, 7));
 
             isGameActive = false;
 
@@ -229,7 +229,9 @@ namespace Backend.Game
                     return new ReturnMessage(true, "");
                 }
             }
-            return new ReturnMessage(false, "");
+            return new ReturnMessage(true, "");
+            // Aviv - I've changed it to true because there can be players who are standing
+            //return new ReturnMessage(false, "");
         }
 
         ///////////////  UNUSED ///////////////
@@ -246,22 +248,12 @@ namespace Backend.Game
         //    {
         //    }
         //}
-
-        public ReturnMessage joinGame(SystemUser user)
+        public ReturnMessage getGameForPlayer(SystemUser user)
         {
             ReturnMessage m = gamePreferences.canPerformUserActions(this, user, "join");
             if (!m.success)
                 return m;
 
-            //getting the buy in policy if exists to pay for the chips else getting 1000 for free.
-            int startingChips = 1000;
-            BuyInPolicyDecPref buyInPref = (BuyInPolicyDecPref)gamePreferences.getOptionalPref(new BuyInPolicyDecPref(0, null));
-            if (buyInPref != null)
-            {
-                startingChips = buyInPref.buyInPolicy;
-            }
-            Player p = new Player(user.id, user.name, startingChips, user.rank);
-            
             //check that the player is not already in the game
             for (int i = 0; i < players.Length; i++)
             {
@@ -271,40 +263,50 @@ namespace Backend.Game
 
             //check that the player is not spectating
             foreach (SystemUser u in spectators)
-                    if (u.id == user.id)
-                        return new ReturnMessage(false, "Couldn't join the game because the user is already spectating the game.");
+                if (u.id == user.id)
+                    return new ReturnMessage(false, "Couldn't join the game because the user is already spectating the game.");
 
-            //TODO: Gili - the player should position itself
-            // seats the player in the first available seat
-            for (int i = 0; i < players.Length; i++)
+            return new ReturnMessage(true, "");
+        }
+
+        // TODO: Gili, I've added the seat index as we've decided. 
+        public ReturnMessage joinGame(SystemUser user, int seatIndex)
+        {
+            if (players[seatIndex] != null)
+                return new ReturnMessage(false, "seat is taken");
+
+            //getting the buy in policy if exists to pay for the chips else getting 1000 for free.
+            int startingChips = 1000;
+            BuyInPolicyDecPref buyInPref = (BuyInPolicyDecPref)gamePreferences.getOptionalPref(new BuyInPolicyDecPref(0, null));
+            if (buyInPref != null)
             {
-                if (players[i] == null)
-                {
-                    players[i] = p;
-                    if (buyInPref != null)
-                        user.money -= buyInPref.buyInPolicy;
-                    GameLog.logLine(gameId, GameLog.Actions.Player_Join, user.id.ToString());
-                    break;
-                }
+                startingChips = buyInPref.buyInPolicy;
             }
+            if (buyInPref != null)
+                user.money -= buyInPref.buyInPolicy;
+
+            Player p = new Player(user.id, user.name, startingChips, user.rank);
+            players[seatIndex] = p;
+            GameLog.logLine(gameId, GameLog.Actions.Player_Join, user.id.ToString());
+
             //playersChatObserver.Subscribe(p);
             gameStatesObserver.Update(this);
             return new ReturnMessage(true, "");
         }
 
-        public int AvailableSeats
-        {
-            get
-            {
-                int ans = 0;
-                for (int i = 0; i < players.Length; i++)
-                {
-                    if (players[i] == null)
-                        ans++;
-                }
-                return ans;
-            }
-        }
+        //public int AvailableSeats
+        //{
+        //    get
+        //    {
+        //        int ans = 0;
+        //        for (int i = 0; i < players.Length; i++)
+        //        {
+        //            if (players[i] == null)
+        //                ans++;
+        //        }
+        //        return ans;
+        //    }
+        //}
 
         //public ReturnMessage joinSpectate(SystemUser user)
         //{
@@ -338,11 +340,8 @@ namespace Backend.Game
 
             //check that the user is not playing
             foreach (Player p in players)
-                if (p != null)
-                {
-                    if (p.systemUserID == user.id)
-                        return new ReturnMessage(false, "Couldn't spectate the game because the user is already playing the game.");
-                }
+                if (p != null && p.systemUserID == user.id)
+                    return new ReturnMessage(false, "Couldn't spectate the game because the user is already playing the game.");
 
             //check that the user is not spectating
             foreach (SystemUser spectateUser in spectators)
@@ -356,6 +355,7 @@ namespace Backend.Game
             //playersChatObserver(players);
             return new ReturnMessage(true, "");
         }
+
 
         public void leaveGamePlayer(Player p)
         {

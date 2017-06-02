@@ -285,7 +285,7 @@ namespace PL
             int gameId;
             DataGridCellInfo cellValue = (searchResultGrid.SelectedCells.ElementAt(1));
             gameId = Int32.Parse(((TexasHoldemGameStrings)cellValue.Item).gameId);
-            var game = CommClient.joinActiveGame(LoginWindow.user.id, gameId);
+            var game = CommClient.GetGameInstance(gameId, LoginWindow.user.id);
             if (game != default(TexasHoldemGame))
             {
                 Close();

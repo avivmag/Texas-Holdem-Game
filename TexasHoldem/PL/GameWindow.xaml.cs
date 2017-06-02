@@ -376,9 +376,9 @@ namespace PL
             seatButtonToImageDictionary[(Button)sender].Source = new BitmapImage(new Uri("pack://application:,,,/resources/gray.png"));
         }
 
-        private void GameWindow_Click(object sender, RoutedEventArgs e)
+        private void Sit_Click(object sender, RoutedEventArgs e)
         {
-            ReturnMessage returnMessage = CommClient.ChoosePlayerSeat(this.game.gameId, seatButtonToSeatIndex[(Button)sender]);
+            ReturnMessage returnMessage = CommClient.JoinGame(seatButtonToSeatIndex[(Button)sender], this.game.gameId, seatButtonToSeatIndex[(Button)sender]);
 
             if (returnMessage.success)
                 playerSeatIndex = seatButtonToSeatIndex[(Button)sender];
@@ -402,14 +402,14 @@ namespace PL
             {
                 seatsButtons[i].MouseEnter += FreeSeatEventMouseEnter;
                 seatsButtons[i].MouseLeave += FreeSeatEventMouseLeave;
-                seatsButtons[i].Click += GameWindow_Click;
+                seatsButtons[i].Click += Sit_Click;
                 alreadyAddedMouseEvents[i] = true;
             }
             if (!addMouseEvents && alreadyAddedMouseEvents[i])
             {
                 seatsButtons[i].MouseEnter -= FreeSeatEventMouseEnter;
                 seatsButtons[i].MouseLeave -= FreeSeatEventMouseLeave;
-                seatsButtons[i].Click -= GameWindow_Click;
+                seatsButtons[i].Click -= Sit_Click;
                 alreadyAddedMouseEvents[i] = false;
             }
 
