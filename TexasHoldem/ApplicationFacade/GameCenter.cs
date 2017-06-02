@@ -14,12 +14,12 @@ namespace ApplicationFacade
         public List<League> leagues { get; set; }
         public List<SystemUser> loggedInUsers { get; set; }
         public List<SystemUser> userList { get; set; }
-        private DALDummy dal;
+        //private DALDummy dal;
         private static GameCenter center;
 
         private GameCenter()
         {
-            dal = new DALDummy();
+            //dal = new DALDummy();
             texasHoldemGames = new List<TexasHoldemGame>();
             //texasHoldemGames = dal.getAllGames();
             leagues = new List<League>();
@@ -126,7 +126,8 @@ namespace ApplicationFacade
 
         public List<SystemUser> getAllUsers()
         {
-            return dal.getAllUsers();
+            //return dal.getAllUsers();
+            return userList;
         }
 
         public bool removeUser(int userId)
