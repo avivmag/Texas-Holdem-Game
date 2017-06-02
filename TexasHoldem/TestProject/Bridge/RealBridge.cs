@@ -88,9 +88,9 @@ namespace TestProject.Bridge
             return sl.createGame(gameCreator, gamePolicy, gamePolicyLimit, buyInPolicy, startingChipsAmount, MinimalBet, minPlayers, maxPlayers, isSpectatingAllowed, isLeague);
         }
 
-        public object addPlayerToGame(int userId, int gameId)
+        public object addPlayerToGame(int userId, int gameId, int index)
         {
-            return sl.joinActiveGame(userId, gameId);
+            return sl.joinGame(userId, gameId, index);
         }
 
         public object selectGametoJoin(string game)

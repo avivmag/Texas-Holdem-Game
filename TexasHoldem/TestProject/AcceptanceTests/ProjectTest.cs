@@ -66,9 +66,9 @@ namespace TestProject
         {
             return bridge.isGameDefOK(gameDefinithions);
         }
-        public object addPlayerToGame(int userId, int gameId)
+        public object addPlayerToGame(int userId, int gameId,int seat)
         {
-            return bridge.addPlayerToGame(userId,gameId);
+            return bridge.addPlayerToGame(userId,gameId, seat);
         }
         public object selectGametoJoin(string game)
         {

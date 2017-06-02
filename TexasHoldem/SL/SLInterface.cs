@@ -7,7 +7,8 @@ namespace SL
 	public interface SLInterface
 	{
         object spectateActiveGame(int userId, int gameID);
-        object joinActiveGame(int userId, int gameID);
+        object GetGameForPlayers(int userId, int gameID);
+        object joinGame(int userId, int gameID, int seatIndex);
         object leaveGame(SystemUser user, int gameID);
 
         object editUserProfile(int userId, string name, string password, string email, string avatar, int amount);

@@ -26,9 +26,11 @@ namespace Backend.Game.DecoratorPreferences
                             new ReturnMessage(false, "max players must be between 2 and 9");
 
                 case "join":
-                    if (game.AvailableSeats == 0)
-                        return new ReturnMessage(false, "There are no available seats.");
-                    else if (nextDecPref != null)
+                    // AVIV: this is now redundant because if he does not have a seat he could not seat and thats it 
+                    //if (game.AvailableSeats == 0)
+                    //    return new ReturnMessage(false, "There are no available seats.");
+                    //else 
+                    if (nextDecPref != null)
                         return nextDecPref.canPerformUserActions(game, user, action);
                     else
                         return new ReturnMessage(true, "");

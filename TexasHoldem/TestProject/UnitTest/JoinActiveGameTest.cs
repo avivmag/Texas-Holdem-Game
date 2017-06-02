@@ -111,7 +111,7 @@ namespace TestProject
         [TestMethod]
         public void joinSuccessTest()
         {
-            object m = sl.joinActiveGame(0, 4);
+            object m = sl.GetGameForPlayers(0, 4);
 
             Assert.IsInstanceOfType(m, typeof(TexasHoldemGame));
 
@@ -121,7 +121,7 @@ namespace TestProject
         [TestMethod]
         public void joinSuccessLeagueGameTest()
         {
-            object m = sl.joinActiveGame(2, 7);
+            object m = sl.GetGameForPlayers(2, 7);
 
             Assert.IsInstanceOfType(m, typeof(TexasHoldemGame));
 
@@ -131,7 +131,7 @@ namespace TestProject
         [TestMethod]
         public void joinFailsLeagueGameTest()
         {
-            object m = sl.joinActiveGame(0, 7);
+            object m = sl.GetGameForPlayers(0, 7);
 
             Assert.IsInstanceOfType(m, typeof(ReturnMessage));
 
@@ -141,11 +141,11 @@ namespace TestProject
         [TestMethod]
         public void joinFailesNoSeatsTest()
         {
-            sl.joinActiveGame(2, 3);
+            sl.GetGameForPlayers(2, 3);
 
-            sl.joinActiveGame(3, 3);
+            sl.GetGameForPlayers(3, 3);
 
-            object m = sl.joinActiveGame(0, 3);
+            object m = sl.GetGameForPlayers(0, 3);
 
             Assert.AreEqual(m,null);
         }
@@ -153,7 +153,7 @@ namespace TestProject
         [TestMethod]
         public void joinFailesNoMoneyTest()
         {
-            object m = sl.joinActiveGame(1, 1);
+            object m = sl.GetGameForPlayers(1, 1);
 
             Assert.AreEqual(m, null);
         }
@@ -161,9 +161,9 @@ namespace TestProject
         [TestMethod]
         public void joinFailsAlreadyPlayTest()
         {
-            sl.joinActiveGame(0, 3);
+            sl.GetGameForPlayers(0, 3);
 
-            object m = sl.joinActiveGame(0, 3);
+            object m = sl.GetGameForPlayers(0, 3);
 
             Assert.AreEqual(m, null);
         }
@@ -173,7 +173,7 @@ namespace TestProject
         {
             sl.spectateActiveGame(0, 2);
 
-            object m = sl.joinActiveGame(0, 2);
+            object m = sl.GetGameForPlayers(0, 2);
 
             Assert.AreEqual(m,null);
         }
@@ -181,7 +181,7 @@ namespace TestProject
         [TestMethod]
         public void joinFailsGameNoExistsTest()
         {
-            object m = sl.joinActiveGame(0, 1000);
+            object m = sl.GetGameForPlayers(0, 1000);
 
             Assert.AreEqual(m, null);
         }
@@ -189,7 +189,7 @@ namespace TestProject
         [TestMethod]
         public void joinFailsUserDontExistsTest()
         {
-            object m = sl.joinActiveGame(70, 1000);
+            object m = sl.GetGameForPlayers(70, 1000);
 
             Assert.AreEqual(m, null);
         }

@@ -32,8 +32,23 @@ public class SLImpl : SLInterface
         }
         return null;
     }
+    public object GetGameForPlayers(int userId, int gameID)
+    {
+        TexasHoldemGame game = gameCenter.getGameById(gameID);
+        if (game == null)
+            return null;
+        SystemUser user = gameCenter.getUserById(userId);
+        if (user == null)
+            return null;
+        var joinSpec = game.getGameForPlayer(user);
 
-    public object joinActiveGame(int userId, int gameID)
+        if (joinSpec.success)
+            return game;
+
+        return null;
+    }
+
+    public object joinGame(int userId, int gameID, int seatIndex)
     {
         TexasHoldemGame game = gameCenter.getGameById(gameID);
         SystemUser user = gameCenter.getUserById(userId);
@@ -43,7 +58,7 @@ public class SLImpl : SLInterface
             return null;
         }
 
-        var response = game.joinGame(user);
+        var response = game.joinGame(user, seatIndex);
 
         if (response.success)
         {

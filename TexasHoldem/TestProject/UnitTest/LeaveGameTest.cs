@@ -124,20 +124,6 @@ namespace TestProject
             CollectionAssert.AreEqual(game.spectators, new List<SystemUser> { });
         }
 
-        [TestMethod]
-        public void LeavePlayerSuccessTest()
-        {
-            object g = sl.getGameById(3);
-            Assert.IsInstanceOfType(g, typeof(TexasHoldemGame));
-            TexasHoldemGame game = (TexasHoldemGame)g;
-            SystemUser user = center.getUserByName("avivImaginaryFriend");
-            Player p = new Player(0, "avivImaginaryFriend", 100, user.rank);
-            sl.joinActiveGame(user.id, game.gameId);
-            game.leaveGamePlayer(p);
-            sl.leaveGame(user, game.gameId);
-            Assert.AreEqual(game.AvailableSeats, 2);
-        }
-
         [TestCleanup]
         public void TearDown()
         {

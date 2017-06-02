@@ -105,10 +105,10 @@ namespace TestProject
             return (gameDefinithions.Equals("def"));
          
         }
-        public object addPlayerToGame(int userId, int gameId)
+        public object addPlayerToGame(int userId, int gameId,int seat)
         {
             if (real != null)
-                return real.addPlayerToGame(userId, gameId);
+                return real.addPlayerToGame(userId, gameId,seat);
             return true;
             // return (username.Equals("Hadas") && game.Equals("Texas1"));
         }

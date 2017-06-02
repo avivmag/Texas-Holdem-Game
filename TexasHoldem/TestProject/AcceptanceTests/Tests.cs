@@ -53,7 +53,7 @@ namespace TestProject
         public void TestLogoutFail()
         {
             hadas.money = 100000;
-            Assert.IsNotNull(addPlayerToGame(hadas.id, game.gameId));
+            Assert.IsNotNull(addPlayerToGame(hadas.id, game.gameId,1));
             Assert.IsFalse(((ReturnMessage)logout(hadas.id)).success);
         }
         
@@ -61,7 +61,7 @@ namespace TestProject
         public void TestLeaveGame()
         {
             hadas.money = 100000;
-            Assert.IsNotNull(addPlayerToGame(hadas.id, game.gameId));
+            Assert.IsNotNull(addPlayerToGame(hadas.id, game.gameId, 1));
             Assert.IsFalse(((ReturnMessage)logout(hadas.id)).success);
             Assert.IsNotNull(removeUserFromGame(hadas, game.gameId));
             Assert.IsTrue(((ReturnMessage)logout(hadas.id)).success);

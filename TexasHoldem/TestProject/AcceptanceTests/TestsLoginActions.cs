@@ -84,33 +84,33 @@ namespace TestProject.AcceptanceTests
         public void TestjoinExistingGame()
         {
             hadas.money = 100000;
-            Assert.IsNotNull(addPlayerToGame(hadas.id, gameSpectate.gameId));
+            Assert.IsNotNull(addPlayerToGame(hadas.id, gameSpectate.gameId, 1));
         }
 
         [TestMethod]
         public void TestjoinExistingGameTwice()
         {
             hadas.money = 100000;
-            Assert.IsNotNull(addPlayerToGame(hadas.id, gameSpectate.gameId));
-            Assert.IsNull(addPlayerToGame(hadas.id, gameSpectate.gameId));
+            Assert.IsNotNull(addPlayerToGame(hadas.id, gameSpectate.gameId, 1));
+            Assert.IsNull(addPlayerToGame(hadas.id, gameSpectate.gameId, 1));
         }
 
         [TestMethod]
         public void TestjoinExistingGameNoMoney()
         {
-            Assert.IsNull(addPlayerToGame(hadas.id, gameSpectate.gameId));
+            Assert.IsNull(addPlayerToGame(hadas.id, gameSpectate.gameId, 1));
         }
 
         [TestMethod]
         public void TestjoinExistingGameNoUser()
         {
-            Assert.IsNull(addPlayerToGame(0, gameSpectate.gameId));
+            Assert.IsNull(addPlayerToGame(0, gameSpectate.gameId, 1));
         }
 
         [TestMethod]
         public void TestjoinExistingGameNoGame()
         {
-            Assert.IsNull(addPlayerToGame(hadas.id, 1000));
+            Assert.IsNull(addPlayerToGame(hadas.id, 1000, 1));
         }
 
         [TestMethod]

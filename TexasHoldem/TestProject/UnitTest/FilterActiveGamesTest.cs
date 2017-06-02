@@ -115,11 +115,11 @@ namespace TestProject
         //    Assert.AreEqual(center.filterActiveGamesByPlayerName("Hadas").Count, 2);
         //}
 
-        [TestMethod]
-        public void filterActiveGamesByPlayerNameFewGamesTest()
-        {
-            Assert.AreEqual(center.filterActiveGamesByPlayerName("Hadas").Count, 2);
-        }
+        //[TestMethod]
+        //public void filterActiveGamesByPlayerNameFewGamesTest()
+        //{
+        //    Assert.AreEqual(center.filterActiveGamesByPlayerName("Hadas").Count, 2);
+        //}
 
         [TestMethod]
         public void filterActiveGamesByPlayerNameTwoGamesFailsTest()
@@ -131,9 +131,9 @@ namespace TestProject
         public void filterActiveGamesByPotSizeTest()
         {
             var user2 = center.getUserById(0);
-            sl.joinActiveGame(user2.id, 3);
+            sl.GetGameForPlayers(user2.id, 3);
 
-            sl.joinActiveGame(user2.id, 0);
+            sl.GetGameForPlayers(user2.id, 0);
 
             Assert.AreEqual(center.filterActiveGamesByPotSize(0).Count, 8);
         }
@@ -142,9 +142,9 @@ namespace TestProject
         public void filterActiveGamesByPotSizeFailsTest()
         {
             var user2 = center.getUserById(0);
-            sl.joinActiveGame(user2.id, 3);
+            sl.GetGameForPlayers(user2.id, 3);
 
-            sl.joinActiveGame(user2.id, 0);
+            sl.GetGameForPlayers(user2.id, 0);
 
             Assert.AreEqual(center.filterActiveGamesByPotSize(100).Count, 8);
         }

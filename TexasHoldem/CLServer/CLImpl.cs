@@ -285,25 +285,6 @@ namespace CLServer
             SendMessage(client, response);
         }
 
-        private static void ChoosePlayerSeat(TcpClient client, JObject jsonObject)
-        {
-            var gameIdToken = jsonObject["gameId"];
-            var playerSeatIndexToken = jsonObject["playerSeatIndex"];
-
-            if ((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer) ||
-                (playerSeatIndexToken == null) || (playerSeatIndexToken.Type != JTokenType.Integer))
-            {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Choose Player Seat."));
-            }
-
-            var gameId = (int)gameIdToken;
-            var playerSeatIndex = (int)playerSeatIndexToken;
-
-            var response = sl.ChoosePlayerSeat(gameId, playerSeatIndex);
-
-            SendMessage(client, response);
-        }
-
         private static void GetPlayer(TcpClient client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
@@ -473,7 +454,25 @@ namespace CLServer
             return;
         }
 
-        private static void JoinActiveGame(TcpClient client, JObject jsonObject)
+        private static void JoinGame(TcpClient client, JObject jsonObject)
+        {
+            var userIdToken = jsonObject["userId"];
+            var gameIdToken = jsonObject["gameId"];
+            var playerSeatIndexToken = jsonObject["playerSeatIndex"];
+            
+            if ((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer) ||
+                (userIdToken == null) || (userIdToken.Type != JTokenType.Integer) ||
+                (playerSeatIndexToken == null) || (playerSeatIndexToken.Type != JTokenType.Integer))
+            {
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Join Active Game"));
+            }
+
+            var joinGameResponse = sl.joinGame((int)userIdToken, (int)gameIdToken, (int) playerSeatIndexToken);
+            
+            SendMessage(client, joinGameResponse);
+        }
+
+        private static void GetGameForPlayers(TcpClient client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
             var userIdToken = jsonObject["userId"];
@@ -481,12 +480,13 @@ namespace CLServer
             if ((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer) ||
                 (userIdToken == null) || (userIdToken.Type != JTokenType.Integer))
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Join Active Game"));
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at get Game for player"));
             }
 
-            var joinActiveGameResponse = sl.joinActiveGame((int)userIdToken, (int)gameIdToken);
-            
-            SendMessage(client, joinActiveGameResponse);
+            var getGameForPlayersResponse = sl.GetGameForPlayers((int)userIdToken, (int)gameIdToken);
+            if (sl != null)
+                sl.Subscribe(new ServerObserver(client), (int)gameIdToken);
+            SendMessage(client, getGameForPlayersResponse);
             return;
         }
 
@@ -505,7 +505,6 @@ namespace CLServer
             if (sl != null)
                 sl.Subscribe(new ServerObserver(client), (int)gameIdToken);
             SendMessage(client, spectateActiveGameResponse);
-            return;
         }
 
         private static void FindAllActiveAvailableGames(TcpClient client, JObject jsonObject)
