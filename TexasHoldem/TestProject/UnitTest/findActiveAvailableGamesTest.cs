@@ -121,10 +121,10 @@ namespace TestProject
         {
 
             SystemUser user2 = center.getUserById(2);
-            sl.joinActiveGame(user2.id, 3);
+            sl.GetGameForPlayers(user2.id, 3);
 
             SystemUser user3 = center.getUserById(3);
-            sl.joinActiveGame(user3.id, 3);
+            sl.GetGameForPlayers(user3.id, 3);
 
             Assert.IsTrue(center.endGame(gamesList[0].gameId).success);
 

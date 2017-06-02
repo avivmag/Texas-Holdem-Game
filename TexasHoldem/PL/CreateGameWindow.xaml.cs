@@ -31,7 +31,7 @@ namespace PL
             var game = CreateGame();
             if (game == null)
             {
-                //errorMessage.Text = "Could not create the game";
+                errorMessage.Text = "Could not create the game";
             }
             else
             {
@@ -45,121 +45,229 @@ namespace PL
         }
         private TexasHoldemGame CreateGame()
         {
-            Preference.GameTypePolicy gamePolicy = Preference.GameTypePolicy.Undef;
-            int limitPolicy;
-            int buyInPolicy;
-            int startingChips;
-            int minimalBet;
-            int minimalPlayers;
-            int maximalPlayers;
+            string gamePolicy;
+            int? gameLimitPolicy;
+            int? buyInPolicy;
+            int? startingChips;
+            int? minimalBet;
+            int? minimalPlayers;
+            int? maximalPlayers;
             bool? spectateAllowed;
             bool? isLeague;
 
+            int value;
+        
+            //set the game type policy
             if (GameTypePolicyComboBox.Text.Equals("none") || GameTypePolicyComboBox.Text.Equals(""))
             {
-                gamePolicy = Preference.GameTypePolicy.Undef;
+                gamePolicy = null;
             }
             else
             {
-                gamePolicy = (Preference.GameTypePolicy)Enum.Parse(typeof(Preference.GameTypePolicy), GameTypePolicyComboBox.Text);
+                gamePolicy = GameTypePolicyComboBox.Text;
             }
 
-            if (gamePolicy == Preference.GameTypePolicy.Limit)
+            // Set the game limit policy.
+            if (LimitPolicyTextbox.Text.Equals(""))
             {
-                if (limitPolicyTextbox.Text.Equals("") || !Int32.TryParse(buyInTextbox.Text, out limitPolicy) || limitPolicy < 0)
-                {
-                    errorMessage.Text = "Wrong Input - limit policy should be int and positive.";
-                    return null;
-                }
+                gameLimitPolicy = null;
+            }
+            else if (!Int32.TryParse(LimitPolicyTextbox.Text, out value) || value < 0)
+            {
+                errorMessage.Text = "Wrong Input - limit policy text box should be int and positive.";
+                return null;
             }
             else
-                limitPolicy = 0;
+            {
+                gameLimitPolicy = value;
+            }
 
+            //set the buy in
             if (buyInTextbox.Text.Equals(""))
-            {
-                buyInPolicy = -1;
-            }
-            else if (!Int32.TryParse(buyInTextbox.Text, out buyInPolicy) || buyInPolicy < 0)
+                buyInPolicy = null;
+            else if (!Int32.TryParse(buyInTextbox.Text, out value) || value < 0)
             {
                 errorMessage.Text = "Wrong Input - buy in policy should be int and positive.";
                 return null;
             }
+            else
+                buyInPolicy = value;
 
+            // set the starting chips amount
             if (startingChipsTextbox.Text.Equals(""))
-            {
-                startingChips = -1;
-            }
-            else if (!Int32.TryParse(startingChipsTextbox.Text, out startingChips) || startingChips < 0)
+                startingChips = null;
+            else if (!Int32.TryParse(startingChipsTextbox.Text, out value) || value < 0)
             {
                 errorMessage.Text = "Wrong Input - starting chips should be int and positive.";
                 return null;
             }
+            else
+                startingChips = value;
 
+            // set the minimal bet
             if (minimalBetTextbox.Text.Equals(""))
-            {
-                minimalBet = -1;
-            }
-            else if (!Int32.TryParse(minimalBetTextbox.Text, out minimalBet) || minimalBet < 0)
+                minimalBet = null;
+            else if (!Int32.TryParse(minimalBetTextbox.Text, out value) || value < 0)
             {
                 errorMessage.Text = "Wrong Input - minimal bet should be int and positive.";
                 return null;
             }
+            else
+                minimalBet = value;
 
+            //set the minimal Players
             if (minimalPlayerTextbox.Text.Equals(""))
-            {
-                minimalPlayers = -1;
-            }
-            else if (!Int32.TryParse(minimalPlayerTextbox.Text, out minimalPlayers) || minimalPlayers < 0)
+                minimalPlayers = null;
+            else if (!Int32.TryParse(minimalPlayerTextbox.Text, out value) || value < 0)
             {
                 errorMessage.Text = "Wrong Input - minimal players should be int and positive.";
                 return null;
             }
+            else
+                minimalPlayers = value;
 
+            //set maximal players
             if (maximalPlayerTextbox.Text.Equals(""))
-            {
-                maximalPlayers = -1;
-            }
-            else if (!Int32.TryParse(maximalPlayerTextbox.Text, out maximalPlayers) || maximalPlayers < 0)
+                maximalPlayers = null;
+            else if (!Int32.TryParse(maximalPlayerTextbox.Text, out value) || value < 0)
             {
                 errorMessage.Text = "Wrong Input - maximal players should be int and positive.";
                 return null;
             }
+            else
+                maximalPlayers = value;
 
-            //if (spectateAllowedTextbox.Text.Equals(""))
+            //set spectator
+            spectateAllowed = Convert.ToBoolean(spectateAllowedTextbox.Text);
+
+            //set leagues
+            isLeague = Convert.ToBoolean(isLeagueTextbox.Text);
+
+            return CommClient.CreateGame(LoginWindow.user.id, gamePolicy, gameLimitPolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed, isLeague);
+         
+
+            //Preference.GameTypePolicy gamePolicy = Preference.GameTypePolicy.Undef;
+            //int limitPolicy;
+            //int buyInPolicy;
+            //int startingChips;
+            //int minimalBet;
+            //int minimalPlayers;
+            //int maximalPlayers;
+            //bool? spectateAllowed;
+            //bool? isLeague;
+
+            //if (GameTypePolicyComboBox.Text.Equals("none") || GameTypePolicyComboBox.Text.Equals(""))
             //{
-            //    spectateAllowed = true;
+            //    gamePolicy = Preference.GameTypePolicy.Undef;
             //}
             //else
             //{
-                spectateAllowed = Convert.ToBoolean(spectateAllowedTextbox.Text);
+            //    gamePolicy = (Preference.GameTypePolicy)Enum.Parse(typeof(Preference.GameTypePolicy), GameTypePolicyComboBox.Text);
             //}
 
-            //if (isLeagueTextbox.Text.Equals(""))
+            //if (gamePolicy == Preference.GameTypePolicy.Limit)
             //{
-            //    isLeague = false;
+            //    if (limitPolicyTextbox.Text.Equals("") || !Int32.TryParse(buyInTextbox.Text, out limitPolicy) || limitPolicy < 0)
+            //    {
+            //        errorMessage.Text = "Wrong Input - limit policy should be int and positive.";
+            //        return null;
+            //    }
             //}
             //else
+            //    limitPolicy = 0;
+
+            //if (buyInTextbox.Text.Equals(""))
             //{
-                isLeague = Convert.ToBoolean(spectateAllowedTextbox.Text);
+            //    buyInPolicy = -1;
+            //}
+            //else if (!Int32.TryParse(buyInTextbox.Text, out buyInPolicy) || buyInPolicy < 0)
+            //{
+            //    errorMessage.Text = "Wrong Input - buy in policy should be int and positive.";
+            //    return null;
             //}
 
-            return CommClient.CreateGame(LoginWindow.user.id, gamePolicy.ToString() , limitPolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed, isLeague);
-            //return null;
+            //if (startingChipsTextbox.Text.Equals(""))
+            //{
+            //    startingChips = -1;
+            //}
+            //else if (!Int32.TryParse(startingChipsTextbox.Text, out startingChips) || startingChips < 0)
+            //{
+            //    errorMessage.Text = "Wrong Input - starting chips should be int and positive.";
+            //    return null;
+            //}
+
+            //if (minimalBetTextbox.Text.Equals(""))
+            //{
+            //    minimalBet = -1;
+            //}
+            //else if (!Int32.TryParse(minimalBetTextbox.Text, out minimalBet) || minimalBet < 0)
+            //{
+            //    errorMessage.Text = "Wrong Input - minimal bet should be int and positive.";
+            //    return null;
+            //}
+
+            //if (minimalPlayerTextbox.Text.Equals(""))
+            //{
+            //    minimalPlayers = -1;
+            //}
+            //else if (!Int32.TryParse(minimalPlayerTextbox.Text, out minimalPlayers) || minimalPlayers < 0)
+            //{
+            //    errorMessage.Text = "Wrong Input - minimal players should be int and positive.";
+            //    return null;
+            //}
+
+            //if (maximalPlayerTextbox.Text.Equals(""))
+            //{
+            //    maximalPlayers = -1;
+            //}
+            //else if (!Int32.TryParse(maximalPlayerTextbox.Text, out maximalPlayers) || maximalPlayers < 0)
+            //{
+            //    errorMessage.Text = "Wrong Input - maximal players should be int and positive.";
+            //    return null;
+            //}
+
+            ////if (spectateAllowedTextbox.Text.Equals(""))
+            ////{
+            ////    spectateAllowed = true;
+            ////}
+            ////else
+            ////{
+            //    spectateAllowed = Convert.ToBoolean(spectateAllowedTextbox.Text);
+            ////}
+
+            ////if (isLeagueTextbox.Text.Equals(""))
+            ////{
+            ////    isLeague = false;
+            ////}
+            ////else
+            ////{
+            //    isLeague = Convert.ToBoolean(spectateAllowedTextbox.Text);
+            ////}
+
+            //return CommClient.CreateGame(LoginWindow.user.id, gamePolicy.ToString() , limitPolicy, buyInPolicy, startingChips, minimalBet, minimalPlayers, maximalPlayers, spectateAllowed, isLeague);
+            ////return null;
         }
 
         private void GameTypePolicyComboBox_Selected(object sender, RoutedEventArgs e)
         {
-            if (GameTypePolicyComboBox.Text.Equals("Limit"))
-                limitPolicyTextbox.IsEnabled = true;
-            else if (limitPolicyTextbox != null)
-                limitPolicyTextbox.IsEnabled = false;
+            if (GameTypePolicyComboBox.SelectedValue.ToString().Equals("System.Windows.Controls.ComboBoxItem: Limit"))
+
+            {
+                LimitPolicyTextbox.IsEnabled = true;
+                LimitPolicyTextbox.Text = "0";
+            }
+            else if (LimitPolicyTextbox != null)
+            {
+                LimitPolicyTextbox.IsEnabled = false;
+                LimitPolicyTextbox.Text = "0";
+            }
         }
 
         private void CleaerBtn_Click(object sender, RoutedEventArgs e)
         {
             GameTypePolicyComboBox.SelectedItem = "none";
-            limitPolicyTextbox.IsEnabled = false;
-            limitPolicyTextbox.Text = "";
+            LimitPolicyTextbox.IsEnabled = false;
+            LimitPolicyTextbox.Text = "";
             buyInTextbox.Text = "";
             startingChipsTextbox.Text = "";
             minimalBetTextbox.Text = "";

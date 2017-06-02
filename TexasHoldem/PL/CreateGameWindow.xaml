@@ -22,7 +22,7 @@
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="290">
                 <Label Content="Limit Policy (limit):" Margin="0,0,5,0" VerticalAlignment="Center" Width="110"/>
-                <TextBox Margin="10,10,10,10" x:Name="limitPolicyTextbox" IsEnabled="False" Text="" VerticalAlignment="Center" Height="30" TextWrapping="NoWrap" Width="157"/>
+                <TextBox Margin="10,10,10,10" x:Name="LimitPolicyTextbox" IsEnabled="False" Text="" VerticalAlignment="Center" Height="30" TextWrapping="NoWrap" Width="157"/>
             </StackPanel>
             
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="290">

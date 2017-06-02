@@ -546,7 +546,7 @@ namespace CLServer
             SendMessage(client, response);
         }
 
-        private static void GetPlayer(ClientInfo client, JObject jsonObject)
+        private static void GetPlayer(ClientInfo clientInfo, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
             var playerSeatIndexToken = jsonObject["playerSeatIndex"];
@@ -560,7 +560,7 @@ namespace CLServer
             var gameId = (int)gameIdToken;
             var playerSeatIndex = (int)playerSeatIndexToken;
 
-            SendMessage(client, new { response = sl.GetPlayer(gameId, playerSeatIndex) });
+            SendMessage(clientInfo, new { response = sl.GetPlayer(gameId, playerSeatIndex) });
         }
 
         private static void GetPlayerCards(ClientInfo client, JObject jsonObject)
@@ -582,7 +582,7 @@ namespace CLServer
             SendMessage(client, response);
         }
 
-        private static void GetShowOff(ClientInfo client, JObject jsonObject)
+        private static void GetShowOff(ClientInfo clientInfo, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
 
@@ -593,7 +593,7 @@ namespace CLServer
 
             var gameId = (int)gameIdToken;
 
-            SendMessage(client, new { response = sl.GetShowOff(gameId) });
+            SendMessage(clientInfo, new { response = sl.GetShowOff(gameId) });
         }
         
         #endregion
@@ -631,9 +631,10 @@ namespace CLServer
             var spectateAllowedToken    = jsonObject["spectateAllowed"];
             var isLeagueToken           = jsonObject["isLeague"];
 
-            if ((gameCreatorIdToken == null) || (gameCreatorIdToken.Type != JTokenType.Integer) ||
+
+            if ((gameCreatorIdToken == null) || (gameCreatorIdToken.Type != JTokenType.Integer) /*||
                 (gamePolicyToken == null) || (gamePolicyToken.Type != JTokenType.String) ||
-                String.IsNullOrWhiteSpace((string)(gamePolicyToken)))
+                String.IsNullOrWhiteSpace((string)(gamePolicyToken))*/)
             {
                 throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Create Game."));
             }
@@ -714,7 +715,25 @@ namespace CLServer
             return;
         }
 
-        private static void JoinActiveGame(ClientInfo clientInfo, JObject jsonObject)
+        private static void JoinGame(ClientInfo clientInfo, JObject jsonObject)
+        {
+            var userIdToken = jsonObject["userId"];
+            var gameIdToken = jsonObject["gameId"];
+            var playerSeatIndexToken = jsonObject["playerSeatIndex"];
+            
+            if ((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer) ||
+                (userIdToken == null) || (userIdToken.Type != JTokenType.Integer) ||
+                (playerSeatIndexToken == null) || (playerSeatIndexToken.Type != JTokenType.Integer))
+            {
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Join Active Game"));
+            }
+
+            var joinGameResponse = sl.joinGame((int)userIdToken, (int)gameIdToken, (int) playerSeatIndexToken);
+            
+            SendMessage(clientInfo, joinGameResponse);
+        }
+
+        private static void GetGameForPlayers(ClientInfo clientInfo, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
             var userIdToken = jsonObject["userId"];
@@ -722,12 +741,13 @@ namespace CLServer
             if ((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer) ||
                 (userIdToken == null) || (userIdToken.Type != JTokenType.Integer))
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Join Active Game"));
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at get Game for player"));
             }
-
-            var joinActiveGameResponse = sl.joinActiveGame((int)userIdToken, (int)gameIdToken);
             
-            SendMessage(clientInfo, joinActiveGameResponse);
+            var getGameForPlayersResponse = sl.GetGameForPlayers((int)userIdToken, (int)gameIdToken);
+            if (sl != null)
+                sl.Subscribe(new ServerObserver((TcpClient)clientInfo.client), (int)gameIdToken);
+            SendMessage(clientInfo, getGameForPlayersResponse);
             return;
         }
 
