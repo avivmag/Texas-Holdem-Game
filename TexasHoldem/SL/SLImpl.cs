@@ -198,10 +198,10 @@ public class SLImpl : SLInterface
         return gameCenter.getUserByName(name);
     }
 
-    public object getUserById(int userId)
-    {
-        return gameCenter.getUserById(userId);
-    }
+    //public object getUserById(int userId)
+    //{
+    //    return gameCenter.getUserById(userId);
+    //}
 
     public object getGameById(int gameId)
     {

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Configuration;
-
+using Backend.User;
 
 namespace Database 
 {
@@ -36,6 +36,48 @@ namespace Database
             return systemUserTable;
         }
 
+        public bool isUserExist(string name)
+        {
+            DataTable table = new DataTable();
+            connection = new SqlConnection(connectionString);
+            string queryMessage = "SELECT Id FROM SystemUsers" +
+                                    "WHERE UserName = @name LIMIT 1";
+            SqlCommand command = new SqlCommand(queryMessage, connection);
+            adapter = new SqlDataAdapter(command);
+
+            using (connection)
+            using (command)
+            using (adapter)
+            {
+                //connection.open();
+                command.Parameters.AddWithValue("@name", name);
+                //command.ExecuteNonQuery();
+                adapter.Fill(table);
+                return table.Columns.Count > 0;
+            }
+        }
+
+        //TODO: Aviv - continue this after checking other stuff
+        public void RegisterUser(int Id, string UserName, string password, string email, string image)
+        {
+            
+            string queryUpdate = "INSERT INTO SystemUsers (Id,UserName,password,email,image,money,salt) " +
+                                    "VALUES (@Id,@UserName,@password,@email,@image,@money,@salt)";
+
+            connection = new SqlConnection(connectionString);
+            SqlCommand command = new SqlCommand(queryUpdate, connection);
+            using (connection)
+            using (command)
+            {
+                connection.Open();
+
+                //command.Parameters.AddWithValue("@userID", userID);
+                //command.Parameters.AddWithValue("@UserName", userName);
+
+                command.ExecuteScalar();
+            }
+
+        }
 
         public void editUserName(int userID, string userName)
         {
@@ -78,8 +120,6 @@ namespace Database
             }
             //I think it should all presented in messageBox.Show
             return ans;
-
-
         }
 
 

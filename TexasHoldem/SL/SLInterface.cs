@@ -30,8 +30,8 @@ namespace SL
 		object Register(string user, string password, string email, string userImage);
 		object Logout(int userId);
 
-        object getUserByName(string name);
-        object getUserById(int userId);
+        //object getUserByName(string name);
+        //object getUserById(int userId);
         object getGameById(int gameId);
         //void replayGame(int gameId);
         //ReturnMessage addLeague(int minRank, int maxRank, string name);

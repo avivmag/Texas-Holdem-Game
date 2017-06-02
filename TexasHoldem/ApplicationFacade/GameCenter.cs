@@ -4,7 +4,6 @@ using Backend;
 using Backend.Game;
 using Backend.Game.DecoratorPreferences;
 using Backend.User;
-using DAL;
 using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
 
 namespace ApplicationFacade
@@ -26,7 +25,6 @@ namespace ApplicationFacade
             leagues = new List<League>();
             userList = new List<SystemUser>();
             loggedInUsers = new List<SystemUser>();
-            //loggedInUsers = dal.getAllUsers();
 
         }
 
@@ -139,18 +137,7 @@ namespace ApplicationFacade
             user = new SystemUser(userName, password, email, userImage, 0);
             //after a registeration the user stay login
             loggedInUsers.Add(user);
-
-            ////adding the user to the db.
-            //var response = dal.registerUser(user);
-            //if (response.success)
-            //{
-            //    return user;
-            //}
-            //else
-            //{
-            //    
-            //}
-
+            
             foreach (SystemUser systemUser in userList)
                 if (systemUser.name.Equals(user.name))
                     throw new InvalidOperationException("This user name is already taken.");

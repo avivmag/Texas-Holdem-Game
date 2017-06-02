@@ -274,6 +274,10 @@ namespace Backend.Game
         // TODO: Gili, I've added the seat index as we've decided. 
         public ReturnMessage joinGame(SystemUser user, int seatIndex)
         {
+            ReturnMessage m = gamePreferences.canPerformUserActions(this, user, "join");
+            if (!m.success)
+                return m;
+
             if (players[seatIndex] != null)
                 return new ReturnMessage(false, "seat is taken");
 
