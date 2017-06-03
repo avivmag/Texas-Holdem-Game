@@ -278,6 +278,8 @@ namespace Backend.Game
             if (!m.success)
                 return m;
 
+            if(seatIndex > players.Length)
+                return new ReturnMessage(false, "cannot seat here");
             if (players[seatIndex] != null)
                 return new ReturnMessage(false, "seat is taken");
 

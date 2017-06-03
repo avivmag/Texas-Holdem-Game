@@ -2,12 +2,13 @@
 using SL;
 using Backend.Game;
 using System.Collections.Generic;
-using DAL;
+//using DAL;
 using Backend.User;
 using Moq;
 using Backend.Game.DecoratorPreferences;
 using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
 using ApplicationFacade;
+using Database;
 
 namespace TestProject
 {
@@ -15,32 +16,57 @@ namespace TestProject
     public class FilterActiveGamesTest
     {
         SLInterface sl;
+        private IDB db;
         GameCenter center;
+        [TestCleanup]
+        public void Cleanup()
+        {
+            for (int i = 0; i < 4; i++)
+                db.deleteUser(db.getUserByName("test" + i).id);
+
+            center.shutDown();
+        }
+
         [TestInitialize]
         public void SetUp()
         {
+            db = new DBImpl();
+            for (int i = 0; i < 4; i++)
+            {
+                db.RegisterUser("test" + i, "" + i, "email" + i, "userImage" + i);
+            }
+            db.EditUserById(db.getUserByName("test0").id, null, null, null, null, 1000, 10);
+            db.EditUserById(db.getUserByName("test1").id, null, null, null, null, 0, 15);
+            db.EditUserById(db.getUserByName("test2").id, null, null, null, null, 700, 20);
+            db.EditUserById(db.getUserByName("test3").id, null, null, null, null, 1500, 25);
+
+
             var userList = new List<SystemUser>
             {
-                new SystemUser("Hadas", "Aa123456", "email0", "image0", 1000),
-                new SystemUser("Gili", "123123", "email1", "image1", 0),
-                new SystemUser("Or", "111111", "email2", "image2", 700),
-                new SystemUser("Aviv", "Aa123456", "email3", "image3", 1500)
+                db.getUserByName("test0"),
+                db.getUserByName("test1"),
+                db.getUserByName("test2"),
+                db.getUserByName("test3")
+                //new SystemUser("Hadas", "email0", "image0", 1000),
+                //new SystemUser("Gili", "email1", "image1", 0),
+                //new SystemUser("Or", "email2", "image2", 700),
+                //new SystemUser("Aviv", "email3", "image3", 1500)
             };
 
             center = GameCenter.getGameCenter();
 
-            //set users ranks.
-            userList[0].rank = 10;
-            userList[1].rank = 15;
-            userList[2].rank = 20;
-            userList[3].rank = 25;
+            ////set users ranks.
+            //userList[0].rank = 10;
+            //userList[1].rank = 15;
+            //userList[2].rank = 20;
+            //userList[3].rank = 25;
 
-            for (int i = 0; i < 4; i++)
-            {
-                userList[i].id = i;
-                center.loggedInUsers.Add(userList[i]);
-                //center.login(userList[i].name, userList[i].password);
-            }
+            //for (int i = 0; i < 4; i++)
+            //{
+            //    userList[i].id = i;
+            //    center.loggedInUsers.Add(userList[i]);
+            //    //center.login(userList[i].name, userList[i].password);
+            //}
 
             //set the leagues
             center.maintainLeagues(userList);
@@ -102,10 +128,10 @@ namespace TestProject
                 center.texasHoldemGames.Add(gamesList[i]);
             }
 
-            Mock<DALInterface> dalMock = new Mock<DALInterface>();
-            dalMock.Setup(x => x.getAllGames()).Returns(gamesList);
-            dalMock.Setup(x => x.getUserById(It.IsAny<int>())).Returns((int i) => userList[i]);
-            dalMock.Setup(x => x.getGameById(It.IsAny<int>())).Returns((int i) => gamesList[i]);
+            //Mock<DALInterface> dalMock = new Mock<DALInterface>();
+            //dalMock.Setup(x => x.getAllGames()).Returns(gamesList);
+            //dalMock.Setup(x => x.getUserById(It.IsAny<int>())).Returns((int i) => userList[i]);
+            //dalMock.Setup(x => x.getGameById(It.IsAny<int>())).Returns((int i) => gamesList[i]);
             sl = new SLImpl();
         }
 
@@ -130,7 +156,7 @@ namespace TestProject
         [TestMethod]
         public void filterActiveGamesByPotSizeTest()
         {
-            var user2 = center.getUserById(0);
+            var user2 = db.getUserById(db.getUserByName("test0").id);
             sl.GetGameForPlayers(user2.id, 3);
 
             sl.GetGameForPlayers(user2.id, 0);
@@ -141,7 +167,7 @@ namespace TestProject
         [TestMethod]
         public void filterActiveGamesByPotSizeFailsTest()
         {
-            var user2 = center.getUserById(0);
+            var user2 = db.getUserById(db.getUserByName("test0").id);
             sl.GetGameForPlayers(user2.id, 3);
 
             sl.GetGameForPlayers(user2.id, 0);
@@ -229,12 +255,6 @@ namespace TestProject
             //GamePreferences pref = new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 1000000, 500, 20, 2, 2, false);
 
             Assert.AreEqual(center.filterActiveGamesByGamePreferences(mustPref).Count, 0);
-        }
-
-        [TestCleanup]
-        public void TearDown()
-        {
-            center.shutDown();
         }
     }
 }

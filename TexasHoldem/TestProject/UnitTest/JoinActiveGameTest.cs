@@ -3,13 +3,14 @@ using SL;
 using Backend.User;
 using System.Collections.Generic;
 using Moq;
-using DAL;
+//using DAL;
 using Backend.Game;
 using ApplicationFacade;
 using Backend.Game.DecoratorPreferences;
 using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
 using Backend;
 using System;
+using Database;
 
 namespace TestProject
 {
@@ -17,19 +18,45 @@ namespace TestProject
     public class JoinActiveGameTest
     {
         private SLInterface sl;
+        private IDB db;
         private GameCenter center = GameCenter.getGameCenter();
+        [TestCleanup]
+        public void Cleanup()
+        {
+            for (int i = 0; i < 4; i++)
+                db.deleteUser(db.getUserByName("test" + i).id);
+
+            center.shutDown();
+        }
+
         [TestInitialize]
         public void SetUp()
         {
+            db = new DBImpl();
+            for (int i = 0; i < 4; i++)
+            {
+                db.RegisterUser("test" + i, "" + i, "email" + i, "userImage" + i);
+            }
+            db.EditUserById(db.getUserByName("test0").id, null, null, null, null, 1000, 10);
+            db.EditUserById(db.getUserByName("test1").id, null, null, null, null, 0, 15);
+            db.EditUserById(db.getUserByName("test2").id, null, null, null, null, 700, 20);
+            db.EditUserById(db.getUserByName("test3").id, null, null, null, null, 1500, 25);
+
 
             var userList = new List<SystemUser>
             {
-                new SystemUser("Hadas", "Aa123456", "email0", "image0", 1000),
-                new SystemUser("Gili", "123123", "email1", "image1", 0),
-                new SystemUser("Or", "111111", "email2", "image2", 700),
-                new SystemUser("Aviv", "Aa123456", "email3", "image3", 1500)
+                db.getUserByName("test0"),
+                db.getUserByName("test1"),
+                db.getUserByName("test2"),
+                db.getUserByName("test3")
+                //new SystemUser("Hadas", "email0", "image0", 1000),
+                //new SystemUser("Gili", "email1", "image1", 0),
+                //new SystemUser("Or", "email2", "image2", 700),
+                //new SystemUser("Aviv", "email3", "image3", 1500)
             };
 
+            center = GameCenter.getGameCenter();
+            
             //set users ranks.
             int j = 10;
             for (int i = 0; i < 4; i++)
@@ -38,7 +65,7 @@ namespace TestProject
                 userList[i].newPlayer = false;
                 j += 5;
                 userList[i].id = i;
-                center.loggedInUsers.Add(userList[i]);
+                //center.loggedInUsers.Add(userList[i]);
                 //center.login(userList[i].name, userList[i].password);
             }
 
@@ -100,18 +127,18 @@ namespace TestProject
                 center.texasHoldemGames.Add(gamesList[i]);
             }
 
-            Mock<DALInterface> dalMock = new Mock<DALInterface>();
-            dalMock.Setup(x => x.getAllUsers()).Returns(userList);
-            dalMock.Setup(x => x.getUserById(It.IsAny<int>())).Returns((int i) => userList[i]);
-            dalMock.Setup(x => x.getGameById(It.IsAny<int>())).Returns((int i) => gamesList.Find(g => (g.gameId == i)));
-            dalMock.Setup(x => x.getAllGames()).Returns(gamesList);
+            //Mock<DALInterface> dalMock = new Mock<DALInterface>();
+            //dalMock.Setup(x => x.getAllUsers()).Returns(userList);
+            //dalMock.Setup(x => x.getUserById(It.IsAny<int>())).Returns((int i) => userList[i]);
+            //dalMock.Setup(x => x.getGameById(It.IsAny<int>())).Returns((int i) => gamesList.Find(g => (g.gameId == i)));
+            //dalMock.Setup(x => x.getAllGames()).Returns(gamesList);
             sl = new SLImpl();
         }
 
         [TestMethod]
         public void joinSuccessTest()
         {
-            object m = sl.GetGameForPlayers(0, 4);
+            object m = sl.GetGameForPlayers(db.getUserByName("test0").id, 4);
 
             Assert.IsInstanceOfType(m, typeof(TexasHoldemGame));
 
@@ -121,7 +148,7 @@ namespace TestProject
         [TestMethod]
         public void joinSuccessLeagueGameTest()
         {
-            object m = sl.GetGameForPlayers(2, 7);
+            object m = sl.GetGameForPlayers(db.getUserByName("test2").id, 7);
 
             Assert.IsInstanceOfType(m, typeof(TexasHoldemGame));
 
@@ -131,9 +158,9 @@ namespace TestProject
         [TestMethod]
         public void joinFailsLeagueGameTest()
         {
-            object m = sl.GetGameForPlayers(0, 7);
-
-            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
+            sl.GetGameForPlayers(db.getUserByName("test0").id, 7);
+            object m = sl.joinGame(db.getUserByName("test0").id, 7, 0);
+            //Assert.IsInstanceOfType(m, typeof(TexasHoldemGame));
 
             Assert.AreEqual(m, null);
         }
@@ -141,11 +168,12 @@ namespace TestProject
         [TestMethod]
         public void joinFailesNoSeatsTest()
         {
-            sl.GetGameForPlayers(2, 3);
-
-            sl.GetGameForPlayers(3, 3);
-
-            object m = sl.GetGameForPlayers(0, 3);
+            sl.GetGameForPlayers(db.getUserByName("test2").id, 3);
+            sl.joinGame(db.getUserByName("test2").id, 3, 0);
+            sl.GetGameForPlayers(db.getUserByName("test3").id, 3);
+            sl.joinGame(db.getUserByName("test3").id, 3, 1);
+            sl.GetGameForPlayers(db.getUserByName("test0").id, 3);
+            object m = sl.joinGame(db.getUserByName("test0").id, 3, 0);
 
             Assert.AreEqual(m,null);
         }
@@ -153,7 +181,7 @@ namespace TestProject
         [TestMethod]
         public void joinFailesNoMoneyTest()
         {
-            object m = sl.GetGameForPlayers(1, 1);
+            object m = sl.GetGameForPlayers(db.getUserByName("test1").id, 1);
 
             Assert.AreEqual(m, null);
         }
@@ -161,9 +189,9 @@ namespace TestProject
         [TestMethod]
         public void joinFailsAlreadyPlayTest()
         {
-            sl.GetGameForPlayers(0, 3);
+            sl.GetGameForPlayers(db.getUserByName("test0").id, 3);
 
-            object m = sl.GetGameForPlayers(0, 3);
+            object m = sl.joinGame(db.getUserByName("test0").id, 3, 0);
 
             Assert.AreEqual(m, null);
         }
@@ -171,9 +199,9 @@ namespace TestProject
         [TestMethod]
         public void joinFailsAlreadySpectatingTest()
         {
-            sl.spectateActiveGame(0, 2);
+            sl.spectateActiveGame(db.getUserByName("test0").id, 2);
 
-            object m = sl.GetGameForPlayers(0, 2);
+            object m = sl.GetGameForPlayers(db.getUserByName("test0").id, 2);
 
             Assert.AreEqual(m,null);
         }
@@ -181,7 +209,7 @@ namespace TestProject
         [TestMethod]
         public void joinFailsGameNoExistsTest()
         {
-            object m = sl.GetGameForPlayers(0, 1000);
+            object m = sl.GetGameForPlayers(db.getUserByName("test0").id, 1000);
 
             Assert.AreEqual(m, null);
         }
@@ -189,15 +217,9 @@ namespace TestProject
         [TestMethod]
         public void joinFailsUserDontExistsTest()
         {
-            object m = sl.GetGameForPlayers(70, 1000);
+            object m = sl.GetGameForPlayers(700000, 1000);
 
             Assert.AreEqual(m, null);
-        }
-
-        [TestCleanup]
-        public void TearDown()
-        {
-            center.shutDown();
         }
     }
 }

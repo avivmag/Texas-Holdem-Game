@@ -487,7 +487,7 @@ namespace CLClient
 
         public static bool? editUserProfile(int userId, string name, string password, string email, string avatar, int amount)
         {
-            var message = new { action = "EditUserProfile", userId, name, password, email, avatar, amount };
+            var message = new { action = "EditUserProfile", userId, name, password, email, avatar, amount};
             var jsonMessage = sendMessage(message);
             var responseJson = getResponse(jsonMessage);
 
