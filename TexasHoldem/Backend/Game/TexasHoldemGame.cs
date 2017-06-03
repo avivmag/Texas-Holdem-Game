@@ -44,6 +44,9 @@ namespace Backend.Game
         //public GameObserver spectateChatObserver;
         //public GameObserver gameStatesObserver;
 
+        private LeaderboardsStats[] playersStats;
+
+
         // TODO: Gili - notice Gil decorator pattern and Aviv player.TokensInBet - you should use them in your logic
         static int currentId;
         static int getNextId()
@@ -67,6 +70,7 @@ namespace Backend.Game
             if (maxPlayersDec != null)
                 maxPlayers = maxPlayersDec.maxPlayers;
             players = new Player[maxPlayers];
+            playersStats = new LeaderboardsStats[maxPlayers];
             availableSeats = maxPlayers - 1;
 
 
@@ -87,122 +91,10 @@ namespace Backend.Game
                 players[i] = null;
             }
 
-            //flop = new List<Card>();
-            //flop.Add(new Card(Card.cardType.club, 5));
-            //flop.Add(new Card(Card.cardType.diamond, 6));
-            //flop.Add(new Card(Card.cardType.heart, 7));
-
             isGameActive = false;
-
-            //playersChatObserver = new GameObserver(GameObserver.ObserverType.PlayersChat);
-            //spectateChatObserver = new GameObserver(GameObserver.ObserverType.SpectateChat);
-            //gameStatesObserver = new GameObserver(GameObserver.ObserverType.GameStates);
 
             currentDealer = 0;
         }
-
-        //public object Subscribe(object client)
-        //{
-        //    go.Subscribe(client);
-        //}
-
-        //public TexasHoldemGame(SystemUser user, GamePreferences gamePreferences)
-        //{
-        //    this.gameCreatorUserId = user.id;
-        //    this.GamePreferences = gamePreferences;
-        //    pot = 0;
-        //    active = true;
-        //    deck = new Deck();
-        //    spectators = new List<SystemUser>();
-
-        //    players = new Player[GamePreferences.MaxPlayers];
-        //    availableSeats = GamePreferences.MaxPlayers - 1;
-
-        //    // TODO: remove when the db is created.
-        //    Random rnd = new Random();
-        //    this.gameId = rnd.Next(0, 999999);
-        //    GameLog.setLog(gameId, DateTime.Now);
-        //    GameLog.logLine(gameId, GameLog.Actions.Game_Start, DateTime.Now.ToString());
-        //    var m = joinGame(user);
-        //    for (int i = 1; i < GamePreferences.MaxPlayers; i++)
-        //    {
-        //        players[i] = null;
-        //    }
-
-        //    flop = new List<Card>();
-
-        //    currentDealer = 0;
-        //}
-
-        //public void removeUser(SystemUser user)
-        //{
-        //    for (int i=0; i<players.Length; i++)
-        //    {
-        //        if (players[i].systemUserID == user.id)
-        //        {
-        //            // updates the money and rank of the user.
-        //            user.money += players[i].Tokens;
-        //            user.updateRank(players[i].Tokens - gamePreferences.BuyInPolicy);
-        //            players[i] = null;
-        //            return;
-        //        }
-        //    }
-        //    foreach(SystemUser u in spectators)
-        //    {
-        //        if (u.id == user.id)
-        //        {
-        //            spectators.Remove(u);
-        //            u.spectatingGame.Remove(this);
-        //        }
-        //    }
-        //}
-
-        //public ReturnMessage joinGame(SystemUser user)
-        //{
-        //    ReturnMessage m = gamePreferences.canPerformUserActions(this, user, "join");
-        //    if (!m.success)
-        //        return m;
-
-        //    //check the user money
-        //    //if (user.money < gamePreferences.BuyInPolicy)
-        //    //    return new ReturnMessage(false, "Could not join the game because the user dont have enough money to join.");
-
-        //    //check if there are available seats.
-        //    //if (AvailableSeats == 0)
-        //    //    return new ReturnMessage(false, "There are no available seats.");
-
-
-        //    Player p = new Player(user.id, gamePreferences.BuyInPolicy, user.rank);
-
-        //    //check that the player stands in the league ranks.
-        //    //if (GamePreferences.isLeague && (p.userRank < GamePreferences.MinRank || p.userRank > GamePreferences.MaxRank))
-        //    //    return new ReturnMessage(false, "The rank of the user is not standing in the league game policy.");
-
-        //    //check that the player is not already in the game
-        //    for (int i = 0; i < players.Length; i++)
-        //    {
-        //        if (players[i] != null && players[i].systemUserID == user.id)
-        //            return new ReturnMessage(false, "The player is already taking part in the wanted game.");
-        //    }
-
-        //    //check that the player is not spectating
-        //    foreach (SystemUser u in spectators)
-        //        if (u.id == user.id)
-        //            return new ReturnMessage(false, "Couldn't join the game because the user is already spectating the game.");
-
-        //    //seats the player in the first available seat
-        //    for (int i = 0; i < players.Length; i++)
-        //    {
-        //        if (players[i] == null)
-        //        {
-        //            players[i] = p;
-        //            GameLog.logLine(gameId, GameLog.Actions.Player_Join, user.id.ToString());
-        //            break;
-        //        }
-        //    }
-
-        //    return new ReturnMessage(true, "");
-        //}
 
         public ReturnMessage removeUser(SystemUser user)
         {
@@ -275,6 +167,9 @@ namespace Backend.Game
 
             Player p = new Player(user.id, user.name, startingChips, user.rank);
             players[seatIndex] = p;
+
+            playersStats[seatIndex] = new LeaderboardsStats();
+
             GameLog.logLine(gameId, GameLog.Actions.Player_Join, user.id.ToString());
 
             //playersChatObserver.Subscribe(p);
@@ -358,7 +253,10 @@ namespace Backend.Game
             for (int i = 0; i < players.Length; i++)
             {
                 if (players[i] != null)
+                {
                     players[i].playerState = Player.PlayerState.in_round;
+                    playersStats[i].numberOfGamesPlayed++;
+                }
             }
         }
 
@@ -378,6 +276,13 @@ namespace Backend.Game
             }
 
             players[winnerIndex].playerState = PlayerState.winner;
+            players[winnerIndex].Tokens += pot;
+            playersStats[winnerIndex].totalGrossProfit += pot;
+            if (playersStats[winnerIndex].highetsCashInAGame < players[winnerIndex].Tokens)
+                playersStats[winnerIndex].highetsCashInAGame = players[winnerIndex].Tokens;
+
+            //UPDATE DATABASE
+            
             gameStatesObserver.Update(this);
         }
 
