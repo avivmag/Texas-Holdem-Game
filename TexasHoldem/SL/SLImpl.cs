@@ -281,7 +281,19 @@ public class SLImpl : SLInterface
 
     #endregion
 
-    public void Subscribe(ObserverAbstract<TcpClient> client, int gameID)
+    public void SubscribeToGameState(ObserverAbstract<TcpClient> client, int gameID)
+    {
+        TexasHoldemGame game = gameCenter.getGameById(gameID);
+        game.gameStatesObserver.Subscribe(client);
+    }
+
+    public void SubscribeToGameChatPlayers(ObserverAbstract<TcpClient> client, int gameID)
+    {
+        TexasHoldemGame game = gameCenter.getGameById(gameID);
+        game.gameStatesObserver.Subscribe(client);
+    }
+    
+    public void SubscribeToGameChatSpectators(ObserverAbstract<TcpClient> client, int gameID)
     {
         TexasHoldemGame game = gameCenter.getGameById(gameID);
         game.gameStatesObserver.Subscribe(client);

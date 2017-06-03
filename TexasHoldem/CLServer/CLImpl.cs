@@ -744,7 +744,7 @@ namespace CLServer
             
             var getGameForPlayersResponse = sl.GetGameForPlayers((int)userIdToken, (int)gameIdToken);
             if (sl != null)
-                sl.Subscribe(new ServerObserver((TcpClient)clientInfo.client), (int)gameIdToken);
+                sl.SubscribeToGameState(new ServerObserver((TcpClient)clientInfo.client), (int)gameIdToken);
             SendMessage(clientInfo, getGameForPlayersResponse);
             return;
         }
@@ -762,7 +762,7 @@ namespace CLServer
 
             var spectateActiveGameResponse = sl.spectateActiveGame((int)userIdToken, (int)gameIdToken);
             if (sl != null)
-                sl.Subscribe(new ServerObserver((TcpClient)clientInfo.client), (int)gameIdToken);
+                sl.SubscribeToGameState(new ServerObserver((TcpClient)clientInfo.client), (int)gameIdToken);
             SendMessage(clientInfo, spectateActiveGameResponse);
             return;
         }
@@ -908,7 +908,7 @@ namespace CLServer
             if (sl.getGameById(optional) != null)
             {
                 // Subscribe this channel to game.
-                sl.Subscribe(new ServerObserver((TcpClient)clientInfo.client), (int)optionalToken);
+                sl.SubscribeToGameState(new ServerObserver((TcpClient)clientInfo.client), (int)optionalToken);
             }
         }
 

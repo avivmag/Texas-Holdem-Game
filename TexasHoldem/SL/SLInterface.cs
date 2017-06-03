@@ -52,7 +52,9 @@ namespace SL
         object GetPlayer(int gameId, int playerIndex);
         object GetPlayerCards(int gameId, int playerIndex);
         object GetShowOff(int gameId);
-        void Subscribe(ObserverAbstract<TcpClient> client, int gameID);
+        void SubscribeToGameState(ObserverAbstract<TcpClient> client, int gameID);
+        void SubscribeToGameChatPlayers(ObserverAbstract<TcpClient> client, int gameID);
+        void SubscribeToGameChatSpectators(ObserverAbstract<TcpClient> client, int gameID);
         #endregion
 
 

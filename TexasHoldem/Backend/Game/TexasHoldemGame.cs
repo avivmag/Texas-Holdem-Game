@@ -236,20 +236,6 @@ namespace Backend.Game
             //return new ReturnMessage(false, "");
         }
 
-        ///////////////  UNUSED ///////////////
-        //private void removePlayer(SystemUser user,Player p)
-        //{
-        //    if (user.isNewPlayer())
-        //    {
-        //        if (user.tempRank - rankToChange > 0)
-        //        {
-        //        }
-        //        user.setTempGames();
-        //    }
-        //    if (user.rank + rankToChange > 0)
-        //    {
-        //    }
-        //}
         public ReturnMessage getGameForPlayer(SystemUser user)
         {
             ReturnMessage m = gamePreferences.canPerformUserActions(this, user, "join");
@@ -301,44 +287,6 @@ namespace Backend.Game
             gameStatesObserver.Update(this);
             return new ReturnMessage(true, "");
         }
-
-        //public int AvailableSeats
-        //{
-        //    get
-        //    {
-        //        int ans = 0;
-        //        for (int i = 0; i < players.Length; i++)
-        //        {
-        //            if (players[i] == null)
-        //                ans++;
-        //        }
-        //        return ans;
-        //    }
-        //}
-
-        //public ReturnMessage joinSpectate(SystemUser user)
-        //{
-        //    //check that the game aloow to spectate
-        //    if (!gamePreferences.IsSpectatingAllowed.Value)
-        //        return new ReturnMessage(false, "Couldn't spectate the game because the game preferences is not alowing.");
-
-        //    //check that the user is not playing
-        //    foreach (Player p in players)
-        //        if (p != null)
-        //        {
-        //            if (p.systemUserID == user.id)
-        //                return new ReturnMessage(false, "Couldn't spectate the game because the user is already playing the game.");
-        //        }
-
-        //    //check that the user is not spectating
-        //    foreach (SystemUser spectateUser in spectators)
-        //        if (spectateUser.id == user.id)
-        //            return new ReturnMessage(false, "Couldn't spectate the game because the user is already spectating the game.");
-
-        //    spectators.Add(user);
-        //    GameLog.logLine(gameId, GameLog.Actions.Spectate_Join, user.id.ToString());
-        //    return new ReturnMessage(true,"");
-        //}
 
         public ReturnMessage joinSpectate(SystemUser user)
         {
@@ -512,21 +460,7 @@ namespace Backend.Game
             }
         }
 
-        //public int setSmallBlind()
-        //{
-        //    int i = currentDealer;
-        //    int j = (currentDealer + 1) % maxPlayers;
-        //    while (i != j)
-        //    {
-        //        if (players[j] != null && players[j].playerState == Player.PlayerState.in_round)
-        //        {
-        //            GameLog.logLine(gameId, GameLog.Actions.Small_Blind, players[j].systemUserID.ToString());
-        //            return j;
-        //        }
-        //        j = (j + 1) % maxPlayers;
-        //    }
-        //    return -1;
-        //}
+
         public int getNextPlayer(int current)
         {
             int i = (current + 1) % maxPlayers;
@@ -541,30 +475,6 @@ namespace Backend.Game
             }
             throw new ArgumentException("cannot locate next player");
         }
-
-        //public int setBigBlind()
-        //{
-        //    int i = currentSmall;
-        //    int j = (currentSmall + 1) % maxPlayers;
-        //    while (i != j)
-        //    {
-        //        if (players[j] != null && players[j].playerState == Player.PlayerState.in_round)
-        //            break;
-        //        j = (j + 1) % maxPlayers;
-        //    }
-
-        //    j = (j + 1) % maxPlayers;
-        //    while (i != j)
-        //    {
-        //        if (players[j] != null && players[j].playerState == Player.PlayerState.in_round)
-        //        {
-        //            GameLog.logLine(gameId, GameLog.Actions.Big_Blind, players[j].systemUserID.ToString());
-        //            return j;
-        //        }
-        //        j = (j + 1) % maxPlayers;
-        //    }
-        //    return -1;
-        //}
 
         public void betBlinds()
         {
