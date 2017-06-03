@@ -590,6 +590,8 @@ namespace Database {
             
             private global::System.Data.DataColumn columnmoney;
             
+            private global::System.Data.DataColumn columnsalt;
+            
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public SystemUsersDataTable() {
@@ -673,6 +675,14 @@ namespace Database {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public global::System.Data.DataColumn saltColumn {
+                get {
+                    return this.columnsalt;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             [global::System.ComponentModel.Browsable(false)]
             public int Count {
                 get {
@@ -708,7 +718,7 @@ namespace Database {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public SystemUsersRow AddSystemUsersRow(int Id, string UserName, string password, string email, byte[] image, int money) {
+            public SystemUsersRow AddSystemUsersRow(int Id, string UserName, string password, string email, byte[] image, int money, string salt) {
                 SystemUsersRow rowSystemUsersRow = ((SystemUsersRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         Id,
@@ -716,7 +726,8 @@ namespace Database {
                         password,
                         email,
                         image,
-                        money};
+                        money,
+                        salt};
                 rowSystemUsersRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowSystemUsersRow);
                 return rowSystemUsersRow;
@@ -752,6 +763,7 @@ namespace Database {
                 this.columnemail = base.Columns["email"];
                 this.columnimage = base.Columns["image"];
                 this.columnmoney = base.Columns["money"];
+                this.columnsalt = base.Columns["salt"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -769,13 +781,16 @@ namespace Database {
                 base.Columns.Add(this.columnimage);
                 this.columnmoney = new global::System.Data.DataColumn("money", typeof(int), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnmoney);
+                this.columnsalt = new global::System.Data.DataColumn("salt", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnsalt);
                 this.Constraints.Add(new global::System.Data.UniqueConstraint("Constraint1", new global::System.Data.DataColumn[] {
                                 this.columnId}, true));
                 this.columnId.AllowDBNull = false;
                 this.columnId.Unique = true;
                 this.columnUserName.MaxLength = 10;
-                this.columnpassword.MaxLength = 10;
+                this.columnpassword.MaxLength = 32;
                 this.columnemail.MaxLength = 50;
+                this.columnsalt.MaxLength = 32;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1063,6 +1078,22 @@ namespace Database {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public string salt {
+                get {
+                    try {
+                        return ((string)(this[this.tableSystemUsers.saltColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'salt\' in table \'SystemUsers\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableSystemUsers.saltColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public bool IsUserNameNull() {
                 return this.IsNull(this.tableSystemUsers.UserNameColumn);
             }
@@ -1119,6 +1150,18 @@ namespace Database {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public void SetmoneyNull() {
                 this[this.tableSystemUsers.moneyColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public bool IssaltNull() {
+                return this.IsNull(this.tableSystemUsers.saltColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public void SetsaltNull() {
+                this[this.tableSystemUsers.saltColumn] = global::System.Convert.DBNull;
             }
         }
         

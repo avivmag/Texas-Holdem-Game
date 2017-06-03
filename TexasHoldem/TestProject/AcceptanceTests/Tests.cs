@@ -14,8 +14,7 @@ namespace TestProject
         SystemUser hadas;
         SystemUser other;
         TexasHoldemGame game;
-
-
+        
         [TestInitialize]
         public void SetUp()
         {

@@ -99,9 +99,9 @@
       <Project>{b66a3c92-bd02-44a2-a020-cf49be0f79ac}</Project>
       <Name>CLClient</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DAL\DAL.csproj">
-      <Project>{C338435B-70E3-40BB-93B7-A8CC89F73744}</Project>
-      <Name>DAL</Name>
+    <ProjectReference Include="..\Database\Database.csproj">
+      <Project>{f62d010b-41a2-4a9f-9583-b7157fdfda21}</Project>
+      <Name>Database</Name>
     </ProjectReference>
     <ProjectReference Include="..\SL\SL.csproj">
       <Project>{009cacb2-4448-4d7d-932c-5e73790c9139}</Project>

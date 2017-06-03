@@ -25,28 +25,57 @@ namespace Backend.User
             return ++currentId;
         }
 
-        public SystemUser(String name, String password, String email, String userImage, int money)
+        //public SystemUser(String name, String password, String email, String userImage, int money)
+        //{
+        //    this.name = name;
+        //    this.password = password;
+        //    this.email = email;
+        //    this.userImage = userImage;
+        //    this.money = money;
+        //    spectatingGame = new List<TexasHoldemGame> { };
+        //    rank = -1;
+
+        //    tempRank = 0;
+        //    tempGames = 0;
+        //    newPlayer = true;
+
+        //    // NO MORE FUCKING RANDOM!!!
+        //    // IT RUINES MY LIFE EVERY TIME!!!!!!
+        //    //Random rnd = new Random();
+        //    //this.id = rnd.Next(0, 999999);
+        //    //this.id = SystemUser.getNextId();
+        //}
+
+        public SystemUser(int id, String name, String email, String userImage, int money, int rank)
         {
+            this.id = id;
             this.name = name;
-            this.password = password;
             this.email = email;
             this.userImage = userImage;
             this.money = money;
+            this.rank = rank;
             spectatingGame = new List<TexasHoldemGame> { };
-            rank = -1;
-
+            
             tempRank = 0;
             tempGames = 0;
             newPlayer = true;
-
-            // NO MORE FUCKING RANDOM!!!
-            // IT RUINES MY LIFE EVERY TIME!!!!!!
-            //Random rnd = new Random();
-            //this.id = rnd.Next(0, 999999);
-            this.id = SystemUser.getNextId();
         }
 
-		public void update(String str)
+        public SystemUser(String name, String email, String userImage, int money, int rank)
+        {
+            this.name = name;
+            this.email = email;
+            this.userImage = userImage;
+            this.money = money;
+            this.rank = rank;
+            spectatingGame = new List<TexasHoldemGame> { };
+            
+            tempRank = 0;
+            tempGames = 0;
+            newPlayer = true;
+        }
+
+        public void update(String str)
 		{
 			// writeln(str);
 		}

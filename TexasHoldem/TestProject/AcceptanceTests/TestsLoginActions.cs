@@ -17,12 +17,12 @@ namespace TestProject.AcceptanceTests
         [TestInitialize]
         public void SetUp()
         {
-            object objUser= register("Hadas", "1234", "shidlhad", "1");
+            object objUser= register("Hadas2", "1234", "shidlhad", "1");
             Assert.IsNotNull(objUser);
             Assert.IsInstanceOfType(objUser, typeof(SystemUser));
             hadas = (SystemUser)objUser;
 
-            object objOther = register("Gil", "1234", "gilabadi89", "2");
+            object objOther = register("Gil2", "1234", "gilabadi89", "2");
             Assert.IsNotNull(objOther);
             Assert.IsInstanceOfType(objOther, typeof(SystemUser));
             other = (SystemUser)objOther;
@@ -42,34 +42,35 @@ namespace TestProject.AcceptanceTests
         {
             editProfile(hadas.id, "shid", "1234", "shidlhad", "1", 100);
             Assert.AreEqual(hadas.name,"shid");
+            editProfile(hadas.id, "Hadas2", "1234", "shidlhad", "1", 100);
         }
 
         [TestMethod]
         public void TestEditProfilePassword()
         {
-            editProfile(hadas.id, "hadas", "12345", "shidlhad", "1", 100);
+            editProfile(hadas.id, "Hadas2", "12345", "shidlhad", "1", 100);
             Assert.AreEqual(hadas.password,"12345");
         }
 
         [TestMethod]
         public void TestEditProfileEmail()
         {
-            editProfile(hadas.id, "hadas", "1234", "shidl", "1", 100);
+            editProfile(hadas.id, "Hadas2", "1234", "shidl", "1", 100);
             Assert.AreEqual(hadas.email,"shidl");
         }
 
         [TestMethod]
         public void TestEditProfilePicture()
         {
-            editProfile(hadas.id, "hadas", "1234", "shidl", "123", 100);
+            editProfile(hadas.id, "Hadas2", "1234", "shidl", "123", 100);
             Assert.IsNotNull(hadas.userImage,"123");
         }
 
         [TestMethod]
         public void TestEditProfileUserNameExists()
         {
-            editProfile(hadas.id, "Gil", "1234", "shidlhad", "1", 100);
-            Assert.AreEqual(hadas.name,"Hadas");
+            editProfile(hadas.id, "Gil2", "1234", "shidlhad", "1", 100);
+            Assert.AreEqual(hadas.name,"Hadas2");
         }
 
         [TestMethod]
