@@ -370,15 +370,21 @@ namespace ApplicationFacade
             //List<SystemUser> allUsers = getAllUsers();
 
             //Validates attributes.
-            if (name.Equals("") || password.Equals(""))
-                return new ReturnMessage(false, "Can't change to empty user name or password.");
+            //if (name.Equals("") || password.Equals(""))
+            //    return new ReturnMessage(false, "Can't change to empty user name or password.");
+            if (name.Equals(""))
+                return new ReturnMessage(false, "Can't change to empty user name.");
+
+            if (password.Equals(""))
+                password = null;
+
             if (money < 0)
                 return new ReturnMessage(false, "Can't change money to a negative value.");
-
+            
             user = db.getUserByName(name);
             if (user != null && user.id != userId)
                 return new ReturnMessage(false, "Username already exists.");
-
+            
             user = db.getUserByEmail(email);
             if (user != null && user.id != userId)
                 return new ReturnMessage(false, "email already exists.");
@@ -479,16 +485,16 @@ namespace ApplicationFacade
             TexasHoldemGame game = getGameById(gameId);
             return game.GetPlayer(playerIndex);
         }
-        public Card[] GetPlayerCards(int gameId, int playerIndex)
+        public Dictionary<int, List<Card>> GetPlayerCards(int gameId, int userId)
         {
             TexasHoldemGame game = getGameById(gameId);
-            return game.GetPlayerCards(playerIndex);
+            return game.GetPlayerCards(userId);
         }
-        public IDictionary<int, Card[]> GetShowOff(int gameId)
-        {
-            TexasHoldemGame game = getGameById(gameId);
-            return game.GetShowOff();
-        }
+        //public IDictionary<int, Card[]> GetShowOff(int gameId)
+        //{
+        //    TexasHoldemGame game = getGameById(gameId);
+        //    return game.GetShowOff();
+        //}
         #endregion
 
         private SystemUser getHighest(List<SystemUser> users)

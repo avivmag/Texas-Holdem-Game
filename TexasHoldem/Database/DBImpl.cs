@@ -81,6 +81,7 @@ namespace Database
         public DBImpl(){
             //var connectionString = ConfigurationManager.ConnectionStrings["TablesConnectionString"].ConnectionString;
             this.connectionString = Properties.Settings.Default.TablesConnectionString;
+            Console.WriteLine("Database path: " + this.connectionString);
             //md5Hash = MD5.Create();
         }
 

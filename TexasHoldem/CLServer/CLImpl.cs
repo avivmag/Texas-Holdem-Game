@@ -564,35 +564,35 @@ namespace CLServer
         private static void GetPlayerCards(ClientInfo client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
-            var playerSeatIndexToken = jsonObject["playerSeatIndex"];
+            var userId = jsonObject["userId"];
 
             if ((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer) ||
-                (playerSeatIndexToken == null) || (playerSeatIndexToken.Type != JTokenType.Integer))
+                (userId == null) || (userId.Type != JTokenType.Integer))
             {
                 throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Get Player Cards."));
             }
 
             var gameId = (int)gameIdToken;
-            var playerSeatIndex = (int)playerSeatIndexToken;
+            var playerSeatIndex = (int)userId;
 
-            var response = sl.GetPlayerCards((int)gameIdToken, (int)playerSeatIndexToken);
+            var response = sl.GetPlayerCards((int)gameIdToken, (int)userId);
 
             SendMessage(client, response);
         }
 
-        private static void GetShowOff(ClientInfo clientInfo, JObject jsonObject)
-        {
-            var gameIdToken = jsonObject["gameId"];
+        //private static void GetShowOff(ClientInfo clientInfo, JObject jsonObject)
+        //{
+        //    var gameIdToken = jsonObject["gameId"];
 
-            if ((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer))
-            {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Get Show Off."));
-            }
+        //    if ((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer))
+        //    {
+        //        throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Get Show Off."));
+        //    }
 
-            var gameId = (int)gameIdToken;
+        //    var gameId = (int)gameIdToken;
 
-            SendMessage(clientInfo, new { response = sl.GetShowOff(gameId) });
-        }
+        //    SendMessage(clientInfo, new { response = sl.GetShowOff(gameId) });
+        //}
         
         #endregion
 
@@ -844,6 +844,9 @@ namespace CLServer
             var emailToken      = jsonObject["email"];
             var avatarToken     = jsonObject["avatar"];
             var amountToken     = jsonObject["amount"];
+
+            Console.WriteLine("trying");
+            Console.WriteLine(passwordToken);
 
             if (userIdToken == null || userIdToken.Type != JTokenType.Integer)
             {
