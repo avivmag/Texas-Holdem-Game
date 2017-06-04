@@ -27,6 +27,7 @@ namespace ApplicationFacade
             leagues = new List<League>();
             //userList = new List<SystemUser>();
             //loggedInUsers = new List<SystemUser>();
+            //Action<int[]> rankCallback = ;
             db = new DBImpl();
         }
 
@@ -238,8 +239,8 @@ namespace ApplicationFacade
                 mustPref = getMustPref(gamePolicy, gamePolicyLimit, buyInPolicy, startingChipsAmount, minimalBet, minPlayers, maxPlayers, isSpectatingAllowed, isLeague);
 
 
-
-            TexasHoldemGame game = new TexasHoldemGame(user, mustPref);
+            //                                                          this is the callback that is there for when we want to update user rank
+            TexasHoldemGame game = new TexasHoldemGame(user, mustPref, userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false));
             texasHoldemGames.Add(game);
             //dal.addGame(game);
             return game;
@@ -359,7 +360,7 @@ namespace ApplicationFacade
             // (userList[user.id]) - it is a bug and pretty much unnecessary - you are changing the reference
             //if (user.id < userList.Count)
             //    userList[user.id] = user;
-            return new ReturnMessage(db.EditUserById(userId, name, password, email, avatar, money, rank), "");
+            return new ReturnMessage(db.EditUserById(userId, name, password, email, avatar, money, rank, false), "");
         }
         public ReturnMessage editUserProfile(int userId, string name, string password, string email, string avatar, int money)
         {
@@ -382,7 +383,7 @@ namespace ApplicationFacade
             if (user != null && user.id != userId)
                 return new ReturnMessage(false, "email already exists.");
             
-            return new ReturnMessage(db.EditUserById(userId, name, password, email, avatar, money, null), "");
+            return new ReturnMessage(db.EditUserById(userId, name, password, email, avatar, money, null, false), "");
         }
 
         public League getUserLeague(SystemUser user)

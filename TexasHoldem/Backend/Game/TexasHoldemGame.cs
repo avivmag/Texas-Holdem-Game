@@ -13,6 +13,7 @@ namespace Backend.Game
         public enum BetAction { fold, bet, call, check, raise }
         public enum GameState { bFlop = 0, bTurn = 1, bRiver = 2, aRiver = 3}
         private GameState gameState;
+        private Action<int[]> rankUpdateCallback;
 
         public int gameId { get; set; }
         public int currentDealer { get; set; }
@@ -53,9 +54,8 @@ namespace Backend.Game
         {
             return ++currentId;
         }
-
-
-        public TexasHoldemGame(SystemUser user, MustPreferences gamePreferences)
+        
+        public TexasHoldemGame(SystemUser user, MustPreferences gamePreferences, Action<int[]> rankUpdateCallback)
         {
             gameCreatorUserId = user.id;
             this.gamePreferences = gamePreferences;
@@ -72,7 +72,7 @@ namespace Backend.Game
             players = new Player[maxPlayers];
             playersStats = new LeaderboardsStats[maxPlayers];
             availableSeats = maxPlayers - 1;
-
+            this.rankUpdateCallback = rankUpdateCallback;
 
             // TODO: remove when the db is created.
 
@@ -109,7 +109,9 @@ namespace Backend.Game
                         buyIn = buyInPref.buyInPolicy;
                     // updates the money and rank of the user.
                     user.money += players[i].Tokens;
-                    user.updateRank(players[i].Tokens - buyIn);
+                    
+                    //user.updateRank(players[i].Tokens - buyIn);
+                    rankUpdateCallback(new int[] { user.id, players[i].Tokens - buyIn });
                     players[i] = null;
                     return new ReturnMessage(true, "");
                 }

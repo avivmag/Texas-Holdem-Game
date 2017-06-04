@@ -15,15 +15,15 @@ namespace Backend.User
 		public String userImage { get; set; }
         public List<TexasHoldemGame> spectatingGame;
 
-        private int tempRank;
-        private int tempGames ;
+        //private int tempRank;
+        //private int tempGames ;
         public bool newPlayer { get; set; }
 
-        static int currentId = 0;
-        static int getNextId()
-        {
-            return ++currentId;
-        }
+        //static int currentId = 0;
+        //static int getNextId()
+        //{
+        //    return ++currentId;
+        //}
 
         //public SystemUser(String name, String password, String email, String userImage, int money)
         //{
@@ -38,15 +38,9 @@ namespace Backend.User
         //    tempRank = 0;
         //    tempGames = 0;
         //    newPlayer = true;
-
-        //    // NO MORE FUCKING RANDOM!!!
-        //    // IT RUINES MY LIFE EVERY TIME!!!!!!
-        //    //Random rnd = new Random();
-        //    //this.id = rnd.Next(0, 999999);
-        //    //this.id = SystemUser.getNextId();
         //}
 
-        public SystemUser(int id, String name, String email, String userImage, int money, int rank)
+        public SystemUser(int id, String name, String email, String userImage, int money, int rank, int gamesPlayed)
         {
             this.id = id;
             this.name = name;
@@ -56,46 +50,35 @@ namespace Backend.User
             this.rank = rank;
             spectatingGame = new List<TexasHoldemGame> { };
             
-            tempRank = 0;
-            tempGames = 0;
-            newPlayer = true;
+            //tempRank = 0;
+            //tempGames = 0;
+            newPlayer = gamesPlayed < 10;
         }
 
-        public SystemUser(String name, String email, String userImage, int money, int rank)
-        {
-            this.name = name;
-            this.email = email;
-            this.userImage = userImage;
-            this.money = money;
-            this.rank = rank;
-            spectatingGame = new List<TexasHoldemGame> { };
-            
-            tempRank = 0;
-            tempGames = 0;
-            newPlayer = true;
-        }
+        public SystemUser(String name, String email, String userImage, int money, int rank, int gamesPlayed) : this(-1, name, email, userImage, money, rank, gamesPlayed) { }
+        public SystemUser(String name, String email, String userImage, int money, int rank) : this(name, email, userImage, money, rank, 0){}
 
         public void update(String str)
-		{
-			// writeln(str);
-		}
-
-        public void addSpectatingGame(TexasHoldemGame game)
         {
-            if (!this.spectatingGame.Contains(game))
-                this.spectatingGame.Add(game);
+            // writeln(str);
         }
 
-        public void setTempGames()
-        {
-            tempGames++;
-            if (tempGames >= 10)
-                newPlayer = false;
-            if (!newPlayer)
-            {
-                rank = tempRank;
-            }
-        }
+        //public void addSpectatingGame(TexasHoldemGame game)
+        //{
+        //    if (!this.spectatingGame.Contains(game))
+        //        this.spectatingGame.Add(game);
+        //}
+
+        //public void setTempGames()
+        //{
+        //    tempGames++;
+        //    if (tempGames >= 10)
+        //        newPlayer = false;
+        //    if (!newPlayer)
+        //    {
+        //        rank = tempRank;
+        //    }
+        //}
 
         public override bool Equals(object obj)
         {
@@ -104,28 +87,28 @@ namespace Backend.User
             return name.Equals(((SystemUser)obj).name);
         }
 
-        public void updateRank(int rankToUpdate)
-        {
-            if (newPlayer)
-            {
-                if (tempRank + rankToUpdate > 0)
-                    tempRank += rankToUpdate;
-                else
-                {
-                    tempRank = 0;
-                }
-            }
-            else
-            {
-                if (rank + rankToUpdate > 0)
-                {
-                    rank += rankToUpdate;
-                }
-                else
-                {
-                    rank = 0;
-                }
-            }
-        }
+        //public void updateRank(int rankToUpdate)
+        //{
+        //    if (newPlayer)
+        //    {
+        //        if (tempRank + rankToUpdate > 0)
+        //            tempRank += rankToUpdate;
+        //        else
+        //        {
+        //            tempRank = 0;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        if (rank + rankToUpdate > 0)
+        //        {
+        //            rank += rankToUpdate;
+        //        }
+        //        else
+        //        {
+        //            rank = 0;
+        //        }
+        //    }
+        //}
     }
 }

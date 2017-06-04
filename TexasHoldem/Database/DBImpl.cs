@@ -13,7 +13,7 @@ namespace Database
 {
     public class DBImpl : IDB
     {
-        int SALT_SIZE = 30;
+        int SALT_SIZE = 16;
         string connectionString;
         SqlConnection connection;
         SqlDataAdapter adapter;
@@ -68,14 +68,14 @@ namespace Database
         //    return new string(saltArr);
         //}
 
-        private string getRandomSalt()
+        private byte[] getRandomSalt()
         {
             var salt = new byte[SALT_SIZE];
             using (var random = new RNGCryptoServiceProvider())
             {
                 random.GetNonZeroBytes(salt);
             }
-            return Encoding.UTF8.GetString(salt); 
+            return salt; 
         }
 
         public DBImpl(){
@@ -150,6 +150,7 @@ namespace Database
             connection.Close();
             return ans;
         }
+
         /// <summary>
         /// Edit user profile by ID, if you don't want to change some of the fields just put null there.
         /// </summary>
@@ -159,8 +160,10 @@ namespace Database
         /// <param name="email"></param>
         /// <param name="image"></param>
         /// <param name="money"></param>
+        /// <param name="rankToAdd"></param>
+        /// <param name="playedAnotherGame"></param>
         /// <returns>true if user has been edited succesfully</returns>
-        public bool EditUserById(int? Id, string UserName, string password, string email, string image, int? money, int? rank)
+        public bool EditUserById(int? Id, string UserName, string password, string email, string image, int? money, int? rankToAdd, bool playedAnotherGame)
         {
             SqlConnection connection = new SqlConnection(connectionString);
             SqlCommand cmd = new SqlCommand();
@@ -170,7 +173,8 @@ namespace Database
             (email == null ? 0 : 1) +
             (image == null ? 0 : 1) +
             (money == null ? 0 : 1) +
-            (rank == null ? 0 : 1);
+            (rankToAdd == null ? 0 : 1) +
+            (playedAnotherGame ? 1 : 0);
 
             cmd.CommandText = "Update SystemUsers SET " +
                 (UserName == null ? "" : "UserName=@UserName" + (psikCount-- > 0 ? "," : "" )) +
@@ -178,7 +182,8 @@ namespace Database
                 (email == null ? "" : "email=@email" + (psikCount-- > 0 ? "," : "")) +
                 (image == null ? "" : "image=@image" + (psikCount-- > 0 ? "," : "")) +
                 (money == null ? "" : "money=@money" + (psikCount-- > 0 ? "," : "")) +
-                (rank == null ? "" : "rank=@rank") +
+                (rankToAdd == null ? "" : "rank=(CASE WHEN rank+@rankToAdd > 0 THEN rank+@rankToAdd ELSE 0 END)" + (psikCount-- > 0 ? "," : "")) +
+                (!playedAnotherGame ? "" : "gamesPlayed=gamesPlayed+1") +
                 " WHERE Id=@Id";
             cmd.CommandType = CommandType.Text;
             cmd.Connection = connection;
@@ -189,7 +194,7 @@ namespace Database
             if (image != null) cmd.Parameters.AddWithValue("@image", image);
             if (password != null) cmd.Parameters.AddWithValue("@salt", getRandomSalt());
             if (money != null) cmd.Parameters.AddWithValue("@money", money);
-            if (rank != null) cmd.Parameters.AddWithValue("@rank", rank);
+            if (rankToAdd != null) cmd.Parameters.AddWithValue("@rankToAdd", rankToAdd);
 
             connection.Open();
             bool ans = cmd.ExecuteNonQuery() > 0;
@@ -242,14 +247,14 @@ namespace Database
             SqlCommand cmd = new SqlCommand();
             SqlDataReader reader;
 
-            cmd.CommandText = "SELECT Id,UserName,email,image,money,rank FROM SystemUsers";
+            cmd.CommandText = "SELECT Id,UserName,email,image,money,rank,gamesPlayed FROM SystemUsers";
             cmd.CommandType = CommandType.Text;
             cmd.Connection = connection;
 
             connection.Open();
             reader = cmd.ExecuteReader();
             while (reader.Read())
-                users.Add(new SystemUser(int.Parse(reader["Id"].ToString()), reader["UserName"].ToString(), reader["email"].ToString(), reader["image"].ToString(), int.Parse(reader["money"].ToString()), int.Parse(reader["rank"].ToString())));
+                users.Add(new SystemUser(int.Parse(reader["Id"].ToString()), reader["UserName"].ToString(), reader["email"].ToString(), reader["image"].ToString(), int.Parse(reader["money"].ToString()), int.Parse(reader["rank"].ToString()), int.Parse(reader["gamesPlayed"].ToString())));
             
             connection.Close();
             return users;
@@ -260,7 +265,7 @@ namespace Database
             SqlCommand cmd = new SqlCommand();
             SqlDataReader reader;
 
-            cmd.CommandText = "SELECT UserName,email,image,money,rank FROM SystemUsers WHERE Id=@Id";
+            cmd.CommandText = "SELECT UserName,email,image,money,rank,gamesPlayed FROM SystemUsers WHERE Id=@Id";
             cmd.CommandType = CommandType.Text;
             cmd.Connection = connection;
             cmd.Parameters.AddWithValue("@Id", Id);
@@ -269,7 +274,7 @@ namespace Database
             reader = cmd.ExecuteReader();
             if (!reader.HasRows || !reader.Read())
                 return null;
-            SystemUser su = new SystemUser(Id, reader["UserName"].ToString(), reader["email"].ToString(), reader["image"].ToString(), int.Parse(reader["money"].ToString()), int.Parse(reader["rank"].ToString()));
+            SystemUser su = new SystemUser(Id, reader["UserName"].ToString(), reader["email"].ToString(), reader["image"].ToString(), int.Parse(reader["money"].ToString()), int.Parse(reader["rank"].ToString()), int.Parse(reader["gamesPlayed"].ToString()));
 
             connection.Close();
             return su;
@@ -280,7 +285,7 @@ namespace Database
             SqlCommand cmd = new SqlCommand();
             SqlDataReader reader;
 
-            cmd.CommandText = "SELECT Id,email,image,money,rank FROM SystemUsers WHERE UserName=@UserName";
+            cmd.CommandText = "SELECT Id,email,image,money,rank,gamesPlayed FROM SystemUsers WHERE UserName=@UserName";
             cmd.CommandType = CommandType.Text;
             cmd.Connection = connection;
             cmd.Parameters.AddWithValue("@UserName", name);
@@ -291,7 +296,7 @@ namespace Database
             if (!reader.HasRows || !reader.Read())
                 return null;
             //            string s = reader["email"].ToString();
-            SystemUser su = new SystemUser(int.Parse(reader["Id"].ToString()), name, reader["email"].ToString(), reader["image"].ToString(), int.Parse(reader["money"].ToString()), int.Parse(reader["rank"].ToString()));
+            SystemUser su = new SystemUser(int.Parse(reader["Id"].ToString()), name, reader["email"].ToString(), reader["image"].ToString(), int.Parse(reader["money"].ToString()), int.Parse(reader["rank"].ToString()), int.Parse(reader["gamesPlayed"].ToString()));
 
             connection.Close();
             return su;
@@ -302,7 +307,7 @@ namespace Database
             SqlCommand cmd = new SqlCommand();
             SqlDataReader reader;
 
-            cmd.CommandText = "SELECT Id,UserName,image,money,rank FROM SystemUsers WHERE email=@email";
+            cmd.CommandText = "SELECT Id,UserName,image,money,rank,gamesPlayed FROM SystemUsers WHERE email=@email";
             cmd.CommandType = CommandType.Text;
             cmd.Connection = connection;
             cmd.Parameters.AddWithValue("@email", email);
@@ -311,7 +316,7 @@ namespace Database
             reader = cmd.ExecuteReader();
             if (!reader.HasRows || !reader.Read())
                 return null;
-            SystemUser su = new SystemUser(int.Parse(reader["Id"].ToString()), reader["UserName"].ToString(), email, reader["image"].ToString(), int.Parse(reader["money"].ToString()), int.Parse(reader["rank"].ToString()));
+            SystemUser su = new SystemUser(int.Parse(reader["Id"].ToString()), reader["UserName"].ToString(), email, reader["image"].ToString(), int.Parse(reader["money"].ToString()), int.Parse(reader["rank"].ToString()), int.Parse(reader["gamesPlayed"].ToString()));
 
             connection.Close();
             return su;
