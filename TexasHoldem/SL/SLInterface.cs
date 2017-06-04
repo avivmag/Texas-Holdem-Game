@@ -50,8 +50,8 @@ namespace SL
         object GetGameState(int gameId);
         object ChoosePlayerSeat(int gameId, int playerIndex);
         object GetPlayer(int gameId, int playerIndex);
-        object GetPlayerCards(int gameId, int playerIndex);
-        object GetShowOff(int gameId);
+        object GetPlayerCards(int gameId, int userId);
+        //object GetShowOff(int gameId);
         void SubscribeToGameState(ObserverAbstract<TcpClient> client, int gameID);
         void SubscribeToGameChatPlayers(ObserverAbstract<TcpClient> client, int gameID);
         void SubscribeToGameChatSpectators(ObserverAbstract<TcpClient> client, int gameID);

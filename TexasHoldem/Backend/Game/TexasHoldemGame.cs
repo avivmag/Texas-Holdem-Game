@@ -13,6 +13,7 @@ namespace Backend.Game
         public enum BetAction { fold, bet, call, check, raise }
         public enum GameState { bFlop = 0, bTurn = 1, bRiver = 2, aRiver = 3}
         private GameState gameState;
+        private Action<int[]> rankUpdateCallback;
 
         public int gameId { get; set; }
         public int currentDealer { get; set; }
@@ -53,9 +54,8 @@ namespace Backend.Game
         {
             return ++currentId;
         }
-
-
-        public TexasHoldemGame(SystemUser user, MustPreferences gamePreferences)
+        
+        public TexasHoldemGame(SystemUser user, MustPreferences gamePreferences, Action<int[]> rankUpdateCallback)
         {
             gameCreatorUserId = user.id;
             this.gamePreferences = gamePreferences;
@@ -72,7 +72,7 @@ namespace Backend.Game
             players = new Player[maxPlayers];
             playersStats = new LeaderboardsStats[maxPlayers];
             availableSeats = maxPlayers - 1;
-
+            this.rankUpdateCallback = rankUpdateCallback;
 
             // TODO: remove when the db is created.
 
@@ -109,7 +109,9 @@ namespace Backend.Game
                         buyIn = buyInPref.buyInPolicy;
                     // updates the money and rank of the user.
                     user.money += players[i].Tokens;
-                    user.updateRank(players[i].Tokens - buyIn);
+                    
+                    //user.updateRank(players[i].Tokens - buyIn);
+                    rankUpdateCallback(new int[] { user.id, players[i].Tokens - buyIn });
                     players[i] = null;
                     return new ReturnMessage(true, "");
                 }
@@ -493,7 +495,7 @@ namespace Backend.Game
                     isBetOver = false;
                 }
             }
-
+            // TODO: Gili, you need to set the next player he's turn in case the bet is not over, and any how update the observers that some change to the game happend
             if (isBetOver)
             {
                 addToPot(tempPot);
@@ -906,19 +908,32 @@ namespace Backend.Game
         {
             return players[playerIndex];
         }
-        public Card[] GetPlayerCards(int playerIndex)
+        public Dictionary<int, List<Card>> GetPlayerCards(int userId)
         {
-            return players[playerIndex].playerCards.ToArray();
+            Dictionary<int, List<Card>> playerCards = new Dictionary<int, List<Card>>();
+            // TODO: Gili, I don't know how you say the game is over, so just insert in this if instead false a boolean indicating the game is over.
+            if (false)
+                for (int i = 0; i < players.Length; i++)
+                {
+                    if (players[i] != null && players[i].playerCards != null && players[i].playerCards.Count == 2)
+                        playerCards[i] = players[i].playerCards;
+                }
+            else
+                for (int i = 0; i < players.Length; i++)
+                    if (players[i] != null && players[i].systemUserID == userId && players[i].playerCards != null && players[i].playerCards.Count == 2)
+                        playerCards[i] = players[i].playerCards;
+            return playerCards;
         }
-        // TODO: Gili - when showoff happends this method would be called to get all the cards - so dont forget to update when a showoff happens
-        public IDictionary<int, Card[]> GetShowOff()
-        {
-            IDictionary<int, Card[]> ans = new Dictionary<int, Card[]>();
-            for (int i = 0; i < players.Length; i++)
-            {
-                ans[i] = players[i].playerCards.ToArray();
-            }
-            return ans;
-        }
+
+        // dont know if it is useful right now - TODO: Gili - when showoff happends this method would be called to get all the cards - so dont forget to update when a showoff happens
+        //public IDictionary<int, Card[]> GetShowOff()
+        //{
+        //    IDictionary<int, Card[]> ans = new Dictionary<int, Card[]>();
+        //    for (int i = 0; i < players.Length; i++)
+        //    {
+        //        ans[i] = players[i].playerCards.ToArray();
+        //    }
+        //    return ans;
+        //}
     }
 }

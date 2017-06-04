@@ -37,10 +37,10 @@ namespace TestProject.UnitTest
             {
                 db.RegisterUser("test" + i, "" + i, "email" + i, "userImage" + i);
             }
-            db.EditUserById(db.getUserByName("test0").id, null, null, null, null, 1000, 10);
-            db.EditUserById(db.getUserByName("test1").id, null, null, null, null, 0, 15);
-            db.EditUserById(db.getUserByName("test2").id, null, null, null, null, 700, 20);
-            db.EditUserById(db.getUserByName("test3").id, null, null, null, null, 1500, 25);
+            db.EditUserById(db.getUserByName("test0").id, null, null, null, null, 1000, 10, false);
+            db.EditUserById(db.getUserByName("test1").id, null, null, null, null, 0, 15, false);
+            db.EditUserById(db.getUserByName("test2").id, null, null, null, null, 700, 20, false);
+            db.EditUserById(db.getUserByName("test3").id, null, null, null, null, 1500, 25, false);
 
 
             var userDummies = new List<SystemUser>
