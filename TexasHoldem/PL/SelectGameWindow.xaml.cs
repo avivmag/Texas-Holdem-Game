@@ -75,11 +75,14 @@ namespace PL
                 DataGridCellInfo cellValue = (selectGameGrid.SelectedCells.ElementAt(1));
                 gameId = int.Parse(((TexasHoldemGameStrings)cellValue.Item).gameId);
                 var game = CommClient.GetGameInstance(gameId, LoginWindow.user.id);
+
                 if (game != default(TexasHoldemGame))
                 {
                     Close();
                     mainMenuWindow.Show();
-                    new GameWindow(game, LoginWindow.user.id).Show();
+                    var gameWindow = new GameWindow(game, LoginWindow.user.id);
+                    game.Subscribe(gameWindow);
+                    gameWindow.Show();
                 }
                 else
                 {
