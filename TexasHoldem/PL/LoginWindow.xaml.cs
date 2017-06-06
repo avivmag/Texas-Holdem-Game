@@ -52,5 +52,10 @@ namespace PL
             Application.Current.Shutdown();
             CommClient.closeConnection();
         }
+
+        private void username_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+
+        }
     }
 }
