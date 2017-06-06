@@ -179,7 +179,9 @@ namespace TestProject
         public void spectateFailesAlreadyPlayTest()
         {
             sl.GetGameForPlayers(db.getUserByName("test3").id, 0);
-            object m = sl.spectateActiveGame(db.getUserByName("test3").id, 0);
+            sl.joinGame(db.getUserByName("test3").id, 0, 2);
+            object m = sl.GetGameForPlayers(db.getUserByName("test3").id, 0);
+            //object m = sl.spectateActiveGame(db.getUserByName("test3").id, 0);
             Assert.AreEqual(m, null);
         }
 

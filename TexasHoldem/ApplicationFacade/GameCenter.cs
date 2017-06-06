@@ -371,8 +371,6 @@ namespace ApplicationFacade
             //List<SystemUser> allUsers = getAllUsers();
 
             //Validates attributes.
-            //if (name.Equals("") || password.Equals(""))
-            //    return new ReturnMessage(false, "Can't change to empty user name or password.");
             if (name.Equals(""))
                 return new ReturnMessage(false, "Can't change to empty user name.");
 

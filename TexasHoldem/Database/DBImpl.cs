@@ -164,7 +164,7 @@ namespace Database
         /// <param name="rankToAdd"></param>
         /// <param name="playedAnotherGame"></param>
         /// <returns>true if user has been edited succesfully</returns>
-        public bool EditUserById(int? Id, string UserName, string password, string email, string image, int? money, int? rankToAdd, bool playedAnotherGame)
+        public bool EditUserById(int Id, string UserName, string password, string email, string image, int? money, int? rankToAdd, bool playedAnotherGame)
         {
             SqlConnection connection = new SqlConnection(connectionString);
             SqlCommand cmd = new SqlCommand();
