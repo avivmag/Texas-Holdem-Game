@@ -7,6 +7,9 @@
         mc:Ignorable="d"
         WindowState="Maximized"
         Title="GameWindow" HorizontalContentAlignment="Stretch" WindowStartupLocation="CenterOwner" VerticalContentAlignment="Stretch">
+    <Window.Background>
+        <ImageBrush ImageSource="resources/game_window.png"/>
+    </Window.Background>
     <UniformGrid Columns="1">
         <UniformGrid Name="TopRow" Rows="1"/>
         <UniformGrid Name="UpperMiddleRow" Rows="1"/>
