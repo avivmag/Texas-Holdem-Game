@@ -743,6 +743,7 @@ namespace PL
                             break;
                         case Player.PlayerState.my_turn:
                             changeSeat(i, false, "blue", game.players[i].imageUrl, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
+                            playButton.IsEnabled = false;
                             if (systemUserId == game.players[i].systemUserID)
                             {
                                 betButton.IsEnabled = true;
