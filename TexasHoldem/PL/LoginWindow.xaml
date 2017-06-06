@@ -5,23 +5,38 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PL"
         mc:Ignorable="d"
-        Title="Login Window" Height="247" Width="325" Closing="Window_Closing" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+        Title="Login Window" Height="302" Width="403.4" Closing="Window_Closing" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Window.Background>
+        <ImageBrush ImageSource="resources/texas_holdem_poker-image.png"/>
+    </Window.Background>
     <Grid Margin="0,0,3.4,0" Height="380" VerticalAlignment="Top">
-        <StackPanel HorizontalAlignment="Left" Height="129" Margin="14,10,0,0" VerticalAlignment="Top" Width="481" >
-            <StackPanel Orientation="Horizontal">
-                <Label Content="User Name:" Margin="0,10,0,0" Width="70"/>
-                <TextBox Margin="10,10,10,10" x:Name="username" Text="" HorizontalAlignment="Left" Height="26" TextWrapping="Wrap" VerticalAlignment="Top" Width="157"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="212*"/>
+            <ColumnDefinition Width="103*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel HorizontalAlignment="Left" Height="200" Margin="10,53,-9.4,0" VerticalAlignment="Top" Width="393" Grid.ColumnSpan="2" >
+            <StackPanel Orientation="Horizontal" Height="102" Margin="0,0,-0.2,0" RenderTransformOrigin="0.618,0.638" Width="292" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <StackPanel.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform/>
+                        <SkewTransform/>
+                        <RotateTransform Angle="-0.125"/>
+                        <TranslateTransform X="0.018" Y="-0.076"/>
+                    </TransformGroup>
+                </StackPanel.RenderTransform>
+                <TextBox Margin="10,36,10,25.2" x:Name="username" Height="26" TextWrapping="Wrap" Width="161" RenderTransformOrigin="0.72,0.711" TextChanged="username_TextChanged" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center"/>
             </StackPanel>
-
-            <StackPanel Orientation="Horizontal">
-                <Label Content="Password:" Margin="0,10,0,0" Width="70"/>
-                <PasswordBox x:Name="password" Margin="10,10,10,10" HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Width="157" Password=""/>
+            <StackPanel Orientation="Horizontal" Height="104" Margin="0,0,110.8,0" HorizontalAlignment="Right" Width="180">
+                <PasswordBox x:Name="password" Margin="10,0,10,58.8" HorizontalAlignment="Left" Width="157" Password="" Height="26" VerticalAlignment="Bottom"/>
             </StackPanel>
-
-            <Button x:Name="loginBtn" Content="Login" VerticalAlignment="Top" Width="75" Click="Login_Click" Margin="0,0,200,0"/>
         </StackPanel>
-        <Button x:Name="registerBtn" Content="Register" VerticalAlignment="Top" Width="75" Click="Register_Click" HorizontalAlignment="Right" Margin="0,183,180,0" />
-        <Button x:Name="exitBtn" Content="Exit" VerticalAlignment="Top" Width="75" Click="Exit_Click" HorizontalAlignment="Right" Margin="0,183,50,0" />
-        <TextBlock Name="errorMessage" HorizontalAlignment="Left" Height="23" Margin="14,210,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="480"/>
+        <Button x:Name="registerBtn" Content="Register" VerticalAlignment="Top" Width="75" Click="Register_Click" HorizontalAlignment="Right" Margin="0,233,130.8,0" />
+        <Button x:Name="exitBtn" Content="Exit" VerticalAlignment="Top" Width="75" Click="Exit_Click" HorizontalAlignment="Right" Margin="0,233,74.6,0" Grid.ColumnSpan="2" />
+        <TextBlock x:Name="errorMessage" HorizontalAlignment="Left" Height="23" Margin="156,210,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="83"><InlineUIContainer>
+                <Button x:Name="loginBtn" Content="Login" VerticalAlignment="Top" Width="75" Click="Login_Click"/>
+
+            </InlineUIContainer></TextBlock>
+        <Label Content="User Name" HorizontalAlignment="Left" Margin="21,101,0,0" VerticalAlignment="Top" Width="91" FontSize="14" FontWeight="Bold"/>
+        <Label Content="Password" HorizontalAlignment="Left" Margin="21,173,0,0" VerticalAlignment="Top" Width="82" FontWeight="Bold" FontSize="14"/>
     </Grid>
 </Window>
