@@ -3,7 +3,6 @@ using Backend.User;
 using System;
 using static Backend.Game.Player;
 using Backend.Game.DecoratorPreferences;
-using System.Diagnostics;
 
 namespace Backend.Game
 {
@@ -247,14 +246,7 @@ namespace Backend.Game
         {
             GameLog.logLine(gameId, GameLog.Actions.Game_Start, DateTime.Now.ToString());
             InitializeGame();
-            // playersSetsTheirBets(true);
             gameStatesObserver.Update(this);
-
-
-            
-
-
-
         }
 
         private void preparePlayersState()
@@ -290,7 +282,13 @@ namespace Backend.Game
             if (playersStats[winnerIndex].highetsCashInAGame < players[winnerIndex].Tokens)
                 playersStats[winnerIndex].highetsCashInAGame = players[winnerIndex].Tokens;
 
-            leaderBoardUpdateCallback(new int[] { 1, 2 });
+            for (int i = 0; i < playersStats.Length; i++)////////////////////////////////////////////
+            {
+                if (players[i] != null && playersStats[i] != null)
+                {
+                    leaderBoardUpdateCallback(new int[] { players[i].systemUserID, playersStats[i].highetsCashInAGame, playersStats[i].totalGrossProfit });
+                }
+            }
 
 
             gameStatesObserver.Update(this);
@@ -400,6 +398,7 @@ namespace Backend.Game
                 GameLog.Actions.Action_Bet,
                 players[currentBig].systemUserID.ToString(),
                 (currentBlindBet / 2).ToString());
+
 
             tempPot += ((currentBlindBet + (currentBlindBet / 2)));
         }
