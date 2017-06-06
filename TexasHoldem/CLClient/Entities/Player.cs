@@ -18,6 +18,5 @@ namespace CLClient.Entities
         public PlayerState playerState { get; set; }
         public string name { get; set; }
         public bool newPlayer { get; set; }
-
     }
 }

@@ -6,6 +6,7 @@ using ApplicationFacade;
 using Backend.Game.DecoratorPreferences;
 using Obser;
 using System.Net.Sockets;
+using System.Collections.Generic;
 
 public class SLImpl : SLInterface
 {
@@ -81,7 +82,7 @@ public class SLImpl : SLInterface
 
     public object editUserProfile(int userId, string name, string password, string email, string avatar, int money)
     {
-        return gameCenter.editUserProfile(userId,name,password,email,avatar,money);
+        return gameCenter.editUserProfile(userId,name,password,email,avatar, money);
     }
 
     public object findAllActiveAvailableGames()
@@ -257,26 +258,31 @@ public class SLImpl : SLInterface
     {
         return gameCenter.getGameState(gameId);
     }
-    public object ChoosePlayerSeat(int gameId, int playerIndex)
-    {
-        return gameCenter.ChoosePlayerSeat(gameId, playerIndex);
-    }
     public object GetPlayer(int gameId, int playerIndex)
     {
         return gameCenter.GetPlayer(gameId, playerIndex);
     }
-    public object GetPlayerCards(int gameId, int playerIndex)
+    public object GetPlayerCards(int gameId, int userId)
     {
-        if (gameCenter.GetPlayerCards(gameId, playerIndex) == null || gameCenter.GetPlayerCards(gameId, playerIndex).Length == 0)
-        {
+        Dictionary<int, List<Card>> cards = gameCenter.GetPlayerCards(gameId, userId);
+        if (cards == null || cards.Count == 0)
             return null;
+
+        Console.WriteLine("showing:");
+        foreach(KeyValuePair<int,List<Card>> entry in cards)
+        {
+            Console.WriteLine(entry.Key);
+            Console.WriteLine(entry.Value.Count);
+            Console.WriteLine(entry.Value[0]);
+            Console.WriteLine(entry.Value[1]);
         }
-        return gameCenter.GetPlayerCards(gameId, playerIndex);
+        Console.WriteLine("end show");
+        return cards;
     }
-    public object GetShowOff(int gameId)
-    {
-        return gameCenter.GetShowOff(gameId);
-    }
+    //public object GetShowOff(int gameId)
+    //{
+    //    return gameCenter.GetShowOff(gameId);
+    //}
 
 
     #endregion

@@ -378,7 +378,7 @@ namespace PL
 
         private void Sit_Click(object sender, RoutedEventArgs e)
         {
-            ReturnMessage returnMessage = CommClient.JoinGame(seatButtonToSeatIndex[(Button)sender], this.game.gameId, seatButtonToSeatIndex[(Button)sender]);
+            ReturnMessage returnMessage = CommClient.JoinGame(LoginWindow.user.id, this.game.gameId, seatButtonToSeatIndex[(Button)sender]);
 
             if (returnMessage.success)
                 playerSeatIndex = seatButtonToSeatIndex[(Button)sender];
@@ -652,26 +652,41 @@ namespace PL
         // TODO: Gili or Or, this is the function that needs to be called when updating the cards of the player
         public void updatePlayerCards()
         {
-            Card[] cards = CommClient.GetPlayerCards(this.game.gameId, playerSeatIndex);
+            Dictionary<int, List<Card>> cards = CommClient.GetPlayerCards(this.game.gameId, systemUserId);
+            List<Card> c;
             if (cards != null)
-                for (int i = 0; i < cards.Length; i++)
+                for (int i = 0; i < playerCards.Length; i++)
                 {
-                    if (cards[i] == null)
-                        playerCards[playerSeatIndex][i].Source = DrawCard(cards[i].Type, cards[i].Value);
+                    if(cards.TryGetValue(i, out c) && c.Count == 2)
+                    {
+                        playerCards[i][0].Source = DrawCard(c[0].Type, c[0].Value);
+                        playerCards[i][1].Source = DrawCard(c[1].Type, c[1].Value);
+                    }
                     else
-                        playerCards[playerSeatIndex][i].Source = DrawCard(cardType.unknown, CARD_TYPE);
+                    {
+                        playerCards[i][0].Source = DrawCard(cardType.unknown, CARD_TYPE);
+                        playerCards[i][1].Source = DrawCard(cardType.unknown, CARD_TYPE);
+                    }
                 }
+
+            //for (int i = 0; i < cards.Length; i++)
+            //{
+            //    if (cards[i] == null)
+            //        playerCards[playerSeatIndex][i].Source = DrawCard(cards[i].Type, cards[i].Value);
+            //    else
+            //        playerCards[playerSeatIndex][i].Source = DrawCard(cardType.unknown, CARD_TYPE);
+            //}
         }
 
-        public void cardsShowOff()
-        {
-            IDictionary<int, Card[]> seatIndexToCards = CommClient.GetShowOff(this.game.gameId);
-            foreach (KeyValuePair<int, Card[]> entry in seatIndexToCards)
-            {
-                for (int i = 0; i < entry.Value.Length; i++)
-                    playerCards[entry.Key][i].Source = DrawCard(entry.Value[i].Type, entry.Value[i].Value);
-            }
-        }
+        //public void cardsShowOff()
+        //{
+        //    IDictionary<int, Card[]> seatIndexToCards = CommClient.GetShowOff(this.game.gameId);
+        //    foreach (KeyValuePair<int, Card[]> entry in seatIndexToCards)
+        //    {
+        //        for (int i = 0; i < entry.Value.Length; i++)
+        //            playerCards[entry.Key][i].Source = DrawCard(entry.Value[i].Type, entry.Value[i].Value);
+        //    }
+        //}
 
         public void updateGame(TexasHoldemGame updatedGame)
         {
@@ -685,9 +700,9 @@ namespace PL
             coinsSumInHeap[0].Content = game.pot;
 
             //List<Card> flop;
-            for (int i = 0; i < game.flop.Count; i++)
+            for (int i = 0; i < 3; i++)
             {
-                if (game.flop[i] == null)
+                if (game.flop == null || game.flop[i] == null)
                     communityCards[i].Source = DrawCard(cardType.unknown, CARD_TYPE);
                 else
                     communityCards[i].Source = DrawCard(game.flop[i].Type, game.flop[i].Value);

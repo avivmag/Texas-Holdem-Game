@@ -91,9 +91,9 @@
       <Project>{9951a575-8f22-40e4-b7f9-f59a66494af1}</Project>
       <Name>Backend</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DAL\DAL.csproj">
-      <Project>{c338435b-70e3-40bb-93b7-a8cc89f73744}</Project>
-      <Name>DAL</Name>
+    <ProjectReference Include="..\Database\Database.csproj">
+      <Project>{f62d010b-41a2-4a9f-9583-b7157fdfda21}</Project>
+      <Name>Database</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

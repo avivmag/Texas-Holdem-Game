@@ -1,11 +1,12 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SL;
-using DAL;
+//using DAL;
 using Moq;
 using Backend.User;
 using System.Collections.Generic;
 using ApplicationFacade;
+using Database;
 
 namespace TestProject.UnitTest
 {
@@ -15,6 +16,15 @@ namespace TestProject.UnitTest
         GameCenter center;
         Random rnd = new Random();
         SLInterface sl = new SLImpl();
+        private IDB db;
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            for (int i = 0; i < 4; i++)
+                db.deleteUser(db.getUserByName("test" + i).id);
+            center.shutDown();
+        }
 
         [TestInitialize]
         public void setUp()
@@ -22,13 +32,36 @@ namespace TestProject.UnitTest
             //var leagues = new System.Collections.Generic.List<League>();
             //leagues.Add(new League(0, 1000, "Starter League"));
             //leagues.Add(new League(1000, 2000, "Experienced League"));
+            db = new DBImpl();
+            for (int i = 0; i < 4; i++)
+            {
+                db.RegisterUser("test" + i, "" + i, "email" + i, "userImage" + i);
+            }
+            db.EditUserById(db.getUserByName("test0").id, null, null, null, null, 1000, 10, false);
+            db.EditUserById(db.getUserByName("test1").id, null, null, null, null, 0, 15, false);
+            db.EditUserById(db.getUserByName("test2").id, null, null, null, null, 700, 20, false);
+            db.EditUserById(db.getUserByName("test3").id, null, null, null, null, 1500, 25, false);
+
+
             var userDummies = new List<SystemUser>
             {
-                new SystemUser("Hadas", "Aa123456", "email0", "image0", 1000),
-                new SystemUser("Gili", "123123", "email1", "image1", 0),
-                new SystemUser("Or", "111111", "email2", "image2", 700),
-                new SystemUser("Aviv", "Aa123456", "email3", "image3", 1500)
+                db.getUserByName("test0"),
+                db.getUserByName("test1"),
+                db.getUserByName("test2"),
+                db.getUserByName("test3")
+                //new SystemUser("Hadas", "email0", "image0", 1000),
+                //new SystemUser("Gili", "email1", "image1", 0),
+                //new SystemUser("Or", "email2", "image2", 700),
+                //new SystemUser("Aviv", "email3", "image3", 1500)
             };
+
+            //var userDummies = new List<SystemUser>
+            //{
+            //    new SystemUser("Hadas", "Aa123456", "email0", "image0", 1000),
+            //    new SystemUser("Gili", "123123", "email1", "image1", 0),
+            //    new SystemUser("Or", "111111", "email2", "image2", 700),
+            //    new SystemUser("Aviv", "Aa123456", "email3", "image3", 1500)
+            //};
             Random rnd = new Random();
             foreach(SystemUser u in userDummies)
             {
@@ -36,7 +69,7 @@ namespace TestProject.UnitTest
             }
             center = GameCenter.getGameCenter();
             center.maintainLeagues(userDummies);
-            Mock <DALInterface> dalMock = new Mock<DALInterface>();
+            //Mock <DALInterface> dalMock = new Mock<DALInterface>();
             //dalMock.Setup(x => x.addLeague(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>())).Returns(new ReturnMessage(true,null));
             //dalMock.Setup(x => x.getAllLeagues()).Returns(leagues);
             //dalMock.Setup(x => x.removeLeague(It.IsAny<Guid>())).Returns(new ReturnMessage(true,null));
@@ -91,8 +124,8 @@ namespace TestProject.UnitTest
             List<SystemUser> allUsers = new List<SystemUser>();
             for (int i = 0; i < 9; i++)
             {
-                SystemUser u = new SystemUser("", "", "", "", 100);
-                u.rank = rnd.Next(0, 999999);
+                SystemUser u = new SystemUser("", "", "", 100, rnd.Next(0, 999999));
+                //u.rank = rnd.Next(0, 999999);
                 allUsers.Add(u);
             }
             center.maintainLeagues(allUsers);
@@ -125,8 +158,8 @@ namespace TestProject.UnitTest
             List<SystemUser> allUsers = new List<SystemUser>();
             for (int i = 0; i < 50; i++)
             {
-                SystemUser u = new SystemUser("", "", "", "", 100);
-                u.rank = rnd.Next(0, 999999);
+                SystemUser u = new SystemUser("", "", "", 100, rnd.Next(0, 999999));
+                //u.rank = rnd.Next(0, 999999);
                 allUsers.Add(u);
             }
             center.maintainLeagues(allUsers);
@@ -159,8 +192,8 @@ namespace TestProject.UnitTest
             List<SystemUser> allUsers = new List<SystemUser>();
             for(int i = 0; i<128; i++)
             {
-                SystemUser u = new SystemUser("", "", "", "", 100);
-                u.rank = rnd.Next(0, 999999);
+                SystemUser u = new SystemUser("", "", "", 100, rnd.Next(0, 999999));
+                //u.rank = rnd.Next(0, 999999);
                 allUsers.Add(u);
             }
             center.maintainLeagues(allUsers);

@@ -46,6 +46,7 @@
     <Compile Include="Game\GameLog.cs" />
     <Compile Include="Game\GameObserver.cs" />
     <Compile Include="Game\GamePreferences.cs" />
+    <Compile Include="Game\LeaderboardsStats.cs" />
     <Compile Include="Game\League.cs" />
     <Compile Include="Game\LeagueTexasHoldemGame.cs" />
     <Compile Include="Game\Player.cs" />

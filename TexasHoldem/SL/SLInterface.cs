@@ -10,7 +10,7 @@ namespace SL
         object GetGameForPlayers(int userId, int gameID);
         object joinGame(int userId, int gameID, int seatIndex);
         object leaveGame(SystemUser user, int gameID);
-
+        
         object editUserProfile(int userId, string name, string password, string email, string avatar, int amount);
 
         object findAllActiveAvailableGames();
@@ -48,10 +48,9 @@ namespace SL
         object Check(int gameId, int playerIndex);
         object playGame(int gameId);
         object GetGameState(int gameId);
-        object ChoosePlayerSeat(int gameId, int playerIndex);
         object GetPlayer(int gameId, int playerIndex);
-        object GetPlayerCards(int gameId, int playerIndex);
-        object GetShowOff(int gameId);
+        object GetPlayerCards(int gameId, int userId);
+        //object GetShowOff(int gameId);
         void SubscribeToGameState(ObserverAbstract<TcpClient> client, int gameID);
         void SubscribeToGameChatPlayers(ObserverAbstract<TcpClient> client, int gameID);
         void SubscribeToGameChatSpectators(ObserverAbstract<TcpClient> client, int gameID);

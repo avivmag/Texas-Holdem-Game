@@ -487,7 +487,7 @@ namespace CLClient
 
         public static bool? editUserProfile(int userId, string name, string password, string email, string avatar, int amount)
         {
-            var message = new { action = "EditUserProfile", userId, name, password, email, avatar, amount };
+            var message = new { action = "EditUserProfile", userId, name, password, email, avatar, amount};
             var jsonMessage = sendMessage(message);
             var responseJson = getResponse(jsonMessage);
 
@@ -652,9 +652,9 @@ namespace CLClient
             return response;
         }
 
-        public static Card[] GetPlayerCards(int gameId, int playerSeatIndex)
+        public static Dictionary<int, List<Card>> GetPlayerCards(int gameId, int userId)
         {
-            var message = new { action = "GetPlayerCards", gameId, playerSeatIndex };
+            var message = new { action = "GetPlayerCards", gameId, userId };
             var jsonMessage = sendMessage(message);
             var responseJson = getResponse(jsonMessage);
 
@@ -662,25 +662,25 @@ namespace CLClient
             {
                 return null;
             }
-            var response = responseJson.ToObject<Card[]>();
+            var response = responseJson.ToObject<Dictionary<int, List<Card>>>();
 
             return response;
         }
 
-        public static IDictionary<int, Card[]> GetShowOff(int gameId)
-        {
-            var message = new { action = "GetShowOff", gameId };
-            var jsonMessage = sendMessage(message);
-            var responseJson = getResponse(jsonMessage);
+        //public static IDictionary<int, Card[]> GetShowOff(int gameId)
+        //{
+        //    var message = new { action = "GetShowOff", gameId };
+        //    var jsonMessage = sendMessage(message);
+        //    var responseJson = getResponse(jsonMessage);
 
-            if (responseJson == null)
-            {
-                return null;
-            }
-            var response = responseJson.ToObject<IDictionary<int, Card[]>>();
+        //    if (responseJson == null)
+        //    {
+        //        return null;
+        //    }
+        //    var response = responseJson.ToObject<IDictionary<int, Card[]>>();
 
-            return response;
-        }
+        //    return response;
+        //}
         
         #endregion
     }

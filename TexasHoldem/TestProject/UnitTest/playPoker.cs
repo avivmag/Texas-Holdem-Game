@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Backend.User;
 using SL;
 using ApplicationFacade;
+using Database;
 
 namespace TestProject.UnitTest
 {
@@ -13,34 +14,58 @@ namespace TestProject.UnitTest
     public class PlayPoker
     {
         private SLInterface sl;
+        private IDB db;
         private GameCenter center;
         private TexasHoldemGame game;
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            for (int i = 0; i < 4; i++)
+                db.deleteUser(db.getUserByName("test" + i).id);
+            center.shutDown();
+        }
 
         [TestInitialize]
         public void SetUp()
         {
+            db = new DBImpl();
+            for (int i = 0; i < 4; i++)
+            {
+                db.RegisterUser("test" + i, "" + i, "email" + i, "userImage" + i);
+            }
+            db.EditUserById(db.getUserByName("test0").id, null, null, null, null, 1000, 10, false);
+            db.EditUserById(db.getUserByName("test1").id, null, null, null, null, 0, 15, false);
+            db.EditUserById(db.getUserByName("test2").id, null, null, null, null, 700, 20, false);
+            db.EditUserById(db.getUserByName("test3").id, null, null, null, null, 1500, 25, false);
+
+
             var userList = new List<SystemUser>
             {
-                new SystemUser("Hadas", "Aa123456", "email0", "image0", 1000),
-                new SystemUser("Gili", "123123", "email1", "image1", 0),
-                new SystemUser("Or", "111111", "email2", "image2", 700),
-                new SystemUser("Aviv", "Aa123456", "email3", "image3", 1500)
+                db.getUserByName("test0"),
+                db.getUserByName("test1"),
+                db.getUserByName("test2"),
+                db.getUserByName("test3")
+                //new SystemUser("Hadas", "email0", "image0", 1000),
+                //new SystemUser("Gili", "email1", "image1", 0),
+                //new SystemUser("Or", "email2", "image2", 700),
+                //new SystemUser("Aviv", "email3", "image3", 1500)
             };
 
             center = GameCenter.getGameCenter();
 
-            //set users ranks.
-            userList[0].rank = 10;
-            userList[1].rank = 15;
-            userList[2].rank = 20;
-            userList[3].rank = 25;
+            ////set users ranks.
+            //userList[0].rank = 10;
+            //userList[1].rank = 15;
+            //userList[2].rank = 20;
+            //userList[3].rank = 25;
 
-            for (int i = 0; i < 4; i++)
-            {
-                userList[i].id = i;
-                center.loggedInUsers.Add(userList[i]);
-                //center.login(userList[i].name, userList[i].password);
-            }
+            //for (int i = 0; i < 4; i++)
+            //{
+            //    userList[i].id = i;
+            //    center.loggedInUsers.Add(userList[i]);
+            //    //center.login(userList[i].name, userList[i].password);
+            //}
 
             sl = new SLImpl();
             center = GameCenter.getGameCenter();
@@ -242,12 +267,5 @@ namespace TestProject.UnitTest
         //    fullHand.Add(new Card(Card.cardType.club, 7));
         //    Assert.AreEqual(game.checkStraight(fullHand), -1, "Rank not to be straight");
         //}
-
-
-        [TestCleanup]
-        public void TearDown()
-        {
-            center.shutDown();
-        }
     }
 }
