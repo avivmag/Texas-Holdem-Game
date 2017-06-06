@@ -153,9 +153,8 @@ namespace TestProject.UnitTest
             sl.leaveGame(user, 4);
             sl.leaveGame(user, 5);
             sl.Logout(db.getUserByName("test2").id);
-            object m = sl.Login("Or", "111111");
-            Assert.IsInstanceOfType(m, typeof(ReturnMessage));
-            Assert.IsTrue(((ReturnMessage)m).success);
+            object m = sl.Login("test2", "2");
+            Assert.IsInstanceOfType(m, typeof(SystemUser));
         }
 
         [TestMethod]
