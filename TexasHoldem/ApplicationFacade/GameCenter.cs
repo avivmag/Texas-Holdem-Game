@@ -240,7 +240,7 @@ namespace ApplicationFacade
 
 
             //                                                          this is the callback that is there for when we want to update user rank
-            TexasHoldemGame game = new TexasHoldemGame(user, mustPref, userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false));
+            TexasHoldemGame game = new TexasHoldemGame(user, mustPref, userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false), userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2]));
             texasHoldemGames.Add(game);
             //dal.addGame(game);
             return game;
@@ -344,6 +344,7 @@ namespace ApplicationFacade
             user = db.getUserByEmail(email);
             if (user != null && user.id != userId)
                 return new ReturnMessage(false, "email already exists.");
+
 
             ////Check that attributes are not already exists.
             //foreach (SystemUser u in userList)
@@ -474,11 +475,6 @@ namespace ApplicationFacade
         {
             TexasHoldemGame game = getGameById(gameId);
             return game;
-        }
-        public ReturnMessage ChoosePlayerSeat(int gameId, int playerIndex)
-        {
-            TexasHoldemGame game = getGameById(gameId);
-            return game.ChoosePlayerSeat(playerIndex);
         }
         public Player GetPlayer(int gameId, int playerIndex)
         {

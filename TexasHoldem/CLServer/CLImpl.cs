@@ -525,25 +525,6 @@ namespace CLServer
             SendMessage(client, response);
         }
 
-        private static void ChoosePlayerSeat(ClientInfo client, JObject jsonObject)
-        {
-            var gameIdToken = jsonObject["gameId"];
-            var playerSeatIndexToken = jsonObject["playerSeatIndex"];
-
-            if ((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer) ||
-                (playerSeatIndexToken == null) || (playerSeatIndexToken.Type != JTokenType.Integer))
-            {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Choose Player Seat."));
-            }
-
-            var gameId = (int)gameIdToken;
-            var playerSeatIndex = (int)playerSeatIndexToken;
-
-            var response = sl.ChoosePlayerSeat(gameId, playerSeatIndex);
-
-            SendMessage(client, response);
-        }
-
         private static void GetPlayer(ClientInfo clientInfo, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
@@ -579,20 +560,6 @@ namespace CLServer
 
             SendMessage(client, response);
         }
-
-        //private static void GetShowOff(ClientInfo clientInfo, JObject jsonObject)
-        //{
-        //    var gameIdToken = jsonObject["gameId"];
-
-        //    if ((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer))
-        //    {
-        //        throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Get Show Off."));
-        //    }
-
-        //    var gameId = (int)gameIdToken;
-
-        //    SendMessage(clientInfo, new { response = sl.GetShowOff(gameId) });
-        //}
         
         #endregion
 

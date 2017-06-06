@@ -185,7 +185,7 @@ namespace Database
                 (money == null ? "" : "money=@money" + (psikCount-- > 0 ? "," : "")) +
                 (rankToAdd == null ? "" : "rank=(CASE WHEN rank+@rankToAdd > 0 THEN rank+@rankToAdd ELSE 0 END)" + (psikCount-- > 0 ? "," : "")) +
                 (!playedAnotherGame ? "" : "gamesPlayed=gamesPlayed+1") +
-                " WHERE Id=@Id";
+                 " WHERE Id=@Id";
             cmd.CommandType = CommandType.Text;
             cmd.Connection = connection;
             cmd.Parameters.AddWithValue("@Id", Id);
@@ -196,6 +196,32 @@ namespace Database
             if (password != null) cmd.Parameters.AddWithValue("@salt", getRandomSalt());
             if (money != null) cmd.Parameters.AddWithValue("@money", money);
             if (rankToAdd != null) cmd.Parameters.AddWithValue("@rankToAdd", rankToAdd);
+
+
+            connection.Open();
+            bool ans = cmd.ExecuteNonQuery() > 0;
+            connection.Close();
+            return ans;
+        }
+        public bool EditUserLeaderBoardsById(int? Id, int? highetsCashInAGame, int? totalGrossProfit)
+        {
+
+            SqlConnection connection = new SqlConnection(connectionString);
+            SqlCommand cmd = new SqlCommand();
+            int psikCount = -1 +
+            (highetsCashInAGame == null ? 0 : 1) +
+            (totalGrossProfit == null ? 0 : 1);
+
+            cmd.CommandText = "Update SystemUsers SET " +
+                (highetsCashInAGame == null ? "" : "highetsCashInAGame=@highetsCashInAGame" + (psikCount-- > 0 ? "," : "")) +
+                (totalGrossProfit == null ? "" : "totalGrossProfit=@totalGrossProfit" + (psikCount-- > 0 ? "," : "")) +
+                " WHERE Id=@Id";
+
+            cmd.CommandType = CommandType.Text;
+            cmd.Connection = connection;
+            cmd.Parameters.AddWithValue("@Id", Id);
+            if (highetsCashInAGame != null) cmd.Parameters.AddWithValue("@highetsCashInAGame", highetsCashInAGame);
+            if (totalGrossProfit != null) cmd.Parameters.AddWithValue("@totalGrossProfit", totalGrossProfit);
 
             connection.Open();
             bool ans = cmd.ExecuteNonQuery() > 0;

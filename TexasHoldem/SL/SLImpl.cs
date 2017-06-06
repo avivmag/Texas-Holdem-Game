@@ -82,7 +82,7 @@ public class SLImpl : SLInterface
 
     public object editUserProfile(int userId, string name, string password, string email, string avatar, int money)
     {
-        return gameCenter.editUserProfile(userId,name,password,email,avatar,money);
+        return gameCenter.editUserProfile(userId,name,password,email,avatar, money);
     }
 
     public object findAllActiveAvailableGames()
@@ -257,10 +257,6 @@ public class SLImpl : SLInterface
     public object GetGameState(int gameId)
     {
         return gameCenter.getGameState(gameId);
-    }
-    public object ChoosePlayerSeat(int gameId, int playerIndex)
-    {
-        return gameCenter.ChoosePlayerSeat(gameId, playerIndex);
     }
     public object GetPlayer(int gameId, int playerIndex)
     {
