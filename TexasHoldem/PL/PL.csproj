@@ -146,7 +146,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="resources\current_turn.png" />
+    <Resource Include="resources\blue.png" />
     <Resource Include="resources\red.png" />
     <Resource Include="resources\gray.png" />
   </ItemGroup>
