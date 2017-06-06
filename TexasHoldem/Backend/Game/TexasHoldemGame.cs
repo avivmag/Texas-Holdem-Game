@@ -14,6 +14,9 @@ namespace Backend.Game
         public enum GameState { bFlop = 0, bTurn = 1, bRiver = 2, aRiver = 3}
         private GameState gameState;
         private Action<int[]> rankUpdateCallback;
+        private Action<int[]> leaderBoardUpdateCallback;
+
+        private bool isGameIsOver;
 
         public int gameId { get; set; }
         public int currentDealer { get; set; }
@@ -34,7 +37,6 @@ namespace Backend.Game
         public List<SystemUser> spectators;
 
         public bool active { get; set; }
-        private bool isGameActive;
 
         public List<Card> flop { get; set; }
         public Card turn { get; set; }
@@ -55,7 +57,7 @@ namespace Backend.Game
             return ++currentId;
         }
         
-        public TexasHoldemGame(SystemUser user, MustPreferences gamePreferences, Action<int[]> rankUpdateCallback)
+        public TexasHoldemGame(SystemUser user, MustPreferences gamePreferences, Action<int[]> rankUpdateCallback, Action<int[]>  leaderBoardUpdateCallback)
         {
             gameCreatorUserId = user.id;
             this.gamePreferences = gamePreferences;
@@ -90,8 +92,6 @@ namespace Backend.Game
             {
                 players[i] = null;
             }
-
-            isGameActive = false;
 
             currentDealer = 0;
         }
@@ -231,6 +231,7 @@ namespace Backend.Game
 
         private void InitializeGame()
         {
+            isGameIsOver = false;
             gameState = GameState.bFlop;
             preparePlayersState();
             deck.Shuffle();
@@ -289,8 +290,9 @@ namespace Backend.Game
             if (playersStats[winnerIndex].highetsCashInAGame < players[winnerIndex].Tokens)
                 playersStats[winnerIndex].highetsCashInAGame = players[winnerIndex].Tokens;
 
-            //UPDATE DATABASE
-            
+            leaderBoardUpdateCallback(new int[] { 1, 2 });
+
+
             gameStatesObserver.Update(this);
         }
 
@@ -434,6 +436,8 @@ namespace Backend.Game
                     break;
                 case GameState.aRiver:
                     Player p = decideWhoWon();
+                    isGameIsOver = true;
+                    gameStatesObserver.Update(this);
                     p.playerState = PlayerState.winner;
                     break;
             }
@@ -576,7 +580,7 @@ namespace Backend.Game
                 gameStatesObserver.Update(this);
                 continueGame();
             }
-            return null; // TODO: Gili!
+            return null;
         }
 
         public ReturnMessage check(Player p)
@@ -587,7 +591,7 @@ namespace Backend.Game
                 p.systemUserID.ToString());
             gameStatesObserver.Update(this);
             continueGame();
-            return null; // TODO: Gili!
+            return null;
         }
 
         public int nextToSeat(int seat)
@@ -898,21 +902,18 @@ namespace Backend.Game
 
             return -1;
         }
-
-        // TODO: Gili - tries to position a player where he wants (on a seat)
-        public ReturnMessage ChoosePlayerSeat(int playerIndex)
-        {
-            return null;
-        }
+        
         public Player GetPlayer(int playerIndex)
         {
             return players[playerIndex];
         }
+
+
         public Dictionary<int, List<Card>> GetPlayerCards(int userId)
         {
             Dictionary<int, List<Card>> playerCards = new Dictionary<int, List<Card>>();
-            // TODO: Gili, I don't know how you say the game is over, so just insert in this if instead false a boolean indicating the game is over.
-            if (false)
+            // TODO: A, I don't know how you say the game is over, so just insert in this if instead false a boolean indicating the game is over.
+            if (isGameIsOver)
                 for (int i = 0; i < players.Length; i++)
                 {
                     if (players[i] != null && players[i].playerCards != null && players[i].playerCards.Count == 2)
@@ -924,16 +925,5 @@ namespace Backend.Game
                         playerCards[i] = players[i].playerCards;
             return playerCards;
         }
-
-        // dont know if it is useful right now - TODO: Gili - when showoff happends this method would be called to get all the cards - so dont forget to update when a showoff happens
-        //public IDictionary<int, Card[]> GetShowOff()
-        //{
-        //    IDictionary<int, Card[]> ans = new Dictionary<int, Card[]>();
-        //    for (int i = 0; i < players.Length; i++)
-        //    {
-        //        ans[i] = players[i].playerCards.ToArray();
-        //    }
-        //    return ans;
-        //}
     }
 }
