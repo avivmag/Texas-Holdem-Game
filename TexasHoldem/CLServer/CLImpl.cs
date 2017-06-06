@@ -743,8 +743,7 @@ namespace CLServer
             }
             
             var getGameForPlayersResponse = sl.GetGameForPlayers((int)userIdToken, (int)gameIdToken);
-            if (sl != null)
-                sl.SubscribeToGameState(new ServerObserver((TcpClient)clientInfo.client), (int)gameIdToken);
+
             SendMessage(clientInfo, getGameForPlayersResponse);
             return;
         }
@@ -761,8 +760,7 @@ namespace CLServer
             }
 
             var spectateActiveGameResponse = sl.spectateActiveGame((int)userIdToken, (int)gameIdToken);
-            if (sl != null)
-                sl.SubscribeToGameState(new ServerObserver((TcpClient)clientInfo.client), (int)gameIdToken);
+
             SendMessage(clientInfo, spectateActiveGameResponse);
             return;
         }
