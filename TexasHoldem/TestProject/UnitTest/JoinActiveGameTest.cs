@@ -49,24 +49,25 @@ namespace TestProject
                 db.getUserByName("test1"),
                 db.getUserByName("test2"),
                 db.getUserByName("test3")
-                //new SystemUser("Hadas", "email0", "image0", 1000),
-                //new SystemUser("Gili", "email1", "image1", 0),
-                //new SystemUser("Or", "email2", "image2", 700),
-                //new SystemUser("Aviv", "email3", "image3", 1500)
             };
 
             center = GameCenter.getGameCenter();
             
+            for (int i = 0; i<10; i++)
+            {
+                db.EditUserById(db.getUserByName("test0").id, null, null, null, null, null, null, true);
+                db.EditUserById(db.getUserByName("test1").id, null, null, null, null, null, null, true);
+                db.EditUserById(db.getUserByName("test2").id, null, null, null, null, null, null, true);
+                db.EditUserById(db.getUserByName("test3").id, null, null, null, null, null, null, true);
+            }
+            
+
             //set users ranks.
             int j = 10;
             for (int i = 0; i < 4; i++)
             {
-                userList[i].rank = j;
-                userList[i].newPlayer = false;
+                db.EditUserById(db.getUserByName("test0").id, null, null, null, null, null, j, false);
                 j += 5;
-                userList[i].id = i;
-                //center.loggedInUsers.Add(userList[i]);
-                //center.login(userList[i].name, userList[i].password);
             }
 
             //set the leagues
@@ -166,8 +167,11 @@ namespace TestProject
         [TestMethod]
         public void joinFailsLeagueGameTest()
         {
-            sl.GetGameForPlayers(db.getUserByName("test0").id, 7);
-            object m = sl.joinGame(db.getUserByName("test0").id, 7, 0);
+            object m = sl.GetGameForPlayers(db.getUserByName("test0").id, 7);
+
+            Assert.IsInstanceOfType(m, typeof(TexasHoldemGame));
+
+            m = sl.joinGame(db.getUserByName("test0").id, 7, 0);
             //Assert.IsInstanceOfType(m, typeof(TexasHoldemGame));
 
             Assert.AreEqual(m, null);
@@ -197,9 +201,19 @@ namespace TestProject
         [TestMethod]
         public void joinFailsAlreadyPlayTest()
         {
-            sl.GetGameForPlayers(db.getUserByName("test0").id, 3);
+            object userObj = db.getUserByName("test0");
+            Assert.IsInstanceOfType(userObj, typeof(SystemUser));
+            SystemUser user = (SystemUser)userObj;
 
-            object m = sl.joinGame(db.getUserByName("test0").id, 3, 0);
+            object m = sl.GetGameForPlayers(user.id, 3);
+
+            Assert.IsInstanceOfType(m, typeof(TexasHoldemGame));
+
+            m = sl.joinGame(user.id, 3, 0);
+
+            Assert.IsInstanceOfType(m, typeof(TexasHoldemGame));
+
+            m = sl.GetGameForPlayers(user.id, 3);
 
             Assert.AreEqual(m, null);
         }

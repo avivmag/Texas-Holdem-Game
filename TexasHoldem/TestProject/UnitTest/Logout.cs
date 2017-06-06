@@ -164,17 +164,16 @@ namespace TestProject.UnitTest
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException), "The user is already logged in")]
-        public void logOutTwiceTest()
+        public void logOutTest()
         {
-            SystemUser user = new SystemUser("rick roll", "never@gonna.let.you.down", "a picture of something completly not related to rick roll", 200, 10);
-            user.id = 7;
-            sl.Register("rick roll", "never gonna give you up", "never@gonna.let.you.down", "a picture of something completly not related to rick roll");
-            sl.Login("rick roll", "never gonna give you up");
-            sl.Logout(7);
-            object m = sl.Logout(7);
+            object objUser = sl.Register("rick roll", "never gonna give you up", "never@gonna.let.you.down", "a picture rick roll");
+            Assert.IsInstanceOfType(objUser,typeof(SystemUser));
+            SystemUser user = (SystemUser)objUser;
+
+            object m = sl.Logout(user.id);
             Assert.IsInstanceOfType(m, typeof(ReturnMessage));
-            Assert.IsFalse(((ReturnMessage)m).success);
+            Assert.IsTrue(((ReturnMessage)m).success);
+            db.deleteUser(user.id);
         }
     }
 }
