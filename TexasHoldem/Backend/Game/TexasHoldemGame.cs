@@ -240,6 +240,7 @@ namespace Backend.Game
             currentBig = getNextPlayer(currentSmall);
             Console.WriteLine("big " + currentBig);
             betBlinds();
+            players[nextToSeat(currentDealer)].playerState = PlayerState.my_turn;
         }
 
         public void playGame()
@@ -392,6 +393,8 @@ namespace Backend.Game
                 players[currentSmall].systemUserID.ToString(),
                 (currentBlindBet / 2).ToString());
 
+            players[currentSmall].TokensInBet = currentBlindBet / 2;
+
             players[currentBig].Tokens -= currentBlindBet;
             GameLog.logLine(
                 gameId,
@@ -399,8 +402,9 @@ namespace Backend.Game
                 players[currentBig].systemUserID.ToString(),
                 (currentBlindBet / 2).ToString());
 
+            players[currentBig].TokensInBet = currentBlindBet;
 
-            tempPot += ((currentBlindBet + (currentBlindBet / 2)));
+            pot += ((currentBlindBet + (currentBlindBet / 2)));
         }
 
         private void continueGame()
