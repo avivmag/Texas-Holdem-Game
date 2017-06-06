@@ -11,11 +11,13 @@ namespace CLServer
         public enum CLIENT_TYPE { TCP, HTTP };
         public Object client { get; set; }
         public CLIENT_TYPE type { get; set; }
+        public string passPhrase { get; set; }
 
         public ClientInfo(Object client, CLIENT_TYPE type)
         {
             this.client = client;
             this.type = type;
+            this.passPhrase = "undefined";
         }
     }
 }

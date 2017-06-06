@@ -5,17 +5,15 @@ namespace CLServer
 {
     public class ServerObserver : ObserverAbstract<TcpClient>
     {
-        private TcpClient client;
+        private ClientInfo clientInfo;
 
-        public ServerObserver(TcpClient c)
+        public ServerObserver(ClientInfo clientInfo)
         {
-            client = c;
+            this.clientInfo = clientInfo;
         }
 
         public override void update(object obj)
         {
-            var clientInfo = new ClientInfo(client, ClientInfo.CLIENT_TYPE.TCP);
-
             CLImpl.SendMessage(clientInfo, new { response = "Game", obj });
         }
     }

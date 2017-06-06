@@ -17,12 +17,12 @@ namespace CLClient
 
         #region Constants
 
-        private const string SERVER_IP              = "127.0.0.1";
-        private const int SERVER_PORT               = 2345;
-        private const int MAIN_CLIENT               = 305278202;
-        private const int MESSAGE_CLIENT            = 9440990;
-        private const string SUBSCRIBE_TO_MESSAGE   = "Messages";
-        private const string SUBSCRIBE_TO_GAME      = "Game";
+        private const string SERVER_IP = "127.0.0.1";
+        private const int SERVER_PORT = 2345;
+        private const int MAIN_CLIENT = 305278202;
+        private const int MESSAGE_CLIENT = 9440990;
+        private const string SUBSCRIBE_TO_MESSAGE = "Messages";
+        private const string SUBSCRIBE_TO_GAME = "Game";
 
         #endregion
 
@@ -30,6 +30,11 @@ namespace CLClient
         /// Client pool.
         /// </summary>
         private static Dictionary<int, TcpClient> clients = new Dictionary<int, TcpClient>();
+
+        /// <summary>
+        /// Pass phrase for encryption and decryption of messages. 
+        /// </summary>
+        private static string passPhrase = generateBlob();
 
         /// <summary>
         /// Private server listener class to wrap paremeters for listen threads.
@@ -41,12 +46,27 @@ namespace CLClient
 
             public serverListener(TcpClient client, IObservable toUpdate)
             {
-                this.client     = client;
-                this.toUpdate   = toUpdate;
+                this.client = client;
+                this.toUpdate = toUpdate;
             }
         }
 
         #region Static functionality
+
+        /// <summary>
+        /// Generates a random blob-string.
+        /// </summary>
+        /// <returns>A 12-length-string of randomly generated alphanumeric characters.</returns>
+        public static string generateBlob()
+        {
+            var random = new Random();
+
+            var length = 12;
+
+            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+            return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
+        }
 
         /// <summary>
         /// Closes a connection to the server. If none given, closes all connections.
@@ -77,7 +97,7 @@ namespace CLClient
         /// </summary>
         /// <param name="obj">An anonymous object. MUST have action property.</param>
         /// <returns></returns>
-        public static JObject sendMessage(object obj, TcpClient client = null, bool isResponseNeeded = true)
+        public static JObject sendMessage(object obj, TcpClient client = null, bool isResponseNeeded = true, bool isInitial = false)
         {
             // If no client was explicitly assigned, get default TcpClient to send message to.
             if (client == null)
@@ -87,6 +107,11 @@ namespace CLClient
 
             var jsonObj             = JObject.FromObject(obj);
             var serializedJsonObj   = JsonConvert.SerializeObject(jsonObj);
+
+            if (!isInitial)
+            {
+                serializedJsonObj = Cryptography.Encrypt(serializedJsonObj, passPhrase);
+            }
 
             var networkStream = client.GetStream();
 
@@ -99,7 +124,7 @@ namespace CLClient
 
             if (isResponseNeeded)
             {
-                return getJsonObjectFromStream(client);
+                return getJsonObjectFromStream(client, passPhrase, isInitial);
             }
             else
             {
@@ -112,7 +137,7 @@ namespace CLClient
         /// </summary>
         /// <param name="client">The Client stream that holds a message.</param>
         /// <returns>Server message as JSON object.</returns>
-        private static JObject getJsonObjectFromStream(TcpClient client)
+        private static JObject getJsonObjectFromStream(TcpClient client, string passPhrase, bool isInitial = false)
         {
             var message = new byte[1024 * 10];
 
@@ -126,6 +151,12 @@ namespace CLClient
             }
 
             string myObject = Encoding.ASCII.GetString(message);
+
+            if (!isInitial)
+            {
+                var trimmedObject = myObject.Trim('\0');
+                myObject = Cryptography.Decrypt(trimmedObject, passPhrase);
+            }
 
             Object deserializedProduct = JsonConvert.DeserializeObject(myObject);
 
@@ -161,7 +192,7 @@ namespace CLClient
                 return responseJson;
             }
         }
-
+        
         /// <summary>
         /// Adds the client stream to the client pool.
         /// </summary>
@@ -177,10 +208,10 @@ namespace CLClient
         /// <param name="messageStreamId">The stream's client id to subscribe.</param>
         private static void subscribeStreamToServer(int clientId, string to, object optional = null)
         {
-            var subscribeMessage = new { action = "Subscribe", to, optional };
-            sendMessage(subscribeMessage, clients[clientId], false);
+            var subscribeMessage = new { action = "Subscribe", to, optional, passPhrase };
+            sendMessage(subscribeMessage, clients[clientId], false, true);
         }
-
+        
         /// <summary>
         /// Listens to client's stream in the background, and updates a given object by the server's request.
         /// </summary>
@@ -193,7 +224,7 @@ namespace CLClient
 
             while (true)
             {
-                var response = getJsonObjectFromStream(client);
+                var response = getJsonObjectFromStream(client, passPhrase);
 
                 var jsonResponse = getResponse(response);
 
@@ -231,8 +262,8 @@ namespace CLClient
         {
             addClientStream(MAIN_CLIENT);
 
-            var message         = new { action = "Login", username, password };
-            var jsonMessage     = sendMessage(message);
+            var message         = new { action = "Login", username, password, passPhrase };
+            var jsonMessage = sendMessage(message, null, true, true);
             var responseJson    = getResponse(jsonMessage);
             
             if (responseJson == null)
@@ -336,7 +367,7 @@ namespace CLClient
         public static TexasHoldemGame spectateActiveGame(int userId, int gameId)
         {
             var message     = new { action = "SpectateActiveGame", userId, gameId };
-            var jsonMessage = sendMessage(message);
+            var jsonMessage = sendMessage(message, null, true, true);
             var responseJson = getResponse(jsonMessage);
 
             if (responseJson == null)
@@ -456,10 +487,11 @@ namespace CLClient
                 username,
                 password,
                 email,
-                userImage
+                userImage,
+                passPhrase
             };
 
-            var jsonMessage     = sendMessage(message);
+            var jsonMessage     = sendMessage(message, null, true, true);
             var responseJson    = getResponse(jsonMessage);
 
             if (responseJson == null)

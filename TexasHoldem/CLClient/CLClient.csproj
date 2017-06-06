@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommClient.cs" />
+    <Compile Include="Cryptography.cs" />
     <Compile Include="Entities\Card.cs" />
     <Compile Include="Entities\DecoratorPreferences\Preference.cs" />
     <Compile Include="Entities\Notification.cs" />

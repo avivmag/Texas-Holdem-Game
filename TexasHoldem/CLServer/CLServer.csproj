@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="ClientInfo.cs" />
     <Compile Include="CLImpl.cs" />
+    <Compile Include="Cryptography.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerObserver.cs" />
   </ItemGroup>
