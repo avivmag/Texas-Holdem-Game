@@ -67,7 +67,8 @@ namespace TestProject
         public void TearDown()
         {
             removeGame(game.gameId);
-            db.deleteUsers();
+            db.deleteUser(db.getUserByName("Hadas").id);
+            db.deleteUser(db.getUserByName("Gil").id);
         }
     }
 }

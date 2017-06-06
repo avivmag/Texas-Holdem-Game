@@ -152,7 +152,8 @@ namespace TestProject.AcceptanceTests
         {
             removeGame(gameSpectate.gameId);
             removeGame(gameCantSpectate.gameId);
-            db.deleteUsers();
+            db.deleteUser(db.getUserByName("Hadas").id);
+            db.deleteUser(db.getUserByName("Gil").id);
         }
     }
 }
