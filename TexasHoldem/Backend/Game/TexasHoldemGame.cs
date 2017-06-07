@@ -184,6 +184,11 @@ namespace Backend.Game
             return new ReturnMessage(true, "");
         }
 
+        public void addMessage(string message)
+        {
+            gameStatesObserver.Update(message);
+        }
+
         public ReturnMessage joinSpectate(SystemUser user)
         {
             ReturnMessage m = gamePreferences.canPerformUserActions(this, user, "spectate");
