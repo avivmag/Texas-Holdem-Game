@@ -22,7 +22,6 @@ namespace SL
         //List<object> filterActiveGamesByGamePreferences(GamePreferences pref);
         //List<object> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed);
         object getAllGames();
-        
 
         //object createGame(int gameCreatorId, object pref);
         object createGame(int gameCreator, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague);
@@ -56,10 +55,11 @@ namespace SL
         void SubscribeToGameChatSpectators(ObserverAbstract<TcpClient> client, int gameID);
         #endregion
 
-
+        object getLeaderboardsByParam(string param);
 
         //For test purpose methods
         object getAllUsers();
+        object getUsersDetails();
         object removeUser(int userId);
         object removeGame(int gameId);
     }

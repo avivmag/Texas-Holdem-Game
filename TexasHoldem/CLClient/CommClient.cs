@@ -34,12 +34,12 @@ namespace CLClient
         /// <summary>
         /// Private server listener class to wrap paremeters for listen threads.
         /// </summary>
-        private class serverListener
+        private class ServerListener
         {
             public TcpClient client;
             public IObservable toUpdate;
 
-            public serverListener(TcpClient client, IObservable toUpdate)
+            public ServerListener(TcpClient client, IObservable toUpdate)
             {
                 this.client     = client;
                 this.toUpdate   = toUpdate;
@@ -188,8 +188,8 @@ namespace CLClient
         /// <param name="toUpdate">The object to update.</param>
         private static void Listen(Object obj)
         {
-            var client      = ((serverListener)obj).client;
-            var toUpdate    = ((serverListener)obj).toUpdate;
+            var client      = ((ServerListener)obj).client;
+            var toUpdate    = ((ServerListener)obj).toUpdate;
 
             while (true)
             {
@@ -250,7 +250,7 @@ namespace CLClient
             // Null needs to change to message observer.
             Thread listenThread = new Thread(Listen);
 
-            var listener = new serverListener(clients[MESSAGE_CLIENT], null);
+            var listener = new ServerListener(clients[MESSAGE_CLIENT], null);
 
             listenThread.Start(listener);
 
@@ -307,7 +307,7 @@ namespace CLClient
 
             subscribeStreamToServer(response.gameId, SUBSCRIBE_TO_GAME, response.gameId);
 
-            var serverListener = new serverListener(clients[response.gameId], response);
+            var serverListener = new ServerListener(clients[response.gameId], response);
 
             Thread listenThread = new Thread(Listen);
 
@@ -478,7 +478,7 @@ namespace CLClient
             // Null needs to change to some list of messages.
             Thread listenThread = new Thread(Listen);
 
-            var listener = new serverListener(clients[MESSAGE_CLIENT], null);
+            var listener = new ServerListener(clients[MESSAGE_CLIENT], null);
 
             listenThread.Start(listener);
 
@@ -628,7 +628,7 @@ namespace CLClient
 
             subscribeStreamToServer(response.gameId, SUBSCRIBE_TO_GAME, response.gameId);
 
-            var serverListener = new serverListener(clients[response.gameId], response);
+            var serverListener = new ServerListener(clients[response.gameId], response);
 
             Thread listenThread = new Thread(Listen);
 

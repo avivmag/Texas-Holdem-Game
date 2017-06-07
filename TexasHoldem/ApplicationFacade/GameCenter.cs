@@ -127,6 +127,11 @@ namespace ApplicationFacade
             //return new ReturnMessage(false, "you are not logged in.");
         }
 
+        public List<Object> getUsersDetails()
+        {
+            return db.getUsersDetails();
+        }
+
         public List<SystemUser> getAllUsers()
         {
             //return dal.getAllUsers();
@@ -239,7 +244,7 @@ namespace ApplicationFacade
                 mustPref = getMustPref(gamePolicy, gamePolicyLimit, buyInPolicy, startingChipsAmount, minimalBet, minPlayers, maxPlayers, isSpectatingAllowed, isLeague);
 
 
-            //                                                          this is the callback that is there for when we want to update user rank
+            //this is the callback that is there for when we want to update user rank
             TexasHoldemGame game = new TexasHoldemGame(user, mustPref, userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false), userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2]));
             texasHoldemGames.Add(game);
             //dal.addGame(game);
@@ -624,6 +629,10 @@ namespace ApplicationFacade
             return mustPref;
         }
 
+        public List<object> getLeaderboardsByParam(string param)
+        {
+            return db.getLeaderboardsByParam(param);
+        }
 
         //public TexasHoldemGame createRegularGame(SystemUser user, GamePreferences preferences)
         //{

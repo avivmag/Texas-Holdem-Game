@@ -177,6 +177,16 @@ public class SLImpl : SLInterface
         return users;
     }
 
+    public object getUsersDetails()
+    {
+        var users = gameCenter.getUsersDetails();
+        if (users.Count == 0)
+        {
+            return null;
+        }
+        return users;
+    }
+
     public object removeUser(int userId)
     {
         return gameCenter.removeUser(userId);
@@ -305,6 +315,17 @@ public class SLImpl : SLInterface
         game.gameStatesObserver.Subscribe(client);
     }
 
+    public object getLeaderboardsByParam(string param)
+    {
+        var leaderBoards = gameCenter.getLeaderboardsByParam(param);
+
+        if (leaderBoards.Count == 0)
+        {
+            return null;
+        }
+
+        return leaderBoards;
+    }
 
     //public List<TexasHoldemGame> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed)
     //{
