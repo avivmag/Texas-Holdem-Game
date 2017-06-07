@@ -49,6 +49,7 @@ namespace Backend.Game
 
         private LeaderboardsStats[] playersStats;
 
+        private int minNumberOfPlayerRounds;
 
         // TODO: Gili - notice Gil decorator pattern and Aviv player.TokensInBet - you should use them in your logic
         static int currentId;
@@ -76,15 +77,9 @@ namespace Backend.Game
             playersStats = new LeaderboardsStats[maxPlayers];
             availableSeats = maxPlayers - 1;
             this.rankUpdateCallback = rankUpdateCallback;
-
+            flop = null;
             currentBlindBet = 20;
-
-            // TODO: remove when the db is created.
-
-            // NO MORE FUCKING RANDOM!!!
-            // https://youtu.be/2JM4LZX-oxg?t=6s
-            //Random rnd = new Random();
-            //this.gameId = rnd.Next(0, 999999);
+            
             this.gameId = TexasHoldemGame.getNextId();
             GameLog.setLog(gameId, DateTime.Now);
             GameLog.logLine(gameId, GameLog.Actions.Game_Start, DateTime.Now.ToString());
@@ -248,6 +243,7 @@ namespace Backend.Game
             Console.WriteLine("small " + currentSmall);
             currentBig = getNextPlayer(currentSmall);
             Console.WriteLine("big " + currentBig);
+            minNumberOfPlayerRounds = numbersOfPlayersInRound();
             betBlinds();
             players[getNextPlayer(currentBig)].playerState = PlayerState.my_turn;
             //players[currentDealer].playerState = PlayerState.my_turn;
@@ -423,13 +419,15 @@ namespace Backend.Game
             {
                 case GameState.bFlop:
                     //reveal flop
+                    flop = new List<Card>();
                     for (int i = 0; i < 3; i++)
                     {
                         Card flopCard = deck.Top();
                         flop.Add(flopCard);
                         GameLog.logLine(gameId, GameLog.Actions.Flop, i.ToString(), flopCard.ToString());
-                        gameState++;
                     }
+                    minNumberOfPlayerRounds = numbersOfPlayersInRound();
+                    gameState++;
                     break;
                 case GameState.bTurn:
                     turn = deck.Top();
@@ -439,8 +437,10 @@ namespace Backend.Game
                         turn.ToString());
                     for (int i = 0; i < players.Length; i++)
                     {
-                        players[i].TokensInBet = 0;
+                        if(players[i] != null && (players[i].playerState == PlayerState.in_round || players[i].playerState == PlayerState.my_turn))
+                             players[i].TokensInBet = 0;
                     }
+                    minNumberOfPlayerRounds = numbersOfPlayersInRound();
                     gameState++;
                     break;
                 case GameState.bRiver:
@@ -451,8 +451,10 @@ namespace Backend.Game
                         turn.ToString());
                     for (int i = 0; i < players.Length; i++)
                     {
-                        players[i].TokensInBet = 0;
+                        if (players[i] != null && (players[i].playerState == PlayerState.in_round || players[i].playerState == PlayerState.my_turn))
+                            players[i].TokensInBet = 0;
                     }
+                    minNumberOfPlayerRounds = numbersOfPlayersInRound();
                     gameState++;
                     break;
                 case GameState.aRiver:
@@ -492,7 +494,7 @@ namespace Backend.Game
             if (currentBet > amount && amount != p.Tokens)
                 return new ReturnMessage(false, "need to bet more");
 
-            currentBet = Math.Max(amount, currentBet);
+           //currentBet = Math.Max(amount, currentBet);
 
             p.Tokens -= amount;
 
@@ -503,6 +505,8 @@ namespace Backend.Game
                 amount.ToString());
 
             tempPot += amount;
+            int turn = checkWhosTurnIs();
+            players[turn].TokensInBet += amount;
             int bet = -1;
             for (int i = 0; i < players.Length; i++)
             {
@@ -520,15 +524,17 @@ namespace Backend.Game
                     isBetOver = false;
                 }
             }
-            gameStatesObserver.Update(this);
+           
+            
+            players[turn].playerState = PlayerState.in_round;
+            players[nextToSeat(turn)].playerState = PlayerState.my_turn;
+            addToPot(tempPot);
+            
             if (isBetOver)
             {
-                addToPot(tempPot);
-                players[checkWhosTurnIs()].playerState = PlayerState.in_round;
-                players[nextToSeat(checkWhosTurnIs())].playerState = PlayerState.my_turn;
-                
                 continueGame();
             }
+            gameStatesObserver.Update(this);
             // TODO: Gili, you need to send the message to the other players
             return new ReturnMessage(true, "");
         }
@@ -561,13 +567,13 @@ namespace Backend.Game
                     isCallOver = false;
                 }
             }
+            int turn = checkWhosTurnIs();
+            players[turn].playerState = PlayerState.in_round;
+            players[nextToSeat(turn)].playerState = PlayerState.my_turn;
             gameStatesObserver.Update(this);
             if (isCallOver)
             {
                 addToPot(tempPot);
-                players[checkWhosTurnIs()].playerState = PlayerState.in_round;
-                players[nextToSeat(checkWhosTurnIs())].playerState = PlayerState.my_turn;
-                
                 continueGame();
             }
         }
@@ -598,12 +604,13 @@ namespace Backend.Game
                     isFoldOver = false;
                 }
             }
+            int turn = checkWhosTurnIs();
+            players[turn].playerState = PlayerState.in_round;
+            players[nextToSeat(turn)].playerState = PlayerState.my_turn;
             gameStatesObserver.Update(this);
             if (isFoldOver)
             {
                 addToPot(tempPot);
-                players[checkWhosTurnIs()].playerState = PlayerState.in_round;
-                players[nextToSeat(checkWhosTurnIs())].playerState = PlayerState.my_turn;
                 continueGame();
             }
             return new ReturnMessage(true, "");
@@ -611,16 +618,17 @@ namespace Backend.Game
 
         public ReturnMessage check(Player p)
         {
-            int minNumberOfPlayerRounds = numbersOfPlayersInRound();
             GameLog.logLine(
                 gameId,
                 GameLog.Actions.Action_Check,
                 p.systemUserID.ToString());
-            players[checkWhosTurnIs()].playerState = PlayerState.in_round;
-            players[nextToSeat(checkWhosTurnIs())].playerState = PlayerState.my_turn;
-            gameStatesObserver.Update(this);
-            if (minNumberOfPlayerRounds <= 0)
+            int turn = checkWhosTurnIs();
+            players[turn].playerState = PlayerState.in_round;
+            players[nextToSeat(turn)].playerState = PlayerState.my_turn;
+            minNumberOfPlayerRounds--;
+            if (minNumberOfPlayerRounds <= 0 )
                 continueGame();
+            gameStatesObserver.Update(this);
             return new ReturnMessage(true, "");
         }
 
@@ -652,13 +660,13 @@ namespace Backend.Game
             List<Card> fullHand = new List<Card>();
             for (int i = 0; i < 3; i++)
             {
-                fullHand.Add(flop[0]);
-                flop.RemoveAt(0);
+                fullHand.Add(flop[i]);
+                //flop.RemoveAt(0);
             }
 
             for (int i = 0; i < 2; i++)
             {
-                fullHand.Add(p.playerCards[0]);
+                fullHand.Add(p.playerCards[i]);
             }
 
             fullHand.Add(turn);
