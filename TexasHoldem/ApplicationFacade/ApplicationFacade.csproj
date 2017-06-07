@@ -95,6 +95,10 @@
       <Project>{f62d010b-41a2-4a9f-9583-b7157fdfda21}</Project>
       <Name>Database</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Obser\Obser.csproj">
+      <Project>{7500fa3e-1231-437f-89cd-8a6f8087fe44}</Project>
+      <Name>Obser</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

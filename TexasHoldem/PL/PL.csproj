@@ -74,6 +74,9 @@
     <Compile Include="SelectGameWindow.xaml.cs">
       <DependentUpon>SelectGameWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SystemMessageWindow.xaml.cs">
+      <DependentUpon>SystemMessageWindow.xaml</DependentUpon>
+    </Compile>
     <Page Include="CreateGameWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -118,6 +121,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="SystemMessageWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -146,7 +153,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="resources\current_turn.png" />
+    <Resource Include="resources\blue.png" />
     <Resource Include="resources\red.png" />
     <Resource Include="resources\gray.png" />
   </ItemGroup>
@@ -179,6 +186,21 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="resources\yellow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\texas_holdem_poker-image.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\main_menu.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\option_window.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\game_window.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\chips.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

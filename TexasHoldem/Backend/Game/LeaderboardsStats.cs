@@ -23,6 +23,5 @@ namespace Backend.Game
         {
             return totalGrossProfit / numberOfGamesPlayed;
         }
-
     }
 }

@@ -4,31 +4,28 @@ using System.Collections.Generic;
 using Backend.User;
 using Backend.Game;
 using Backend;
+using Database;
 
 namespace TestProject
 {
     [TestClass]
     public class Tests : ProjectTest    {
 
-
-        SystemUser hadas;
-        SystemUser other;
+        IDB db;
         TexasHoldemGame game;
         
         [TestInitialize]
         public void SetUp()
         {
-            object objUser = register("Hadas", "1234", "shidlhad", "1");
-            Assert.IsNotNull(objUser);
-            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
-            hadas = (SystemUser)objUser;
+            db = new DBImpl();
 
-            object objOther = register("Gil", "1234", "gilabadi89", "2");
-            Assert.IsNotNull(objOther);
-            Assert.IsInstanceOfType(objOther, typeof(SystemUser));
-            other = (SystemUser)objOther;
+            bool objUser = db.RegisterUser("Hadas","1234","shidlhad","1");
+            Assert.IsTrue(objUser);
 
-            object objGame = creatGame(hadas.id, "Limit", 1000, 1000, 1000, 100, 2, 9, true, false);
+            bool objOther = db.RegisterUser("Gil", "1234", "gilabadi89", "1");
+            Assert.IsTrue(objOther);
+
+            object objGame = creatGame(db.getUserByName("Hadas").id, "Limit", 1000, 1000, 1000, 100, 2, 9, true, false);
             Assert.IsNotNull(objGame);
             Assert.IsInstanceOfType(objGame, typeof(TexasHoldemGame));
             game = (TexasHoldemGame)objGame;
@@ -37,7 +34,7 @@ namespace TestProject
         [TestMethod]
         public void TestLogin()
         {
-            Assert.IsNotNull(logout(hadas.id));
+            Assert.IsNotNull(logout(db.getUserByName("Hadas").id));
             Assert.IsNotNull(login("Hadas", "1234"));
 
         }
@@ -45,35 +42,33 @@ namespace TestProject
         [TestMethod]
         public void TestLogout()
         {
-            Assert.IsNotNull(logout(hadas.id));
+            Assert.IsNotNull(logout(db.getUserByName("Hadas").id));
         }
 
         [TestMethod]
         public void TestLogoutFail()
         {
-            hadas.money = 100000;
-            Assert.IsNotNull(addPlayerToGame(hadas.id, game.gameId,1));
-            Assert.IsFalse(((ReturnMessage)logout(hadas.id)).success);
+            db.EditUserById(db.getUserByName("Hadas").id,null,null,null,null,100000,null,true);
+            Assert.IsNotNull(addPlayerToGame(db.getUserByName("Hadas").id, game.gameId,1));
+            Assert.IsFalse(((ReturnMessage)logout(db.getUserByName("Hadas").id)).success);
         }
         
         [TestMethod]
         public void TestLeaveGame()
         {
-            hadas.money = 100000;
-            Assert.IsNotNull(addPlayerToGame(hadas.id, game.gameId, 1));
-            Assert.IsFalse(((ReturnMessage)logout(hadas.id)).success);
-            Assert.IsNotNull(removeUserFromGame(hadas, game.gameId));
-            Assert.IsTrue(((ReturnMessage)logout(hadas.id)).success);
+            editProfile(db.getUserByName("Hadas").id, "Hadas", "123", "shilhad", "1", 10000);
+            Assert.IsNotNull(addPlayerToGame(db.getUserByName("Hadas").id, game.gameId, 1));
+            Assert.IsFalse(((ReturnMessage)logout(db.getUserByName("Hadas").id)).success);
+            Assert.IsNotNull(removeUserFromGame(db.getUserByName("Hadas"), game.gameId));
+            Assert.IsTrue(((ReturnMessage)logout(db.getUserByName("Hadas").id)).success);
         }
 
         [TestCleanup]
         public void TearDown()
         {
             removeGame(game.gameId);
-            logout(hadas.id);
-            logout(other.id);
-            removeUser(hadas.id);
-            removeUser(other.id);
+            db.deleteUser(db.getUserByName("Hadas").id);
+            db.deleteUser(db.getUserByName("Gil").id);
         }
     }
 }

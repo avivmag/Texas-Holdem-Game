@@ -9,10 +9,9 @@ namespace SL
         object spectateActiveGame(int userId, int gameID);
         object GetGameForPlayers(int userId, int gameID);
         object joinGame(int userId, int gameID, int seatIndex);
-        object leaveGame(SystemUser user, int gameID);
         
         object editUserProfile(int userId, string name, string password, string email, string avatar, int amount);
-
+        void sendSystemMessage(string message);
         object findAllActiveAvailableGames();
         object filterActiveGamesByPlayerName(string name);
         object filterActiveGamesByPotSize(int? size);
@@ -22,7 +21,6 @@ namespace SL
         //List<object> filterActiveGamesByGamePreferences(GamePreferences pref);
         //List<object> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed);
         object getAllGames();
-        
 
         //object createGame(int gameCreatorId, object pref);
         object createGame(int gameCreator, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague);
@@ -46,21 +44,24 @@ namespace SL
         object AddMessage(int gameId, int playerIndex, string messageText);
         object Fold(int gameId, int playerIndex);
         object Check(int gameId, int playerIndex);
+        object Call(int gameId, int playerIndex, int minBet);
         object playGame(int gameId);
         object GetGameState(int gameId);
-        object ChoosePlayerSeat(int gameId, int playerIndex);
         object GetPlayer(int gameId, int playerIndex);
         object GetPlayerCards(int gameId, int userId);
         //object GetShowOff(int gameId);
         void SubscribeToGameState(ObserverAbstract<TcpClient> client, int gameID);
+        void SubscribeToMessages(ObserverAbstract<TcpClient> client);
         void SubscribeToGameChatPlayers(ObserverAbstract<TcpClient> client, int gameID);
         void SubscribeToGameChatSpectators(ObserverAbstract<TcpClient> client, int gameID);
         #endregion
 
-
+        object getLeaderboardsByParam(string param);
 
         //For test purpose methods
         object getAllUsers();
+        object getUsersDetails();
+        object removeUser(int gameId, int userId);
         object removeUser(int userId);
         object removeGame(int gameId);
     }

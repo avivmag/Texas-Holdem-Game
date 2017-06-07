@@ -32,6 +32,10 @@ namespace PL
             }
             Hide();
             errorMessage.Text = "";
+
+            // Create the invisible system messages window.
+            var messagesWindow = new SystemMessageWindow();
+            user.Subscribe(messagesWindow);
             new MainMenuWindow(this).Show();
         }
 
@@ -51,6 +55,11 @@ namespace PL
         { 
             Application.Current.Shutdown();
             CommClient.closeConnection();
+        }
+
+        private void username_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+
         }
     }
 }

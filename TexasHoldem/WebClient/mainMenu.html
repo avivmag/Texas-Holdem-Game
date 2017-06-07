@@ -6,10 +6,17 @@
     <script src="login/login.controller.js"></script>
     <script src="mainMenu.controller.js"></script>
     <script src="leaderBoard/leaderboard.controller.js"></script>
+    <script src="statistics/statistics.controller.js"></script>
     <script src="https://angular-ui.github.io/ui-router/release/angular-ui-router.min.js"></script>
 </head>
 
 <body ng-app="texasHoldem" ng-controller="mainController as vm">
+    <div class="dashboard">
+        <button ng-disabled="!login" ui-sref="leaderboard">Leaderboards</button>
+        <button ng-disabled="!login" ui-sref="statistics">Player Statistics</button>
+        <button ng-if="login" ng-click="logout()">Log out</button>
+        <button ng-if="!login" ui-sref="login">Log in</button>
+    </div>
     <div ui-view></div>
 </body>
 

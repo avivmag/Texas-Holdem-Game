@@ -84,43 +84,51 @@ namespace TestProject.UnitTest
                                                                     new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
                                                                     new MinBetDecPref(20,new MinPlayersDecPref(2,
                                                                     new MaxPlayersDecPref (9,null) ))))),true),
-                                                                    userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false)),
+                                                                    userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false),
+                                                                    userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2])),
                 new TexasHoldemGame(userList[0],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
                                                                     new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
                                                                     new MinBetDecPref(20,new MinPlayersDecPref(2,
                                                                     new MaxPlayersDecPref (9,null) ))))),false),
-                                                                    userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false)),
+                                                                    userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false),
+                                                                    userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2])),
                 new TexasHoldemGame(userList[1],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
                                                                     new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
                                                                     new MinBetDecPref(20,new MinPlayersDecPref(2,
                                                                     new MaxPlayersDecPref (2,null) ))))),true),
-                                                                    userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false)),
+                                                                    userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false),
+                                                                    userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2])),
                 new TexasHoldemGame(userList[1],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
                                                                     new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
                                                                     new MinBetDecPref(20,new MinPlayersDecPref(2,
                                                                     new MaxPlayersDecPref (2,null) ))))),false),
-                                                                    userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false)),
+                                                                    userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false),
+                                                                    userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2])),
                 new TexasHoldemGame(userList[2],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
                                                                     new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
                                                                     new MinBetDecPref(20,new MinPlayersDecPref(2,
                                                                     new MaxPlayersDecPref (2,null) ))))),false),
-                                                                    userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false)),
+                                                                    userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false),
+                                                                    userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2])),
                 new TexasHoldemGame(userList[2],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
                                                                     new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
                                                                     new MinBetDecPref(20,new MinPlayersDecPref(2,
                                                                     new MaxPlayersDecPref (2,null) ))))),false),
-                                                                    userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false)),
+                                                                    userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false),
+                                                                    userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2])),
                 //league games
                 new TexasHoldemGame(userList[3],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
                                                                     new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
                                                                     new MinBetDecPref(20,new MinPlayersDecPref(2,
                                                                     new MaxPlayersDecPref (2,null) ))))),false,l.minRank,l.maxRank),
-                                                                    userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false)),
+                                                                    userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false),
+                                                                    userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2])),
                 new TexasHoldemGame(userList[3],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
                                                                     new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
                                                                     new MinBetDecPref(20,new MinPlayersDecPref(2,
                                                                     new MaxPlayersDecPref (2,null) ))))),false,l.minRank,l.maxRank),
-                                                                    userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false))
+                                                                    userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false),
+                                                                    userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2]))
             //new TexasHoldemGame(userList[0], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, true)),
             //    new TexasHoldemGame(userList[0], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, false)),
             //    new TexasHoldemGame(userList[1], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, true)),
@@ -164,17 +172,16 @@ namespace TestProject.UnitTest
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException), "The user is already logged in")]
-        public void logOutTwiceTest()
+        public void logOutTest()
         {
-            SystemUser user = new SystemUser("rick roll", "never@gonna.let.you.down", "a picture of something completly not related to rick roll", 200, 10);
-            user.id = 7;
-            sl.Register("rick roll", "never gonna give you up", "never@gonna.let.you.down", "a picture of something completly not related to rick roll");
-            sl.Login("rick roll", "never gonna give you up");
-            sl.Logout(7);
-            object m = sl.Logout(7);
+            object objUser = sl.Register("rick roll", "never gonna give you up", "never@gonna.let.you.down", "a picture rick roll");
+            Assert.IsInstanceOfType(objUser,typeof(SystemUser));
+            SystemUser user = (SystemUser)objUser;
+
+            object m = sl.Logout(user.id);
             Assert.IsInstanceOfType(m, typeof(ReturnMessage));
-            Assert.IsFalse(((ReturnMessage)m).success);
+            Assert.IsTrue(((ReturnMessage)m).success);
+            db.deleteUser(user.id);
         }
     }
 }

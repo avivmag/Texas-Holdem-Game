@@ -31,6 +31,9 @@ namespace PL
                 LoginWindow.user = user;
                 Close();
                 new MainMenuWindow(loginWindow).Show();
+                // Create the invisible system messages window.
+                var messagesWindow = new SystemMessageWindow();
+                user.Subscribe(messagesWindow);
             }
             else
             {

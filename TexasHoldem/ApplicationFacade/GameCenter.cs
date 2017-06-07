@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using Backend;
+using Obser;
 using Backend.Game;
 using Backend.Game.DecoratorPreferences;
 using Backend.User;
+using Backend.Messages;
 using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
 using Database;
+using System.Net.Sockets;
 
 namespace ApplicationFacade
 {
@@ -18,6 +21,8 @@ namespace ApplicationFacade
         //private DALDummy dal;
         private static GameCenter center;
         private IDB db;
+        public MessageObserver messageObserver = new MessageObserver();
+
 
         private GameCenter()
         {
@@ -106,7 +111,7 @@ namespace ApplicationFacade
                 }
             }
         }
-
+        
         public ReturnMessage logout(int userId)
         {
             SystemUser systemUser = db.getUserById(userId);
@@ -127,6 +132,11 @@ namespace ApplicationFacade
             //return new ReturnMessage(false, "you are not logged in.");
         }
 
+        public List<Object> getUsersDetails()
+        {
+            return db.getUsersDetails();
+        }
+
         public List<SystemUser> getAllUsers()
         {
             //return dal.getAllUsers();
@@ -145,6 +155,12 @@ namespace ApplicationFacade
             //return false;
             return db.deleteUser(userId);
         }
+
+        public void sendSystemMessage(string message)
+        {
+            messageObserver.Update(message);
+        }
+
         public bool removeGame(int gameId)
         {
             foreach (TexasHoldemGame game in texasHoldemGames)
@@ -240,7 +256,7 @@ namespace ApplicationFacade
 
 
             //                                                          this is the callback that is there for when we want to update user rank
-            TexasHoldemGame game = new TexasHoldemGame(user, mustPref, userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false));
+            TexasHoldemGame game = new TexasHoldemGame(user, mustPref, userIdDeltaRankMoney => db.EditUserById(userIdDeltaRankMoney[0], null, null, null, null, userIdDeltaRankMoney[2], userIdDeltaRankMoney[1], false), userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2]));
             texasHoldemGames.Add(game);
             //dal.addGame(game);
             return game;
@@ -345,6 +361,7 @@ namespace ApplicationFacade
             if (user != null && user.id != userId)
                 return new ReturnMessage(false, "email already exists.");
 
+
             ////Check that attributes are not already exists.
             //foreach (SystemUser u in userList)
             //    if (u.id != userId && (u.name.Equals(name, StringComparison.OrdinalIgnoreCase) || u.email.Equals(email, StringComparison.OrdinalIgnoreCase))) //comparing two passwords including cases i.e AbC = aBc
@@ -370,8 +387,6 @@ namespace ApplicationFacade
             //List<SystemUser> allUsers = getAllUsers();
 
             //Validates attributes.
-            //if (name.Equals("") || password.Equals(""))
-            //    return new ReturnMessage(false, "Can't change to empty user name or password.");
             if (name.Equals(""))
                 return new ReturnMessage(false, "Can't change to empty user name.");
 
@@ -464,6 +479,11 @@ namespace ApplicationFacade
             TexasHoldemGame game = getGameById(gameId);
             return game.check(game.players[playerIndex]);
         }
+        public ReturnMessage call(int gameId, int playerIndex, int minBet)
+        {
+            TexasHoldemGame game = getGameById(gameId);
+            return game.call(game.players[playerIndex], minBet);
+        }
         public ReturnMessage playGame(int gameId)
         {
             TexasHoldemGame game = getGameById(gameId);
@@ -474,11 +494,6 @@ namespace ApplicationFacade
         {
             TexasHoldemGame game = getGameById(gameId);
             return game;
-        }
-        public ReturnMessage ChoosePlayerSeat(int gameId, int playerIndex)
-        {
-            TexasHoldemGame game = getGameById(gameId);
-            return game.ChoosePlayerSeat(playerIndex);
         }
         public Player GetPlayer(int gameId, int playerIndex)
         {
@@ -630,6 +645,21 @@ namespace ApplicationFacade
             return mustPref;
         }
 
+        public List<object> getLeaderboardsByParam(string param)
+        {
+            return db.getLeaderboardsByParam(param);
+        }
+
+        public object addMessage(int gameId, int playerIndex, string messageText)
+        {
+            var game = getGameById(gameId);
+
+            var player = game.players[playerIndex];
+
+            game.addMessage(String.Format("{0}: {1}", player.name, messageText));
+
+            return null;
+        }
 
         //public TexasHoldemGame createRegularGame(SystemUser user, GamePreferences preferences)
         //{

@@ -80,6 +80,7 @@ namespace TestProject
             object obj = sl.editUserProfile(db.getUserByName("test0").id, "Hadas123", "12345", "email7", "image5", 100);
             Assert.IsInstanceOfType(obj, typeof(ReturnMessage));
             Assert.IsTrue(((ReturnMessage)obj).success);
+            sl.editUserProfile(db.getUserByName("Hadas123").id, "test0", "12345", "email7", "image5", 100);
         }
 
         [TestMethod]
@@ -94,14 +95,6 @@ namespace TestProject
         public void editUserEmptyUserNameTest()
         {
             object obj = sl.editUserProfile(db.getUserByName("test0").id, "", "12345", "email7", "image5", 100);
-            Assert.IsInstanceOfType(obj, typeof(ReturnMessage));
-            Assert.IsFalse(((ReturnMessage)obj).success);
-        }
-
-        [TestMethod]
-        public void editUserEmptyPasswordTest()
-        {
-            object obj = sl.editUserProfile(db.getUserByName("test0").id, "gil", "", "email7", "image5",100);
             Assert.IsInstanceOfType(obj, typeof(ReturnMessage));
             Assert.IsFalse(((ReturnMessage)obj).success);
         }

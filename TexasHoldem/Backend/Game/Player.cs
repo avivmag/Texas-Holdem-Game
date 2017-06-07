@@ -15,6 +15,7 @@ namespace Backend.Game
         public List<Card> playerCards { get; set; }
         public string name { get; set; }
         public TexasHoldemGame.HandsRanks handRank { get; set; }
+        public int handRankCards { get; set; }
 
         // a builder to the player
         public Player(int userId, string name, int tokens, int userRank)

@@ -72,17 +72,17 @@ public class SLImpl : SLInterface
         }
     }
 
-    public object leaveGame(SystemUser user, int gameID)
+    public object removeUser(int gameId, int userId)
     {
-        TexasHoldemGame game = gameCenter.getGameById(gameID);
+        TexasHoldemGame game = gameCenter.getGameById(gameId);
         if (game == null)
             return null;
-        return game.removeUser(user);
+        return game.removeUser(userId);
     }
 
     public object editUserProfile(int userId, string name, string password, string email, string avatar, int money)
     {
-        return gameCenter.editUserProfile(userId,name,password,email,avatar,money);
+        return gameCenter.editUserProfile(userId,name,password,email,avatar, money);
     }
 
     public object findAllActiveAvailableGames()
@@ -156,6 +156,11 @@ public class SLImpl : SLInterface
         return game;
     }
 
+    public void sendSystemMessage(string message)
+    {
+        gameCenter.sendSystemMessage(message);
+    }
+
     public object getAllGames()
     {
         var games = gameCenter.getAllGames();
@@ -170,6 +175,16 @@ public class SLImpl : SLInterface
     public object getAllUsers()
     {
         var users = gameCenter.getAllUsers();
+        if (users.Count == 0)
+        {
+            return null;
+        }
+        return users;
+    }
+
+    public object getUsersDetails()
+    {
+        var users = gameCenter.getUsersDetails();
         if (users.Count == 0)
         {
             return null;
@@ -238,10 +253,9 @@ public class SLImpl : SLInterface
     }
     public object AddMessage(int gameId, int playerIndex, string messageText)
     {
-        // TODO: Gili, you need to send the message to the other players
-        // return gameCenter.addMessage(gameId, playerIndex, messageText);
-        return null;
+        return gameCenter.addMessage(gameId, playerIndex, messageText);
     }
+
     public object Fold(int gameId, int playerIndex)
     {
         return gameCenter.fold(gameId, playerIndex);
@@ -250,6 +264,10 @@ public class SLImpl : SLInterface
     {
         return gameCenter.check(gameId, playerIndex);
     }
+    public object Call(int gameId, int playerIndex, int minBet)
+    {
+        return gameCenter.call(gameId, playerIndex, minBet);
+    }
     public object playGame(int gameId)
     {
         return gameCenter.playGame(gameId);
@@ -257,10 +275,6 @@ public class SLImpl : SLInterface
     public object GetGameState(int gameId)
     {
         return gameCenter.getGameState(gameId);
-    }
-    public object ChoosePlayerSeat(int gameId, int playerIndex)
-    {
-        return gameCenter.ChoosePlayerSeat(gameId, playerIndex);
     }
     public object GetPlayer(int gameId, int playerIndex)
     {
@@ -297,6 +311,11 @@ public class SLImpl : SLInterface
         game.gameStatesObserver.Subscribe(client);
     }
 
+    public void SubscribeToMessages(ObserverAbstract<TcpClient> client)
+    {
+        gameCenter.messageObserver.Subscribe(client);
+    }
+
     public void SubscribeToGameChatPlayers(ObserverAbstract<TcpClient> client, int gameID)
     {
         TexasHoldemGame game = gameCenter.getGameById(gameID);
@@ -309,7 +328,18 @@ public class SLImpl : SLInterface
         game.gameStatesObserver.Subscribe(client);
     }
 
+    public object getLeaderboardsByParam(string param)
+    {
+        var leaderBoards = gameCenter.getLeaderboardsByParam(param);
 
+        if (leaderBoards.Count == 0)
+        {
+            return null;
+        }
+
+        return leaderBoards;
+    }
+    
     //public List<TexasHoldemGame> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed)
     //{
     //    throw new NotImplementedException();

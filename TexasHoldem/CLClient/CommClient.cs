@@ -39,12 +39,12 @@ namespace CLClient
         /// <summary>
         /// Private server listener class to wrap paremeters for listen threads.
         /// </summary>
-        private class serverListener
+        private class ServerListener
         {
             public TcpClient client;
             public IObservable toUpdate;
 
-            public serverListener(TcpClient client, IObservable toUpdate)
+            public ServerListener(TcpClient client, IObservable toUpdate)
             {
                 this.client = client;
                 this.toUpdate = toUpdate;
@@ -219,8 +219,8 @@ namespace CLClient
         /// <param name="toUpdate">The object to update.</param>
         private static void Listen(Object obj)
         {
-            var client      = ((serverListener)obj).client;
-            var toUpdate    = ((serverListener)obj).toUpdate;
+            var client      = ((ServerListener)obj).client;
+            var toUpdate    = ((ServerListener)obj).toUpdate;
 
             while (true)
             {
@@ -251,6 +251,16 @@ namespace CLClient
                         toUpdate.update(gameResponse);
                     }
                 }
+
+                if ((string)responseStringToken == "Message")
+                {
+                    var gameResponseToken = jsonResponse["obj"];
+                    if (responseStringToken != null)
+                    {
+                        string messageResponse = gameResponseToken.ToObject<string>();
+                        toUpdate.update(messageResponse);
+                    }
+                }
             }
         }
        
@@ -278,10 +288,9 @@ namespace CLClient
             // Open a different channel to recieve system messages from the server.
             subscribeStreamToServer(MESSAGE_CLIENT, SUBSCRIBE_TO_MESSAGE);
 
-            // Null needs to change to message observer.
             Thread listenThread = new Thread(Listen);
 
-            var listener = new serverListener(clients[MESSAGE_CLIENT], null);
+            var listener = new ServerListener(clients[MESSAGE_CLIENT], response);
 
             listenThread.Start(listener);
 
@@ -338,7 +347,7 @@ namespace CLClient
 
             subscribeStreamToServer(response.gameId, SUBSCRIBE_TO_GAME, response.gameId);
 
-            var serverListener = new serverListener(clients[response.gameId], response);
+            var serverListener = new ServerListener(clients[response.gameId], response);
 
             Thread listenThread = new Thread(Listen);
 
@@ -507,10 +516,9 @@ namespace CLClient
             // Open a different channel to recieve system messages from the server.
             subscribeStreamToServer(MESSAGE_CLIENT, SUBSCRIBE_TO_MESSAGE);
 
-            // Null needs to change to some list of messages.
             Thread listenThread = new Thread(Listen);
 
-            var listener = new serverListener(clients[MESSAGE_CLIENT], null);
+            var listener = new ServerListener(clients[MESSAGE_CLIENT], response);
 
             listenThread.Start(listener);
 
@@ -596,6 +604,36 @@ namespace CLClient
             return response;
         }
 
+        public static ReturnMessage Call(int gameId, int playerIndex, int minBet)
+        {
+            var message = new { action = "Call", gameId, playerIndex, minBet };
+            var jsonMessage = sendMessage(message);
+            var responseJson = getResponse(jsonMessage);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response = responseJson.ToObject<ReturnMessage>();
+
+            return response;
+        }
+
+        public static ReturnMessage RemoveUser(int gameId, int userId)
+        {
+            var message = new { action = "removeUser", gameId, userId };
+            var jsonMessage = sendMessage(message);
+            var responseJson = getResponse(jsonMessage);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response = responseJson.ToObject<ReturnMessage>();
+
+            return response;
+        }
+
         public static ReturnMessage playGame(int gameId)
         {
             var message = new { action = "playGame", gameId };
@@ -660,7 +698,7 @@ namespace CLClient
 
             subscribeStreamToServer(response.gameId, SUBSCRIBE_TO_GAME, response.gameId);
 
-            var serverListener = new serverListener(clients[response.gameId], response);
+            var serverListener = new ServerListener(clients[response.gameId], response);
 
             Thread listenThread = new Thread(Listen);
 

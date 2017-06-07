@@ -125,7 +125,7 @@ namespace TestProject.Bridge
 
         public object removeUserFromGame(SystemUser user, int game)
         {
-            return sl.leaveGame(user, game);
+            return sl.removeUser(game, user.id);
         }
 
         public bool isGameOver(int gameId)

@@ -114,6 +114,21 @@ namespace CLServer
         #region TCP-Server Functions
         
         /// <summary>
+        /// Task to send System Messages to clients.
+        /// </summary>
+        private static void startCli()
+        {
+            var message = String.Empty;
+            while (message != "q")
+            {
+                message = Console.ReadLine();
+                sl.sendSystemMessage(message);
+            }
+
+            Console.WriteLine("Terminating CLI.");
+        }
+
+        /// <summary>
         /// Starts up the desktop client listener.
         /// </summary>
         /// <param name="address">The address of the server.</param>
@@ -510,6 +525,47 @@ namespace CLServer
             SendMessage(client, new { response = sl.Check(gameId, playerIndex) });
         }
 
+        private static void Call(ClientInfo client, JObject jsonObject)
+        {
+            var gameIdToken = jsonObject["gameId"];
+            var playerIndexToken = jsonObject["playerIndex"];
+            var minBet = jsonObject["minBet"];
+
+            if (((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer)) ||
+                ((playerIndexToken == null) || (playerIndexToken.Type != JTokenType.Integer)) ||
+                ((minBet == null) || (minBet.Type != JTokenType.Integer)))
+            {
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Check."));
+            }
+
+            var gameId = (int)gameIdToken;
+            var playerIndex = (int)playerIndexToken;
+            var minimumBet = (int)minBet;
+
+            Console.WriteLine("Call. parameters are: gameId: {0}, playerIndex: {1}", gameId, playerIndex);
+
+            SendMessage(client, new { response = sl.Call(gameId, playerIndex, minimumBet) });
+        }
+
+        private static void removeUser(ClientInfo client, JObject jsonObject)
+        {
+            var gameIdToken = jsonObject["gameId"];
+            var userIdToken = jsonObject["userId"];
+
+            if (((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer)) ||
+                ((userIdToken == null) || (userIdToken.Type != JTokenType.Integer)))
+            {
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Check."));
+            }
+
+            var gameId = (int)gameIdToken;
+            var userId = (int)userIdToken;
+
+            Console.WriteLine("Leave game. parameters are: gameId: {0}, userId: {1}", gameId, userId);
+
+            SendMessage(client, new { response = sl.removeUser(gameId, userId) });
+        }
+
         private static void playGame(ClientInfo client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
@@ -534,25 +590,6 @@ namespace CLServer
             }
             
             var response = sl.GetGameState((int)gameIdToken);
-
-            SendMessage(client, response);
-        }
-
-        private static void ChoosePlayerSeat(ClientInfo client, JObject jsonObject)
-        {
-            var gameIdToken = jsonObject["gameId"];
-            var playerSeatIndexToken = jsonObject["playerSeatIndex"];
-
-            if ((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer) ||
-                (playerSeatIndexToken == null) || (playerSeatIndexToken.Type != JTokenType.Integer))
-            {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Choose Player Seat."));
-            }
-
-            var gameId = (int)gameIdToken;
-            var playerSeatIndex = (int)playerSeatIndexToken;
-
-            var response = sl.ChoosePlayerSeat(gameId, playerSeatIndex);
 
             SendMessage(client, response);
         }
@@ -592,20 +629,6 @@ namespace CLServer
 
             SendMessage(client, response);
         }
-
-        //private static void GetShowOff(ClientInfo clientInfo, JObject jsonObject)
-        //{
-        //    var gameIdToken = jsonObject["gameId"];
-
-        //    if ((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer))
-        //    {
-        //        throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Get Show Off."));
-        //    }
-
-        //    var gameId = (int)gameIdToken;
-
-        //    SendMessage(clientInfo, new { response = sl.GetShowOff(gameId) });
-        //}
         
         #endregion
 
@@ -927,7 +950,8 @@ namespace CLServer
 
             if (subscribeTo == SUBSCRIBE_TO_MESSAGE)
             {
-                // TODO:: MESSAGE SYSTEM!! ^^
+                SubscribeToMessage(clientInfo, jsonObject);
+                return;
             }
         }
 
@@ -952,6 +976,11 @@ namespace CLServer
             }
         }
 
+        private static void SubscribeToMessage(ClientInfo clientInfo, JObject jsonObject)
+        {
+            sl.SubscribeToMessages(new ServerObserver((TcpClient)clientInfo.client));
+        }
+
         #endregion
 
         #region Web-Requests
@@ -959,8 +988,8 @@ namespace CLServer
         /// <summary>
         /// Just a dummy leaderboard function and how it has to be, in order to build web client on top of it.
         /// </summary>
-        /// <param name="clientInfo"></param>
-        /// <param name="jsonObject"></param>
+        /// <param name="clientInfo">The client's connection info.</param>
+        /// <param name="jsonObject">The json object.</param>
         private static void LeaderBoard(ClientInfo clientInfo, JObject jsonObject)
         {
             var rand = new Random();
@@ -969,14 +998,30 @@ namespace CLServer
             {
                 dummyList.Add(new
                 {
-                    name = "abuya",
-                    tokens = rand.Next(5000, 50000)
+                    playerName          = "abuya",
+                    highestCash         = rand.Next(5000, 50000),
+                    totalGrossProfit    = rand.Next(100000, 1000000),
+                    gamesPlayed         = rand.Next(10, 120)
                 });
             }
+
+            //var param = (string)jsonObject["param"];
+            //var leaderBoards = sl.getLeaderboardsByParam(param);
 
             SendMessage(clientInfo, dummyList);
         }
 
+        /// <summary>
+        /// Gets the details of all the users in the system.
+        /// </summary>
+        /// <param name="clientInfo">The client's connection info.</param>
+        /// <param name="jsonObject">The json object.</param>
+        private static void GetUsersDetails(ClientInfo clientInfo, JObject jsonObject)
+        {
+            var userList = sl.getUsersDetails();
+
+            SendMessage(clientInfo, userList);
+        }
         #endregion
 
         static void Main()
@@ -1010,6 +1055,10 @@ namespace CLServer
                 startWebListen(address, WEB_PORT);
             });
 
+            Task.Factory.StartNew(() =>
+            {
+                startCli();
+            });
             ManualResetEvent manualResetEvent = new ManualResetEvent(false);
 
             manualResetEvent.WaitOne();

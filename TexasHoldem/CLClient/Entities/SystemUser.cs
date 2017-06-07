@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CLClient.Entities
 {
-    public class SystemUser
+    public class SystemUser : IObservable
     {
         public int id { get; set; }
         public int money { get; set; }
@@ -15,6 +15,7 @@ namespace CLClient.Entities
         public String password { get; set; }
         public String email { get; set; }
         public String userImage { get; set; }
+        private List<IObserver> subscribers = new List<IObserver>();
 
         public bool newPlayer { get; set; }
 
@@ -27,5 +28,29 @@ namespace CLClient.Entities
             this.money      = money;
             this.newPlayer  = true;
             }
+
+        public void Subscribe(IObserver obs)
+        {
+            if (!subscribers.Contains(obs))
+            {
+                subscribers.Add(obs);
+            }
+        }
+
+        public void Unsubscribe(IObserver obs)
+        {
+            if (!subscribers.Contains(obs))
+            {
+                subscribers.Remove(obs);
+            }
+        }
+
+        public void update(object obj)
+        {
+            foreach (var obs in subscribers)
+            {
+                obs.update(obj);
+            }
+        }
     }
 }
