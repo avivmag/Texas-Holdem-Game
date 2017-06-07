@@ -9,7 +9,6 @@ namespace SL
         object spectateActiveGame(int userId, int gameID);
         object GetGameForPlayers(int userId, int gameID);
         object joinGame(int userId, int gameID, int seatIndex);
-        object leaveGame(SystemUser user, int gameID);
         
         object editUserProfile(int userId, string name, string password, string email, string avatar, int amount);
 
@@ -22,7 +21,6 @@ namespace SL
         //List<object> filterActiveGamesByGamePreferences(GamePreferences pref);
         //List<object> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed);
         object getAllGames();
-        
 
         //object createGame(int gameCreatorId, object pref);
         object createGame(int gameCreator, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague);
@@ -57,10 +55,12 @@ namespace SL
         void SubscribeToGameChatSpectators(ObserverAbstract<TcpClient> client, int gameID);
         #endregion
 
-
+        object getLeaderboardsByParam(string param);
 
         //For test purpose methods
         object getAllUsers();
+        object getUsersDetails();
+        object removeUser(int gameId, int userId);
         object removeUser(int userId);
         object removeGame(int gameId);
     }

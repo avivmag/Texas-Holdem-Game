@@ -127,6 +127,11 @@ namespace ApplicationFacade
             //return new ReturnMessage(false, "you are not logged in.");
         }
 
+        public List<Object> getUsersDetails()
+        {
+            return db.getUsersDetails();
+        }
+
         public List<SystemUser> getAllUsers()
         {
             //return dal.getAllUsers();
@@ -240,7 +245,7 @@ namespace ApplicationFacade
 
 
             //                                                          this is the callback that is there for when we want to update user rank
-            TexasHoldemGame game = new TexasHoldemGame(user, mustPref, userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false), userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2]));
+            TexasHoldemGame game = new TexasHoldemGame(user, mustPref, userIdDeltaRankMoney => db.EditUserById(userIdDeltaRankMoney[0], null, null, null, null, userIdDeltaRankMoney[2], userIdDeltaRankMoney[1], false), userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2]));
             texasHoldemGames.Add(game);
             //dal.addGame(game);
             return game;
@@ -627,6 +632,11 @@ namespace ApplicationFacade
             }*/
 
             return mustPref;
+        }
+
+        public List<object> getLeaderboardsByParam(string param)
+        {
+            return db.getLeaderboardsByParam(param);
         }
 
         public object addMessage(int gameId, int playerIndex, string messageText)

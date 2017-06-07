@@ -146,6 +146,7 @@ namespace PL
             foldButton.Click += FoldButton_Click;
             commentButton.Click += CommentButton_Click;
             playButton.Click += Play_Click;
+            Closed += GameWindow_Closed;
 
             betButton.Content = "Bet";
             checkButton.Content = "Check";
@@ -660,6 +661,14 @@ namespace PL
                 MessageBox.Show(returnMessage.description);
             else
                 playButton.IsEnabled = false;
+        }
+
+        private void GameWindow_Closed(object sender, EventArgs e)
+        {
+            ReturnMessage returnMessage = CommClient.RemoveUser(game.gameId, systemUserId);
+
+            if (!returnMessage.success)
+                MessageBox.Show(returnMessage.description);
         }
 
         //private void getPlayer()

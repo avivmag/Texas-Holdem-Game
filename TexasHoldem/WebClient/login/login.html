@@ -3,12 +3,16 @@
 <head>
     <title>Login</title>
     <style>
+        body {
+            background-image: url("http://www.profindsearch.com/fun_casinos/images/texas_holdem_poker-image.jpg");
+            background-size: 100% auto;
+        }
         .login-window {
             text-align: center;
             margin: auto;
             width: 320px;
-            height: 240px;
-            border: 3px solid #73AD21;
+            height: 70px;
+            border: 3px solid orange;
             padding: 10px;
         }
     </style>
@@ -23,6 +27,7 @@
         <label for="showPass" ng-if="isPasswordShown">Hide password</label>
         <label for="showPass" ng-if="!isPasswordShown">Show password</label>
         <button ng-click="login(username, password)">Login</button>
+        <span>{{ loginValue }}</span>
     </div>
 </body>
 </html>

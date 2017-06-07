@@ -12,7 +12,7 @@ namespace Backend.Game
         public enum BetAction { fold, bet, call, check, raise }
         public enum GameState { bFlop = 0, bTurn = 1, bRiver = 2, aRiver = 3}
         private GameState gameState;
-        private Action<int[]> rankUpdateCallback;
+        private Action<int[]> rankMoneyUpdateCallback;
         private Action<int[]> leaderBoardUpdateCallback;
 
         private bool isGameIsOver;
@@ -58,7 +58,7 @@ namespace Backend.Game
             return ++currentId;
         }
         
-        public TexasHoldemGame(SystemUser user, MustPreferences gamePreferences, Action<int[]> rankUpdateCallback, Action<int[]>  leaderBoardUpdateCallback)
+        public TexasHoldemGame(SystemUser user, MustPreferences gamePreferences, Action<int[]> rankMoneyUpdateCallback, Action<int[]>  leaderBoardUpdateCallback)
         {
             firstJoin = true;
             gameCreatorUserId = user.id;
@@ -76,7 +76,7 @@ namespace Backend.Game
             players = new Player[maxPlayers];
             playersStats = new LeaderboardsStats[maxPlayers];
             availableSeats = maxPlayers - 1;
-            this.rankUpdateCallback = rankUpdateCallback;
+            this.rankMoneyUpdateCallback = rankMoneyUpdateCallback;
             flop = null;
             currentBlindBet = 20;
             
@@ -93,11 +93,12 @@ namespace Backend.Game
 
         }
 
-        public ReturnMessage removeUser(SystemUser user)
+        public ReturnMessage removeUser(int userId)
         {
+
             for (int i = 0; i < players.Length; i++)
             {
-                if (players[i] != null && players[i].systemUserID == user.id)
+                if (players[i] != null && players[i].systemUserID == userId)
                 {
                     //get the game policy if exist to the rank update
                     int buyIn = 0;
@@ -105,17 +106,17 @@ namespace Backend.Game
                     if (buyInPref != null)
                         buyIn = buyInPref.buyInPolicy;
                     // updates the money and rank of the user.
-                    user.money += players[i].Tokens;
+                    //user.money += players[i].Tokens;
                     
                     //user.updateRank(players[i].Tokens - buyIn);
-                    rankUpdateCallback(new int[] { user.id, players[i].Tokens - buyIn });
+                    rankMoneyUpdateCallback(new int[] { userId, players[i].Tokens - buyIn, players[i].Tokens });
                     players[i] = null;
                     return new ReturnMessage(true, "");
                 }
             }
             foreach (SystemUser u in spectators)
             {
-                if (u.id == user.id)
+                if (u.id == userId)
                 {
                     spectators.Remove(u);
                     u.spectatingGame.Remove(this);

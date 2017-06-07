@@ -519,6 +519,25 @@ namespace CLServer
             SendMessage(client, new { response = sl.Call(gameId, playerIndex, minimumBet) });
         }
 
+        private static void removeUser(ClientInfo client, JObject jsonObject)
+        {
+            var gameIdToken = jsonObject["gameId"];
+            var userIdToken = jsonObject["userId"];
+
+            if (((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer)) ||
+                ((userIdToken == null) || (userIdToken.Type != JTokenType.Integer)))
+            {
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Check."));
+            }
+
+            var gameId = (int)gameIdToken;
+            var userId = (int)userIdToken;
+
+            Console.WriteLine("Leave game. parameters are: gameId: {0}, userId: {1}", gameId, userId);
+
+            SendMessage(client, new { response = sl.removeUser(gameId, userId) });
+        }
+
         private static void playGame(ClientInfo client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
@@ -909,8 +928,8 @@ namespace CLServer
         /// <summary>
         /// Just a dummy leaderboard function and how it has to be, in order to build web client on top of it.
         /// </summary>
-        /// <param name="clientInfo"></param>
-        /// <param name="jsonObject"></param>
+        /// <param name="clientInfo">The client's connection info.</param>
+        /// <param name="jsonObject">The json object.</param>
         private static void LeaderBoard(ClientInfo clientInfo, JObject jsonObject)
         {
             var rand = new Random();
@@ -919,14 +938,30 @@ namespace CLServer
             {
                 dummyList.Add(new
                 {
-                    name = "abuya",
-                    tokens = rand.Next(5000, 50000)
+                    playerName          = "abuya",
+                    highestCash         = rand.Next(5000, 50000),
+                    totalGrossProfit    = rand.Next(100000, 1000000),
+                    gamesPlayed         = rand.Next(10, 120)
                 });
             }
+
+            //var param = (string)jsonObject["param"];
+            //var leaderBoards = sl.getLeaderboardsByParam(param);
 
             SendMessage(clientInfo, dummyList);
         }
 
+        /// <summary>
+        /// Gets the details of all the users in the system.
+        /// </summary>
+        /// <param name="clientInfo">The client's connection info.</param>
+        /// <param name="jsonObject">The json object.</param>
+        private static void GetUsersDetails(ClientInfo clientInfo, JObject jsonObject)
+        {
+            var userList = sl.getUsersDetails();
+
+            SendMessage(clientInfo, userList);
+        }
         #endregion
 
         static void Main()

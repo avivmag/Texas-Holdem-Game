@@ -72,12 +72,12 @@ public class SLImpl : SLInterface
         }
     }
 
-    public object leaveGame(SystemUser user, int gameID)
+    public object removeUser(int gameId, int userId)
     {
-        TexasHoldemGame game = gameCenter.getGameById(gameID);
+        TexasHoldemGame game = gameCenter.getGameById(gameId);
         if (game == null)
             return null;
-        return game.removeUser(user);
+        return game.removeUser(userId);
     }
 
     public object editUserProfile(int userId, string name, string password, string email, string avatar, int money)
@@ -170,6 +170,16 @@ public class SLImpl : SLInterface
     public object getAllUsers()
     {
         var users = gameCenter.getAllUsers();
+        if (users.Count == 0)
+        {
+            return null;
+        }
+        return users;
+    }
+
+    public object getUsersDetails()
+    {
+        var users = gameCenter.getUsersDetails();
         if (users.Count == 0)
         {
             return null;
@@ -308,7 +318,18 @@ public class SLImpl : SLInterface
         game.gameStatesObserver.Subscribe(client);
     }
 
+    public object getLeaderboardsByParam(string param)
+    {
+        var leaderBoards = gameCenter.getLeaderboardsByParam(param);
 
+        if (leaderBoards.Count == 0)
+        {
+            return null;
+        }
+
+        return leaderBoards;
+    }
+    
     //public List<TexasHoldemGame> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed)
     //{
     //    throw new NotImplementedException();

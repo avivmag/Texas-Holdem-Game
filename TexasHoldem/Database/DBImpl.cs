@@ -122,6 +122,39 @@ namespace Database
             connection.Close();
             return ans;
         }
+
+        public List<object> getLeaderboardsByParam(string param)
+        {
+            SqlConnection connection    = new SqlConnection(connectionString);
+            SqlCommand cmd              = new SqlCommand();
+            SqlDataReader reader;
+            cmd.CommandText             = "SELECT highetsCashInAGame, userName, gamesPlayed, totalGrossProfit " +
+                                          "FROM SystemUsers order by @param desc limit 20";
+            cmd.CommandType             = CommandType.Text;
+            cmd.Connection              = connection;
+
+            cmd.Parameters.AddWithValue("@param", param);
+
+            connection.Open();
+            reader                      = cmd.ExecuteReader();
+            var leaderBoardInfo         = new List<object> ();
+            while (reader.Read())
+            {
+                var newRow = new
+                {
+                    highestCash         = (int)reader["highetsCashInAGame"],
+                    playerName          = (string)reader["userName"],
+                    totalGrossProfit    = (int)reader["totalGrossProfit"],
+                    gamesPlayed         = (int)reader["gamesPlayed"]
+                };
+
+                leaderBoardInfo.Add(newRow);
+            }
+            connection.Close();
+
+            return leaderBoardInfo;
+        }
+
         /// <summary>
         /// Register a new user to the system.
         /// </summary>
@@ -182,7 +215,7 @@ namespace Database
                 (password == null ? "" : "password=HASHBYTES(\'MD5\', CONCAT(@password,@salt)),salt=@salt" + (psikCount-- > 0 ? "," : "")) +
                 (email == null ? "" : "email=@email" + (psikCount-- > 0 ? "," : "")) +
                 (image == null ? "" : "image=@image" + (psikCount-- > 0 ? "," : "")) +
-                (money == null ? "" : "money=@money" + (psikCount-- > 0 ? "," : "")) +
+                (money == null ? "" : "money=money+@money" + (psikCount-- > 0 ? "," : "")) +
                 (rankToAdd == null ? "" : "rank=(CASE WHEN rank+@rankToAdd > 0 THEN rank+@rankToAdd ELSE 0 END)" + (psikCount-- > 0 ? "," : "")) +
                 (!playedAnotherGame ? "" : "gamesPlayed=gamesPlayed+1") +
                  " WHERE Id=@Id";
@@ -213,8 +246,11 @@ namespace Database
             (totalGrossProfit == null ? 0 : 1);
 
             cmd.CommandText = "Update SystemUsers SET " +
-                (highetsCashInAGame == null ? "" : "highetsCashInAGame=@highetsCashInAGame" + (psikCount-- > 0 ? "," : "")) +
-                (totalGrossProfit == null ? "" : "totalGrossProfit=@totalGrossProfit" + (psikCount-- > 0 ? "," : "")) +
+                (highetsCashInAGame == null ? "" : "highetsCashInAGame=" +
+                "(CASE WHEN highetsCashInAGame<@highetsCashInAGame " +
+                "THEN @highetsCashInAGame ELSE highetsCashInAGame " + 
+                "END)" + (psikCount-- > 0 ? "," : "")) +
+                (totalGrossProfit == null ? "" : "totalGrossProfit= totalGrossProfit+@totalGrossProfit" + (psikCount-- > 0 ? "," : "")) +
                 " WHERE Id=@Id";
 
             cmd.CommandType = CommandType.Text;
@@ -266,6 +302,34 @@ namespace Database
             //int rank = (int)reader["rank"];
 
         }
+
+        public List<Object> getUsersDetails()
+        {
+            List<object> userDetails = new List<object>();
+            SqlConnection connection = new SqlConnection(connectionString);
+            SqlCommand cmd = new SqlCommand();
+            SqlDataReader reader;
+
+            cmd.CommandText = "SELECT highetsCashInAGame, userName, totalGrossProfit FROM SystemUsers";
+            cmd.CommandType = CommandType.Text;
+            cmd.Connection = connection;
+
+            connection.Open();
+            reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                var details = new
+                {
+                    HighestCash = (int)reader["highetsCashInAGame"],
+                    playerName = (string)reader["userName"],
+                    grossProfit = (int)reader["totalGrossProfit"]
+                };
+                userDetails.Add(details);
+            }
+            connection.Close();
+            return userDetails;
+        }
+
 
         public List<SystemUser> getAllSystemUsers()
         {
