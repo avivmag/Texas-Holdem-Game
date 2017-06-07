@@ -6,6 +6,9 @@
         xmlns:local="clr-namespace:PL"
         mc:Ignorable="d"
         Title="OptionsWindow" Height="410" Width="515" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Window.Background>
+        <ImageBrush ImageSource="resources/option_window.png"/>
+    </Window.Background>
     <Grid>
         <StackPanel HorizontalAlignment="Left" Height="290" Margin="10,60,0,0" VerticalAlignment="Top" Width="489">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">

@@ -497,6 +497,25 @@ namespace CLServer
             SendMessage(client, new { response = sl.Check(gameId, playerIndex) });
         }
 
+        private static void Call(ClientInfo client, JObject jsonObject)
+        {
+            var gameIdToken = jsonObject["gameId"];
+            var playerIndexToken = jsonObject["playerIndex"];
+
+            if (((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer)) ||
+                ((playerIndexToken == null) || (playerIndexToken.Type != JTokenType.Integer)))
+            {
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Check."));
+            }
+
+            var gameId = (int)gameIdToken;
+            var playerIndex = (int)playerIndexToken;
+
+            Console.WriteLine("Call. parameters are: gameId: {0}, playerIndex: {1}", gameId, playerIndex);
+
+            SendMessage(client, new { response = sl.Call(gameId, playerIndex) });
+        }
+
         private static void playGame(ClientInfo client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];

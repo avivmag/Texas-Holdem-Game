@@ -463,6 +463,11 @@ namespace ApplicationFacade
             TexasHoldemGame game = getGameById(gameId);
             return game.check(game.players[playerIndex]);
         }
+        public ReturnMessage call(int gameId, int playerIndex)
+        {
+            TexasHoldemGame game = getGameById(gameId);
+            return game.call(game.players[playerIndex]);
+        }
         public ReturnMessage playGame(int gameId)
         {
             TexasHoldemGame game = getGameById(gameId);
@@ -624,6 +629,16 @@ namespace ApplicationFacade
             return mustPref;
         }
 
+        public object addMessage(int gameId, int playerIndex, string messageText)
+        {
+            var game = getGameById(gameId);
+
+            var player = game.players[playerIndex];
+
+            game.addMessage(String.Format("{0}: {1}", player.name, messageText));
+
+            return null;
+        }
 
         //public TexasHoldemGame createRegularGame(SystemUser user, GamePreferences preferences)
         //{
