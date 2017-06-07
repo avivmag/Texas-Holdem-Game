@@ -244,8 +244,8 @@ namespace ApplicationFacade
                 mustPref = getMustPref(gamePolicy, gamePolicyLimit, buyInPolicy, startingChipsAmount, minimalBet, minPlayers, maxPlayers, isSpectatingAllowed, isLeague);
 
 
-            //this is the callback that is there for when we want to update user rank
-            TexasHoldemGame game = new TexasHoldemGame(user, mustPref, userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false), userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2]));
+            //                                                          this is the callback that is there for when we want to update user rank
+            TexasHoldemGame game = new TexasHoldemGame(user, mustPref, userIdDeltaRankMoney => db.EditUserById(userIdDeltaRankMoney[0], null, null, null, null, userIdDeltaRankMoney[2], userIdDeltaRankMoney[1], false), userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2]));
             texasHoldemGames.Add(game);
             //dal.addGame(game);
             return game;
@@ -468,6 +468,11 @@ namespace ApplicationFacade
             TexasHoldemGame game = getGameById(gameId);
             return game.check(game.players[playerIndex]);
         }
+        public ReturnMessage call(int gameId, int playerIndex)
+        {
+            TexasHoldemGame game = getGameById(gameId);
+            return game.call(game.players[playerIndex]);
+        }
         public ReturnMessage playGame(int gameId)
         {
             TexasHoldemGame game = getGameById(gameId);
@@ -632,6 +637,17 @@ namespace ApplicationFacade
         public List<object> getLeaderboardsByParam(string param)
         {
             return db.getLeaderboardsByParam(param);
+        }
+
+        public object addMessage(int gameId, int playerIndex, string messageText)
+        {
+            var game = getGameById(gameId);
+
+            var player = game.players[playerIndex];
+
+            game.addMessage(String.Format("{0}: {1}", player.name, messageText));
+
+            return null;
         }
 
         //public TexasHoldemGame createRegularGame(SystemUser user, GamePreferences preferences)

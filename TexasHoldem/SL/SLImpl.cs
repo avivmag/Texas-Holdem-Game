@@ -72,12 +72,12 @@ public class SLImpl : SLInterface
         }
     }
 
-    public object leaveGame(SystemUser user, int gameID)
+    public object removeUser(int gameId, int userId)
     {
-        TexasHoldemGame game = gameCenter.getGameById(gameID);
+        TexasHoldemGame game = gameCenter.getGameById(gameId);
         if (game == null)
             return null;
-        return game.removeUser(user);
+        return game.removeUser(userId);
     }
 
     public object editUserProfile(int userId, string name, string password, string email, string avatar, int money)
@@ -248,10 +248,9 @@ public class SLImpl : SLInterface
     }
     public object AddMessage(int gameId, int playerIndex, string messageText)
     {
-        // TODO: Gili, you need to send the message to the other players
-        // return gameCenter.addMessage(gameId, playerIndex, messageText);
-        return null;
+        return gameCenter.addMessage(gameId, playerIndex, messageText);
     }
+
     public object Fold(int gameId, int playerIndex)
     {
         return gameCenter.fold(gameId, playerIndex);
@@ -259,6 +258,10 @@ public class SLImpl : SLInterface
     public object Check(int gameId, int playerIndex)
     {
         return gameCenter.check(gameId, playerIndex);
+    }
+    public object Call(int gameId, int playerIndex)
+    {
+        return gameCenter.call(gameId, playerIndex);
     }
     public object playGame(int gameId)
     {
@@ -326,7 +329,7 @@ public class SLImpl : SLInterface
 
         return leaderBoards;
     }
-
+    
     //public List<TexasHoldemGame> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed)
     //{
     //    throw new NotImplementedException();

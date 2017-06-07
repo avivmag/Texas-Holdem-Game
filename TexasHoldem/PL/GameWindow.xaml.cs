@@ -49,6 +49,7 @@ namespace PL
         private TextBox messagesTextBox;
         Button betButton;
         Button checkButton;
+        Button callButton;
         Button foldButton;
         Button playButton;
 
@@ -121,16 +122,17 @@ namespace PL
         {
             UniformGrid mainControlBarUg = new UniformGrid();
             UniformGrid checkFoldBetCommentControlBarUg = new UniformGrid();
-            UniformGrid checkFoldControlBarUg = new UniformGrid();
+            UniformGrid checkCallFoldControlBarUg = new UniformGrid();
             UniformGrid commentPlayControlBarUg = new UniformGrid();
             UniformGrid betControlBarUg = new UniformGrid();
             mainControlBarUg.Columns = 1;
             checkFoldBetCommentControlBarUg.Columns = 1;
-            checkFoldControlBarUg.Rows = 1;
+            checkCallFoldControlBarUg.Rows = 1;
             commentPlayControlBarUg.Rows = 1;
             betControlBarUg.Rows = 1;
             betButton = new Button();
             checkButton = new Button();
+            callButton = new Button();
             foldButton = new Button();
             Button commentButton = new Button();
             playButton = new Button();
@@ -140,20 +142,24 @@ namespace PL
 
             betButton.Click += BetButton_Click;
             checkButton.Click += CheckButton_Click;
+            callButton.Click += CallButton_Click;
             foldButton.Click += FoldButton_Click;
             commentButton.Click += CommentButton_Click;
             playButton.Click += Play_Click;
+            Closed += GameWindow_Closed;
 
             betButton.Content = "Bet";
             checkButton.Content = "Check";
+            callButton.Content = "Call";
             foldButton.Content = "Fold";
             commentButton.Content = "Send";
             playButton.Content = "Play";
 
             commentPlayControlBarUg.Children.Add(commentButton);
             commentPlayControlBarUg.Children.Add(playButton);
-            checkFoldControlBarUg.Children.Add(checkButton);
-            checkFoldControlBarUg.Children.Add(foldButton);
+            checkCallFoldControlBarUg.Children.Add(checkButton);
+            checkCallFoldControlBarUg.Children.Add(callButton);
+            checkCallFoldControlBarUg.Children.Add(foldButton);
             betControlBarUg.Children.Add(betButton);
 
             Border border = new Border();
@@ -171,7 +177,7 @@ namespace PL
 
             checkFoldBetCommentControlBarUg.Children.Add(border);
             checkFoldBetCommentControlBarUg.Children.Add(commentPlayControlBarUg);
-            checkFoldBetCommentControlBarUg.Children.Add(checkFoldControlBarUg);
+            checkFoldBetCommentControlBarUg.Children.Add(checkCallFoldControlBarUg);
             checkFoldBetCommentControlBarUg.Children.Add(betControlBarUg);
 
             ScrollViewer sv = new ScrollViewer();
@@ -232,14 +238,14 @@ namespace PL
             playerCoins[i].VerticalAlignment = VerticalAlignment.Center;
             playerCoins[i].HorizontalContentAlignment = HorizontalAlignment.Center;
             playerCoins[i].VerticalContentAlignment = VerticalAlignment.Center;
-            playerCoins[i].Foreground = Brushes.Green;
+            playerCoins[i].Foreground = Brushes.White;
 
             playerCoinsGambled[i].Content = 0;
             playerCoinsGambled[i].HorizontalAlignment = HorizontalAlignment.Center;
             playerCoinsGambled[i].VerticalAlignment = VerticalAlignment.Center;
             playerCoinsGambled[i].HorizontalContentAlignment = HorizontalAlignment.Center;
             playerCoinsGambled[i].VerticalContentAlignment = VerticalAlignment.Center;
-            playerCoinsGambled[i].Foreground = Brushes.Blue;
+            playerCoinsGambled[i].Foreground = Brushes.Yellow;
 
             UniformGrid cardsUg = new UniformGrid();
             cardsUg.HorizontalAlignment = HorizontalAlignment.Center;
@@ -571,7 +577,7 @@ namespace PL
             int.TryParse(playerCoins[playerSeatIndex].Content.ToString(), out playerCoinsNum);
             int.TryParse(playerCoinsGambled[playerSeatIndex].Content.ToString(), out playerCoinsGambledNum);
             //          int inserted                           put the minimal bet at least and not all in              tried to put more coins that he had
-            if (!Int32.TryParse(betTextBox.Text, out coins) || (coins < getMinimumBet() && coins != playerCoinsNum) || playerCoinsNum < coins)
+            if (!Int32.TryParse(betTextBox.Text, out coins) || coins < getMinimumBet() || playerCoinsNum < coins)
             {
                 MessageBox.Show("bad bet number entered");
                 return;
@@ -595,21 +601,23 @@ namespace PL
 
         private int getMinimumBet()
         {
-            int temp, ans = 0;
+            int temp, ans = 0, myCoins = 0;
             for (int i = 0; i < seatsButtons.Length; i++)
             {
                 int.TryParse(playerCoinsGambled[i].Content.ToString(), out temp);
                 ans = Math.Max(temp, ans);
+                if (i == playerSeatIndex)
+                    myCoins = temp;
             }
-            return ans;
+            return ans - myCoins;
         }
 
         // send a comment
         private void CommentButton_Click(object sender, RoutedEventArgs e)
         {
             ReturnMessage returnMessage = CommClient.AddMessage(game.gameId, playerSeatIndex, messagesTextBox.Text);
-            //if (returnMessage.success)
-            //    messagesTextBox.Text = "";
+            if (returnMessage.success)
+                messagesTextBox.Text = "";
             if (!returnMessage.success)
                 MessageBox.Show(returnMessage.description);
         }
@@ -634,14 +642,33 @@ namespace PL
                 MessageBox.Show(returnMessage.description);
         }
 
+        private void CallButton_Click(object sender, RoutedEventArgs e)
+        {
+            ReturnMessage returnMessage = CommClient.Call(game.gameId, playerSeatIndex);
+            
+            if (!returnMessage.success)
+                MessageBox.Show(returnMessage.description);
+        }
+
         private void Play_Click(object sender, RoutedEventArgs e)
         {
             ReturnMessage returnMessage = CommClient.playGame(game.gameId);
+
+            if (returnMessage == null)
+                return;
 
             if (!returnMessage.success)
                 MessageBox.Show(returnMessage.description);
             else
                 playButton.IsEnabled = false;
+        }
+
+        private void GameWindow_Closed(object sender, EventArgs e)
+        {
+            ReturnMessage returnMessage = CommClient.RemoveUser(game.gameId, systemUserId);
+
+            if (!returnMessage.success)
+                MessageBox.Show(returnMessage.description);
         }
 
         //private void getPlayer()
@@ -748,13 +775,23 @@ namespace PL
                             {
                                 betButton.IsEnabled = true;
                                 foldButton.IsEnabled = true;
-                                checkButton.IsEnabled = true;
+                                if (getMinimumBet() == 0)
+                                {
+                                    checkButton.IsEnabled = true;
+                                    callButton.IsEnabled = false;
+                                }
+                                else
+                                {
+                                    checkButton.IsEnabled = false;
+                                    callButton.IsEnabled = true;
+                                }
                             }
                             else
                             {
                                 betButton.IsEnabled = false;
                                 foldButton.IsEnabled = false;
                                 checkButton.IsEnabled = false;
+                                callButton.IsEnabled = false;
                             }
                             break;
                         case Player.PlayerState.winner:
@@ -791,11 +828,11 @@ namespace PL
                     updateGame((TexasHoldemGame)obj);
                 });
             }
-            else if (obj.GetType() == typeof(Notification))
+            else if (obj.GetType() == typeof(string))
             {
                 this.Dispatcher.Invoke(() =>
                 {
-                    updateChatBox(((Notification)obj).getMessage());
+                    updateChatBox(((string)obj));
                 });
             }
         }

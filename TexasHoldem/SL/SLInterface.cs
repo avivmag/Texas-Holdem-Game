@@ -9,7 +9,6 @@ namespace SL
         object spectateActiveGame(int userId, int gameID);
         object GetGameForPlayers(int userId, int gameID);
         object joinGame(int userId, int gameID, int seatIndex);
-        object leaveGame(SystemUser user, int gameID);
         
         object editUserProfile(int userId, string name, string password, string email, string avatar, int amount);
 
@@ -45,6 +44,7 @@ namespace SL
         object AddMessage(int gameId, int playerIndex, string messageText);
         object Fold(int gameId, int playerIndex);
         object Check(int gameId, int playerIndex);
+        object Call(int gameId, int playerIndex);
         object playGame(int gameId);
         object GetGameState(int gameId);
         object GetPlayer(int gameId, int playerIndex);
@@ -60,6 +60,7 @@ namespace SL
         //For test purpose methods
         object getAllUsers();
         object getUsersDetails();
+        object removeUser(int gameId, int userId);
         object removeUser(int userId);
         object removeGame(int gameId);
     }
