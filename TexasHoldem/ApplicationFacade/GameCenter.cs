@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using Backend;
+using Obser;
 using Backend.Game;
 using Backend.Game.DecoratorPreferences;
 using Backend.User;
+using Backend.Messages;
 using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
 using Database;
+using System.Net.Sockets;
 
 namespace ApplicationFacade
 {
@@ -18,6 +21,8 @@ namespace ApplicationFacade
         //private DALDummy dal;
         private static GameCenter center;
         private IDB db;
+        public MessageObserver messageObserver = new MessageObserver();
+
 
         private GameCenter()
         {
@@ -106,7 +111,7 @@ namespace ApplicationFacade
                 }
             }
         }
-
+        
         public ReturnMessage logout(int userId)
         {
             SystemUser systemUser = db.getUserById(userId);
@@ -150,6 +155,12 @@ namespace ApplicationFacade
             //return false;
             return db.deleteUser(userId);
         }
+
+        public void sendSystemMessage(string message)
+        {
+            messageObserver.Update(message);
+        }
+
         public bool removeGame(int gameId)
         {
             foreach (TexasHoldemGame game in texasHoldemGames)

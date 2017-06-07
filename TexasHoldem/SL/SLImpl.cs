@@ -156,6 +156,11 @@ public class SLImpl : SLInterface
         return game;
     }
 
+    public void sendSystemMessage(string message)
+    {
+        gameCenter.sendSystemMessage(message);
+    }
+
     public object getAllGames()
     {
         var games = gameCenter.getAllGames();
@@ -304,6 +309,11 @@ public class SLImpl : SLInterface
     {
         TexasHoldemGame game = gameCenter.getGameById(gameID);
         game.gameStatesObserver.Subscribe(client);
+    }
+
+    public void SubscribeToMessages(ObserverAbstract<TcpClient> client)
+    {
+        gameCenter.messageObserver.Subscribe(client);
     }
 
     public void SubscribeToGameChatPlayers(ObserverAbstract<TcpClient> client, int gameID)

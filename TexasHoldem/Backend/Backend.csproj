@@ -51,6 +51,7 @@
     <Compile Include="Game\LeagueTexasHoldemGame.cs" />
     <Compile Include="Game\Player.cs" />
     <Compile Include="Game\TexasHoldemGame.cs" />
+    <Compile Include="Messages\MessageObserver.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>

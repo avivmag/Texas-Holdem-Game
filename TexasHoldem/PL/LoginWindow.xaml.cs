@@ -32,6 +32,10 @@ namespace PL
             }
             Hide();
             errorMessage.Text = "";
+
+            // Create the invisible system messages window.
+            var messagesWindow = new SystemMessageWindow();
+            user.Subscribe(messagesWindow);
             new MainMenuWindow(this).Show();
         }
 
