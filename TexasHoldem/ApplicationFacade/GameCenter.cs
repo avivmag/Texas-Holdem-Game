@@ -127,6 +127,11 @@ namespace ApplicationFacade
             //return new ReturnMessage(false, "you are not logged in.");
         }
 
+        public List<Object> getUsersDetails()
+        {
+            return db.getUsersDetails();
+        }
+
         public List<SystemUser> getAllUsers()
         {
             //return dal.getAllUsers();
@@ -627,6 +632,11 @@ namespace ApplicationFacade
             }*/
 
             return mustPref;
+        }
+
+        public List<object> getLeaderboardsByParam(string param)
+        {
+            return db.getLeaderboardsByParam(param);
         }
 
         public object addMessage(int gameId, int playerIndex, string messageText)

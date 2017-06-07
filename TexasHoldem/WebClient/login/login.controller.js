@@ -1,6 +1,6 @@
-﻿app.controller("loginCtrl", function ($scope, $http) {
-    $scope.inputType = 'password';
-    $scope.isPasswordShown = false;
+﻿app.controller("loginCtrl", function ($scope, $http, $state, $rootScope) {
+    $scope.inputType        = 'password';
+    $scope.isPasswordShown  = false;
     $scope.login =
       function login(username, password) {
 
@@ -14,11 +14,10 @@
                       password
                   }
           }).then(function successCallback(response) {
-              console.log('success!');
-              console.log(response);
+              $rootScope.login = true;
+              alert("You are now logged in!");
           }, function errorCallback(response) {
-              console.log('fail!');
-              console.log(response);
+              alert("Could not log in. Try again later.");
           });
       }
 

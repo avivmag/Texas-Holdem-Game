@@ -4,21 +4,74 @@
     <meta charset="utf-8" />
     <title>Leaderboard</title>
     <style>
-        .leaderboard {
+        body {
+            background-image: url("http://apk.co/images/texas-holdem-poker-king-20170329.png");
+        }
+        #boards {
+            width: 95%;
             text-align: center;
+            padding: 20px;
+        }
+
+        #grossProfit {
+            float: left;
             margin: auto;
-            width: 185px;
+            width: 225px;
             border: 3px solid blue;
-            padding: 10px;
+            padding-left: 45px;
+            padding-right: 45px;
+            padding-top: 20px;
+            background-color: forestgreen;
+        }
+
+        #highestCash {
+            display: inline-block;
+            margin: 0 auto;
+            width: 225px;
+            border: 3px solid blue;
+            padding-left: 45px;
+            padding-right: 45px;
+            padding-top: 20px;
+            background-color: forestgreen;
+        }
+
+        #gamesPlayed {
+            float: right;
+            margin: auto;
+            width: 225px;
+            border: 3px solid blue;
+            padding-left: 45px;
+            padding-right: 45px;
+            padding-top: 20px;
+            background-color: forestgreen;
         }
     </style>
 </head>
 <body>
-    <h1>Texas Holdem Leaderboards!!!</h1>
-    <div class="leaderboard">
-        <ul ng-repeat="leader in leaders | orderBy:'-tokens'">
-            <li>{{ $index+1 }}. Name: {{leader.name}}  <br />Tokens: {{leader.tokens}}</li>
-        </ul>
+    <center>
+        <div style="background-color: aliceblue; width: 40%; border: 3px solid black">
+            <h1>Texas Holdem Leaderboards!!!</h1>
+        </div>
+    </center>
+    <div id="boards">
+        <div id="grossProfit">
+            <h2>Total Gross Profit Leaders</h2>
+            <ul ng-repeat="leader in totalGrossleaders | orderBy:'-totalGrossProfit'">
+                <li>{{ $index+1 }}. Name: {{ leader.playerName }}  <br />GrossProfit: {{leader.totalGrossProfit}}</li>
+            </ul>
+        </div>
+        <div id="highestCash">
+            <h2 text-align="center">Highest Cash Leaders</h2>
+            <ul ng-repeat="leader in HighestCashleaders | orderBy:'-highestCash'">
+                <li>{{ $index+1 }}. Name: {{ leader.playerName }}  <br />Cash: {{leader.highestCash}}</li>
+            </ul>
+        </div>
+        <div id="gamesPlayed">
+            <h2 text-align="center">Total Games Played Leaders</h2>
+            <ul ng-repeat="leader in totalGamesPlayedleaders | orderBy:'-gamesPlayed'">
+                <li>{{ $index+1 }}. Name: {{ leader.playerName }}  <br />Games Played: {{leader.gamesPlayed}}</li>
+            </ul>
+        </div>
     </div>
 </body>
 </html>

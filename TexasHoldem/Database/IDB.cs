@@ -27,5 +27,7 @@ namespace Database
         SystemUser getUserByEmail(string email);
         bool deleteUser(int Id);
         bool deleteUsers();
+        List<object> getLeaderboardsByParam(string param);
+        List<object> getUsersDetails();
     }
 }

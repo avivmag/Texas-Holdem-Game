@@ -158,8 +158,8 @@ namespace TestProject.UnitTest
         public void successLoginTest()
         {
             SystemUser user = db.getUserByName("test2");
-            sl.leaveGame(user, 4);
-            sl.leaveGame(user, 5);
+            sl.removeUser(4, user.id);
+            sl.removeUser(5, user.id);
             sl.Logout(db.getUserByName("test2").id);
             object m = sl.Login("test2", "2");
             Assert.IsInstanceOfType(m, typeof(SystemUser));
