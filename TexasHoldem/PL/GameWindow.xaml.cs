@@ -237,14 +237,14 @@ namespace PL
             playerCoins[i].VerticalAlignment = VerticalAlignment.Center;
             playerCoins[i].HorizontalContentAlignment = HorizontalAlignment.Center;
             playerCoins[i].VerticalContentAlignment = VerticalAlignment.Center;
-            playerCoins[i].Foreground = Brushes.Green;
+            playerCoins[i].Foreground = Brushes.White;
 
             playerCoinsGambled[i].Content = 0;
             playerCoinsGambled[i].HorizontalAlignment = HorizontalAlignment.Center;
             playerCoinsGambled[i].VerticalAlignment = VerticalAlignment.Center;
             playerCoinsGambled[i].HorizontalContentAlignment = HorizontalAlignment.Center;
             playerCoinsGambled[i].VerticalContentAlignment = VerticalAlignment.Center;
-            playerCoinsGambled[i].Foreground = Brushes.Blue;
+            playerCoinsGambled[i].Foreground = Brushes.Yellow;
 
             UniformGrid cardsUg = new UniformGrid();
             cardsUg.HorizontalAlignment = HorizontalAlignment.Center;
@@ -576,7 +576,7 @@ namespace PL
             int.TryParse(playerCoins[playerSeatIndex].Content.ToString(), out playerCoinsNum);
             int.TryParse(playerCoinsGambled[playerSeatIndex].Content.ToString(), out playerCoinsGambledNum);
             //          int inserted                           put the minimal bet at least and not all in              tried to put more coins that he had
-            if (!Int32.TryParse(betTextBox.Text, out coins) || coins < getMinimumBet() || playerCoinsNum < coins)
+            if (!Int32.TryParse(betTextBox.Text, out coins) || (coins < getMinimumBet() && coins != playerCoinsNum) || playerCoinsNum < coins)
             {
                 MessageBox.Show("bad bet number entered");
                 return;
@@ -600,23 +600,21 @@ namespace PL
 
         private int getMinimumBet()
         {
-            int temp, ans = 0, myCoins = 0;
+            int temp, ans = 0;
             for (int i = 0; i < seatsButtons.Length; i++)
             {
                 int.TryParse(playerCoinsGambled[i].Content.ToString(), out temp);
                 ans = Math.Max(temp, ans);
-                if (i == playerSeatIndex)
-                    myCoins = temp;
             }
-            return ans - myCoins;
+            return ans;
         }
 
         // send a comment
         private void CommentButton_Click(object sender, RoutedEventArgs e)
         {
             ReturnMessage returnMessage = CommClient.AddMessage(game.gameId, playerSeatIndex, messagesTextBox.Text);
-            //if (returnMessage.success)
-            //    messagesTextBox.Text = "";
+            if (returnMessage.success)
+                messagesTextBox.Text = "";
             if (!returnMessage.success)
                 MessageBox.Show(returnMessage.description);
         }
@@ -652,6 +650,9 @@ namespace PL
         private void Play_Click(object sender, RoutedEventArgs e)
         {
             ReturnMessage returnMessage = CommClient.playGame(game.gameId);
+
+            if (returnMessage == null)
+                return;
 
             if (!returnMessage.success)
                 MessageBox.Show(returnMessage.description);
@@ -763,14 +764,23 @@ namespace PL
                             {
                                 betButton.IsEnabled = true;
                                 foldButton.IsEnabled = true;
-                                //checkButton.IsEnabled = 0 == getMinimumBet();
-                                checkButton.IsEnabled = true;
+                                if (getMinimumBet() == 0)
+                                {
+                                    checkButton.IsEnabled = true;
+                                    callButton.IsEnabled = false;
+                                }
+                                else
+                                {
+                                    checkButton.IsEnabled = false;
+                                    callButton.IsEnabled = true;
+                                }
                             }
                             else
                             {
                                 betButton.IsEnabled = false;
                                 foldButton.IsEnabled = false;
                                 checkButton.IsEnabled = false;
+                                callButton.IsEnabled = false;
                             }
                             break;
                         case Player.PlayerState.winner:

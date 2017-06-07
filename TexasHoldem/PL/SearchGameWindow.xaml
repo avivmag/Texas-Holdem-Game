@@ -6,6 +6,9 @@
         xmlns:local="clr-namespace:PL"
         mc:Ignorable="d"
         Title="SearchGameWindow" Height="750" Width="1050" WindowStartupLocation="CenterOwner" ResizeMode="NoResize" >
+    <Window.Background>
+        <ImageBrush ImageSource="resources/game_window.png"/>
+    </Window.Background>
     <Grid x:Name="searchWindowGrid">
         <StackPanel HorizontalAlignment="Left" Height="685" Margin="0,30,0,0" VerticalAlignment="Top" Width="489">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="15,20,20,0" Width="400">
