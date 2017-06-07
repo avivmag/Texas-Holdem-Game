@@ -250,6 +250,10 @@ public class SLImpl : SLInterface
     {
         return gameCenter.check(gameId, playerIndex);
     }
+    public object Call(int gameId, int playerIndex)
+    {
+        return gameCenter.call(gameId, playerIndex);
+    }
     public object playGame(int gameId)
     {
         return gameCenter.playGame(gameId);

@@ -533,7 +533,7 @@ namespace Backend.Game
             return new ReturnMessage(true, "");
         }
 
-        public void call(Player p)
+        public ReturnMessage call(Player p)
         {
             p.Tokens -= currentBet;
             GameLog.logLine(
@@ -570,6 +570,7 @@ namespace Backend.Game
                 
                 continueGame();
             }
+            return new ReturnMessage(true, "");
         }
 
         public ReturnMessage fold(Player p)
@@ -623,7 +624,7 @@ namespace Backend.Game
                 continueGame();
             return new ReturnMessage(true, "");
         }
-
+        
         private int checkWhosTurnIs()
         {
             for (int i = 0; i < players.Length; i++)

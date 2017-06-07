@@ -183,5 +183,10 @@
   <ItemGroup>
     <Resource Include="resources\texas_holdem_poker-image.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\game_window.png" />
+    <Resource Include="resources\main_menu.png" />
+    <Resource Include="resources\option_window.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
