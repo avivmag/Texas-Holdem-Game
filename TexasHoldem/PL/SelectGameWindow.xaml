@@ -6,9 +6,16 @@
         xmlns:local="clr-namespace:PL"
         mc:Ignorable="d"
         Title="SelectGameWindow" Height="750" Width="750" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Window.Background>
+        <ImageBrush ImageSource="resources/game_window.png"/>
+    </Window.Background>
     <Grid>
-        <Label Content="Please choose game:"></Label>
-        <StackPanel HorizontalAlignment="Stretch" Height="610" VerticalAlignment="Center">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="151*"/>
+            <ColumnDefinition Width="35*"/>
+        </Grid.ColumnDefinitions>
+        <Label Content="Please choose game:" Grid.ColumnSpan="2" Margin="0,0,0,0.4"></Label>
+        <StackPanel HorizontalAlignment="Stretch" Height="610" VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="0,56,0,56.4">
             <ScrollViewer MaxHeight="550" MaxWidth="600" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" Height="569" >
                 <DataGrid x:Name="selectGameGrid" AutoGenerateColumns="False" ItemsSource="{Binding TexasHoldemGameStrings}" CanUserAddRows="False" MouseDoubleClick="action_Click" SelectionChanged="selectGameGrid_Selected">
                     <DataGrid.Columns >
@@ -28,10 +35,10 @@
                 </DataGrid>
             </ScrollViewer>
         </StackPanel>
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Height="50" Margin="0,0,0,30">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Height="50" Margin="0,0,0,30.4" Grid.ColumnSpan="2">
             <Button x:Name="backBtn" Content="Back" VerticalAlignment="Center" Width="124" Click="Back_Click" Margin="70,0,0,0"/>
             <Button x:Name="actionBtn" VerticalAlignment="Center" Width="124" IsEnabled="False" Click="action_Click" Margin="100,0,0,0"/>
         </StackPanel>
-        <TextBlock Name="errorMessage" HorizontalAlignment="Stretch" Height="23" TextWrapping="Wrap" Text="" VerticalAlignment="Bottom"/>
+        <TextBlock Name="errorMessage" HorizontalAlignment="Stretch" Height="23" TextWrapping="Wrap" Text="" VerticalAlignment="Bottom" Grid.ColumnSpan="2" Margin="0,0,0,0.4"/>
     </Grid>
 </Window>
