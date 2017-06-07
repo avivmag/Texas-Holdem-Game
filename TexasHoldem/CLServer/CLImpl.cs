@@ -516,6 +516,25 @@ namespace CLServer
             SendMessage(client, new { response = sl.Call(gameId, playerIndex) });
         }
 
+        private static void removeUser(ClientInfo client, JObject jsonObject)
+        {
+            var gameIdToken = jsonObject["gameId"];
+            var userIdToken = jsonObject["userId"];
+
+            if (((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer)) ||
+                ((userIdToken == null) || (userIdToken.Type != JTokenType.Integer)))
+            {
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Check."));
+            }
+
+            var gameId = (int)gameIdToken;
+            var userId = (int)userIdToken;
+
+            Console.WriteLine("Leave game. parameters are: gameId: {0}, userId: {1}", gameId, userId);
+
+            SendMessage(client, new { response = sl.removeUser(gameId, userId) });
+        }
+
         private static void playGame(ClientInfo client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];

@@ -182,7 +182,7 @@ namespace Database
                 (password == null ? "" : "password=HASHBYTES(\'MD5\', CONCAT(@password,@salt)),salt=@salt" + (psikCount-- > 0 ? "," : "")) +
                 (email == null ? "" : "email=@email" + (psikCount-- > 0 ? "," : "")) +
                 (image == null ? "" : "image=@image" + (psikCount-- > 0 ? "," : "")) +
-                (money == null ? "" : "money=@money" + (psikCount-- > 0 ? "," : "")) +
+                (money == null ? "" : "money=money+@money" + (psikCount-- > 0 ? "," : "")) +
                 (rankToAdd == null ? "" : "rank=(CASE WHEN rank+@rankToAdd > 0 THEN rank+@rankToAdd ELSE 0 END)" + (psikCount-- > 0 ? "," : "")) +
                 (!playedAnotherGame ? "" : "gamesPlayed=gamesPlayed+1") +
                  " WHERE Id=@Id";
