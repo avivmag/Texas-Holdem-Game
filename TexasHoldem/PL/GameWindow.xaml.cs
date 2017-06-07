@@ -576,7 +576,7 @@ namespace PL
             int.TryParse(playerCoins[playerSeatIndex].Content.ToString(), out playerCoinsNum);
             int.TryParse(playerCoinsGambled[playerSeatIndex].Content.ToString(), out playerCoinsGambledNum);
             //          int inserted                           put the minimal bet at least and not all in              tried to put more coins that he had
-            if (!Int32.TryParse(betTextBox.Text, out coins) || (coins < getMinimumBet() && coins != playerCoinsNum) || playerCoinsNum < coins)
+            if (!Int32.TryParse(betTextBox.Text, out coins) || coins < getMinimumBet() || playerCoinsNum < coins)
             {
                 MessageBox.Show("bad bet number entered");
                 return;
@@ -600,13 +600,15 @@ namespace PL
 
         private int getMinimumBet()
         {
-            int temp, ans = 0;
+            int temp, ans = 0, myCoins = 0;
             for (int i = 0; i < seatsButtons.Length; i++)
             {
                 int.TryParse(playerCoinsGambled[i].Content.ToString(), out temp);
                 ans = Math.Max(temp, ans);
+                if (i == playerSeatIndex)
+                    myCoins = temp;
             }
-            return ans;
+            return ans - myCoins;
         }
 
         // send a comment
