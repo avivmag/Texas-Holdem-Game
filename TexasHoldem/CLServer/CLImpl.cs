@@ -978,7 +978,7 @@ namespace CLServer
 
         private static void SubscribeToMessage(ClientInfo clientInfo, JObject jsonObject)
         {
-            sl.SubscribeToMessages(new ServerObserver((TcpClient)clientInfo.client));
+            sl.SubscribeToMessages(new ServerObserver(clientInfo));
         }
 
         #endregion
