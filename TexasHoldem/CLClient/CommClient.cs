@@ -257,10 +257,9 @@ namespace CLClient
             // Open a different channel to recieve system messages from the server.
             subscribeStreamToServer(MESSAGE_CLIENT, SUBSCRIBE_TO_MESSAGE);
 
-            // Null needs to change to message observer.
             Thread listenThread = new Thread(Listen);
 
-            var listener = new ServerListener(clients[MESSAGE_CLIENT], null);
+            var listener = new ServerListener(clients[MESSAGE_CLIENT], response);
 
             listenThread.Start(listener);
 
@@ -485,10 +484,9 @@ namespace CLClient
             // Open a different channel to recieve system messages from the server.
             subscribeStreamToServer(MESSAGE_CLIENT, SUBSCRIBE_TO_MESSAGE);
 
-            // Null needs to change to some list of messages.
             Thread listenThread = new Thread(Listen);
 
-            var listener = new ServerListener(clients[MESSAGE_CLIENT], null);
+            var listener = new ServerListener(clients[MESSAGE_CLIENT], response);
 
             listenThread.Start(listener);
 

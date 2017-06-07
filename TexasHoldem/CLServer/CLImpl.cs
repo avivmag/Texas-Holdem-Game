@@ -114,6 +114,21 @@ namespace CLServer
         #region TCP-Server Functions
 
         /// <summary>
+        /// Task to send System Messages to clients.
+        /// </summary>
+        private static void startCli()
+        {
+            var message = String.Empty;
+            while (message != "q")
+            {
+                message = Console.ReadLine();
+                sl.sendSystemMessage(message);
+            }
+
+            Console.WriteLine("Terminating CLI.");
+        }
+
+        /// <summary>
         /// Starts up the desktop client listener.
         /// </summary>
         /// <param name="address">The address of the server.</param>
@@ -892,7 +907,8 @@ namespace CLServer
 
             if (subscribeTo == SUBSCRIBE_TO_MESSAGE)
             {
-                // TODO:: MESSAGE SYSTEM!! ^^
+                SubscribeToMessage(clientInfo, jsonObject);
+                return;
             }
 
         }
@@ -916,6 +932,11 @@ namespace CLServer
                 // Subscribe this channel to game.
                 sl.SubscribeToGameState(new ServerObserver((TcpClient)clientInfo.client), (int)optionalToken);
             }
+        }
+
+        private static void SubscribeToMessage(ClientInfo clientInfo, JObject jsonObject)
+        {
+            sl.SubscribeToMessages(new ServerObserver((TcpClient)clientInfo.client));
         }
 
         #endregion
@@ -992,6 +1013,10 @@ namespace CLServer
                 startWebListen(address, WEB_PORT);
             });
 
+            Task.Factory.StartNew(() =>
+            {
+                startCli();
+            });
             ManualResetEvent manualResetEvent = new ManualResetEvent(false);
 
             manualResetEvent.WaitOne();

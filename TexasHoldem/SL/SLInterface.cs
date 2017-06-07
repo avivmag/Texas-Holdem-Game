@@ -11,7 +11,7 @@ namespace SL
         object joinGame(int userId, int gameID, int seatIndex);
         
         object editUserProfile(int userId, string name, string password, string email, string avatar, int amount);
-
+        void sendSystemMessage(string message);
         object findAllActiveAvailableGames();
         object filterActiveGamesByPlayerName(string name);
         object filterActiveGamesByPotSize(int? size);
@@ -51,6 +51,7 @@ namespace SL
         object GetPlayerCards(int gameId, int userId);
         //object GetShowOff(int gameId);
         void SubscribeToGameState(ObserverAbstract<TcpClient> client, int gameID);
+        void SubscribeToMessages(ObserverAbstract<TcpClient> client);
         void SubscribeToGameChatPlayers(ObserverAbstract<TcpClient> client, int gameID);
         void SubscribeToGameChatSpectators(ObserverAbstract<TcpClient> client, int gameID);
         #endregion
