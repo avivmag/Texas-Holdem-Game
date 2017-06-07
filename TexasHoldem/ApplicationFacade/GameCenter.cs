@@ -468,10 +468,10 @@ namespace ApplicationFacade
             TexasHoldemGame game = getGameById(gameId);
             return game.check(game.players[playerIndex]);
         }
-        public ReturnMessage call(int gameId, int playerIndex)
+        public ReturnMessage call(int gameId, int playerIndex, int minBet)
         {
             TexasHoldemGame game = getGameById(gameId);
-            return game.call(game.players[playerIndex]);
+            return game.call(game.players[playerIndex], minBet);
         }
         public ReturnMessage playGame(int gameId)
         {

@@ -628,7 +628,7 @@ namespace PL
 
             //if (returnMessage.success)
             //    seatButtonToImageDictionary[seatsButtons[playerSeatIndex]].Source = new BitmapImage(new Uri("pack://application:,,,/resources/red.png"));
-            if (!returnMessage.success)
+           if (!returnMessage.success)
                 MessageBox.Show(returnMessage.description);
         }
 
@@ -644,7 +644,7 @@ namespace PL
 
         private void CallButton_Click(object sender, RoutedEventArgs e)
         {
-            ReturnMessage returnMessage = CommClient.Call(game.gameId, playerSeatIndex);
+            ReturnMessage returnMessage = CommClient.Call(game.gameId, playerSeatIndex, getMinimumBet());
             
             if (!returnMessage.success)
                 MessageBox.Show(returnMessage.description);
@@ -775,6 +775,7 @@ namespace PL
                             {
                                 betButton.IsEnabled = true;
                                 foldButton.IsEnabled = true;
+                                //MessageBox.Show("minimalBet: " + getMinimumBet());
                                 if (getMinimumBet() == 0)
                                 {
                                     checkButton.IsEnabled = true;
@@ -796,6 +797,7 @@ namespace PL
                             break;
                         case Player.PlayerState.winner:
                             changeSeat(i, false, "yellow", game.players[i].imageUrl, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
+                            playButton.IsEnabled = true;
                             break;
                     }
                 }

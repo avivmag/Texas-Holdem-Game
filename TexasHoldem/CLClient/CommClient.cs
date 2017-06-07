@@ -574,9 +574,9 @@ namespace CLClient
             return response;
         }
 
-        public static ReturnMessage Call(int gameId, int playerIndex)
+        public static ReturnMessage Call(int gameId, int playerIndex, int minBet)
         {
-            var message = new { action = "Call", gameId, playerIndex };
+            var message = new { action = "Call", gameId, playerIndex, minBet };
             var jsonMessage = sendMessage(message);
             var responseJson = getResponse(jsonMessage);
 

@@ -44,7 +44,7 @@ namespace SL
         object AddMessage(int gameId, int playerIndex, string messageText);
         object Fold(int gameId, int playerIndex);
         object Check(int gameId, int playerIndex);
-        object Call(int gameId, int playerIndex);
+        object Call(int gameId, int playerIndex, int minBet);
         object playGame(int gameId);
         object GetGameState(int gameId);
         object GetPlayer(int gameId, int playerIndex);
