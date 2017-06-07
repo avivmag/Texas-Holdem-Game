@@ -88,7 +88,7 @@ namespace CLServer
         /// <param name="client">The client to send to.</param>
         /// <param name="message">The message to send. (Optional)</param>
         /// <param name="response">The response type, (Optional - only refers to HTTP responses.)</param>
-        public static void SendMessage(ClientInfo clientInfo, object message = null, int response = 200)
+        public static void SendMessage(ClientInfo clientInfo, object message = null, int response = 200, bool isInitial = false)
         {
             if (clientInfo == null)
             {
@@ -97,7 +97,7 @@ namespace CLServer
 
             if (clientInfo.type == ClientInfo.CLIENT_TYPE.TCP)
             {
-                SendTcpMessage((TcpClient)clientInfo.client, message);
+                SendTcpMessage((TcpClient)clientInfo.client, clientInfo.passPhrase, isInitial, message);
             }
             else if (clientInfo.type == ClientInfo.CLIENT_TYPE.HTTP)
             {
@@ -112,7 +112,7 @@ namespace CLServer
         #endregion
 
         #region TCP-Server Functions
-
+        
         /// <summary>
         /// Task to send System Messages to clients.
         /// </summary>
@@ -191,10 +191,11 @@ namespace CLServer
                 var jsonObject = new JObject();
                 try
                 {
-                    jsonObject = getJsonObjectFromDesktopStream(client);
+                    jsonObject = getJsonObjectFromDesktopStream(client, clientInfo.passPhrase);
                 }
-                catch
+                catch(Exception e)
                 {
+                    Console.WriteLine(e.Message);
                     Console.WriteLine("Client closed connection. Terminating thread: {0}", Thread.CurrentThread.ManagedThreadId);
                     return;
                 }
@@ -220,12 +221,20 @@ namespace CLServer
         /// </summary>
         /// <param name="client">The tcp client</param>
         /// <returns>The JObject</returns>
-        private static JObject getJsonObjectFromDesktopStream(TcpClient client)
+        private static JObject getJsonObjectFromDesktopStream(TcpClient client, string passPhrase)
         {
             var message                 = new byte[1024 * 10];
 
             var bytesRead               = client.GetStream().Read(message, 0, message.Length);
-            string myObject             = Encoding.ASCII.GetString(message);
+
+            string myObject      = Encoding.ASCII.GetString(message);
+
+            if (passPhrase != "undefined")
+            {
+                var trimmedObject = myObject.Trim('\0');
+                myObject = Cryptography.Decrypt(trimmedObject, passPhrase);
+            }
+
             Object deserializedProduct  = JsonConvert.DeserializeObject(myObject);
 
             return JObject.FromObject(deserializedProduct);
@@ -236,7 +245,7 @@ namespace CLServer
         /// </summary>
         /// <param name="client">The client to send to.</param>
         /// <param name="message">The message to send.</param>
-        private static void SendTcpMessage(TcpClient client, object message = null)
+        private static void SendTcpMessage(TcpClient client, string passPhrase, bool isInitial, object message = null)
         {
             JObject messageJObject = new JObject();
             if (message != null)
@@ -256,6 +265,10 @@ namespace CLServer
                                                                       NullValueHandling = NullValueHandling.Ignore
                                                                   });
 
+            if (!isInitial)
+            {
+                serializedMessage = Cryptography.Encrypt(serializedMessage, passPhrase);
+            }
             var messageByteArray = Encoding.ASCII.GetBytes(serializedMessage);
 
             try
@@ -623,8 +636,9 @@ namespace CLServer
 
         private static void Login(ClientInfo clientInfo, JObject jsonObject)
         {
-            var usernameToken = jsonObject["username"];
-            var passwordToken = jsonObject["password"];
+            var usernameToken       = jsonObject["username"];
+            var passwordToken       = jsonObject["password"];
+            var passPhraseToken     = jsonObject["passPhrase"];
 
             if ((usernameToken == null) || (usernameToken.Type != JTokenType.String) || 
                 (String.IsNullOrWhiteSpace(usernameToken.ToString())) ||
@@ -635,9 +649,18 @@ namespace CLServer
                 throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Login."));
             }
 
+            if ((passPhraseToken != null) && (passPhraseToken.Type == JTokenType.String) &&
+                (!String.IsNullOrWhiteSpace(passPhraseToken.ToString())))
+            {
+                if (clientInfo.type == ClientInfo.CLIENT_TYPE.TCP)
+                {
+                    clientInfo.passPhrase = (string)passPhraseToken;
+                }
+            }
+
             var loginResponse = sl.Login((string)usernameToken, (string)passwordToken);
 
-            SendMessage(clientInfo, loginResponse);
+            SendMessage(clientInfo, loginResponse, 200, true);
         }
 
         private static void CreateGame(ClientInfo clientInfo, JObject jsonObject) {
@@ -696,6 +719,7 @@ namespace CLServer
             var passwordToken   = jsonObject["password"];
             var emailToken      = jsonObject["email"];
             var userImageToken  = jsonObject["userImage"];
+            var passPhraseToken = jsonObject["passPhrase"];
             if ((usernameToken == null) || (usernameToken.Type != JTokenType.String) ||
                 (String.IsNullOrWhiteSpace(usernameToken.ToString())) ||
 
@@ -711,13 +735,22 @@ namespace CLServer
                 throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Register"));
             }
 
+            if ((passPhraseToken != null) && (passPhraseToken.Type == JTokenType.String) &&
+                (!String.IsNullOrWhiteSpace(passPhraseToken.ToString())))
+            {
+                if (clientInfo.type == ClientInfo.CLIENT_TYPE.TCP)
+                {
+                    clientInfo.passPhrase = (string)passPhraseToken;
+                }
+            }
+
             var registerResponse = sl.Register(
                 (string)usernameToken, 
                 (string)passwordToken, 
                 (string)emailToken, 
                 (string)userImageToken);
             
-            SendMessage(clientInfo, registerResponse);
+            SendMessage(clientInfo, registerResponse, 200, true);
             return;
         }
 
@@ -750,7 +783,7 @@ namespace CLServer
             }
 
             var joinGameResponse = sl.joinGame((int)userIdToken, (int)gameIdToken, (int) playerSeatIndexToken);
-            
+
             SendMessage(clientInfo, joinGameResponse);
         }
 
@@ -866,9 +899,6 @@ namespace CLServer
             var avatarToken     = jsonObject["avatar"];
             var amountToken     = jsonObject["amount"];
 
-            Console.WriteLine("trying");
-            Console.WriteLine(passwordToken);
-
             if (userIdToken == null || userIdToken.Type != JTokenType.Integer)
             {
                 throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Edit User Profile"));
@@ -890,6 +920,16 @@ namespace CLServer
         private static void Subscribe(ClientInfo clientInfo, JObject jsonObject)
         {
             var subscribeToToken = jsonObject["to"];
+            var passPhraseToken  = jsonObject["passPhrase"];
+
+            if ((passPhraseToken != null) && (passPhraseToken.Type == JTokenType.String) &&
+                (!String.IsNullOrWhiteSpace(passPhraseToken.ToString())))
+            {
+                if (clientInfo.type == ClientInfo.CLIENT_TYPE.TCP)
+                {
+                    clientInfo.passPhrase = (string)passPhraseToken;
+                }
+            }
 
             if ((subscribeToToken == null) ||
                 (subscribeToToken.Type != JTokenType.String) ||
@@ -913,7 +953,6 @@ namespace CLServer
                 SubscribeToMessage(clientInfo, jsonObject);
                 return;
             }
-
         }
 
         private static void SubscribeToGame(ClientInfo clientInfo, JObject jsonObject)
@@ -933,7 +972,7 @@ namespace CLServer
             if (sl.getGameById(optional) != null)
             {
                 // Subscribe this channel to game.
-                sl.SubscribeToGameState(new ServerObserver((TcpClient)clientInfo.client), (int)optionalToken);
+                sl.SubscribeToGameState(new ServerObserver(clientInfo), (int)optionalToken);
             }
         }
 
