@@ -4,8 +4,8 @@ using Backend;
 using Backend.Game;
 using Backend.Game.DecoratorPreferences;
 using Backend.User;
-using DAL;
 using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
+using Database;
 
 namespace ApplicationFacade
 {
@@ -13,21 +13,22 @@ namespace ApplicationFacade
 	{
 		public List<TexasHoldemGame> texasHoldemGames { get; set; }
         public List<League> leagues { get; set; }
-        public List<SystemUser> loggedInUsers { get; set; }
-        public List<SystemUser> userList { get; set; }
-        private DALDummy dal;
+        //public List<SystemUser> loggedInUsers { get; set; }
+        //public List<SystemUser> userList { get; set; }
+        //private DALDummy dal;
         private static GameCenter center;
+        private IDB db;
 
         private GameCenter()
         {
-            dal = new DALDummy();
+            //dal = new DALDummy();
             texasHoldemGames = new List<TexasHoldemGame>();
             //texasHoldemGames = dal.getAllGames();
             leagues = new List<League>();
-            userList = new List<SystemUser>();
-            loggedInUsers = new List<SystemUser>();
-            //loggedInUsers = dal.getAllUsers();
-
+            //userList = new List<SystemUser>();
+            //loggedInUsers = new List<SystemUser>();
+            //Action<int[]> rankCallback = ;
+            db = new DBImpl();
         }
 
         public static GameCenter getGameCenter()
@@ -37,22 +38,22 @@ namespace ApplicationFacade
                 center = new GameCenter();
 
                 // aviv - for testing purposes only
-                center.register("aviv", "1", "1", "profile_pic");
-                center.register("avivImaginaryFriend", "1", "2", "profile_pic");
-                int userId = center.getUserByName("aviv").id;
-                int friendId = center.getUserByName("avivImaginaryFriend").id;
-                //Console.WriteLine(userId);
-                ReturnMessage rm;
-                rm = center.editUserProfile(userId, "aviv", "1", "1", "profile_pic", 2000000);
-                if (!rm.success)
-                    Console.WriteLine("00000000000000000 " + rm.description);
-                rm = center.editUserProfile(friendId, "avivImaginaryFriend", "1", "2", "profile_pic", 2000000);
-                if (!rm.success)
-                    Console.WriteLine("00000000000000000 " + rm.description);
-                rm = center.logout(userId);
-                if (!rm.success)
-                    Console.WriteLine("11111111111111111 " + rm.description);
-                center.createGame(friendId, "no_limit", 100, 10, 10, 10, 2, 9, false, false);
+                //center.register("aviv", "1", "1", "profile_pic");
+                //center.register("avivImaginaryFriend", "1", "2", "profile_pic");
+                //int userId = center.getUserByName("aviv").id;
+                //int friendId = center.getUserByName("avivImaginaryFriend").id;
+                ////Console.WriteLine(userId);
+                //ReturnMessage rm;
+                //rm = center.editUserProfile(userId, "aviv", "1", "1", "profile_pic", 2000000);
+                //if (!rm.success)
+                //    Console.WriteLine("00000000000000000 " + rm.description);
+                //rm = center.editUserProfile(friendId, "avivImaginaryFriend", "1", "2", "profile_pic", 2000000);
+                //if (!rm.success)
+                //    Console.WriteLine("00000000000000000 " + rm.description);
+                //rm = center.logout(userId);
+                //if (!rm.success)
+                //    Console.WriteLine("11111111111111111 " + rm.description);
+                //center.createGame(friendId, "no_limit", 100, 10, 10, 10, 2, 9, false, false);
             }
             return center;
         }
@@ -61,7 +62,7 @@ namespace ApplicationFacade
         {
             texasHoldemGames.Clear();
             leagues.Clear();
-            loggedInUsers.Clear();
+            //loggedInUsers.Clear();
         }
 
         // Maintain leagues for players. Should be invoked once a week.
@@ -108,7 +109,7 @@ namespace ApplicationFacade
 
         public ReturnMessage logout(int userId)
         {
-            SystemUser systemUser = getUserById(userId);
+            SystemUser systemUser = db.getUserById(userId);
             if (systemUser == null)
                 return new ReturnMessage(false, "User does not exists");
 
@@ -119,27 +120,30 @@ namespace ApplicationFacade
             {
                 return new ReturnMessage(false, "you are active in some games as a player, leave them and then log out.");
             }
-            if (loggedInUsers.Contains(systemUser)){
-                loggedInUsers.Remove(systemUser);
-                return new ReturnMessage(true, null);
-            }
-            return new ReturnMessage(false, "you are not logged in.");
+            //if (loggedInUsers.Contains(systemUser)){
+            //    loggedInUsers.Remove(systemUser);
+            return new ReturnMessage(true, null);
+            //}
+            //return new ReturnMessage(false, "you are not logged in.");
         }
 
         public List<SystemUser> getAllUsers()
         {
-            return dal.getAllUsers();
+            //return dal.getAllUsers();
+            //return userList;
+            return db.getAllSystemUsers();
         }
 
         public bool removeUser(int userId)
         {
-            foreach (SystemUser u in userList)
-                if (u.id == userId)
-                {
-                    userList.Remove(u);
-                    return true;
-                }
-            return false;
+            //foreach (SystemUser u in userList)
+            //    if (u.id == userId)
+            //    {
+            //        userList.Remove(u);
+            //        return true;
+            //    }
+            //return false;
+            return db.deleteUser(userId);
         }
         public bool removeGame(int gameId)
         {
@@ -159,32 +163,22 @@ namespace ApplicationFacade
             if (userName == null || password == null || email == null || userImage == null || userName.Equals("") || password.Equals("") || email.Equals("") || userImage.Equals(""))
                 throw new ArgumentException("Not all parameters were given.");
 
-            SystemUser user = getUserByName(userName);
+            SystemUser user = db.getUserByName(userName);
             if (user != null)
-                throw new ArgumentException("User already exists.");
+                return null;// throw new ArgumentException("User already exists.");
 
             //creating the user.
-            user = new SystemUser(userName, password, email, userImage, 0);
+            //user = new SystemUser(userName, password, email, userImage, 0);
             //after a registeration the user stay login
-            loggedInUsers.Add(user);
+            db.RegisterUser(userName, password, email, userImage);
+            //loggedInUsers.Add(user);
+            
+            //foreach (SystemUser systemUser in userList)
+            //    if (systemUser.name.Equals(user.name))
+            //        throw new InvalidOperationException("This user name is already taken.");
 
-            ////adding the user to the db.
-            //var response = dal.registerUser(user);
-            //if (response.success)
-            //{
-            //    return user;
-            //}
-            //else
-            //{
-            //    
-            //}
-
-            foreach (SystemUser systemUser in userList)
-                if (systemUser.name.Equals(user.name))
-                    throw new InvalidOperationException("This user name is already taken.");
-
-            userList.Add(user);
-            return user;
+            //userList.Add(user);
+            return db.getUserByName(userName);
         }
 
         public SystemUser login(string user, string password)
@@ -192,21 +186,26 @@ namespace ApplicationFacade
             if (user == null || password == null || user.Equals("") || password.Equals(""))
                 throw new ArgumentException("No such user.");
 
-            SystemUser systemUser = getUserByName(user);
+            SystemUser systemUser = db.getUserByName(user);
             if (systemUser == null)
                 throw new ArgumentException("No such user.");
 
-            foreach (SystemUser u in loggedInUsers)
-                if (systemUser.id == u.id)
-                    throw new ArgumentException("The user is already logged in");
+            //foreach (SystemUser u in loggedInUsers)
+            //    if (systemUser.id == u.id)
+            //        throw new ArgumentException("The user is already logged in");
 
-            if (systemUser.password.Equals(password))
-            {
-                loggedInUsers.Add(systemUser);
-                return systemUser;
-            }
-            else
+            //if (systemUser.password.Equals(password))
+            //{
+            //    loggedInUsers.Add(systemUser);
+            //    return systemUser;
+            //}
+            //else
+            //    throw new InvalidOperationException("Incorrect password");
+            int id = db.Login(user, password);
+            if (id == -1)
                 throw new InvalidOperationException("Incorrect password");
+
+            return db.getUserById(id);
         }
 
         //public TexasHoldemGame createGame(int gameCreatorId, MustPreferences pref)
@@ -225,7 +224,7 @@ namespace ApplicationFacade
 
         public TexasHoldemGame createGame(int gameCreator, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? minimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague)
         {
-            SystemUser user = getUserById(gameCreator);
+            SystemUser user = db.getUserById(gameCreator);
             if (user == null)
                 return null;
             League l = null;
@@ -240,8 +239,8 @@ namespace ApplicationFacade
                 mustPref = getMustPref(gamePolicy, gamePolicyLimit, buyInPolicy, startingChipsAmount, minimalBet, minPlayers, maxPlayers, isSpectatingAllowed, isLeague);
 
 
-
-            TexasHoldemGame game = new TexasHoldemGame(user, mustPref);
+            //                                                          this is the callback that is there for when we want to update user rank
+            TexasHoldemGame game = new TexasHoldemGame(user, mustPref, userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false), userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2]));
             texasHoldemGames.Add(game);
             //dal.addGame(game);
             return game;
@@ -313,7 +312,7 @@ namespace ApplicationFacade
                 {
                     if (p != null)
                     {
-                        if (getUserById(p.systemUserID).name.Equals(name, StringComparison.OrdinalIgnoreCase))
+                        if (db.getUserById(p.systemUserID).name.Equals(name, StringComparison.OrdinalIgnoreCase))
                         {
                             ans.Add(game);
                             break;
@@ -325,9 +324,9 @@ namespace ApplicationFacade
             return ans;
         }
 
-        public ReturnMessage editUserProfile(int userId, string name, string password, string email, string avatar, int money)
+        public ReturnMessage editUserProfile(int userId, string name, string password, string email, string avatar, int money, int rank)
         {
-            SystemUser user = getUserById(userId);
+            SystemUser user = db.getUserById(userId);
             if (user == null)
                 return new ReturnMessage(false, "Could not find the logged user.");
             //List<SystemUser> allUsers = getAllUsers();
@@ -335,25 +334,61 @@ namespace ApplicationFacade
             //Validates attributes.
             if (name.Equals("") || password.Equals(""))
                 return new ReturnMessage(false, "Can't change to empty user name or password.");
-            if (money<0)
+            if (money < 0)
                 return new ReturnMessage(false, "Can't change money to a negative value.");
 
-            //Check that attributes are not already exists.
-            foreach (SystemUser u in userList)
-                if (u.id != userId && (u.name.Equals(name, StringComparison.OrdinalIgnoreCase) || u.email.Equals(email, StringComparison.OrdinalIgnoreCase))) //comparing two passwords including cases i.e AbC = aBc
-                    return new ReturnMessage(false, "Username or email already exists." + u.id + " " + userId + " " + user.id);
+            user = db.getUserByName(name);
+            if (user != null && user.id != userId)
+                return new ReturnMessage(false, "Username already exists.");
+
+            user = db.getUserByEmail(email);
+            if (user != null && user.id != userId)
+                return new ReturnMessage(false, "email already exists.");
+
+
+            ////Check that attributes are not already exists.
+            //foreach (SystemUser u in userList)
+            //    if (u.id != userId && (u.name.Equals(name, StringComparison.OrdinalIgnoreCase) || u.email.Equals(email, StringComparison.OrdinalIgnoreCase))) //comparing two passwords including cases i.e AbC = aBc
+            //        return new ReturnMessage(false, "Username or email already exists." + u.id + " " + userId + " " + user.id);
 
             //changes the attributes
-            user.name = name;
-            user.password = password;
-            user.email = email;
-            user.userImage = avatar;
-            user.money += money;
+            //user.name = name;
+            //user.password = password;
+            //user.email = email;
+            //user.userImage = avatar;
+            //user.money += money;
             //dal.editUser(user);
             // (userList[user.id]) - it is a bug and pretty much unnecessary - you are changing the reference
             //if (user.id < userList.Count)
             //    userList[user.id] = user;
-            return new ReturnMessage(true,"");
+            return new ReturnMessage(db.EditUserById(userId, name, password, email, avatar, money, rank, false), "");
+        }
+        public ReturnMessage editUserProfile(int userId, string name, string password, string email, string avatar, int money)
+        {
+            SystemUser user = db.getUserById(userId);
+            if (user == null)
+                return new ReturnMessage(false, "Could not find the logged user.");
+            //List<SystemUser> allUsers = getAllUsers();
+
+            //Validates attributes.
+            if (name.Equals(""))
+                return new ReturnMessage(false, "Can't change to empty user name.");
+
+            if (password.Equals(""))
+                password = null;
+
+            if (money < 0)
+                return new ReturnMessage(false, "Can't change money to a negative value.");
+            
+            user = db.getUserByName(name);
+            if (user != null && user.id != userId)
+                return new ReturnMessage(false, "Username already exists.");
+            
+            user = db.getUserByEmail(email);
+            if (user != null && user.id != userId)
+                return new ReturnMessage(false, "email already exists.");
+            
+            return new ReturnMessage(db.EditUserById(userId, name, password, email, avatar, money, null, false), "");
         }
 
         public League getUserLeague(SystemUser user)
@@ -389,19 +424,21 @@ namespace ApplicationFacade
 
         public SystemUser getUserByName(string name)
         {
-            //return dal.getUserByName(name);
-            for (int i = 0; i < userList.Count; i++)
-                if (userList[i].name.Equals(name))
-                    return userList[i];
-            return null;
+            ////return dal.getUserByName(name);
+            //for (int i = 0; i < userList.Count; i++)
+            //    if (userList[i].name.Equals(name))
+            //        return userList[i];
+            //return null;
+            return db.getUserByName(name);
         }
 
         public SystemUser getUserById(int userId)
         {
-            foreach (SystemUser user in loggedInUsers)
-                if (user.id == userId)
-                    return user;
-            return null;
+            //foreach (SystemUser user in loggedInUsers)
+            //    if (user.id == userId)
+            //        return user;
+            //return null;
+            return db.getUserById(userId);
         }
 
         #region game
@@ -437,26 +474,21 @@ namespace ApplicationFacade
             TexasHoldemGame game = getGameById(gameId);
             return game;
         }
-        public ReturnMessage ChoosePlayerSeat(int gameId, int playerIndex)
-        {
-            TexasHoldemGame game = getGameById(gameId);
-            return game.ChoosePlayerSeat(playerIndex);
-        }
         public Player GetPlayer(int gameId, int playerIndex)
         {
             TexasHoldemGame game = getGameById(gameId);
             return game.GetPlayer(playerIndex);
         }
-        public Card[] GetPlayerCards(int gameId, int playerIndex)
+        public Dictionary<int, List<Card>> GetPlayerCards(int gameId, int userId)
         {
             TexasHoldemGame game = getGameById(gameId);
-            return game.GetPlayerCards(playerIndex);
+            return game.GetPlayerCards(userId);
         }
-        public IDictionary<int, Card[]> GetShowOff(int gameId)
-        {
-            TexasHoldemGame game = getGameById(gameId);
-            return game.GetShowOff();
-        }
+        //public IDictionary<int, Card[]> GetShowOff(int gameId)
+        //{
+        //    TexasHoldemGame game = getGameById(gameId);
+        //    return game.GetShowOff();
+        //}
         #endregion
 
         private SystemUser getHighest(List<SystemUser> users)

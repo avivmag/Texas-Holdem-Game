@@ -115,7 +115,7 @@ SELECT Id, UserName, password, email, image, money FROM SystemUsers WHERE (Id = 
   <xs:element name="DataSetConnection" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="True" msprop:Generator_DataSetName="DataSetConnection" msprop:Generator_UserDSName="DataSetConnection">
     <xs:complexType>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
-        <xs:element name="MessageEnter" msprop:Generator_TableClassName="MessageEnterDataTable" msprop:Generator_TableVarName="tableMessageEnter" msprop:Generator_TablePropName="MessageEnter" msprop:Generator_RowDeletingName="MessageEnterRowDeleting" msprop:Generator_RowChangingName="MessageEnterRowChanging" msprop:Generator_RowEvHandlerName="MessageEnterRowChangeEventHandler" msprop:Generator_RowDeletedName="MessageEnterRowDeleted" msprop:Generator_UserTableName="MessageEnter" msprop:Generator_RowChangedName="MessageEnterRowChanged" msprop:Generator_RowEvArgName="MessageEnterRowChangeEvent" msprop:Generator_RowClassName="MessageEnterRow">
+        <xs:element name="MessageEnter" msprop:Generator_TableClassName="MessageEnterDataTable" msprop:Generator_TableVarName="tableMessageEnter" msprop:Generator_RowChangedName="MessageEnterRowChanged" msprop:Generator_TablePropName="MessageEnter" msprop:Generator_RowDeletingName="MessageEnterRowDeleting" msprop:Generator_RowChangingName="MessageEnterRowChanging" msprop:Generator_RowEvHandlerName="MessageEnterRowChangeEventHandler" msprop:Generator_RowDeletedName="MessageEnterRowDeleted" msprop:Generator_RowClassName="MessageEnterRow" msprop:Generator_UserTableName="MessageEnter" msprop:Generator_RowEvArgName="MessageEnterRowChangeEvent">
           <xs:complexType>
             <xs:sequence>
               <xs:element name="command" msprop:Generator_ColumnVarNameInTable="columncommand" msprop:Generator_ColumnPropNameInRow="command" msprop:Generator_ColumnPropNameInTable="commandColumn" msprop:Generator_UserColumnName="command">
@@ -135,7 +135,7 @@ SELECT Id, UserName, password, email, image, money FROM SystemUsers WHERE (Id = 
             </xs:sequence>
           </xs:complexType>
         </xs:element>
-        <xs:element name="SystemUsers" msprop:Generator_TableClassName="SystemUsersDataTable" msprop:Generator_TableVarName="tableSystemUsers" msprop:Generator_TablePropName="SystemUsers" msprop:Generator_RowDeletingName="SystemUsersRowDeleting" msprop:Generator_RowChangingName="SystemUsersRowChanging" msprop:Generator_RowEvHandlerName="SystemUsersRowChangeEventHandler" msprop:Generator_RowDeletedName="SystemUsersRowDeleted" msprop:Generator_UserTableName="SystemUsers" msprop:Generator_RowChangedName="SystemUsersRowChanged" msprop:Generator_RowEvArgName="SystemUsersRowChangeEvent" msprop:Generator_RowClassName="SystemUsersRow">
+        <xs:element name="SystemUsers" msprop:Generator_TableClassName="SystemUsersDataTable" msprop:Generator_TableVarName="tableSystemUsers" msprop:Generator_RowChangedName="SystemUsersRowChanged" msprop:Generator_TablePropName="SystemUsers" msprop:Generator_RowDeletingName="SystemUsersRowDeleting" msprop:Generator_RowChangingName="SystemUsersRowChanging" msprop:Generator_RowEvHandlerName="SystemUsersRowChangeEventHandler" msprop:Generator_RowDeletedName="SystemUsersRowDeleted" msprop:Generator_RowClassName="SystemUsersRow" msprop:Generator_UserTableName="SystemUsers" msprop:Generator_RowEvArgName="SystemUsersRowChangeEvent">
           <xs:complexType>
             <xs:sequence>
               <xs:element name="Id" msprop:Generator_ColumnVarNameInTable="columnId" msprop:Generator_ColumnPropNameInRow="Id" msprop:Generator_ColumnPropNameInTable="IdColumn" msprop:Generator_UserColumnName="Id" type="xs:int" />
@@ -149,7 +149,7 @@ SELECT Id, UserName, password, email, image, money FROM SystemUsers WHERE (Id = 
               <xs:element name="password" msprop:Generator_ColumnVarNameInTable="columnpassword" msprop:Generator_ColumnPropNameInRow="password" msprop:Generator_ColumnPropNameInTable="passwordColumn" msprop:Generator_UserColumnName="password" minOccurs="0">
                 <xs:simpleType>
                   <xs:restriction base="xs:string">
-                    <xs:maxLength value="10" />
+                    <xs:maxLength value="32" />
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>
@@ -162,6 +162,13 @@ SELECT Id, UserName, password, email, image, money FROM SystemUsers WHERE (Id = 
               </xs:element>
               <xs:element name="image" msprop:Generator_ColumnVarNameInTable="columnimage" msprop:Generator_ColumnPropNameInRow="image" msprop:Generator_ColumnPropNameInTable="imageColumn" msprop:Generator_UserColumnName="image" type="xs:base64Binary" minOccurs="0" />
               <xs:element name="money" msprop:Generator_ColumnVarNameInTable="columnmoney" msprop:Generator_ColumnPropNameInRow="money" msprop:Generator_ColumnPropNameInTable="moneyColumn" msprop:Generator_UserColumnName="money" type="xs:int" minOccurs="0" />
+              <xs:element name="salt" msprop:Generator_ColumnVarNameInTable="columnsalt" msprop:Generator_ColumnPropNameInRow="salt" msprop:Generator_ColumnPropNameInTable="saltColumn" msprop:Generator_UserColumnName="salt" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="32" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
             </xs:sequence>
           </xs:complexType>
         </xs:element>

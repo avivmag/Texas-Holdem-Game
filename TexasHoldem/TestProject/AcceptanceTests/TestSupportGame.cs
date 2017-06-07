@@ -21,12 +21,14 @@ namespace TestProject.AcceptanceTests
             Assert.IsInstanceOfType(objUser, typeof(SystemUser));
             hadas = (SystemUser)objUser;
             hadas.money = 100000;
+            editProfile(hadas.id, hadas.name, hadas.password, hadas.email, hadas.userImage, 100000);
 
             object objOtherUser = register("other", "2", "other", "2");
             Assert.IsNotNull(objOtherUser);
             Assert.IsInstanceOfType(objOtherUser, typeof(SystemUser));
             other = (SystemUser)objOtherUser;
             other.money = 100000;
+            editProfile(other.id, other.name, other.password, other.email, other.userImage, 100000);
 
             object objGame = creatGame(hadas.id,"Limit",amountToBet*2+1,amountToBet+1,100,100,2,9,true,false);
             Assert.IsNotNull(objGame);
