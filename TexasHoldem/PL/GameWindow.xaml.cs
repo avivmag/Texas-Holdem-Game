@@ -237,14 +237,14 @@ namespace PL
             playerCoins[i].VerticalAlignment = VerticalAlignment.Center;
             playerCoins[i].HorizontalContentAlignment = HorizontalAlignment.Center;
             playerCoins[i].VerticalContentAlignment = VerticalAlignment.Center;
-            playerCoins[i].Foreground = Brushes.Green;
+            playerCoins[i].Foreground = Brushes.White;
 
             playerCoinsGambled[i].Content = 0;
             playerCoinsGambled[i].HorizontalAlignment = HorizontalAlignment.Center;
             playerCoinsGambled[i].VerticalAlignment = VerticalAlignment.Center;
             playerCoinsGambled[i].HorizontalContentAlignment = HorizontalAlignment.Center;
             playerCoinsGambled[i].VerticalContentAlignment = VerticalAlignment.Center;
-            playerCoinsGambled[i].Foreground = Brushes.Blue;
+            playerCoinsGambled[i].Foreground = Brushes.Yellow;
 
             UniformGrid cardsUg = new UniformGrid();
             cardsUg.HorizontalAlignment = HorizontalAlignment.Center;
@@ -613,8 +613,8 @@ namespace PL
         private void CommentButton_Click(object sender, RoutedEventArgs e)
         {
             ReturnMessage returnMessage = CommClient.AddMessage(game.gameId, playerSeatIndex, messagesTextBox.Text);
-            //if (returnMessage.success)
-            //    messagesTextBox.Text = "";
+            if (returnMessage.success)
+                messagesTextBox.Text = "";
             if (!returnMessage.success)
                 MessageBox.Show(returnMessage.description);
         }
@@ -761,13 +761,23 @@ namespace PL
                             {
                                 betButton.IsEnabled = true;
                                 foldButton.IsEnabled = true;
-                                checkButton.IsEnabled = true;
+                                if (getMinimumBet() == 0)
+                                {
+                                    checkButton.IsEnabled = true;
+                                    callButton.IsEnabled = false;
+                                }
+                                else
+                                {
+                                    checkButton.IsEnabled = false;
+                                    callButton.IsEnabled = true;
+                                }
                             }
                             else
                             {
                                 betButton.IsEnabled = false;
                                 foldButton.IsEnabled = false;
                                 checkButton.IsEnabled = false;
+                                callButton.IsEnabled = false;
                             }
                             break;
                         case Player.PlayerState.winner:
