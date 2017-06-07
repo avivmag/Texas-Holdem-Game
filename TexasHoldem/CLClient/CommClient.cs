@@ -220,6 +220,16 @@ namespace CLClient
                         toUpdate.update(gameResponse);
                     }
                 }
+
+                if ((string)responseStringToken == "Message")
+                {
+                    var gameResponseToken = jsonResponse["obj"];
+                    if (responseStringToken != null)
+                    {
+                        string messageResponse = gameResponseToken.ToObject<string>();
+                        toUpdate.update(messageResponse);
+                    }
+                }
             }
         }
        

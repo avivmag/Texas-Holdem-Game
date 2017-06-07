@@ -804,11 +804,11 @@ namespace PL
                     updateGame((TexasHoldemGame)obj);
                 });
             }
-            else if (obj.GetType() == typeof(Notification))
+            else if (obj.GetType() == typeof(string))
             {
                 this.Dispatcher.Invoke(() =>
                 {
-                    updateChatBox(((Notification)obj).getMessage());
+                    updateChatBox(((string)obj));
                 });
             }
         }

@@ -238,10 +238,9 @@ public class SLImpl : SLInterface
     }
     public object AddMessage(int gameId, int playerIndex, string messageText)
     {
-        // TODO: Gili, you need to send the message to the other players
-        // return gameCenter.addMessage(gameId, playerIndex, messageText);
-        return null;
+        return gameCenter.addMessage(gameId, playerIndex, messageText);
     }
+
     public object Fold(int gameId, int playerIndex)
     {
         return gameCenter.fold(gameId, playerIndex);
