@@ -763,6 +763,7 @@ namespace PL
                             {
                                 betButton.IsEnabled = true;
                                 foldButton.IsEnabled = true;
+                                //checkButton.IsEnabled = 0 == getMinimumBet();
                                 checkButton.IsEnabled = true;
                             }
                             else

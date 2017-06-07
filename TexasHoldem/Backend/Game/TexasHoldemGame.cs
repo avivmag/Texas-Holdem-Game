@@ -294,7 +294,7 @@ namespace Backend.Game
             if (playersStats[winnerIndex].highetsCashInAGame < players[winnerIndex].Tokens)
                 playersStats[winnerIndex].highetsCashInAGame = players[winnerIndex].Tokens;
 
-            for (int i = 0; i < playersStats.Length; i++)////////////////////////////////////////////
+            for (int i = 0; i < playersStats.Length; i++)
             {
                 if (players[i] != null && playersStats[i] != null)
                 {
@@ -431,6 +431,11 @@ namespace Backend.Game
                         flop.Add(flopCard);
                         GameLog.logLine(gameId, GameLog.Actions.Flop, i.ToString(), flopCard.ToString());
                     }
+                    for (int i = 0; i < players.Length; i++)
+                    {
+                        if (players[i] != null && (players[i].playerState == PlayerState.in_round || players[i].playerState == PlayerState.my_turn))
+                            players[i].TokensInBet = 0;
+                    }
                     minNumberOfPlayerRounds = numbersOfPlayersInRound();
                     gameState++;
                     break;
@@ -476,17 +481,35 @@ namespace Backend.Game
             for (int i = 0; i < players.Length; i++)
             {
                 if (players[i] != null && (players[i].playerState == Player.PlayerState.in_round || players[i].playerState.Equals(Player.PlayerState.my_turn)))
+                {
                     players[i].handRank = checkHandRank(players[i]);
+                    Console.WriteLine("player: " + players[i].systemUserID + " hand rank: " + players[i].handRank.ToString());
+                }
             }
 
             int maxHandPlayer = 9;
             int maxHandIndex = -1;
+            int maxHandPlayerCards = -1;
             for (int i = 0; i < players.Length; i++)
             {
                 if (players[i] != null && (players[i].playerState == Player.PlayerState.in_round || players[i].playerState.Equals(Player.PlayerState.my_turn)) && (int)players[i].handRank <= maxHandPlayer)
                 {
-                    maxHandPlayer = (int)players[i].handRank;
-                    maxHandIndex = i;
+                    if ((int)players[i].handRank == maxHandPlayer)
+                    {
+                        if (players[i].handRankCards > maxHandPlayerCards)
+                        {
+                            maxHandPlayer = (int)players[i].handRank;
+                            maxHandIndex = i;
+                            maxHandPlayerCards = players[i].handRankCards;
+                        }
+                    }
+                    else
+                    {
+                        maxHandPlayer = (int)players[i].handRank;
+                        maxHandIndex = i;
+                        maxHandPlayerCards = players[i].handRankCards;
+
+                    }
                 }
             }
             return players[maxHandIndex];
@@ -678,6 +701,11 @@ namespace Backend.Game
             fullHand.Add(turn);
             fullHand.Add(river);
 
+            for (int i = 0; i < fullHand.Count; i++)
+            {
+                Console.WriteLine("player " + p.systemUserID + " --- " + fullHand[i].ToString());
+            }
+
             fullHand.Sort();
 
             if (checkRoyalFlush(fullHand))
@@ -686,25 +714,22 @@ namespace Backend.Game
                 return HandsRanks.StraightFlush;
             if (checkFourOfAKind(fullHand) != -1)
                 return HandsRanks.FourOfAKind;
-            if (checkFullHouse(fullHand, 3) != -1)
+            if ((p.handRankCards = checkFullHouse(fullHand, 3)) != -1)
                 return HandsRanks.FullHouse;
-            if (checkFlush(fullHand) != -1)
+            if ((p.handRankCards = checkFlush(fullHand)) != -1)
                 return HandsRanks.Flush;
-            if (checkStraight(fullHand) != -1)
+            if ((p.handRankCards = checkStraight(fullHand)) != -1)
                 return HandsRanks.Straight;
-            if (checkThreeOfAKind(fullHand) != -1)
+            if ((p.handRankCards = checkThreeOfAKind(fullHand)) != -1)
                 return HandsRanks.ThreeOfAKind;
-            if (checkTwoPairs(fullHand) != -1)
+            if ((p.handRankCards = checkTwoPairs(fullHand)) != -1)
+            {
                 return HandsRanks.TwoPairs;
-
-            //for (int i = 0; i < fullHand.Count; i++)
-            //{
-            //    Console.Out.Write(fullHand[i].Value + "  ");
-            //    Console.Out.Write(fullHand[i].Type.ToString() + "  ");
-            //    Console.Out.WriteLine();
-            //}
-
-
+            }
+            if ((p.handRankCards = checkPair(fullHand)) != -1)
+            {
+                return HandsRanks.Pair;
+            }
             return HandsRanks.HighCard;
         }
 
@@ -755,8 +780,6 @@ namespace Backend.Game
                     {
                         bitCounter++;
                         valueBits[i] = valueBits[i] / 2;
-                        Console.Out.WriteLine(bitCounter + "    first  ");
-
                         if (bitCounter == 5)
                         {
                             highestCardValue = j + 1;
@@ -909,11 +932,11 @@ namespace Backend.Game
                 threeOfAKindCounter[i] = 0;
 
             for (int i = 0; i < 7; i++)
+            {
                 threeOfAKindCounter[fullHand[i].Value - 1]++;
-
-            for (int i = 0; i < 13; i++)
                 if (threeOfAKindCounter[i] == 3)
-                    return 0;
+                    return fullHand[i].Value;
+            }
 
             return -1;
         }
@@ -928,11 +951,18 @@ namespace Backend.Game
                 twoOfAKindCounterA[i] = 0;
                 twoOfAKindCounterB[i] = 0;
             }
-
+            int firstPair = 0;
             for (int i = 0; i < 7; i++)
             {
                 twoOfAKindCounterA[fullHand[i].Value - 1]++;
-                twoOfAKindCounterB[fullHand[i].Value - 1]++;
+                if (twoOfAKindCounterA[i] == 2)
+                    firstPair = fullHand[i].Value;
+            }
+
+            for (int i = 0; i < 7; i++)
+            {
+                if (fullHand[i].Value != firstPair)
+                    twoOfAKindCounterB[fullHand[i].Value - 1]++;
             }
 
             for (int i = 0; i < 13; i++)
@@ -948,12 +978,11 @@ namespace Backend.Game
                 pairCounter[i] = 0;
 
             for (int i = 0; i < 7; i++)
+            {
                 pairCounter[fullHand[i].Value - 1]++;
-
-            for (int i = 0; i < 13; i++)
                 if (pairCounter[i] == 2)
-                    return 0;
-
+                    return fullHand[i].Value;
+            }
             return -1;
         }
         
