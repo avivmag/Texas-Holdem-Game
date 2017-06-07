@@ -564,6 +564,21 @@ namespace CLClient
             return response;
         }
 
+        public static ReturnMessage Call(int gameId, int playerIndex)
+        {
+            var message = new { action = "Call", gameId, playerIndex };
+            var jsonMessage = sendMessage(message);
+            var responseJson = getResponse(jsonMessage);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response = responseJson.ToObject<ReturnMessage>();
+
+            return response;
+        }
+
         public static ReturnMessage playGame(int gameId)
         {
             var message = new { action = "playGame", gameId };
