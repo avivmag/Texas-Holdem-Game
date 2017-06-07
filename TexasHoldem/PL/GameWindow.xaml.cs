@@ -651,6 +651,9 @@ namespace PL
         {
             ReturnMessage returnMessage = CommClient.playGame(game.gameId);
 
+            if (returnMessage == null)
+                return;
+
             if (!returnMessage.success)
                 MessageBox.Show(returnMessage.description);
             else
