@@ -107,10 +107,11 @@ namespace Backend.Game
                         buyIn = buyInPref.buyInPolicy;
                     // updates the money and rank of the user.
                     //user.money += players[i].Tokens;
-                    
+
                     //user.updateRank(players[i].Tokens - buyIn);
                     rankMoneyUpdateCallback(new int[] { userId, players[i].Tokens - buyIn, players[i].Tokens });
                     players[i] = null;
+                    gameStatesObserver.Update(this);
                     return new ReturnMessage(true, "");
                 }
             }
@@ -243,6 +244,7 @@ namespace Backend.Game
             isGameIsOver = false;
             gameState = GameState.bFlop;
             preparePlayersState();
+            pot = 0;
             deck.Shuffle();
             dealCards();
             currentSmall = getNextPlayer(currentDealer);
@@ -646,6 +648,7 @@ namespace Backend.Game
             if (numbersOfPlayersInRound() == 1)
             {
                 players[nextPlayer].playerState = PlayerState.winner;
+                players[nextPlayer].Tokens += pot;
                 gameStatesObserver.Update(this);
                 return new ReturnMessage(true, "");
             }
