@@ -501,19 +501,22 @@ namespace CLServer
         {
             var gameIdToken = jsonObject["gameId"];
             var playerIndexToken = jsonObject["playerIndex"];
+            var minBet = jsonObject["minBet"];
 
             if (((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer)) ||
-                ((playerIndexToken == null) || (playerIndexToken.Type != JTokenType.Integer)))
+                ((playerIndexToken == null) || (playerIndexToken.Type != JTokenType.Integer)) ||
+                ((minBet == null) || (minBet.Type != JTokenType.Integer)))
             {
                 throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Check."));
             }
 
             var gameId = (int)gameIdToken;
             var playerIndex = (int)playerIndexToken;
+            var minimumBet = (int)minBet;
 
             Console.WriteLine("Call. parameters are: gameId: {0}, playerIndex: {1}", gameId, playerIndex);
 
-            SendMessage(client, new { response = sl.Call(gameId, playerIndex) });
+            SendMessage(client, new { response = sl.Call(gameId, playerIndex, minimumBet) });
         }
 
         private static void playGame(ClientInfo client, JObject jsonObject)

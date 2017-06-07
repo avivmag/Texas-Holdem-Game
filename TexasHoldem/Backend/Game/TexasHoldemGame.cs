@@ -245,11 +245,10 @@ namespace Backend.Game
             deck.Shuffle();
             dealCards();
             currentSmall = getNextPlayer(currentDealer);
-            Console.WriteLine("small " + currentSmall);
             currentBig = getNextPlayer(currentSmall);
-            Console.WriteLine("big " + currentBig);
             minNumberOfPlayerRounds = numbersOfPlayersInRound();
             betBlinds();
+            gameStatesObserver.Update(this);
             players[getNextPlayer(currentBig)].playerState = PlayerState.my_turn;
             //players[currentDealer].playerState = PlayerState.my_turn;
         }
@@ -268,6 +267,7 @@ namespace Backend.Game
                 if (players[i] != null)
                 {
                     players[i].playerState = Player.PlayerState.in_round;
+                    players[i].TokensInBet = 0;
                     playersStats[i].numberOfGamesPlayed++;
                 }
             }
@@ -377,6 +377,9 @@ namespace Backend.Game
                 }
                 index = (index + 1) % maxPlayers;
             }
+            flop = null;
+            river = null;
+            turn = null;
         }
 
 
@@ -470,8 +473,10 @@ namespace Backend.Game
                 case GameState.aRiver:
                     Player p = decideWhoWon();
                     isGameIsOver = true;
-                    gameStatesObserver.Update(this);
+                    p.Tokens += pot;
+                    Console.WriteLine("############" + pot + "############");
                     p.playerState = PlayerState.winner;
+                    gameStatesObserver.Update(this);
                     break;
             }
         }
@@ -567,49 +572,49 @@ namespace Backend.Game
             return new ReturnMessage(true, "");
         }
 
-        public ReturnMessage call(Player p)
+        public ReturnMessage call(Player p, int minimumBet)
         {
-            p.Tokens -= currentBet;
-            GameLog.logLine(
-                gameId,
-                GameLog.Actions.Action_Bet,
-                p.systemUserID.ToString(),
-                currentBet.ToString());
-            tempPot += currentBet;
+            return bet(p, minimumBet);
+            //p.Tokens -= currentBet;
+            //GameLog.logLine(
+            //    gameId,
+            //    GameLog.Actions.Action_Bet,
+            //    p.systemUserID.ToString(),
+            //    currentBet.ToString());
+            //tempPot += currentBet;
 
-            int call = -1;
-            for (int i = 0; i < players.Length; i++)
-            {
-                if (players[i] != null && (players[i].playerState == PlayerState.in_round || players[i].playerState.Equals(Player.PlayerState.my_turn)) && players[i].Tokens != 0)
-                {
-                    call = players[i].TokensInBet;
-                    break;
-                }
-            }
+            //int call = -1;
+            //for (int i = 0; i < players.Length; i++)
+            //{
+            //    if (players[i] != null && (players[i].playerState == PlayerState.in_round || players[i].playerState.Equals(Player.PlayerState.my_turn)) && players[i].Tokens != 0)
+            //    {
+            //        call = players[i].TokensInBet;
+            //        break;
+            //    }
+            //}
 
-            bool isCallOver = true;
-            for (int i = 0; i < players.Length; i++)
-            {
-                if (players[i] != null && (players[i].playerState == PlayerState.in_round || players[i].playerState.Equals(Player.PlayerState.my_turn)) && players[i].TokensInBet != call && players[i].Tokens != 0)
-                {
-                    isCallOver = false;
-                }
-            }
-            int turn = checkWhosTurnIs();
-            players[turn].playerState = PlayerState.in_round;
-            players[nextToSeat(turn)].playerState = PlayerState.my_turn;
-            gameStatesObserver.Update(this);
-            if (isCallOver)
-            {
-                addToPot(tempPot);
-                continueGame();
-            }
-            return new ReturnMessage(true, "");
+            //bool isCallOver = true;
+            //for (int i = 0; i < players.Length; i++)
+            //{
+            //    if (players[i] != null && (players[i].playerState == PlayerState.in_round || players[i].playerState.Equals(Player.PlayerState.my_turn)) && players[i].TokensInBet != call && players[i].Tokens != 0)
+            //    {
+            //        isCallOver = false;
+            //    }
+            //}
+            //int turn = checkWhosTurnIs();
+            //players[turn].playerState = PlayerState.in_round;
+            //players[nextToSeat(turn)].playerState = PlayerState.my_turn;
+            //gameStatesObserver.Update(this);
+            //if (isCallOver)
+            //{
+            //    addToPot(tempPot);
+            //    continueGame();
+            //}
+            //return new ReturnMessage(true, "");
         }
 
         public ReturnMessage fold(Player p)
         {
-            p.playerState = Player.PlayerState.folded;
             GameLog.logLine(
                 gameId,
                 GameLog.Actions.Action_Fold,
@@ -634,14 +639,21 @@ namespace Backend.Game
                 }
             }
             int turn = checkWhosTurnIs();
-            players[turn].playerState = PlayerState.in_round;
-            players[nextToSeat(turn)].playerState = PlayerState.my_turn;
-            gameStatesObserver.Update(this);
+            players[turn].playerState = PlayerState.folded;
+            int nextPlayer = nextToSeat(turn);
+            players[nextPlayer].playerState = PlayerState.my_turn;
+            if (numbersOfPlayersInRound() == 1)
+            {
+                players[nextPlayer].playerState = PlayerState.winner;
+                gameStatesObserver.Update(this);
+                return new ReturnMessage(true, "");
+            }
+            addToPot(tempPot);
             if (isFoldOver)
             {
-                addToPot(tempPot);
                 continueGame();
             }
+            gameStatesObserver.Update(this);
             return new ReturnMessage(true, "");
         }
 
@@ -723,13 +735,13 @@ namespace Backend.Game
             if ((p.handRankCards = checkThreeOfAKind(fullHand)) != -1)
                 return HandsRanks.ThreeOfAKind;
             if ((p.handRankCards = checkTwoPairs(fullHand)) != -1)
-            {
                 return HandsRanks.TwoPairs;
-            }
             if ((p.handRankCards = checkPair(fullHand)) != -1)
-            {
                 return HandsRanks.Pair;
-            }
+
+
+
+            p.handRankCards = fullHand[0].Value;
             return HandsRanks.HighCard;
         }
 
@@ -945,7 +957,7 @@ namespace Backend.Game
         {
             int[] twoOfAKindCounterA = new int[13];
             int[] twoOfAKindCounterB = new int[13];
-
+            bool first = false, second = false;
             for (int i = 0; i < 13; i++)
             {
                 twoOfAKindCounterA[i] = 0;
@@ -955,19 +967,28 @@ namespace Backend.Game
             for (int i = 0; i < 7; i++)
             {
                 twoOfAKindCounterA[fullHand[i].Value - 1]++;
-                if (twoOfAKindCounterA[i] == 2)
+                if (twoOfAKindCounterA[fullHand[i].Value - 1] == 2)
+                {
                     firstPair = fullHand[i].Value;
+                    first = true;
+                }
             }
 
             for (int i = 0; i < 7; i++)
             {
                 if (fullHand[i].Value != firstPair)
+                {
                     twoOfAKindCounterB[fullHand[i].Value - 1]++;
-            }
+                    second = true;
+                }
 
-            for (int i = 0; i < 13; i++)
-                if (twoOfAKindCounterA[i] == 2 && twoOfAKindCounterB[i] == 2)
-                    return 0;
+            }
+            if (first && second)
+                return firstPair;
+
+            //for (int i = 0; i < 13; i++)
+            //    if (twoOfAKindCounterA[i] == 2 && twoOfAKindCounterB[i] == 2)
+            //        return 0;
             return -1;
         }
 
