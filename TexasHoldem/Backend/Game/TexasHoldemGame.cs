@@ -188,6 +188,11 @@ namespace Backend.Game
             return new ReturnMessage(true, "");
         }
 
+        public void addMessage(string message)
+        {
+            gameStatesObserver.Update(message);
+        }
+
         public ReturnMessage joinSpectate(SystemUser user)
         {
             ReturnMessage m = gamePreferences.canPerformUserActions(this, user, "spectate");
@@ -539,7 +544,7 @@ namespace Backend.Game
             return new ReturnMessage(true, "");
         }
 
-        public void call(Player p)
+        public ReturnMessage call(Player p)
         {
             p.Tokens -= currentBet;
             GameLog.logLine(
@@ -576,6 +581,7 @@ namespace Backend.Game
                 addToPot(tempPot);
                 continueGame();
             }
+            return new ReturnMessage(true, "");
         }
 
         public ReturnMessage fold(Player p)
@@ -631,7 +637,7 @@ namespace Backend.Game
             gameStatesObserver.Update(this);
             return new ReturnMessage(true, "");
         }
-
+        
         private int checkWhosTurnIs()
         {
             for (int i = 0; i < players.Length; i++)

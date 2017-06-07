@@ -220,6 +220,16 @@ namespace CLClient
                         toUpdate.update(gameResponse);
                     }
                 }
+
+                if ((string)responseStringToken == "Message")
+                {
+                    var gameResponseToken = jsonResponse["obj"];
+                    if (responseStringToken != null)
+                    {
+                        string messageResponse = gameResponseToken.ToObject<string>();
+                        toUpdate.update(messageResponse);
+                    }
+                }
             }
         }
        
@@ -552,6 +562,21 @@ namespace CLClient
         public static ReturnMessage Check(int gameId, int playerIndex)
         {
             var message = new { action = "Check", gameId, playerIndex };
+            var jsonMessage = sendMessage(message);
+            var responseJson = getResponse(jsonMessage);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+            var response = responseJson.ToObject<ReturnMessage>();
+
+            return response;
+        }
+
+        public static ReturnMessage Call(int gameId, int playerIndex)
+        {
+            var message = new { action = "Call", gameId, playerIndex };
             var jsonMessage = sendMessage(message);
             var responseJson = getResponse(jsonMessage);
 

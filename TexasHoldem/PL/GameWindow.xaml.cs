@@ -49,6 +49,7 @@ namespace PL
         private TextBox messagesTextBox;
         Button betButton;
         Button checkButton;
+        Button callButton;
         Button foldButton;
         Button playButton;
 
@@ -121,16 +122,17 @@ namespace PL
         {
             UniformGrid mainControlBarUg = new UniformGrid();
             UniformGrid checkFoldBetCommentControlBarUg = new UniformGrid();
-            UniformGrid checkFoldControlBarUg = new UniformGrid();
+            UniformGrid checkCallFoldControlBarUg = new UniformGrid();
             UniformGrid commentPlayControlBarUg = new UniformGrid();
             UniformGrid betControlBarUg = new UniformGrid();
             mainControlBarUg.Columns = 1;
             checkFoldBetCommentControlBarUg.Columns = 1;
-            checkFoldControlBarUg.Rows = 1;
+            checkCallFoldControlBarUg.Rows = 1;
             commentPlayControlBarUg.Rows = 1;
             betControlBarUg.Rows = 1;
             betButton = new Button();
             checkButton = new Button();
+            callButton = new Button();
             foldButton = new Button();
             Button commentButton = new Button();
             playButton = new Button();
@@ -140,20 +142,23 @@ namespace PL
 
             betButton.Click += BetButton_Click;
             checkButton.Click += CheckButton_Click;
+            callButton.Click += CallButton_Click;
             foldButton.Click += FoldButton_Click;
             commentButton.Click += CommentButton_Click;
             playButton.Click += Play_Click;
 
             betButton.Content = "Bet";
             checkButton.Content = "Check";
+            callButton.Content = "Call";
             foldButton.Content = "Fold";
             commentButton.Content = "Send";
             playButton.Content = "Play";
 
             commentPlayControlBarUg.Children.Add(commentButton);
             commentPlayControlBarUg.Children.Add(playButton);
-            checkFoldControlBarUg.Children.Add(checkButton);
-            checkFoldControlBarUg.Children.Add(foldButton);
+            checkCallFoldControlBarUg.Children.Add(checkButton);
+            checkCallFoldControlBarUg.Children.Add(callButton);
+            checkCallFoldControlBarUg.Children.Add(foldButton);
             betControlBarUg.Children.Add(betButton);
 
             Border border = new Border();
@@ -171,7 +176,7 @@ namespace PL
 
             checkFoldBetCommentControlBarUg.Children.Add(border);
             checkFoldBetCommentControlBarUg.Children.Add(commentPlayControlBarUg);
-            checkFoldBetCommentControlBarUg.Children.Add(checkFoldControlBarUg);
+            checkFoldBetCommentControlBarUg.Children.Add(checkCallFoldControlBarUg);
             checkFoldBetCommentControlBarUg.Children.Add(betControlBarUg);
 
             ScrollViewer sv = new ScrollViewer();
@@ -636,6 +641,14 @@ namespace PL
                 MessageBox.Show(returnMessage.description);
         }
 
+        private void CallButton_Click(object sender, RoutedEventArgs e)
+        {
+            ReturnMessage returnMessage = CommClient.Call(game.gameId, playerSeatIndex);
+            
+            if (!returnMessage.success)
+                MessageBox.Show(returnMessage.description);
+        }
+
         private void Play_Click(object sender, RoutedEventArgs e)
         {
             ReturnMessage returnMessage = CommClient.playGame(game.gameId);
@@ -793,11 +806,11 @@ namespace PL
                     updateGame((TexasHoldemGame)obj);
                 });
             }
-            else if (obj.GetType() == typeof(Notification))
+            else if (obj.GetType() == typeof(string))
             {
                 this.Dispatcher.Invoke(() =>
                 {
-                    updateChatBox(((Notification)obj).getMessage());
+                    updateChatBox(((string)obj));
                 });
             }
         }
