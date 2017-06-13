@@ -47,7 +47,6 @@
     <Compile Include="Game\GameObserver.cs" />
     <Compile Include="Game\LeaderboardsStats.cs" />
     <Compile Include="Game\League.cs" />
-    <Compile Include="Game\LeagueTexasHoldemGame.cs" />
     <Compile Include="Game\Player.cs" />
     <Compile Include="Game\TexasHoldemGame.cs" />
     <Compile Include="Messages\MessageObserver.cs" />
@@ -57,7 +56,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Tools\ReturnMessage.cs" />
-    <Compile Include="Messages\Notification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="User\SystemUser.cs" />
     <Compile Include="Game\DecoratorPreferences\BuyInPolicyDecPref.cs" />

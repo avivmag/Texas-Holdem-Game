@@ -6,7 +6,7 @@ using Backend.Game.DecoratorPreferences;
 
 namespace Backend.Game
 {
-    public class TexasHoldemGame : Messages.Notification
+    public class TexasHoldemGame
     {
         public enum HandsRanks { HighCard = 8, Pair = 7, TwoPairs = 6, ThreeOfAKind = 5, Straight, Flush = 4, FullHouse = 3, FourOfAKind = 2, StraightFlush = 1, RoyalFlush = 0 }
         public enum BetAction { fold, bet, call, check, raise }

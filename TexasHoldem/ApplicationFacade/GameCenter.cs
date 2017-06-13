@@ -10,7 +10,7 @@ using Database;
 
 namespace ApplicationFacade
 {
-	public class GameCenter : Backend.Messages.Notification
+	public class GameCenter
 	{
 		public List<TexasHoldemGame> texasHoldemGames { get; set; }
         public List<League> leagues { get; set; }
