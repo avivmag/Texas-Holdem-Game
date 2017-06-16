@@ -682,7 +682,7 @@ namespace CLServer
             {
                 throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Create Game."));
             }
-            
+
             var createGameResponse = sl.createGame(
                 (int)gameCreatorIdToken, 
                 (string)gamePolicyToken,

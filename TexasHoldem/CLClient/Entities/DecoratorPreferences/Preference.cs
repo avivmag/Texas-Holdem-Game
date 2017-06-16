@@ -11,7 +11,7 @@ namespace CLClient.Entities.DecoratorPreferences
         public Preference firstDecPref { get; set; }
         public Preference nextDecPref { get; set; }
         public int buyInPolicy { get; set; }
-        public enum GameTypePolicy { Undef, Limit, No_Limit, Pot_Limit };
+        public enum GameTypePolicy { /*Undef,*/ Limit, No_Limit, Pot_Limit };
         public GameTypePolicy gamePolicy { get; set; }
         public int limit { get; set; }
         public int minPlayers { get; set; }

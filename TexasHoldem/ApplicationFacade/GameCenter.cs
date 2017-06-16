@@ -554,11 +554,17 @@ namespace ApplicationFacade
             MaxPlayersDecPref maximalPlayerPref = maxPlayers.HasValue ? new MaxPlayersDecPref(maxPlayers.Value, null) : null;
             if (gamePolicy != null)
             {
+                if (gamePolicy == "none")
+                    gamePolicy = "No_Limit";
                 GameTypePolicy policy;
                 Enum.TryParse(gamePolicy, out policy);
                 if (gamePolicyLimit.HasValue)
                 {
                     gamePolicyDec = new GamePolicyDecPref(policy, gamePolicyLimit.Value, null);
+                }
+                else
+                {
+                    gamePolicyDec = new GamePolicyDecPref(policy, 0, null);
                 }
             }
             if (gamePolicyDec != null)
