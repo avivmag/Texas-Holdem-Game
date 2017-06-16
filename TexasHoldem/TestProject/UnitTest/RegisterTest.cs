@@ -152,7 +152,7 @@ namespace TestProject.UnitTest
             for (int i = 0; i < gamesList.Count; i++)
             {
                 gamesList[i].gameId = i;
-                center.texasHoldemGames.Add(gamesList[i]);
+                center.TexasHoldemGames.Add(gamesList[i]);
             }
 
             //Mock<DALInterface> dalMock = new Mock<DALInterface>();

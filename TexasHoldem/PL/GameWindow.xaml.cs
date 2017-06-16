@@ -522,53 +522,6 @@ namespace PL
             LowerMiddleRow.Children.Add(bigUg);
         }
 
-        //// change the dealer, big and small
-        //public void SetDealerBigSmallIcons(int dealerIndex, int bigIndex, int smallIndex)
-        //{
-        //    for (int i = 0; i < 9; i++)
-        //    {
-        //        if (i == dealerIndex)
-        //            dealerIcons[i].Visibility = Visibility.Visible;
-        //        else
-        //            dealerIcons[i].Visibility = Visibility.Hidden;
-
-        //        if (i == bigIndex)
-        //            bigIcons[i].Visibility = Visibility.Visible;
-        //        else
-        //            bigIcons[i].Visibility = Visibility.Hidden;
-
-        //        if (i == smallIndex)
-        //            smallIcons[i].Visibility = Visibility.Visible;
-        //        else
-        //            smallIcons[i].Visibility = Visibility.Hidden;
-        //    }
-        //}
-
-        //// move all players bet to the heap
-        //public void movePlayersCoinsToHeap(int heapIndex)
-        //{
-        //    int sum, temp;
-        //    int.TryParse(coinsSumInHeap[heapIndex].Content.ToString(), out sum);
-        //    for (int i = 0; i < 9; i++)
-        //    {
-        //        int.TryParse(playerCoinsGambled[i].Content.ToString(), out temp);
-        //        sum += temp;
-        //        playerCoinsGambled[i].Content = 0;
-        //    }
-        //    coinsSumInHeap[heapIndex].Content = sum;
-        //}
-
-        //// mov heap coins to specific player
-        //public void moveHeapToPlayerCoins(int heapIndex, int playerIndex)
-        //{
-        //    int sum, temp;
-        //    int.TryParse(coinsSumInHeap[heapIndex].Content.ToString(), out sum);
-        //    coinsSumInHeap[heapIndex].Content = 0;
-
-        //    int.TryParse(playerCoins[playerIndex].Content.ToString(), out temp);
-        //    temp += sum;
-        //    playerCoins[playerIndex].Content = temp;
-        //}
 
         // raise bet of some player
         private void BetButton_Click(object sender, RoutedEventArgs e)
@@ -584,17 +537,7 @@ namespace PL
             }
 
             ReturnMessage returnMessage = CommClient.Bet(game.gameId, playerSeatIndex, coins);
-            //if (returnMessage.success)
-            //{
-            //    playerCoinsNum -= coins;
-            //    playerCoinsGambledNum += coins;
 
-            //    playerCoins[playerSeatIndex].Content = playerCoinsNum;
-            //    playerCoinsGambled[playerSeatIndex].Content = playerCoinsGambledNum;
-
-            //    if (playerCoinsNum <= 0)
-            //        allInIcons[playerSeatIndex].Visibility = Visibility.Visible;
-            //}
             if (!returnMessage.success)
                 MessageBox.Show(returnMessage.description);
         }
@@ -609,7 +552,10 @@ namespace PL
                 if (i == playerSeatIndex)
                     myCoins = temp;
             }
-            return ans - myCoins;
+            int t = ans - myCoins;
+            ans = 0;
+            myCoins = 0;
+            return t;
         }
 
         // send a comment
@@ -775,7 +721,7 @@ namespace PL
                             {
                                 betButton.IsEnabled = true;
                                 foldButton.IsEnabled = true;
-                                //MessageBox.Show("minimalBet: " + getMinimumBet());
+                                MessageBox.Show("minimalBet: " + getMinimumBet());
                                 if (getMinimumBet() == 0)
                                 {
                                     checkButton.IsEnabled = true;
@@ -798,6 +744,10 @@ namespace PL
                         case Player.PlayerState.winner:
                             changeSeat(i, false, "yellow", game.players[i].imageUrl, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
                             playButton.IsEnabled = true;
+                            betButton.IsEnabled = false;
+                            foldButton.IsEnabled = false;
+                            checkButton.IsEnabled = false;
+                            callButton.IsEnabled = false;
                             break;
                     }
                 }
@@ -815,6 +765,8 @@ namespace PL
                     smallIcons[i].Visibility = Visibility.Hidden;
             }
         }
+
+
 
         public void updateChatBox(string appendedLine)
         {

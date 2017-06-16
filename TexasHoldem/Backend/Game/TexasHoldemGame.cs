@@ -10,7 +10,7 @@ namespace Backend.Game
     {
         public enum HandsRanks { HighCard = 8, Pair = 7, TwoPairs = 6, ThreeOfAKind = 5, Straight, Flush = 4, FullHouse = 3, FourOfAKind = 2, StraightFlush = 1, RoyalFlush = 0 }
         public enum BetAction { fold, bet, call, check, raise }
-        public enum GameState { bFlop = 0, bTurn = 1, bRiver = 2, aRiver = 3}
+        public enum GameState { bFlop = 0, bTurn = 1, bRiver = 2, aRiver = 3, empty = 4}
         private GameState gameState;
         private Action<int[]> rankMoneyUpdateCallback;
         private Action<int[]> leaderBoardUpdateCallback;
@@ -23,7 +23,6 @@ namespace Backend.Game
         public int currentSmall { get; set; }
         public int currentBlindBet { get; set; }
         public int pot { get; set; }
-        public int tempPot { get; set; }
         public int currentBet { get; set; }
         private int gameCreatorUserId;
         private int availableSeats;
@@ -474,12 +473,15 @@ namespace Backend.Game
                     gameState++;
                     break;
                 case GameState.aRiver:
+                    gameState++;
                     Player p = decideWhoWon();
                     isGameIsOver = true;
                     p.Tokens += pot;
                     Console.WriteLine("############" + pot + "############");
                     p.playerState = PlayerState.winner;
-                    gameStatesObserver.Update(this);
+                    //gameStatesObserver.Update(this);
+                    break;
+                default:
                     break;
             }
         }
@@ -516,7 +518,6 @@ namespace Backend.Game
                         maxHandPlayer = (int)players[i].handRank;
                         maxHandIndex = i;
                         maxHandPlayerCards = players[i].handRankCards;
-
                     }
                 }
             }
@@ -530,8 +531,6 @@ namespace Backend.Game
             if (currentBet > amount && amount != p.Tokens)
                 return new ReturnMessage(false, "need to bet more");
 
-           //currentBet = Math.Max(amount, currentBet);
-
             p.Tokens -= amount;
 
             GameLog.logLine(
@@ -540,7 +539,7 @@ namespace Backend.Game
                 p.systemUserID.ToString(),
                 amount.ToString());
 
-            tempPot += amount;
+            pot += amount;
             int turn = checkWhosTurnIs();
             players[turn].TokensInBet += amount;
             int bet = -1;
@@ -564,56 +563,18 @@ namespace Backend.Game
             
             players[turn].playerState = PlayerState.in_round;
             players[nextToSeat(turn)].playerState = PlayerState.my_turn;
-            addToPot(tempPot);
             
             if (isBetOver)
             {
                 continueGame();
             }
             gameStatesObserver.Update(this);
-            // TODO: Gili, you need to send the message to the other players
             return new ReturnMessage(true, "");
         }
 
         public ReturnMessage call(Player p, int minimumBet)
         {
             return bet(p, minimumBet);
-            //p.Tokens -= currentBet;
-            //GameLog.logLine(
-            //    gameId,
-            //    GameLog.Actions.Action_Bet,
-            //    p.systemUserID.ToString(),
-            //    currentBet.ToString());
-            //tempPot += currentBet;
-
-            //int call = -1;
-            //for (int i = 0; i < players.Length; i++)
-            //{
-            //    if (players[i] != null && (players[i].playerState == PlayerState.in_round || players[i].playerState.Equals(Player.PlayerState.my_turn)) && players[i].Tokens != 0)
-            //    {
-            //        call = players[i].TokensInBet;
-            //        break;
-            //    }
-            //}
-
-            //bool isCallOver = true;
-            //for (int i = 0; i < players.Length; i++)
-            //{
-            //    if (players[i] != null && (players[i].playerState == PlayerState.in_round || players[i].playerState.Equals(Player.PlayerState.my_turn)) && players[i].TokensInBet != call && players[i].Tokens != 0)
-            //    {
-            //        isCallOver = false;
-            //    }
-            //}
-            //int turn = checkWhosTurnIs();
-            //players[turn].playerState = PlayerState.in_round;
-            //players[nextToSeat(turn)].playerState = PlayerState.my_turn;
-            //gameStatesObserver.Update(this);
-            //if (isCallOver)
-            //{
-            //    addToPot(tempPot);
-            //    continueGame();
-            //}
-            //return new ReturnMessage(true, "");
         }
 
         public ReturnMessage fold(Player p)
@@ -645,20 +606,29 @@ namespace Backend.Game
             players[turn].playerState = PlayerState.folded;
             int nextPlayer = nextToSeat(turn);
             players[nextPlayer].playerState = PlayerState.my_turn;
-            if (numbersOfPlayersInRound() == 1)
+            if (numbersOfPlayersInRound() == 1 && !checkIfAnyPlayerIsWinner())
             {
                 players[nextPlayer].playerState = PlayerState.winner;
                 players[nextPlayer].Tokens += pot;
                 gameStatesObserver.Update(this);
                 return new ReturnMessage(true, "");
             }
-            addToPot(tempPot);
             if (isFoldOver)
             {
                 continueGame();
             }
             gameStatesObserver.Update(this);
             return new ReturnMessage(true, "");
+        }
+
+        private bool checkIfAnyPlayerIsWinner()
+        {
+            for (int i = 0; i < players.Length; i++)
+            {
+                if (players[i] != null && players[i].playerState == PlayerState.winner)
+                    return true;
+            }
+            return false;
         }
 
         public ReturnMessage check(Player p)
@@ -706,7 +676,6 @@ namespace Backend.Game
             for (int i = 0; i < 3; i++)
             {
                 fullHand.Add(flop[i]);
-                //flop.RemoveAt(0);
             }
 
             for (int i = 0; i < 2; i++)
@@ -717,44 +686,49 @@ namespace Backend.Game
             fullHand.Add(turn);
             fullHand.Add(river);
 
+            p.fullHand = fullHand;
+
             for (int i = 0; i < fullHand.Count; i++)
             {
                 Console.WriteLine("player " + p.systemUserID + " --- " + fullHand[i].ToString());
             }
 
-            fullHand.Sort();
+            p.fullHand.Sort();
 
-            if (checkRoyalFlush(fullHand))
+            if (checkRoyalFlush(p.fullHand))
                 return HandsRanks.RoyalFlush;
-            if (checkStraightFlush(fullHand) != -1)
+            if (checkStraightFlush(p.fullHand) != -1)
                 return HandsRanks.StraightFlush;
-            if (checkFourOfAKind(fullHand) != -1)
+            if (checkFourOfAKind(p.fullHand) != -1)
                 return HandsRanks.FourOfAKind;
-            if ((p.handRankCards = checkFullHouse(fullHand, 3)) != -1)
+            if ((p.handRankCards = checkFullHouse(p.fullHand, 3)) != -1)
                 return HandsRanks.FullHouse;
-            if ((p.handRankCards = checkFlush(fullHand)) != -1)
+            if ((p.handRankCards = checkFlush(p.fullHand)) != -1)
                 return HandsRanks.Flush;
-            if ((p.handRankCards = checkStraight(fullHand)) != -1)
+            if ((p.handRankCards = checkStraight(p.fullHand)) != -1)
                 return HandsRanks.Straight;
-            if ((p.handRankCards = checkThreeOfAKind(fullHand)) != -1)
+            if ((p.handRankCards = checkThreeOfAKind(p.fullHand)) != -1)
                 return HandsRanks.ThreeOfAKind;
-            if ((p.handRankCards = checkTwoPairs(fullHand)) != -1)
+            if ((p.handRankCards = checkTwoPairs(p.fullHand)) != -1)
                 return HandsRanks.TwoPairs;
-            if ((p.handRankCards = checkPair(fullHand)) != -1)
+            if ((p.handRankCards = checkPair(p.fullHand)) != -1)
                 return HandsRanks.Pair;
 
-
-
-            p.handRankCards = fullHand[0].Value;
+            p.handRankCards = p.fullHand[0].Value;
             return HandsRanks.HighCard;
         }
-
+        
         private void addToPot(int sum)
         {
             pot += sum;
             GameLog.logLine(gameId, GameLog.Actions.Pot_Changed, sum.ToString(), pot.ToString());
         }
 
+        private int checkHighRemainingCards(List<Card> fullHand)
+        {
+            fullHand.Sort();
+            return fullHand[0].Value;
+        }
 
         public bool checkRoyalFlush(List<Card> fullHand)
         {
@@ -762,7 +736,7 @@ namespace Backend.Game
             for (int i = 0; i < 4; i++)
                 counters[i] = 0;
 
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < fullHand.Count; i++)
                 if (fullHand[i].Value == 1 ||
                     fullHand[i].Value == 10 ||
                     fullHand[i].Value == 11 ||
@@ -784,7 +758,7 @@ namespace Backend.Game
             for (int i = 0; i < 4; i++)
                 valueBits[i] = 0;
 
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < fullHand.Count; i++)
                 valueBits[(int)fullHand[i].Type] += (int)Math.Pow(2, fullHand[i].Value - 1);
 
             int bitCounter = 0;
@@ -820,7 +794,7 @@ namespace Backend.Game
             int[] fourOfAKindCounter = new int[13];
             for (int i = 0; i < 13; i++)
                 fourOfAKindCounter[i] = 0;
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < fullHand.Count; i++)
             {
                 fourOfAKindCounter[fullHand[i].Value - 1]++;
                 if (fourOfAKindCounter[fullHand[i].Value - 1] == 4)
@@ -854,7 +828,7 @@ namespace Backend.Game
                 twoOfAKindCounter[i] = 0;
             }
 
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < fullHand.Count; i++)
             {
                 threeOfAKindCounter[fullHand[i].Value - 1]++;
                 twoOfAKindCounter[fullHand[i].Value - 1]++;
@@ -903,7 +877,7 @@ namespace Backend.Game
         public int checkStraight(List<Card> fullHand)
         {
             int valueCounter = 0;
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < fullHand.Count; i++)
                 if (fullHand[i].Value == 1 ||
                     fullHand[i].Value == 10 ||
                     fullHand[i].Value == 11 ||
@@ -915,7 +889,7 @@ namespace Backend.Game
 
             int valueBits = 0;
 
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < fullHand.Count; i++)
                 valueBits += (int)Math.Pow(2, fullHand[i].Value - 1);
 
             int bitCounter = 0;
@@ -947,7 +921,7 @@ namespace Backend.Game
             for (int i = 0; i < 13; i++)
                 threeOfAKindCounter[i] = 0;
 
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < fullHand.Count; i++)
             {
                 threeOfAKindCounter[fullHand[i].Value - 1]++;
                 if (threeOfAKindCounter[i] == 3)
@@ -968,7 +942,7 @@ namespace Backend.Game
                 twoOfAKindCounterB[i] = 0;
             }
             int firstPair = 0;
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < fullHand.Count; i++)
             {
                 twoOfAKindCounterA[fullHand[i].Value - 1]++;
                 if (twoOfAKindCounterA[fullHand[i].Value - 1] == 2)
@@ -978,7 +952,7 @@ namespace Backend.Game
                 }
             }
 
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < fullHand.Count; i++)
             {
                 if (fullHand[i].Value != firstPair)
                 {
@@ -1002,7 +976,7 @@ namespace Backend.Game
             for (int i = 0; i < 13; i++)
                 pairCounter[i] = 0;
 
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < fullHand.Count; i++)
             {
                 pairCounter[fullHand[i].Value - 1]++;
                 if (pairCounter[i] == 2)
