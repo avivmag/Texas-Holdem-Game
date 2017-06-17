@@ -46,8 +46,8 @@ namespace CLClient
 
             public ServerListener(TcpClient client, IObservable toUpdate)
             {
-                this.client = client;
-                this.toUpdate = toUpdate;
+                this.client     = client;
+                this.toUpdate   = toUpdate;
             }
         }
 

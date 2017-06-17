@@ -6,7 +6,7 @@ using Backend.Game.DecoratorPreferences;
 
 namespace Backend.Game
 {
-    public class TexasHoldemGame : Messages.Notification
+    public class TexasHoldemGame
     {
         public enum HandsRanks { HighCard = 8, Pair = 7, TwoPairs = 6, ThreeOfAKind = 5, Straight, Flush = 4, FullHouse = 3, FourOfAKind = 2, StraightFlush = 1, RoyalFlush = 0 }
         public enum BetAction { fold, bet, call, check, raise }
@@ -43,9 +43,7 @@ namespace Backend.Game
         public Card river { get; set; }
 
         public GameObserver gameStatesObserver { get; set; }
-        //public GameObserver playersChatObserver;
         //public GameObserver spectateChatObserver;
-        //public GameObserver gameStatesObserver;
 
         private LeaderboardsStats[] playersStats;
 
@@ -83,9 +81,6 @@ namespace Backend.Game
             this.gameId = TexasHoldemGame.getNextId();
             GameLog.setLog(gameId, DateTime.Now);
             GameLog.logLine(gameId, GameLog.Actions.Game_Start, DateTime.Now.ToString());
-            //var m = joinGame(user);
-            //if(!m.success)
-            //    Console.WriteLine(m.description);
             for (int i = 1; i < maxPlayers; i++)
             {
                 players[i] = null;
@@ -213,6 +208,9 @@ namespace Backend.Game
 
             spectators.Add(user);
             GameLog.logLine(gameId, GameLog.Actions.Spectate_Join, user.id.ToString());
+
+            //TODO:: Subscribe spectators to game and chat.
+
             //gameStatesObserver.Subscribe(p);
             //spectateChatObserver(players);
             //playersChatObserver(players);
