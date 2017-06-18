@@ -557,13 +557,30 @@ namespace ApplicationFacade
             return db.getLeaderboardsByParam(param);
         }
 
-        public object addMessage(int gameId, int playerIndex, string messageText)
+        public object addMessage(int gameId, int userId, string messageText)
         {
             var game = getGameById(gameId);
+            
+            var user = getUserById(userId);
+            if (game == null || user == null)
+            {
+                return null;
+            }
+            
+            var playerName = String.Empty;
+            /*
+            // If a player tries to send a message before sitting down, send the message as anonymous.
+            if (playerIndex == -1)
+            {
+                var rand = new Random();
+                playerName = "Anonymous" + rand.Next(1, 9999);
+            }
+            else
+            {
+                playerName = game.players[playerIndex].name;
+            }*/
 
-            var player = game.players[playerIndex];
-
-            game.addMessage(String.Format("{0}: {1}", player.name, messageText));
+            game.addMessage(user, messageText);
 
             return null;
         }
