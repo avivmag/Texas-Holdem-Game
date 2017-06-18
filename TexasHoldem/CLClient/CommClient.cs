@@ -16,7 +16,7 @@ namespace CLClient
     {
 
         #region Constants
-
+        
         private const string SERVER_IP                  = "127.0.0.1";
         private const int SERVER_PORT                   = 2345;
         private const int MAIN_CLIENT                   = 305278202;
