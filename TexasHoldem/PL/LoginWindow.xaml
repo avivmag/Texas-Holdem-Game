@@ -9,37 +9,26 @@
     <Window.Background>
         <ImageBrush ImageSource="resources/texas_holdem_poker-image.png"/>
     </Window.Background>
-    <Grid Margin="0,0,3.4,0" Height="380" VerticalAlignment="Top">
+    <Grid Margin="0,0,3.4,0" Height="280" VerticalAlignment="Top">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition Width="0*"/>
         </Grid.ColumnDefinitions>
         <StackPanel HorizontalAlignment="Left" Height="200" Margin="10,53,-9.4,0" VerticalAlignment="Top" Width="393" Grid.ColumnSpan="2" >
-            <StackPanel Orientation="Horizontal" Height="102" Margin="0,0,-0.2,0" RenderTransformOrigin="0.618,0.638" Width="292" HorizontalAlignment="Right" VerticalAlignment="Center">
-                <StackPanel.RenderTransform>
-                    <TransformGroup>
-                        <ScaleTransform/>
-                        <SkewTransform/>
-                        <RotateTransform Angle="-0.125"/>
-                        <TranslateTransform X="0.018" Y="-0.076"/>
-                    </TransformGroup>
-                </StackPanel.RenderTransform>
-                <TextBox Margin="10,36,10,25.2" x:Name="username" Height="26" TextWrapping="Wrap" Width="161" RenderTransformOrigin="0.72,0.711" TextChanged="username_TextChanged" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center"/>
+            <StackPanel Orientation="Horizontal" Height="26" Margin="0,50,0,0" Width="292" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <TextBox x:Name="username" Height="26" TextWrapping="Wrap" Width="161" TextChanged="username_TextChanged"/>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Height="104" Margin="0,0,110.8,0" HorizontalAlignment="Right" Width="180">
-                <PasswordBox x:Name="password" Margin="10,0,10,58.8" HorizontalAlignment="Left" Width="157" Password="" Height="26" VerticalAlignment="Bottom"/>
+            <StackPanel Orientation="Horizontal" Height="26" Margin="0,45,110,0" HorizontalAlignment="Right" Width="180">
+                <PasswordBox x:Name="password" HorizontalAlignment="Left" Width="157" Password="" Height="26" VerticalAlignment="Bottom"/>
             </StackPanel>
         </StackPanel>
-        <StackPanel Orientation="Horizontal" Height="60" VerticalAlignment="Bottom" Margin="0,0,-6.4,100" Grid.ColumnSpan="2">
+        <StackPanel Orientation="Horizontal" Height="25" VerticalAlignment="Bottom" Margin="0,0,0,30" Grid.ColumnSpan="2">
             <Button x:Name="registerBtn" Content="Register" VerticalAlignment="Top" Width="75" Click="Register_Click" HorizontalAlignment="Center" Margin="25,0,0,0"/>
             <Button x:Name="loginBtn" Content="Login" VerticalAlignment="Top" Width="75" Click="Login_Click" Margin="50,0,0,0"/>
             <Button x:Name="exitBtn" Content="Exit" VerticalAlignment="Top" Width="75" Click="Exit_Click" HorizontalAlignment="Right" Margin="50,0,0,0"/>
-          
-        </StackPanel>
-        <TextBlock x:Name="errorMessage" HorizontalAlignment="Left" Height="23" Margin="156,210,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="83"><InlineUIContainer>
-            
 
-            </InlineUIContainer></TextBlock>
+        </StackPanel>
+        <TextBlock x:Name="errorMessage" HorizontalAlignment="Center" Height="23" Margin="0,272,0,30" TextWrapping="Wrap" VerticalAlignment="Bottom" Width="373"/>
         <Label Content="User Name" HorizontalAlignment="Left" Margin="21,101,0,0" VerticalAlignment="Top" Width="91" FontSize="14" FontWeight="Bold" Height="27"/>
         <Label Content="Password" HorizontalAlignment="Left" Margin="21,173,0,0" VerticalAlignment="Top" Width="82" FontWeight="Bold" FontSize="14" Height="27"/>
     </Grid>
