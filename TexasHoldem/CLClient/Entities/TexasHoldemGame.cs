@@ -11,7 +11,7 @@ namespace CLClient.Entities
     {
         public enum HandsRanks { HighCard, Pair, TwoPairs, ThreeOfAKind, Straight, Flush, FullHouse, FourOfAKind, StraightFlush, RoyalFlush }
         public enum BetAction { fold, bet, call, check, raise }
-        private List<IObserver> gameObservers;
+        private List<IObserver> gameObservers = new List<IObserver>();
         public int gameId { get; set; }
         public int currentDealer { get; set; }
         public int currentBig { get; set; }
@@ -47,14 +47,7 @@ namespace CLClient.Entities
 
         public void Subscribe(IObserver obs)
         {
-            if (gameObservers == null)
-            {
-                gameObservers = new List<IObserver>
-                {
-                    obs
-                };
-            }
-            else if (!gameObservers.Contains(obs))
+            if (!gameObservers.Contains(obs))
             {
                 this.gameObservers.Add(obs);
             }
@@ -62,7 +55,7 @@ namespace CLClient.Entities
 
         public void Unsubscribe(IObserver obs)
         {
-            if ((gameObservers != null) && (gameObservers.Contains(obs)))
+            if (gameObservers.Contains(obs))
             {
                 this.gameObservers.Remove(obs);
             }

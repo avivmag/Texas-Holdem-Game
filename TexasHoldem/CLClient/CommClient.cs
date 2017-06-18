@@ -17,12 +17,13 @@ namespace CLClient
 
         #region Constants
 
-        private const string SERVER_IP = "132.73.207.74";
-        private const int SERVER_PORT = 2345;
-        private const int MAIN_CLIENT = 305278202;
-        private const int MESSAGE_CLIENT = 9440990;
-        private const string SUBSCRIBE_TO_MESSAGE = "Messages";
-        private const string SUBSCRIBE_TO_GAME = "Game";
+        private const string SERVER_IP                  = "127.0.0.1";
+        private const int SERVER_PORT                   = 2345;
+        private const int MAIN_CLIENT                   = 305278202;
+        private const int MESSAGE_CLIENT                = 9440990;
+        private const string SUBSCRIBE_TO_MESSAGE       = "Messages";
+        private const string SUBSCRIBE_TO_GAME          = "Game";
+        private const string SUBSCRIBE_TO_SPECTATE      = "Spectate";
 
         #endregion
 
@@ -376,7 +377,7 @@ namespace CLClient
         public static TexasHoldemGame spectateActiveGame(int userId, int gameId)
         {
             var message     = new { action = "SpectateActiveGame", userId, gameId };
-            var jsonMessage = sendMessage(message, null, true, true);
+            var jsonMessage = sendMessage(message);
             var responseJson = getResponse(jsonMessage);
 
             if (responseJson == null)
@@ -387,6 +388,16 @@ namespace CLClient
             var response    = responseJson.ToObject<TexasHoldemGame>();
 
             response.gamePreferences.flatten();
+
+            addClientStream(response.gameId);
+
+            subscribeStreamToServer(response.gameId, SUBSCRIBE_TO_SPECTATE, response.gameId);
+
+            var serverListener = new ServerListener(clients[response.gameId], response);
+
+            Thread listenThread = new Thread(Listen);
+
+            listenThread.Start(serverListener);
 
             return response;
         }
@@ -559,9 +570,9 @@ namespace CLClient
             return response;
         }
 
-        public static ReturnMessage AddMessage(int gameId, int playerIndex, string messageText)
+        public static ReturnMessage AddMessage(int gameId, int userId, string messageText)
         {
-            var message = new { action = "AddMessage", gameId, playerIndex, messageText };
+            var message = new { action = "AddMessage", gameId, userId, messageText };
             var jsonMessage = sendMessage(message);
             var responseJson = getResponse(jsonMessage);
 
