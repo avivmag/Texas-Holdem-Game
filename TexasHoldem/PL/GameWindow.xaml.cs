@@ -615,10 +615,10 @@ namespace PL
         // send a comment
         private void CommentButton_Click(object sender, RoutedEventArgs e)
         {
-            ReturnMessage returnMessage = CommClient.AddMessage(game.gameId, playerSeatIndex, messagesTextBox.Text);
-            if (returnMessage.success)
+            ReturnMessage returnMessage = CommClient.AddMessage(game.gameId, systemUserId, messagesTextBox.Text);
+            if ((returnMessage != null) && (returnMessage.success))
                 messagesTextBox.Text = "";
-            if (!returnMessage.success)
+            if ((returnMessage != null) && (!returnMessage.success))
                 MessageBox.Show(returnMessage.description);
         }
 

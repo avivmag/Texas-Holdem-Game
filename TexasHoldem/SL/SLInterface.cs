@@ -41,7 +41,7 @@ namespace SL
 
         #region game
         object Bet(int gameId, int playerUserId, int coins);
-        object AddMessage(int gameId, int playerIndex, string messageText);
+        object AddMessage(int gameId, int userId, string messageText);
         object Fold(int gameId, int playerIndex);
         object Check(int gameId, int playerIndex);
         object Call(int gameId, int playerIndex, int minBet);
@@ -50,10 +50,9 @@ namespace SL
         object GetPlayer(int gameId, int playerIndex);
         object GetPlayerCards(int gameId, int userId);
         //object GetShowOff(int gameId);
-        void SubscribeToGameState(ObserverAbstract<TcpClient> client, int gameID);
+        void SubscribeToGameState(ObserverAbstract<TcpClient> client, int gameID, bool isSpectator);
         void SubscribeToMessages(ObserverAbstract<TcpClient> client);
-        void SubscribeToGameChatPlayers(ObserverAbstract<TcpClient> client, int gameID);
-        void SubscribeToGameChatSpectators(ObserverAbstract<TcpClient> client, int gameID);
+
         #endregion
 
         object getLeaderboardsByParam(string param);

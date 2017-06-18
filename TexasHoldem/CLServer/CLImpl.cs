@@ -22,6 +22,7 @@ namespace CLServer
 
         private const string SUBSCRIBE_TO_MESSAGE   = "Messages";
         private const string SUBSCRIBE_TO_GAME      = "Game";
+        private const string SUBSCRIBE_TO_SPECTATE  = "Spectate";
         private const string LOCAL_IP               = "127.0.0.1";
         private const int DESKTOP_PORT              = 2345;
         private const int WEB_PORT                  = 4343;
@@ -468,23 +469,23 @@ namespace CLServer
         private static void AddMessage(ClientInfo client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
-            var playerIndexToken = jsonObject["playerIndex"];
+            var userIdToken = jsonObject["userId"];
             var messageTextToken = jsonObject["messageText"];
 
             if (((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer)) ||
-                ((playerIndexToken == null) || (playerIndexToken.Type != JTokenType.Integer)) ||
+                ((userIdToken == null) || (userIdToken.Type != JTokenType.Integer)) ||
                 ((messageTextToken == null) || (messageTextToken.Type != JTokenType.String)))
             {
                 throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Add Message."));
             }
 
             var gameId = (int)gameIdToken;
-            var playerIndex = (int)playerIndexToken;
+            var userId = (int)userIdToken;
             var messageText = (string)messageTextToken;
 
-            Console.WriteLine("Message added. parameters are: gameId: {0}, playerIndex: {1}, messageText: {2}", gameId, playerIndex, messageText);
+            Console.WriteLine("Message added. parameters are: gameId: {0}, userId: {1}, messageText: {2}", gameId, userId, messageText);
             
-            SendMessage(client, new { response = sl.AddMessage(gameId, playerIndex, messageText) });
+            SendMessage(client, new { response = sl.AddMessage(gameId, userId, messageText) });
         }
 
         private static void Fold(ClientInfo client, JObject jsonObject)
@@ -944,7 +945,13 @@ namespace CLServer
 
             if (subscribeTo == SUBSCRIBE_TO_GAME)
             {
-                SubscribeToGame(clientInfo, jsonObject);
+                SubscribeToGame(clientInfo, jsonObject, false);
+                return;
+            }
+
+            if (subscribeTo == SUBSCRIBE_TO_SPECTATE)
+            {
+                SubscribeToGame(clientInfo, jsonObject, true);
                 return;
             }
 
@@ -955,7 +962,7 @@ namespace CLServer
             }
         }
 
-        private static void SubscribeToGame(ClientInfo clientInfo, JObject jsonObject)
+        private static void SubscribeToGame(ClientInfo clientInfo, JObject jsonObject, Boolean isSpectator)
         {
             var optionalToken = jsonObject["optional"];
 
@@ -972,7 +979,7 @@ namespace CLServer
             if (sl.getGameById(optional) != null)
             {
                 // Subscribe this channel to game.
-                sl.SubscribeToGameState(new ServerObserver(clientInfo), (int)optionalToken);
+                sl.SubscribeToGameState(new ServerObserver(clientInfo), (int)optionalToken, isSpectator);
             }
         }
 
