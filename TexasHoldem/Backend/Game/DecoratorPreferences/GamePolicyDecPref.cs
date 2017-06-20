@@ -5,7 +5,7 @@ namespace Backend.Game.DecoratorPreferences
 {
     public class GamePolicyDecPref : OptionalPreferences
     {
-        public enum GameTypePolicy { Undef, Limit, No_Limit, Pot_Limit };
+        public enum GameTypePolicy { /*Undef,*/  Limit, No_Limit, Pot_Limit };
         public GameTypePolicy gamePolicy { get; }
         public int limit { get; }
 

@@ -144,5 +144,61 @@ namespace TestProject.UnitTest
 
             Assert.IsNotInstanceOfType(game, typeof(TexasHoldemGame));
         }
+
+        [TestMethod]
+        public void TestCreateGameWithLimit()
+        {
+            object objUser = db.getUserByName("test0");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user = (SystemUser)objUser;
+
+            object objGame = sl.createGame(user.id, "Limit", 1000, 100, 15000, 120, 4, 8, true, false);
+            Assert.IsInstanceOfType(objGame, typeof(TexasHoldemGame));
+            TexasHoldemGame game = (TexasHoldemGame)objGame;
+
+            Assert.IsTrue(game.gamePreferences.isContain(new MustPreferences(new GamePolicyDecPref(GameTypePolicy.Limit,1000,null),true)));
+        }
+
+        [TestMethod]
+        public void TestCreateGameWithNoLimit()
+        {
+            object objUser = db.getUserByName("test0");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user = (SystemUser)objUser;
+
+            object objGame = sl.createGame(user.id, "No_Limit", 1000, 100, 15000, 120, 4, 8, true, false);
+            Assert.IsInstanceOfType(objGame, typeof(TexasHoldemGame));
+            TexasHoldemGame game = (TexasHoldemGame)objGame;
+
+            Assert.IsTrue(game.gamePreferences.isContain(new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit, 1000, null), true)));
+        }
+
+        [TestMethod]
+        public void TestCreateGameWithNoLimitNone()
+        {
+            object objUser = db.getUserByName("test0");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user = (SystemUser)objUser;
+
+            object objGame = sl.createGame(user.id, "none", 1000, 100, 15000, 120, 4, 8, true, false);
+            Assert.IsInstanceOfType(objGame, typeof(TexasHoldemGame));
+            TexasHoldemGame game = (TexasHoldemGame)objGame;
+
+            Assert.IsTrue(game.gamePreferences.isContain(new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit, 1000, null), true)));
+        }
+
+        [TestMethod]
+        public void TestCreateGameWithPotLimit()
+        {
+            object objUser = db.getUserByName("test0");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user = (SystemUser)objUser;
+
+            object objGame = sl.createGame(user.id, "Pot_Limit", 1000, 100, 15000, 120, 4, 8, true, false);
+            Assert.IsInstanceOfType(objGame, typeof(TexasHoldemGame));
+            TexasHoldemGame game = (TexasHoldemGame)objGame;
+
+            Assert.IsTrue(game.gamePreferences.isContain(new MustPreferences(new GamePolicyDecPref(GameTypePolicy.Pot_Limit, 1000, null), true)));
+        }
     }
 }

@@ -63,7 +63,9 @@ namespace PL
                 {
                     Close();
                     mainMenuWindow.Show();
-                    new GameWindow(game, LoginWindow.user.id).Show();
+                    var gw = new GameWindow(game, LoginWindow.user.id);
+                    game.Subscribe(gw);
+                    gw.Show();
                 }
                 else
                 {
