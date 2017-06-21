@@ -6,7 +6,7 @@ using Backend.Game.DecoratorPreferences;
 
 namespace Backend.Game
 {
-    public class TexasHoldemGame : Messages.Notification
+    public class TexasHoldemGame
     {
         public enum HandsRanks { HighCard = 8, Pair = 7, TwoPairs = 6, ThreeOfAKind = 5, Straight, Flush = 4, FullHouse = 3, FourOfAKind = 2, StraightFlush = 1, RoyalFlush = 0 }
         public enum BetAction { fold, bet, call, check, raise }
@@ -43,9 +43,7 @@ namespace Backend.Game
         public Card river { get; set; }
 
         public GameObserver gameStatesObserver { get; set; }
-        //public GameObserver playersChatObserver;
-        //public GameObserver spectateChatObserver;
-        //public GameObserver gameStatesObserver;
+        public GameObserver spectateObserver;
 
         private LeaderboardsStats[] playersStats;
 
@@ -68,6 +66,7 @@ namespace Backend.Game
             deck = new Deck();
             spectators = new List<SystemUser>();
             gameStatesObserver = new GameObserver();
+            spectateObserver = new GameObserver();
             //setting the players array according to the max players pref if entered else 9 players is the max.
             maxPlayers = 9;
             MaxPlayersDecPref maxPlayersDec = (MaxPlayersDecPref)gamePreferences.getOptionalPref(new MaxPlayersDecPref(0, null));
@@ -83,9 +82,6 @@ namespace Backend.Game
             this.gameId = TexasHoldemGame.getNextId();
             GameLog.setLog(gameId, DateTime.Now);
             GameLog.logLine(gameId, GameLog.Actions.Game_Start, DateTime.Now.ToString());
-            //var m = joinGame(user);
-            //if(!m.success)
-            //    Console.WriteLine(m.description);
             for (int i = 1; i < maxPlayers; i++)
             {
                 players[i] = null;
@@ -112,6 +108,7 @@ namespace Backend.Game
                     rankMoneyUpdateCallback(new int[] { userId, players[i].Tokens - buyIn, players[i].Tokens });
                     players[i] = null;
                     gameStatesObserver.Update(this);
+                    spectateObserver.Update(this);
                     return new ReturnMessage(true, "");
                 }
             }
@@ -185,14 +182,44 @@ namespace Backend.Game
 
             GameLog.logLine(gameId, GameLog.Actions.Player_Join, user.id.ToString());
 
-            //playersChatObserver.Subscribe(p);
+            spectateObserver.Update(this);
             gameStatesObserver.Update(this);
             return new ReturnMessage(true, "");
         }
 
-        public void addMessage(string message)
+        public void addMessage(SystemUser user, string message)
         {
-            gameStatesObserver.Update(message);
+            message = String.Format("{0}: {1}", user.name, message);
+
+            var isSpectator = false;
+            foreach(var spectator in spectators)
+            {
+                Console.WriteLine("Checking if spectator {0} equals {1}", spectator.id, user.id);
+                if (spectator.id == user.id)
+                {
+                    isSpectator = true;
+                }
+            }
+
+            // If message was sent by someone who is not a spectator, send to all game state observers.
+            if (!isSpectator)
+            {
+                Console.WriteLine("Updating {0} game observers about message: {1} at gameId: {2}",
+                    gameStatesObserver.Count(),
+                    message,
+                    gameId);
+
+                gameStatesObserver.Update(message);
+            }
+
+            // Send to all spectators anyway.
+            Console.WriteLine("Updating  {0} spectator observers about message: {1} at gameId: {2}",
+                spectateObserver.Count(),
+                message,
+                gameId);
+
+            spectateObserver.Update(message);
+            
         }
 
         public ReturnMessage joinSpectate(SystemUser user)
@@ -213,9 +240,7 @@ namespace Backend.Game
 
             spectators.Add(user);
             GameLog.logLine(gameId, GameLog.Actions.Spectate_Join, user.id.ToString());
-            //gameStatesObserver.Subscribe(p);
-            //spectateChatObserver(players);
-            //playersChatObserver(players);
+            
             return new ReturnMessage(true, "");
         }
 
@@ -252,6 +277,7 @@ namespace Backend.Game
             minNumberOfPlayerRounds = numbersOfPlayersInRound();
             betBlinds();
             gameStatesObserver.Update(this);
+            spectateObserver.Update(this);
             players[getNextPlayer(currentBig)].playerState = PlayerState.my_turn;
             //players[currentDealer].playerState = PlayerState.my_turn;
         }
@@ -261,6 +287,7 @@ namespace Backend.Game
             GameLog.logLine(gameId, GameLog.Actions.Game_Start, DateTime.Now.ToString());
             InitializeGame();
             gameStatesObserver.Update(this);
+            spectateObserver.Update(this);
         }
 
         private void preparePlayersState()
@@ -307,6 +334,7 @@ namespace Backend.Game
 
 
             gameStatesObserver.Update(this);
+            spectateObserver.Update(this);
         }
 
         public void playersSetsTheirBets(bool firstBets)
@@ -319,6 +347,7 @@ namespace Backend.Game
                         players[i].playerState = PlayerState.my_turn;
                         //UPDATE everybody
                         gameStatesObserver.Update(this);
+                        spectateObserver.Update(this);
                     }
                 }
             else
@@ -329,6 +358,7 @@ namespace Backend.Game
                         players[i].playerState = PlayerState.my_turn;
                         //UPDATE everybody
                         gameStatesObserver.Update(this);
+                        spectateObserver.Update(this);
                     }
                 }
         }
@@ -480,6 +510,7 @@ namespace Backend.Game
                     Console.WriteLine("############" + pot + "############");
                     p.playerState = PlayerState.winner;
                     gameStatesObserver.Update(this);
+                    spectateObserver.Update(this);
                     break;
             }
         }
@@ -571,6 +602,7 @@ namespace Backend.Game
                 continueGame();
             }
             gameStatesObserver.Update(this);
+            spectateObserver.Update(this);
             // TODO: Gili, you need to send the message to the other players
             return new ReturnMessage(true, "");
         }
@@ -650,6 +682,7 @@ namespace Backend.Game
                 players[nextPlayer].playerState = PlayerState.winner;
                 players[nextPlayer].Tokens += pot;
                 gameStatesObserver.Update(this);
+                spectateObserver.Update(this);
                 return new ReturnMessage(true, "");
             }
             addToPot(tempPot);
@@ -658,6 +691,7 @@ namespace Backend.Game
                 continueGame();
             }
             gameStatesObserver.Update(this);
+            spectateObserver.Update(this);
             return new ReturnMessage(true, "");
         }
 
@@ -674,6 +708,7 @@ namespace Backend.Game
             if (minNumberOfPlayerRounds <= 0 )
                 continueGame();
             gameStatesObserver.Update(this);
+            spectateObserver.Update(this);
             return new ReturnMessage(true, "");
         }
         
@@ -1032,8 +1067,18 @@ namespace Backend.Game
         public Dictionary<int, List<Card>> GetPlayerCards(int userId)
         {
             Dictionary<int, List<Card>> playerCards = new Dictionary<int, List<Card>>();
+            var isSpectator = false;
+
+            // Check if user is a spectator, if so. return all cards.
+            foreach (var spectator in spectators)
+            {
+                if (spectator.id == userId)
+                {
+                    isSpectator = true;
+                }
+            }
             // TODO: A, I don't know how you say the game is over, so just insert in this if instead false a boolean indicating the game is over.
-            if (isGameIsOver)
+            if (isGameIsOver || isSpectator)
                 for (int i = 0; i < players.Length; i++)
                 {
                     if (players[i] != null && players[i].playerCards != null && players[i].playerCards.Count == 2)
