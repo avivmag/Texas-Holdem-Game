@@ -45,10 +45,10 @@ namespace Backend.Game.DecoratorPreferences
             }
         }
 
-        public override ReturnMessage canPerformGameActions(TexasHoldemGame game, SystemUser user,int amount, string action)
+        public override ReturnMessage canPerformGameActions(TexasHoldemGame game, int amount, string action)
         {
             if (nextDecPref != null)
-                return nextDecPref.canPerformGameActions(game, user, amount, action);
+                return nextDecPref.canPerformGameActions(game, amount, action);
             return new ReturnMessage(true, "");
         }
 
