@@ -145,8 +145,7 @@ namespace Backend.Game
 
             return new ReturnMessage(true, "");
         }
-
-        // TODO: Gili, I've added the seat index as we've decided. 
+ 
         public ReturnMessage joinGame(SystemUser user, int seatIndex)
         {
             ReturnMessage m = gamePreferences.canPerformUserActions(this, user, "join");
@@ -555,6 +554,7 @@ namespace Backend.Game
 
         public ReturnMessage bet(Player p, int amount)
         {
+            /////////////////////////////////////////////////////////////
             if (p.Tokens - amount < 0)
                 return new ReturnMessage(false, "not enough coins");
             if (currentBet > amount && amount != p.Tokens)
