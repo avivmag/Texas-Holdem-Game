@@ -8,7 +8,7 @@ namespace Backend.Game.DecoratorPreferences
         //This method will check if actions that are not related to a running game (such as join) can be performed
         ReturnMessage canPerformUserActions(TexasHoldemGame game, SystemUser user, string action);
         //This method will check if actions that related to a running game (such as bet) can be performed
-        ReturnMessage canPerformGameActions(TexasHoldemGame game, SystemUser user, int amount, string action);
+        ReturnMessage canPerformGameActions(TexasHoldemGame game, int amount, string action);
         bool isContain(DecoratorPreferencesInterface pref);
     }
 }

@@ -192,22 +192,22 @@ namespace TestProject
                 return real.updateStatePlayer(statePlayer, amount);
             return (statePlayer.Equals("Player Bet") && amount > 0);
         }
-        public bool canBet(TexasHoldemGame game,SystemUser user, int amount)
+        public bool canBet(TexasHoldemGame game, int amount)
         {
             if (real != null)
-                return real.canBet(game, user, amount);
-            return (user.money> amount);
+                return real.canBet(game, amount);
+            return (amount>0);
         }
-        public bool canRaise(TexasHoldemGame game, SystemUser user, int amount)
+        public bool canRaise(TexasHoldemGame game, int amount)
         {
             if (real != null)
-                return real.canRaise(game,user,amount);
+                return real.canRaise(game,amount);
             return (amount > 0);
         }
-        public bool canCall(TexasHoldemGame game, SystemUser user, int amount)
+        public bool canCall(TexasHoldemGame game, int amount)
         {
             if (real != null)
-                return real.canCall(game,user,amount);
+                return real.canCall(game,amount);
             return (amount > 0);
         }
         public bool fold()

@@ -152,19 +152,19 @@ namespace TestProject.Bridge
 
 
 
-        public bool canBet(TexasHoldemGame game, SystemUser user, int amount)
+        public bool canBet(TexasHoldemGame game, int amount)
         {
-            return game.gamePreferences.canPerformGameActions(game,user, amount, "Bet").success;
+            return game.gamePreferences.canPerformGameActions(game, amount, "Bet").success;
         }
 
-        public bool canRaise(TexasHoldemGame game, SystemUser user, int amount)
+        public bool canRaise(TexasHoldemGame game, int amount)
         {
-            return game.gamePreferences.canPerformGameActions(game, user, amount, "Raise").success;
+            return game.gamePreferences.canPerformGameActions(game, amount, "Raise").success;
         }
 
-        public bool canCall(TexasHoldemGame game, SystemUser user, int amount)
+        public bool canCall(TexasHoldemGame game, int amount)
         {
-            return game.gamePreferences.canPerformGameActions(game, user, amount, "Call").success;
+            return game.gamePreferences.canPerformGameActions(game, amount, "Call").success;
         }
 
         public bool fold()
