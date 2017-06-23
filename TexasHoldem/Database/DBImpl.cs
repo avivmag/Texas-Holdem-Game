@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using System.Configuration;
 using System.Security.Cryptography;
 using Backend.User;
+using System.Drawing;
+using System.IO;
 
 namespace Database 
 {
@@ -155,6 +157,11 @@ namespace Database
             return leaderBoardInfo;
         }
 
+        public bool RegisterUser(string UserName, string password, string email, string image)
+        {
+            return false;
+        }
+
         /// <summary>
         /// Register a new user to the system.
         /// </summary>
@@ -163,8 +170,10 @@ namespace Database
         /// <param name="email"></param>
         /// <param name="image"></param>
         /// <returns>true if the user has been added</returns>
-        public bool RegisterUser(string UserName, string password, string email, string image)
+        public bool RegisterUser(string UserName, string password, string email, Image image)
         {
+            
+            image.Save("userImages/"+UserName);
             //password = GetMd5Hash(string.Concat(new string[] { password, salt }));
             SqlConnection connection = new SqlConnection(connectionString);
             SqlCommand cmd = new SqlCommand();
@@ -176,7 +185,7 @@ namespace Database
             cmd.Parameters.AddWithValue("@UserName", UserName);
             cmd.Parameters.AddWithValue("@password", password);
             cmd.Parameters.AddWithValue("@email", email);
-            cmd.Parameters.AddWithValue("@image", image);
+            cmd.Parameters.AddWithValue("@image", "userImages/" + UserName);
             cmd.Parameters.AddWithValue("@salt", getRandomSalt());
 
             connection.Open();

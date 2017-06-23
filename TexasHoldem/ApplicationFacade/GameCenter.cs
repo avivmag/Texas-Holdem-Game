@@ -9,6 +9,7 @@ using Backend.Messages;
 using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
 using Database;
 using System.Net.Sockets;
+using System.Drawing;
 
 namespace ApplicationFacade
 {
@@ -174,7 +175,7 @@ namespace ApplicationFacade
             return false;
         }
 
-        public SystemUser register(string userName, string password, string email, string userImage)
+        public SystemUser register(string userName, string password, string email, Image userImage)
         {
             if (userName == null || password == null || email == null || userImage == null || userName.Equals("") || password.Equals("") || email.Equals("") || userImage.Equals(""))
                 throw new ArgumentException("Not all parameters were given.");

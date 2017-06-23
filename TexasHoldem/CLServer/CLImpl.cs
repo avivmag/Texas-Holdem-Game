@@ -11,6 +11,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Reflection;
 using System.Web.Script.Serialization;
+using System.Drawing;
 
 namespace CLServer
 {

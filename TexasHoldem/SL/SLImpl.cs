@@ -7,6 +7,7 @@ using Backend.Game.DecoratorPreferences;
 using Obser;
 using System.Net.Sockets;
 using System.Collections.Generic;
+using System.Drawing;
 
 public class SLImpl : SLInterface
 {
@@ -222,6 +223,11 @@ public class SLImpl : SLInterface
     }
 
     public object Register(string user, string password, string email, string userImage)
+    {
+        return gameCenter.register(user, password, email, null);
+    }
+
+    public object Register(string user, string password, string email, Image userImage)
     {
         return gameCenter.register(user, password, email, userImage);
     }

@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CLClient.Entities;
 using System.Threading;
+using System.Drawing;
 
 namespace CLClient
 {
@@ -486,7 +487,7 @@ namespace CLClient
             return response;
         }
 
-        public static SystemUser Register(string username, string password, string email, string userImage)
+        public static SystemUser Register(string username, string password, string email, Image userImage)
         {
             addClientStream(MAIN_CLIENT);
 

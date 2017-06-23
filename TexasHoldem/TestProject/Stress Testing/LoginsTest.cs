@@ -18,7 +18,7 @@ namespace TestProject.UnitTest
                 Task.Factory.StartNew(() =>
                 {
                     Console.WriteLine(Convert.ToString(i));
-                    var sysUser = CommClient.Register(Convert.ToString(i), Convert.ToString(i), Convert.ToString(i), Convert.ToString(i));
+                    var sysUser = CommClient.Register(Convert.ToString(i), Convert.ToString(i), Convert.ToString(i), null/*Convert.ToString(i)*/);
                 });
             }
         }
