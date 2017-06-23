@@ -31,9 +31,9 @@ namespace TestProject
         object findAllActive();
         string filterByCriteria(string criteria);
 
-        bool canBet(TexasHoldemGame game, SystemUser user, int amount);
-        bool canRaise(TexasHoldemGame game, SystemUser user, int amount);
-        bool canCall(TexasHoldemGame game, SystemUser user,int  amount);
+        bool canBet(TexasHoldemGame game, int amount);
+        bool canRaise(TexasHoldemGame game, int amount);
+        bool canCall(TexasHoldemGame game ,int  amount);
         bool fold();
         bool check();
         bool updatePot(int amount);

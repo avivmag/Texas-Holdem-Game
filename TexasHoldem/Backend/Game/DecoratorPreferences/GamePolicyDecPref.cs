@@ -5,7 +5,7 @@ namespace Backend.Game.DecoratorPreferences
 {
     public class GamePolicyDecPref : OptionalPreferences
     {
-        public enum GameTypePolicy { Undef, Limit, No_Limit, Pot_Limit };
+        public enum GameTypePolicy { /*Undef,*/  Limit, No_Limit, Pot_Limit };
         public GameTypePolicy gamePolicy { get; }
         public int limit { get; }
 
@@ -46,7 +46,7 @@ namespace Backend.Game.DecoratorPreferences
             
         }
 
-        public override ReturnMessage canPerformGameActions(TexasHoldemGame game, SystemUser user, int amount, string action)
+        public override ReturnMessage canPerformGameActions(TexasHoldemGame game, int amount, string action)
         {
             switch (action)
             {
@@ -60,12 +60,12 @@ namespace Backend.Game.DecoratorPreferences
                                 return new ReturnMessage(false, "The entered amount is higher than the limit");
                             }
                             else if (nextDecPref != null)
-                                return nextDecPref.canPerformGameActions(game, user, amount, action);
+                                return nextDecPref.canPerformGameActions(game, amount, action);
                             else
                                 return new ReturnMessage(true, "");
                         case GameTypePolicy.No_Limit:
                             if (nextDecPref != null)
-                                return nextDecPref.canPerformGameActions(game, user, amount, action);
+                                return nextDecPref.canPerformGameActions(game, amount, action);
                             else
                                 return new ReturnMessage(true, "");
                         case GameTypePolicy.Pot_Limit:
@@ -74,7 +74,7 @@ namespace Backend.Game.DecoratorPreferences
                                 return new ReturnMessage(false, "The entered amount is higher than the pot limit");
                             }
                             else if (nextDecPref != null)
-                                return nextDecPref.canPerformGameActions(game, user, amount, action);
+                                return nextDecPref.canPerformGameActions(game, amount, action);
                             else
                                 return new ReturnMessage(true, "");
                         default:

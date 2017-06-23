@@ -84,10 +84,10 @@ namespace Backend.Game.DecoratorPreferences
             }
         }
 
-        public ReturnMessage canPerformGameActions(TexasHoldemGame game, SystemUser user, int amount, string action)
+        public ReturnMessage canPerformGameActions(TexasHoldemGame game, int amount, string action)
         {
             if (firstDecPref != null)
-                return firstDecPref.canPerformGameActions(game, user, amount, action);
+                return firstDecPref.canPerformGameActions(game,  amount, action);
             else
                 return new ReturnMessage(true, "");
         }

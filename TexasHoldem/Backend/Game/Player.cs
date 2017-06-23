@@ -7,7 +7,6 @@ namespace Backend.Game
         public int systemUserID { get; set; }
         public int Tokens { get; set; }
         public int TokensInBet { get; set; }
-        //public int userRank { get; set; }
         public bool spectator { get; set; }
         public enum PlayerState { folded, in_round, not_in_round, my_turn, winner }
         public string imageUrl = "profile_pic";
@@ -23,7 +22,6 @@ namespace Backend.Game
             systemUserID = userId;
             this.name = name;
             Tokens = tokens;
-            //this.userRank = userRank;
             spectator = false;
             playerCards = new List<Card>();
 		}

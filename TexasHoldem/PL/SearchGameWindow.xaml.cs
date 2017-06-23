@@ -188,7 +188,7 @@ namespace PL
             //set the game type policy
             if (GameTypePolicyComboBox.Text.Equals("none") || GameTypePolicyComboBox.Text.Equals(""))
             {
-                gamePolicy = null;
+                gamePolicy = "No_Limit";
             }
             else
             {

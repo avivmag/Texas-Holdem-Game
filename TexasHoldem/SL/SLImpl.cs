@@ -257,9 +257,9 @@ public class SLImpl : SLInterface
     {
         return gameCenter.bet(gameId, playerIndex, coins);
     }
-    public object AddMessage(int gameId, int playerIndex, string messageText)
+    public object AddMessage(int gameId, int userId, string messageText)
     {
-        return gameCenter.addMessage(gameId, playerIndex, messageText);
+        return gameCenter.addMessage(gameId, userId, messageText);
     }
 
     public object Fold(int gameId, int playerIndex)
@@ -311,27 +311,22 @@ public class SLImpl : SLInterface
 
     #endregion
 
-    public void SubscribeToGameState(ObserverAbstract<TcpClient> client, int gameID)
+    public void SubscribeToGameState(ObserverAbstract<TcpClient> client, int gameID, bool isSpectator)
     {
         TexasHoldemGame game = gameCenter.getGameById(gameID);
-        game.gameStatesObserver.Subscribe(client);
+        if (!isSpectator)
+        {
+            game.gameStatesObserver.Subscribe(client);
+        }
+        else
+        {
+            game.spectateObserver.Subscribe(client);
+        }
     }
 
     public void SubscribeToMessages(ObserverAbstract<TcpClient> client)
     {
         gameCenter.messageObserver.Subscribe(client);
-    }
-
-    public void SubscribeToGameChatPlayers(ObserverAbstract<TcpClient> client, int gameID)
-    {
-        TexasHoldemGame game = gameCenter.getGameById(gameID);
-        game.gameStatesObserver.Subscribe(client);
-    }
-    
-    public void SubscribeToGameChatSpectators(ObserverAbstract<TcpClient> client, int gameID)
-    {
-        TexasHoldemGame game = gameCenter.getGameById(gameID);
-        game.gameStatesObserver.Subscribe(client);
     }
 
     public object getLeaderboardsByParam(string param)
