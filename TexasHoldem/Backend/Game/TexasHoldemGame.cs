@@ -81,7 +81,7 @@ namespace Backend.Game
             
             this.gameId = TexasHoldemGame.getNextId();
             GameLog.setLog(gameId, DateTime.Now);
-            GameLog.logLine(gameId, GameLog.Actions.Game_Start, DateTime.Now.ToString());
+            GameLog.logLine(gameId, GameLog.Actions.Game_Create, DateTime.Now.ToString());
             for (int i = 1; i < maxPlayers; i++)
             {
                 players[i] = null;
@@ -180,7 +180,7 @@ namespace Backend.Game
                 firstJoin = false;
             }
 
-            GameLog.logLine(gameId, GameLog.Actions.Player_Join, user.id.ToString());
+            GameLog.logLine(gameId, GameLog.Actions.Player_Join, user.name, seatIndex.ToString());
 
             spectateObserver.Update(this);
             gameStatesObserver.Update(this);
@@ -194,7 +194,6 @@ namespace Backend.Game
             var isSpectator = false;
             foreach(var spectator in spectators)
             {
-                Console.WriteLine("Checking if spectator {0} equals {1}", spectator.id, user.id);
                 if (spectator.id == user.id)
                 {
                     isSpectator = true;
@@ -239,7 +238,7 @@ namespace Backend.Game
                     return new ReturnMessage(false, "Couldn't spectate the game because the user is already spectating the game.");
 
             spectators.Add(user);
-            GameLog.logLine(gameId, GameLog.Actions.Spectate_Join, user.id.ToString());
+            GameLog.logLine(gameId, GameLog.Actions.Spectate_Join, user.name);
             
             return new ReturnMessage(true, "");
         }
@@ -252,7 +251,7 @@ namespace Backend.Game
                 if (players[i] != null && players[i].systemUserID == p.systemUserID)
                 {
                     players[i] = null;
-                    GameLog.logLine(gameId, GameLog.Actions.Player_Left, p.systemUserID.ToString());
+                    GameLog.logLine(gameId, GameLog.Actions.Player_Left, p.name, i.ToString());
                     break;
                 }
             }
@@ -260,7 +259,7 @@ namespace Backend.Game
 
         public void leaveGameSpectator(SystemUser user)
         {
-            GameLog.logLine(gameId, GameLog.Actions.Spectate_Left, user.id.ToString());
+            GameLog.logLine(gameId, GameLog.Actions.Spectate_Left, user.name);
             spectators.Remove(user);
         }
 
@@ -284,7 +283,7 @@ namespace Backend.Game
 
         public void playGame()
         {
-            GameLog.logLine(gameId, GameLog.Actions.Game_Start, DateTime.Now.ToString());
+            GameLog.logLine(gameId, GameLog.Actions.Round_Start, DateTime.Now.ToString());
             InitializeGame();
             gameStatesObserver.Update(this);
             spectateObserver.Update(this);
@@ -393,7 +392,7 @@ namespace Backend.Game
 
                     Card newCard = deck.Top();
                     players[index].playerCards.Add(newCard);
-                    GameLog.logLine(gameId, GameLog.Actions.Deal_Card, newCard.ToString());
+                    GameLog.logLine(gameId, GameLog.Actions.Deal_Card, newCard.ToString(), players[index].name);
                 }
                 index = (index + 1) % maxPlayers;
             }
@@ -406,7 +405,7 @@ namespace Backend.Game
                 {
                     Card newCard = deck.Top();
                     players[index].playerCards.Add(newCard);
-                    GameLog.logLine(gameId, GameLog.Actions.Deal_Card, newCard.ToString());
+                    GameLog.logLine(gameId, GameLog.Actions.Deal_Card, newCard.ToString(), players[index].name);
                 }
                 index = (index + 1) % maxPlayers;
             }
@@ -423,7 +422,7 @@ namespace Backend.Game
             {
                 if (players[i] != null && (players[i].playerState == Player.PlayerState.in_round || players[i].playerState.Equals(Player.PlayerState.my_turn)))
                 {
-                    GameLog.logLine(gameId, GameLog.Actions.Small_Blind, players[i].systemUserID.ToString());
+                    GameLog.logLine(gameId, GameLog.Actions.Small_Blind, players[i].name);
                     return i;
                 }
                 i = (i + 1) % maxPlayers;
@@ -437,7 +436,7 @@ namespace Backend.Game
             GameLog.logLine(
                 gameId,
                 GameLog.Actions.Action_Bet,
-                players[currentSmall].systemUserID.ToString(),
+                players[currentSmall].name,
                 (currentBlindBet / 2).ToString());
 
             players[currentSmall].TokensInBet = currentBlindBet / 2;
@@ -446,8 +445,8 @@ namespace Backend.Game
             GameLog.logLine(
                 gameId,
                 GameLog.Actions.Action_Bet,
-                players[currentBig].systemUserID.ToString(),
-                (currentBlindBet / 2).ToString());
+                players[currentBig].name,
+                currentBlindBet.ToString());
 
             players[currentBig].TokensInBet = currentBlindBet;
 
@@ -567,8 +566,8 @@ namespace Backend.Game
 
             GameLog.logLine(
                 gameId,
-                GameLog.Actions.Action_Raise,
-                p.systemUserID.ToString(),
+                GameLog.Actions.Action_Bet,
+                p.name,
                 amount.ToString());
 
             tempPot += amount;
@@ -653,7 +652,7 @@ namespace Backend.Game
             GameLog.logLine(
                 gameId,
                 GameLog.Actions.Action_Fold,
-                p.systemUserID.ToString());
+                p.name);
 
             int fold = -1;
             for (int i = 0; i < players.Length; i++)
@@ -680,6 +679,7 @@ namespace Backend.Game
             if (numbersOfPlayersInRound() == 1)
             {
                 players[nextPlayer].playerState = PlayerState.winner;
+                GameLog.logLine(gameId, GameLog.Actions.Player_Winner, players[nextPlayer].name);
                 players[nextPlayer].Tokens += pot;
                 gameStatesObserver.Update(this);
                 spectateObserver.Update(this);
@@ -700,7 +700,7 @@ namespace Backend.Game
             GameLog.logLine(
                 gameId,
                 GameLog.Actions.Action_Check,
-                p.systemUserID.ToString());
+                p.name);
             int turn = checkWhosTurnIs();
             players[turn].playerState = PlayerState.in_round;
             players[nextToSeat(turn)].playerState = PlayerState.my_turn;
