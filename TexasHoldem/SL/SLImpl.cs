@@ -86,6 +86,11 @@ public class SLImpl : SLInterface
         return gameCenter.editUserProfile(userId,name,password,email,avatar, money);
     }
 
+    public object getGameLogs()
+    {
+        return gameCenter.getGameLogs();
+    }
+
     public object findAllActiveAvailableGames()
     {
         if (gameCenter.texasHoldemGames.Count == 0)
@@ -220,11 +225,6 @@ public class SLImpl : SLInterface
     public object Login(string user, string password)
     {
         return gameCenter.login(user, password);
-    }
-
-    public object Register(string user, string password, string email, string userImage)
-    {
-        return gameCenter.register(user, password, email, null);
     }
 
     public object Register(string user, string password, string email, Image userImage)

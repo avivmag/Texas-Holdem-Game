@@ -125,6 +125,22 @@ namespace ApplicationFacade
             return db.deleteUser(userId);
         }
 
+        public List<string[]> getGameLogs()
+        {
+            List<string[]> gameLogs = new List<string[]>();
+
+            // Get all logs seperated by different lines.
+            string[] filePaths = Directory.GetFiles(Path.Combine(Environment.CurrentDirectory, "logs"));
+
+            // Add logs to the returning list.
+            foreach (var p in filePaths)
+            {
+                gameLogs.Add(File.ReadAllLines(p));
+            }
+
+            return gameLogs;
+        }
+
         public void sendSystemMessage(string message)
         {
             messageObserver.Update(message);
@@ -146,7 +162,7 @@ namespace ApplicationFacade
         public SystemUser register(string userName, string password, string email, Image userImage)
         {
             if (userName == null || password == null || email == null || userName.Equals("") || password.Equals("") || email.Equals(""))
-                throw new ArgumentException("Not all parameters were given.");
+                throw new ArgumentException("Not all parameters were given.", "Register");
 
             SystemUser user = db.getUserByName(userName);
             if (user != null)
@@ -164,15 +180,15 @@ namespace ApplicationFacade
         public SystemUser login(string user, string password)
         {
             if (user == null || password == null || user.Equals("") || password.Equals(""))
-                throw new ArgumentException("No such user.");
+                throw new ArgumentException("No such user.", "Login");
 
             SystemUser systemUser = db.getUserByName(user);
             if (systemUser == null)
-                throw new ArgumentException("No such user.");
+                throw new ArgumentException("No such user.", "Login");
 
             int id = db.Login(user, password);
             if (id == -1)
-                throw new InvalidOperationException("Incorrect password");
+                throw new ArgumentException("Incorrect password", "Login");
 
             return db.getUserById(id);
         }

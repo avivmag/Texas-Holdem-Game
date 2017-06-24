@@ -81,7 +81,7 @@ namespace Backend.Game
             
             this.gameId = TexasHoldemGame.getNextId();
             GameLog.setLog(gameId, DateTime.Now);
-            GameLog.logLine(gameId, GameLog.Actions.Game_Create, DateTime.Now.ToString());
+            GameLog.logLine(gameId, GameLog.Actions.Game_Create, gameId.ToString(), user.name, DateTime.Now.ToString());
             for (int i = 1; i < maxPlayers; i++)
             {
                 players[i] = null;
@@ -107,6 +107,9 @@ namespace Backend.Game
                     //user.updateRank(players[i].Tokens - buyIn);
                     rankMoneyUpdateCallback(new int[] { userId, players[i].Tokens - buyIn, players[i].Tokens });
                     players[i] = null;
+
+                    GameLog.logLine(gameId, GameLog.Actions.Player_Left, players[i].name, i.ToString());
+
                     gameStatesObserver.Update(this);
                     spectateObserver.Update(this);
                     return new ReturnMessage(true, "");
@@ -180,7 +183,7 @@ namespace Backend.Game
                 firstJoin = false;
             }
 
-            GameLog.logLine(gameId, GameLog.Actions.Player_Join, user.name, seatIndex.ToString());
+            GameLog.logLine(gameId, GameLog.Actions.Player_Join, user.name, seatIndex.ToString(), startingChips.ToString());
 
             spectateObserver.Update(this);
             gameStatesObserver.Update(this);
@@ -283,7 +286,7 @@ namespace Backend.Game
 
         public void playGame()
         {
-            GameLog.logLine(gameId, GameLog.Actions.Round_Start, DateTime.Now.ToString());
+            GameLog.logLine(gameId, GameLog.Actions.Round_Start);
             InitializeGame();
             gameStatesObserver.Update(this);
             spectateObserver.Update(this);
@@ -391,8 +394,9 @@ namespace Backend.Game
                     }
 
                     Card newCard = deck.Top();
+                    var cardIndex = players[index].playerCards.Count;
                     players[index].playerCards.Add(newCard);
-                    GameLog.logLine(gameId, GameLog.Actions.Deal_Card, newCard.ToString(), players[index].name);
+                    GameLog.logLine(gameId, GameLog.Actions.Deal_Card, cardIndex.ToString(), newCard.Type.ToString(), newCard.Value.ToString(), players[index].name, index.ToString());
                 }
                 index = (index + 1) % maxPlayers;
             }
@@ -405,7 +409,7 @@ namespace Backend.Game
                 {
                     Card newCard = deck.Top();
                     players[index].playerCards.Add(newCard);
-                    GameLog.logLine(gameId, GameLog.Actions.Deal_Card, newCard.ToString(), players[index].name);
+                    GameLog.logLine(gameId, GameLog.Actions.Deal_Card, newCard.Type.ToString(), newCard.Value.ToString(), players[index].name);
                 }
                 index = (index + 1) % maxPlayers;
             }
@@ -437,7 +441,8 @@ namespace Backend.Game
                 gameId,
                 GameLog.Actions.Action_Bet,
                 players[currentSmall].name,
-                (currentBlindBet / 2).ToString());
+                (currentBlindBet / 2).ToString(),
+                currentSmall.ToString());
 
             players[currentSmall].TokensInBet = currentBlindBet / 2;
 
@@ -446,7 +451,8 @@ namespace Backend.Game
                 gameId,
                 GameLog.Actions.Action_Bet,
                 players[currentBig].name,
-                currentBlindBet.ToString());
+                currentBlindBet.ToString(),
+                currentBig.ToString());
 
             players[currentBig].TokensInBet = currentBlindBet;
 
@@ -464,7 +470,7 @@ namespace Backend.Game
                     {
                         Card flopCard = deck.Top();
                         flop.Add(flopCard);
-                        GameLog.logLine(gameId, GameLog.Actions.Flop, i.ToString(), flopCard.ToString());
+                        GameLog.logLine(gameId, GameLog.Actions.Flop, i.ToString(), flopCard.Type.ToString(), flopCard.Value.ToString());
                     }
                     for (int i = 0; i < players.Length; i++)
                     {
@@ -479,7 +485,7 @@ namespace Backend.Game
                     GameLog.logLine(
                         gameId,
                         GameLog.Actions.Turn,
-                        turn.ToString());
+                        turn.Type.ToString(), turn.Value.ToString());
                     for (int i = 0; i < players.Length; i++)
                     {
                         if(players[i] != null && (players[i].playerState == PlayerState.in_round || players[i].playerState == PlayerState.my_turn))
@@ -493,7 +499,7 @@ namespace Backend.Game
                     GameLog.logLine(
                         gameId,
                         GameLog.Actions.River,
-                        turn.ToString());
+                        river.Type.ToString(), river.Value.ToString());
                     for (int i = 0; i < players.Length; i++)
                     {
                         if (players[i] != null && (players[i].playerState == PlayerState.in_round || players[i].playerState == PlayerState.my_turn))
@@ -649,11 +655,6 @@ namespace Backend.Game
 
         public ReturnMessage fold(Player p)
         {
-            GameLog.logLine(
-                gameId,
-                GameLog.Actions.Action_Fold,
-                p.name);
-
             int fold = -1;
             for (int i = 0; i < players.Length; i++)
             {
@@ -692,7 +693,14 @@ namespace Backend.Game
             }
             gameStatesObserver.Update(this);
             spectateObserver.Update(this);
+            GameLog.logLine(
+                gameId,
+                GameLog.Actions.Action_Fold,
+                p.name,
+                turn.ToString());
+
             return new ReturnMessage(true, "");
+
         }
 
         public ReturnMessage check(Player p)
