@@ -106,9 +106,10 @@ namespace Backend.Game
 
                     //user.updateRank(players[i].Tokens - buyIn);
                     rankMoneyUpdateCallback(new int[] { userId, players[i].Tokens - buyIn, players[i].Tokens });
-                    players[i] = null;
 
                     GameLog.logLine(gameId, GameLog.Actions.Player_Left, players[i].name, i.ToString());
+
+                    players[i] = null;
 
                     gameStatesObserver.Update(this);
                     spectateObserver.Update(this);
