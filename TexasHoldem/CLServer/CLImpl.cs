@@ -225,11 +225,11 @@ namespace CLServer
         /// <returns>The JObject</returns>
         private static JObject getJsonObjectFromDesktopStream(TcpClient client, string passPhrase)
         {
-            var message                 = new byte[1024 * 10];
+            var message                 = new byte[1024 * 1024];
 
             var bytesRead               = client.GetStream().Read(message, 0, message.Length);
 
-            string myObject      = Encoding.ASCII.GetString(message);
+            string myObject             = Encoding.ASCII.GetString(message);
 
             if (passPhrase != "undefined")
             {
@@ -722,6 +722,8 @@ namespace CLServer
             var emailToken      = jsonObject["email"];
             var userImageToken  = jsonObject["userImage"];
             var passPhraseToken = jsonObject["passPhrase"];
+
+
             if ((usernameToken == null) || (usernameToken.Type != JTokenType.String) ||
                 (String.IsNullOrWhiteSpace(usernameToken.ToString())) ||
 
@@ -730,9 +732,9 @@ namespace CLServer
 
                 (emailToken == null) || (emailToken.Type != JTokenType.String) ||
                 (String.IsNullOrWhiteSpace(emailToken.ToString())) ||
-
+                
                 (userImageToken == null) || (userImageToken.Type != JTokenType.String) ||
-                (String.IsNullOrWhiteSpace(userImageToken.ToString())))
+                ((((byte[])userImageToken).Length) == 0))
             {
                 throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Register"));
             }
@@ -749,8 +751,8 @@ namespace CLServer
             var registerResponse = sl.Register(
                 (string)usernameToken, 
                 (string)passwordToken, 
-                (string)emailToken, 
-                (string)userImageToken);
+                (string)emailToken,
+                (Bitmap)((new ImageConverter()).ConvertFrom((byte[])userImageToken)));
             
             SendMessage(clientInfo, registerResponse, 200, true);
             return;

@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System;
 using System.Windows.Media.Imaging;
+using System.IO;
 
 namespace PL
 {
@@ -30,6 +31,12 @@ namespace PL
 
         private void Register_Click(object sender, RoutedEventArgs e)
         {
+            // If a file was brought from resources path, fix the absolute path to point to it.
+            if (filename.StartsWith("resources")){
+                filename = filename.Replace("/", "\\");
+                filename = Path.Combine(Environment.CurrentDirectory, filename);
+                filename = filename.Replace("bin\\Debug\\", "");
+            }
             Image img = Image.FromFile(filename);
             var user = CommClient.Register(username.Text, password.Text, email.Text, img);
 

@@ -13,6 +13,7 @@ namespace Backend.User
 		public String password { get; set; }
         public String email { get; set; }
 		public String userImage { get; set; }
+        public byte[] userImageByteArray { get; set; }
         public List<TexasHoldemGame> spectatingGame;
 
         public bool newPlayer { get; set; }

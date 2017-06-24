@@ -70,6 +70,19 @@ namespace Database
         //    return new string(saltArr);
         //}
 
+
+        /// <summary>
+        ///  Converts an image to byte array in order to send over through TCP stream.
+        /// </summary>
+        /// <param name="image">The image to convert to byte array.</param>
+        /// <returns>The image's data as byte array.</returns>
+        public static byte[] imageToByteArray(Image image)
+        {
+            ImageConverter _imageConverter = new ImageConverter();
+            byte[] byteArray = (byte[])_imageConverter.ConvertTo(image, typeof(byte[]));
+            return byteArray;
+        }
+
         private byte[] getRandomSalt()
         {
             var salt = new byte[SALT_SIZE];
@@ -159,7 +172,7 @@ namespace Database
 
         public bool RegisterUser(string UserName, string password, string email, string image)
         {
-            return false;
+            return true;
         }
 
         /// <summary>
@@ -172,8 +185,16 @@ namespace Database
         /// <returns>true if the user has been added</returns>
         public bool RegisterUser(string UserName, string password, string email, Image image)
         {
-            
-            image.Save("userImages/"+UserName);
+            string filePath         = String.Join("_", Guid.NewGuid(), UserName);
+            string imagesDirectory  = Path.Combine(Environment.CurrentDirectory, "Images", filePath);
+
+            // Save image to disc. (produces error but saves it anyway. we will just wrap it with a 'try' clause.
+            try
+            {
+                image.Save(imagesDirectory);
+            }
+            catch { }
+
             //password = GetMd5Hash(string.Concat(new string[] { password, salt }));
             SqlConnection connection = new SqlConnection(connectionString);
             SqlCommand cmd = new SqlCommand();
@@ -185,7 +206,7 @@ namespace Database
             cmd.Parameters.AddWithValue("@UserName", UserName);
             cmd.Parameters.AddWithValue("@password", password);
             cmd.Parameters.AddWithValue("@email", email);
-            cmd.Parameters.AddWithValue("@image", "userImages/" + UserName);
+            cmd.Parameters.AddWithValue("@image", imagesDirectory);
             cmd.Parameters.AddWithValue("@salt", getRandomSalt());
 
             connection.Open();
@@ -377,6 +398,18 @@ namespace Database
             SystemUser su = new SystemUser(Id, reader["UserName"].ToString(), reader["email"].ToString(), reader["image"].ToString(), int.Parse(reader["money"].ToString()), int.Parse(reader["rank"].ToString()), int.Parse(reader["gamesPlayed"].ToString()));
 
             connection.Close();
+
+            // Try to get the image from the database.
+            try
+            {
+                // Get the user's profile picture file from memory.
+                var returnedImage = Image.FromFile(su.userImage);
+
+                // Convert user's profile picture into byte array in order to send over TCP 
+                su.userImageByteArray = imageToByteArray(returnedImage);
+            }
+            catch { }
+
             return su;
         }
         public SystemUser getUserByName(string name)
@@ -399,6 +432,18 @@ namespace Database
             SystemUser su = new SystemUser(int.Parse(reader["Id"].ToString()), name, reader["email"].ToString(), reader["image"].ToString(), int.Parse(reader["money"].ToString()), int.Parse(reader["rank"].ToString()), int.Parse(reader["gamesPlayed"].ToString()));
 
             connection.Close();
+
+            // Try to get the image from the database.
+            try
+            {
+                // Get the user's profile picture file from memory.
+                var returnedImage = Image.FromFile(su.userImage);
+
+                // Convert user's profile picture into byte array in order to send over TCP 
+                su.userImageByteArray = imageToByteArray(returnedImage);
+            }
+            catch { }
+
             return su;
         }
         public SystemUser getUserByEmail(string email)
@@ -419,6 +464,17 @@ namespace Database
             SystemUser su = new SystemUser(int.Parse(reader["Id"].ToString()), reader["UserName"].ToString(), email, reader["image"].ToString(), int.Parse(reader["money"].ToString()), int.Parse(reader["rank"].ToString()), int.Parse(reader["gamesPlayed"].ToString()));
 
             connection.Close();
+            // Try to get the image from the database.
+            try
+            {
+                // Get the user's profile picture file from memory.
+                var returnedImage = Image.FromFile(su.userImage);
+
+                // Convert user's profile picture into byte array in order to send over TCP 
+                su.userImageByteArray = imageToByteArray(returnedImage);
+            }
+            catch { }
+
             return su;
         }
         public bool deleteUser(int Id)

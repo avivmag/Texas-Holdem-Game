@@ -27,7 +27,6 @@ namespace SL
         object createGame(int gameCreator, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague);
 
         object Login(string user, string password);
-        object Register(string user, string password, string email, string userImage);
         object Register(string user, string password, string email, Image userImage);
 		object Logout(int userId);
 
