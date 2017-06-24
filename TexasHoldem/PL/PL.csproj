@@ -74,6 +74,9 @@
     <Compile Include="SelectGameWindow.xaml.cs">
       <DependentUpon>SelectGameWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SelectReplayWindow.xaml.cs">
+      <DependentUpon>SelectReplayWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SystemMessageWindow.xaml.cs">
       <DependentUpon>SystemMessageWindow.xaml</DependentUpon>
     </Compile>
@@ -118,6 +121,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="SelectGameWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SelectReplayWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
