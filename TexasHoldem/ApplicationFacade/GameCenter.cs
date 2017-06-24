@@ -7,6 +7,9 @@ using Backend.User;
 using Backend.Messages;
 using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
 using Database;
+using System.Net.Sockets;
+using System.Drawing;
+using System.IO;
 
 namespace ApplicationFacade
 {
@@ -19,7 +22,6 @@ namespace ApplicationFacade
         private static GameCenter center;
         private IDB db;
         public MessageObserver messageObserver = new MessageObserver();
-
 
         private GameCenter()
         {
@@ -141,9 +143,9 @@ namespace ApplicationFacade
             return false;
         }
 
-        public SystemUser register(string userName, string password, string email, string userImage)
+        public SystemUser register(string userName, string password, string email, Image userImage)
         {
-            if (userName == null || password == null || email == null || userImage == null || userName.Equals("") || password.Equals("") || email.Equals("") || userImage.Equals(""))
+            if (userName == null || password == null || email == null || userName.Equals("") || password.Equals("") || email.Equals(""))
                 throw new ArgumentException("Not all parameters were given.");
 
             SystemUser user = db.getUserByName(userName);
@@ -155,6 +157,7 @@ namespace ApplicationFacade
             //loggedInUsers.Add(user);
             
             //userList.Add(user);
+            // Get the specified user from the db.
             return db.getUserByName(userName);
         }
 

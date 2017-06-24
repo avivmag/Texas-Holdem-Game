@@ -17,10 +17,10 @@ namespace TestProject.AcceptanceTests
         {
             db = new DBImpl();
 
-            bool objUser = db.RegisterUser("Hadas", "1234", "shidlhad", "1");
+            bool objUser = db.RegisterUser("Hadas", "1234", "shidlhad", null);
             Assert.IsTrue(objUser);
 
-            bool objOther = db.RegisterUser("Gil", "1234", "gilabadi89", "1");
+            bool objOther = db.RegisterUser("Gil", "1234", "gilabadi89", null);
             Assert.IsTrue(objOther);
 
             object objGame = creatGame(db.getUserByName("Hadas").id, "Limit", 1000, 1000, 1000, 100, 2, 9, true, false);

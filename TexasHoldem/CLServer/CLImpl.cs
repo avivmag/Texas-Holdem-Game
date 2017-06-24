@@ -11,6 +11,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Reflection;
 using System.Web.Script.Serialization;
+using System.Drawing;
 
 namespace CLServer
 {
@@ -194,9 +195,8 @@ namespace CLServer
                 {
                     jsonObject = getJsonObjectFromDesktopStream(client, clientInfo.passPhrase);
                 }
-                catch(Exception e)
+                catch
                 {
-                    Console.WriteLine(e.Message);
                     Console.WriteLine("Client closed connection. Terminating thread: {0}", Thread.CurrentThread.ManagedThreadId);
                     return;
                 }
@@ -207,7 +207,18 @@ namespace CLServer
                 catch (TargetInvocationException tie)
                 {
                     Console.WriteLine(tie.InnerException);
-                    SendMessage(clientInfo, new { exception = "An Error Has Occured" });
+
+                    // Get inner exception param name. If either register or login, this means no encryption yet.
+                    var optionalParam = ((ArgumentException)tie.InnerException.InnerException).ParamName;
+
+                    if (optionalParam == "Login" || optionalParam == "Register")
+                    {
+                        SendMessage(clientInfo, new { exception = "An Error Has Occured" }, 200, true);
+                    }
+                    else
+                    {
+                        SendMessage(clientInfo, new { exception = "An Error Has Occured" }, 200, false);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -224,11 +235,11 @@ namespace CLServer
         /// <returns>The JObject</returns>
         private static JObject getJsonObjectFromDesktopStream(TcpClient client, string passPhrase)
         {
-            var message                 = new byte[1024 * 10];
+            var message                 = new byte[1024 * 1024];
 
             var bytesRead               = client.GetStream().Read(message, 0, message.Length);
 
-            string myObject      = Encoding.ASCII.GetString(message);
+            string myObject             = Encoding.ASCII.GetString(message);
 
             if (passPhrase != "undefined")
             {
@@ -647,7 +658,7 @@ namespace CLServer
                 (passwordToken == null) || (passwordToken.Type != JTokenType.String) ||
                 (String.IsNullOrWhiteSpace(passwordToken.ToString())))
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Login."));
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Login.", "Login"));
             }
 
             if ((passPhraseToken != null) && (passPhraseToken.Type == JTokenType.String) &&
@@ -721,6 +732,8 @@ namespace CLServer
             var emailToken      = jsonObject["email"];
             var userImageToken  = jsonObject["userImage"];
             var passPhraseToken = jsonObject["passPhrase"];
+
+
             if ((usernameToken == null) || (usernameToken.Type != JTokenType.String) ||
                 (String.IsNullOrWhiteSpace(usernameToken.ToString())) ||
 
@@ -729,11 +742,11 @@ namespace CLServer
 
                 (emailToken == null) || (emailToken.Type != JTokenType.String) ||
                 (String.IsNullOrWhiteSpace(emailToken.ToString())) ||
-
+                
                 (userImageToken == null) || (userImageToken.Type != JTokenType.String) ||
-                (String.IsNullOrWhiteSpace(userImageToken.ToString())))
+                ((((byte[])userImageToken).Length) == 0))
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Register"));
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Register", "Register"));
             }
 
             if ((passPhraseToken != null) && (passPhraseToken.Type == JTokenType.String) &&
@@ -748,8 +761,8 @@ namespace CLServer
             var registerResponse = sl.Register(
                 (string)usernameToken, 
                 (string)passwordToken, 
-                (string)emailToken, 
-                (string)userImageToken);
+                (string)emailToken,
+                (Bitmap)((new ImageConverter()).ConvertFrom((byte[])userImageToken)));
             
             SendMessage(clientInfo, registerResponse, 200, true);
             return;
