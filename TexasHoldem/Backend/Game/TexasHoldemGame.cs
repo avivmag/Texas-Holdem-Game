@@ -6,7 +6,7 @@ using Backend.Game.DecoratorPreferences;
 
 namespace Backend.Game
 {
-    public class TexasHoldemGame : Messages.Notification
+    public class TexasHoldemGame
     {
         public enum HandsRanks { HighCard = 8, Pair = 7, TwoPairs = 6, ThreeOfAKind = 5, Straight, Flush = 4, FullHouse = 3, FourOfAKind = 2, StraightFlush = 1, RoyalFlush = 0 }
         public enum BetAction { fold, bet, call, check, raise }
@@ -554,7 +554,10 @@ namespace Backend.Game
 
         public ReturnMessage bet(Player p, int amount)
         {
-            /////////////////////////////////////////////////////////////
+            ReturnMessage ans;
+            ans = gamePreferences.canPerformGameActions(this, amount, "bet");
+            if (!ans.success)
+                return ans;
             if (p.Tokens - amount < 0)
                 return new ReturnMessage(false, "not enough coins");
             if (currentBet > amount && amount != p.Tokens)
