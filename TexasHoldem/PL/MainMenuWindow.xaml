@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PL"
         mc:Ignorable="d"
-        Title="Main Menu Window" Height="410" Width="515" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+        Title="Main Menu Window" Height="454" Width="515" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
     <Window.Background>
         <ImageBrush ImageSource="resources/main_menu.png"/>
     </Window.Background>
@@ -16,12 +16,13 @@
             <ColumnDefinition Width="45*"/>
             <ColumnDefinition Width="97*"/>
         </Grid.ColumnDefinitions>
-        <StackPanel HorizontalAlignment="Left" Height="320" Margin="10,25,0,0" VerticalAlignment="Top" Width="489" Grid.ColumnSpan="4">
-            <Button x:Name="createGame" Content="Create Game" VerticalAlignment="Top" FontStyle="Italic" FontSize="16" Width="120" Height="30" Click="Create_Game_Click" HorizontalAlignment="Center" Margin="0,15,0,0" />
+        <StackPanel HorizontalAlignment="Left" Height="375" Margin="10,25,0,0" VerticalAlignment="Top" Width="489" Grid.ColumnSpan="4">
+            <Button x:Name="createGame" Content="Create Game" VerticalAlignment="Top" FontStyle="Italic" FontSize="16" Width="120" Height="30" Click="Create_Game_Click" HorizontalAlignment="Center" Margin="184,15,185,0" RenderTransformOrigin="0.5,-0.167" />
             <Button x:Name="joinGame" Content="Join Game" VerticalAlignment="Top" FontStyle="Italic" FontSize="16" Width="120" Height="30" Click="Join_Game_Click" HorizontalAlignment="Center" Margin="0,15,0,0" />
-            <Button x:Name="spectateGame" Content="Spectate Game" VerticalAlignment="Top" FontStyle="Italic" FontSize="16" Width="120" Height="30" Click="Specate_Game_Click" HorizontalAlignment="Center" Margin="0,15,0,0" />
+            <Button x:Name="spectateGame" Content="Spectate Game" VerticalAlignment="Top" FontStyle="Italic" FontSize="16" Width="120" Height="30" Click="Specate_Game_Click" HorizontalAlignment="Center" Margin="184,15,185,0" />
             <Button x:Name="searcGame" Content="Search Game" VerticalAlignment="Top" FontStyle="Italic" FontSize="16" Width="120" Height="30" Click="Search_Game_Click" HorizontalAlignment="Center" Margin="0,15,0,0" />
             <Button x:Name="options" Content="Options" VerticalAlignment="Top" FontStyle="Italic" FontSize="16" Width="120" Height="30" Click="Options_Click" HorizontalAlignment="Center" Margin="0,15,0,0"/>
+            <Button x:Name="replayGame" Content="Replay Game" VerticalAlignment="Top" FontStyle="Italic" FontSize="16" Width="120" Height="30" Click="Replay_Click" HorizontalAlignment="Center" Margin="0,15,0,0"/>
             <Button x:Name="logout" Content="Logout" VerticalAlignment="Top" FontStyle="Italic" FontSize="16" Width="120" Height="30" Click="Logout_Click" HorizontalAlignment="Center" Margin="0,15,0,0" />
             <Button x:Name="exit" Content="Exit" VerticalAlignment="Top" FontStyle="Italic" FontSize="16" Width="120" Height="30" Click="Exit_Click" HorizontalAlignment="Center" Margin="0,15,0,0" />
         </StackPanel>
