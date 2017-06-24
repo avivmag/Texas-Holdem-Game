@@ -194,9 +194,8 @@ namespace CLServer
                 {
                     jsonObject = getJsonObjectFromDesktopStream(client, clientInfo.passPhrase);
                 }
-                catch(Exception e)
+                catch
                 {
-                    Console.WriteLine(e.Message);
                     Console.WriteLine("Client closed connection. Terminating thread: {0}", Thread.CurrentThread.ManagedThreadId);
                     return;
                 }
@@ -207,7 +206,18 @@ namespace CLServer
                 catch (TargetInvocationException tie)
                 {
                     Console.WriteLine(tie.InnerException);
-                    SendMessage(clientInfo, new { exception = "An Error Has Occured" });
+
+                    // Get inner exception param name. If either register or login, this means no encryption yet.
+                    var optionalParam = ((ArgumentException)tie.InnerException.InnerException).ParamName;
+
+                    if (optionalParam == "Login" || optionalParam == "Register")
+                    {
+                        SendMessage(clientInfo, new { exception = "An Error Has Occured" }, 200, true);
+                    }
+                    else
+                    {
+                        SendMessage(clientInfo, new { exception = "An Error Has Occured" }, 200, false);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -647,7 +657,7 @@ namespace CLServer
                 (passwordToken == null) || (passwordToken.Type != JTokenType.String) ||
                 (String.IsNullOrWhiteSpace(passwordToken.ToString())))
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Login."));
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Login.", "Login"));
             }
 
             if ((passPhraseToken != null) && (passPhraseToken.Type == JTokenType.String) &&
@@ -733,7 +743,7 @@ namespace CLServer
                 (userImageToken == null) || (userImageToken.Type != JTokenType.String) ||
                 (String.IsNullOrWhiteSpace(userImageToken.ToString())))
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Register"));
+                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Register", "Register"));
             }
 
             if ((passPhraseToken != null) && (passPhraseToken.Type == JTokenType.String) &&
