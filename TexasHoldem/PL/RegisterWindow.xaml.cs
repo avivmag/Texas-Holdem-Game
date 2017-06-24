@@ -1,6 +1,11 @@
 ﻿using System.Windows;
 using CLClient;
 using CLClient.Entities;
+using System.Drawing;
+using System.Windows.Forms;
+using System;
+using System.Windows.Media.Imaging;
+using System.IO;
 
 namespace PL
 {
@@ -10,6 +15,7 @@ namespace PL
     public partial class RegisterWindow : Window
     {
         private Window loginWindow;
+        string filename = "resources/anonProfPic.jpg";
 
         public RegisterWindow(Window loginWindow)
         {
@@ -25,7 +31,14 @@ namespace PL
 
         private void Register_Click(object sender, RoutedEventArgs e)
         {
-            var user = CommClient.Register(username.Text, password.Text, email.Text, "profile_pic");
+            // If a file was brought from resources path, fix the absolute path to point to it.
+            if (filename.StartsWith("resources")){
+                filename = filename.Replace("/", "\\");
+                filename = Path.Combine(Environment.CurrentDirectory, filename);
+                filename = filename.Replace("bin\\Debug\\", "");
+            }
+            Image img = Image.FromFile(filename);
+            var user = CommClient.Register(username.Text, password.Text, email.Text, img);
 
             if (user != default(SystemUser)){
                 LoginWindow.user = user;
@@ -38,6 +51,30 @@ namespace PL
             else
             {
                 errorMessage.Text ="Could not register at the moment.";
+            }
+        }
+
+        private void selectPic_Click(object sender, RoutedEventArgs e)
+        {
+            // Create OpenFileDialog 
+            OpenFileDialog dlg = new OpenFileDialog();
+  
+            // Set filter for file extension and default file extension
+            dlg.Filter = "JPEG Files (*.jpeg)|*.jpeg|PNG Files (*.png)|*.png|JPG Files (*.jpg)|*.jpg";
+            
+            // Display OpenFileDialog by calling ShowDialog method 
+            DialogResult result = dlg.ShowDialog();
+            
+            // Get the selected file name and display in a TextBox
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                // Open document 
+                filename = dlg.FileName;
+                BitmapImage bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(filename);
+                bitmap.EndInit();
+                profilePictre.Source = bitmap;
             }
         }
     }

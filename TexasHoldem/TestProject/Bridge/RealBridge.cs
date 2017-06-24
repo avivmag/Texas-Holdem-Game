@@ -19,7 +19,7 @@ namespace TestProject.Bridge
             sl = new SLImpl();
         }
 
-        public object register(string username, string password, string email, string picture)
+        public object register(string username, string password, string email, System.Drawing.Image picture)
         {
             return sl.Register(username, password, email, picture);
         }

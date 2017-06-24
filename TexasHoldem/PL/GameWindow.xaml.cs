@@ -15,6 +15,7 @@ using System.Windows.Controls.Primitives;
 using CLClient;
 using CLClient.Entities;
 using static CLClient.Entities.Card;
+using System.IO;
 
 namespace PL
 {
@@ -402,7 +403,7 @@ namespace PL
         //    changeSeat(i, true, "gray", "free_seat_icon", "free seat", 0, 0);
         //}
 
-        private void changeSeat(int i, Boolean addMouseEvents, string playerStateImageUrl, string playerImageUrl, string playerName, int playerCoinsNumber, int playerCoinsNumberGambled)
+        private void changeSeat(int i, Boolean addMouseEvents, string playerStateImageUrl, System.Drawing.Image playerImage, string playerName, int playerCoinsNumber, int playerCoinsNumberGambled)
         {
             if (addMouseEvents && !alreadyAddedMouseEvents[i])
             {
@@ -420,13 +421,34 @@ namespace PL
             }
 
             playerStateBackground[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/" + playerStateImageUrl + ".png"));
-            try
+            if (playerImage != null)
             {
-                playersImage[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/" + playerImageUrl + ".png"));
+                try
+                {
+                    // Converting system.drawing.image to imageSource.
+                    var bi = new BitmapImage();
+
+                    using (var ms = new MemoryStream())
+                    {
+                        playerImage.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                        ms.Position = 0;
+
+                        bi.BeginInit();
+                        bi.CacheOption = BitmapCacheOption.OnLoad;
+                        bi.StreamSource = ms;
+                        bi.EndInit();
+                    }
+
+                    playersImage[i].Source = bi;
+                }
+                catch (Exception e)
+                {
+                    playersImage[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/profile_pic.png"));
+                }
             }
-            catch (Exception e)
+            else
             {
-                playersImage[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/profile_pic.png"));
+                playersImage[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/" + "free_seat_icon.png"));
             }
 
             playerNames[i].Content = playerName;
@@ -752,24 +774,24 @@ namespace PL
             for (int i = 0; i < game.players.Length; i++)
             {
                 if (playerSeatIndex == -1 && game.players[i] == null)
-                    changeSeat(i, true, "gray", "free_seat_icon", "free seat", 0, 0);
+                    changeSeat(i, true, "gray", null, "free seat", 0, 0);
                 else if (playerSeatIndex != -1 && game.players[i] == null)
-                    changeSeat(i, false, "gray", "free_seat_icon", "free seat", 0, 0);
+                    changeSeat(i, false, "gray", null, "free seat", 0, 0);
                 else //if (game.players[i] != null)
                 {
                     switch (game.players[i].playerState)
                     {
                         case Player.PlayerState.folded:
-                            changeSeat(i, false, "red", game.players[i].imageUrl, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
+                            changeSeat(i, false, "red", game.players[i].profilePic, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
                             break;
                         case Player.PlayerState.in_round:
-                            changeSeat(i, false, "green", game.players[i].imageUrl, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
+                            changeSeat(i, false, "green", game.players[i].profilePic, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
                             break;
                         case Player.PlayerState.not_in_round:
-                            changeSeat(i, false, "gray", game.players[i].imageUrl, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
+                            changeSeat(i, false, "gray", game.players[i].profilePic, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
                             break;
                         case Player.PlayerState.my_turn:
-                            changeSeat(i, false, "blue", game.players[i].imageUrl, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
+                            changeSeat(i, false, "blue", game.players[i].profilePic, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
                             playButton.IsEnabled = false;
                             if (systemUserId == game.players[i].systemUserID)
                             {
@@ -796,7 +818,7 @@ namespace PL
                             }
                             break;
                         case Player.PlayerState.winner:
-                            changeSeat(i, false, "yellow", game.players[i].imageUrl, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
+                            changeSeat(i, false, "yellow", game.players[i].profilePic, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
                             playButton.IsEnabled = true;
                             break;
                     }

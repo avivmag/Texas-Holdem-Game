@@ -17,7 +17,7 @@ namespace TestProject
             if (real == null)
                 real = implementation;
         }
-        public object register(string username, string password, string email, string picture)
+        public object register(string username, string password, string email, System.Drawing.Image picture)
         {
             if (real != null)
                 return real.register(username, password, email, picture);
