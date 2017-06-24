@@ -6,7 +6,7 @@ namespace TestProject
 {
     interface IBridge
     {
-        object register(string username, string password, string email, string picture);
+        object register(string username, string password, string email, System.Drawing.Image picture);
         object login(string username, string password);
         object logout(int userId);
         object editProfile(int userId, string username, string password, string email, string picture, int moneyAmount);

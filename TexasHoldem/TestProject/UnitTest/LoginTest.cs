@@ -35,7 +35,7 @@ namespace TestProject.UnitTest
             db = new DBImpl();
             for (int i = 0; i < 4; i++)
             {
-                db.RegisterUser("test" + i, "" + i, "email" + i, "userImage" + i);
+                db.RegisterUser("test" + i, "" + i, "email" + i, null);
             }
             db.EditUserById(db.getUserByName("test0").id, null, null, null, null, 1000, 10, false);
             db.EditUserById(db.getUserByName("test1").id, null, null, null, null, 0, 15, false);
@@ -168,7 +168,7 @@ namespace TestProject.UnitTest
         [TestMethod]
         public void successRegisterTest()
         {
-            object m = sl.Register("crash bandicoot", "green boxes are the worst", "crash@bash.bugabugabuga", "hedgehog photo");
+            object m = sl.Register("crash bandicoot", "green boxes are the worst", "crash@bash.bugabugabuga", null);
             Assert.IsInstanceOfType(m, typeof(SystemUser));
             Assert.AreEqual(((SystemUser)m).name, "crash bandicoot");
             db.deleteUser(db.getUserByName("crash bandicoot").id);

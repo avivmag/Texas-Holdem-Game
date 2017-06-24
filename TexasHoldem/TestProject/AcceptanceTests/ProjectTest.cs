@@ -13,7 +13,7 @@ namespace TestProject
             bridge = Driver.getBridge();
           
         }
-        public object register(string username, string password, string email, string picture)
+        public object register(string username, string password, string email, System.Drawing.Image picture)
         {
            return  bridge.register(username,password, email, picture);
         }

@@ -167,7 +167,7 @@ namespace Backend.Game
             if (buyInPref != null)
                 user.money -= buyInPref.buyInPolicy;
 
-            Player p = new Player(user.id, user.name, startingChips, user.rank);
+            Player p = new Player(user.id, user.name, startingChips, user.rank, user.userImageByteArray);
             players[seatIndex] = p;
 
             playersStats[seatIndex] = new LeaderboardsStats();
