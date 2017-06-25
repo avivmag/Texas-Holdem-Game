@@ -27,6 +27,6 @@
             <Button x:Name="exit" Content="Exit" VerticalAlignment="Top" FontStyle="Italic" FontSize="16" Width="120" Height="30" Click="Exit_Click" HorizontalAlignment="Center" Margin="0,15,0,0" />
         </StackPanel>
 
-        <TextBlock Name="errorMessage" HorizontalAlignment="Left" Height="23" Margin="10,349,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="488" Grid.ColumnSpan="4"/>
+        <TextBlock Name="errorMessage" HorizontalAlignment="Left" Height="23" Margin="10,400,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="488" Grid.ColumnSpan="4"/>
     </Grid>
 </Window>

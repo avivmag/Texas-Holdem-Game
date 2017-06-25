@@ -20,7 +20,7 @@ namespace PeL
         //void editUserName(int userID, string newData);
         //bool isUserExist(string name);
         bool RegisterUser(string UserName, string password, string email, Image image);
-        bool EditUserById(int Id, string UserName, string password, string email, string image, int? money, int? rank, bool playedAnotherGame);
+        bool EditUserById(int Id, string UserName, string password, string email, Image image, int? money, int? rank, bool playedAnotherGame);
         void EditUserLeaderBoardsById(int Id, int? highetsCashInAGame, int? totalGrossProfit);
         int Login(string UserName, string password);
         List<SystemUser> getAllSystemUsers();

@@ -36,15 +36,15 @@ namespace TestProject.AcceptanceTests
         [TestMethod]
         public void TestEditProfileUserName()
         {
-            editProfile(db.getUserByName("Hadas").id, "shid", "1234", "shidlhad", "1", 100);
+            editProfile(db.getUserByName("Hadas").id, "shid", "1234", "shidlhad", null, 100);
             Assert.AreEqual(db.getUserByName("shid").name,"shid");
-            editProfile(db.getUserByName("shid").id, "Hadas", "1234", "shidlhad", "1", 100);
+            editProfile(db.getUserByName("shid").id, "Hadas", "1234", "shidlhad", null, 100);
         }
 
         [TestMethod]
         public void TestEditProfilePassword()
         {
-            editProfile(db.getUserByName("Hadas").id, "Hadas", "12345", "shidlhad", "1", 100);
+            editProfile(db.getUserByName("Hadas").id, "Hadas", "12345", "shidlhad", null, 100);
             logout(db.getUserByName("Hadas").id);
             object objUser = login("Hadas","12345");
             Assert.IsInstanceOfType(objUser,typeof(SystemUser));
@@ -54,21 +54,21 @@ namespace TestProject.AcceptanceTests
         [TestMethod]
         public void TestEditProfileEmail()
         {
-            editProfile(db.getUserByName("Hadas").id, "hadas", "1234", "shidl", "1", 100);
+            editProfile(db.getUserByName("Hadas").id, "hadas", "1234", "shidl", null, 100);
             Assert.AreEqual(db.getUserByName("Hadas").email,"shidl");
         }
 
         [TestMethod]
         public void TestEditProfilePicture()
         {
-            editProfile(db.getUserByName("Hadas").id, "Hadas", "1234", "shidl", "123", 100);
+            editProfile(db.getUserByName("Hadas").id, "Hadas", "1234", "shidl", null, 100);
             Assert.IsNotNull(db.getUserByName("Hadas").userImage,"123");
         }
 
         [TestMethod]
         public void TestEditProfileUserNameExists()
         {
-            editProfile(db.getUserByName("Hadas").id, "Gil", "1234", "shidlhad", "1", 100);
+            editProfile(db.getUserByName("Hadas").id, "Gil", "1234", "shidlhad", null, 100);
             Assert.AreEqual(db.getUserByName("Hadas").name,"Hadas");
         }
 
@@ -83,14 +83,14 @@ namespace TestProject.AcceptanceTests
         [TestMethod]
         public void TestjoinExistingGame()
         {
-            editProfile(db.getUserByName("Hadas").id,"Hadas","123123", "shidlhas","1", 100000);
+            editProfile(db.getUserByName("Hadas").id,"Hadas","123123", "shidlhas",null, 100000);
             Assert.IsNotNull(addPlayerToGame(db.getUserByName("Hadas").id, gameSpectate.gameId, 1));
         }
 
         [TestMethod]
         public void TestjoinExistingGameTwice()
         {
-            editProfile(db.getUserByName("Hadas").id, "Hadas", "123123", "shidlhas", "1", 100000);
+            editProfile(db.getUserByName("Hadas").id, "Hadas", "123123", "shidlhas", null, 100000);
             Assert.IsNotNull(addPlayerToGame(db.getUserByName("Hadas").id, gameSpectate.gameId, 1));
             Assert.IsNull(addPlayerToGame(db.getUserByName("Hadas").id, gameSpectate.gameId, 1));
         }

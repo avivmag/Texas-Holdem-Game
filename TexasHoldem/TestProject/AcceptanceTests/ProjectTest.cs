@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Backend.Game;
 using Backend.User;
+using System.Drawing;
 
 namespace TestProject
 {
@@ -37,7 +38,7 @@ namespace TestProject
         {
             return bridge.logout(userId);
         }
-        public object editProfile(int userId, string username, string password, string email, string picture, int moneyAmount)
+        public object editProfile(int userId, string username, string password, string email, Image picture, int moneyAmount)
         {
             return bridge.editProfile(userId, username, password, email, picture, moneyAmount);
         }
