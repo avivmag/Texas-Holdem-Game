@@ -1,11 +1,7 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SL;
 using Backend.Game;
-//using DAL;
-using Moq;
 using Backend.User;
-using Backend;
 using System.Collections.Generic;
 using ApplicationFacade;
 using Backend.Game.DecoratorPreferences;

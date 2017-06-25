@@ -78,6 +78,7 @@
     <Compile Include="AcceptanceTests\Tests.cs" />
     <Compile Include="Stress Testing\LoginsTest.cs" />
     <Compile Include="UnitTest\FilterActiveGamesTest.cs" />
+    <Compile Include="UnitTest\GamePrefTest.cs" />
     <Compile Include="UnitTest\JoinActiveGameTest.cs" />
     <Compile Include="UnitTest\FindActiveAvailableGamesTest.cs" />
     <Compile Include="UnitTest\LeaveGameTest.cs" />
