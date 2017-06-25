@@ -452,6 +452,21 @@ namespace CLClient
             return response;
         }
 
+        public static List<string[]> getGameLogs()
+        {
+            var message = new { action = "GetGameLogs" };
+            var jsonMessage = sendMessage(message);
+            var responseJson = getResponse(jsonMessage);
+            if (responseJson == null)
+            {
+                return null;
+            }
+
+            var response = responseJson.ToObject<List<string[]>>();
+
+            return response;
+        }
+
         public static List<TexasHoldemGame> findAllActiveAvailableGames()
         {
             var message         = new { action = "FindAllActiveAvailableGames" };

@@ -53,6 +53,7 @@
     <Compile Include="Cryptography.cs" />
     <Compile Include="Entities\Card.cs" />
     <Compile Include="Entities\DecoratorPreferences\Preference.cs" />
+    <Compile Include="Entities\GameLog.cs" />
     <Compile Include="Entities\Notification.cs" />
     <Compile Include="Entities\Player.cs" />
     <Compile Include="Entities\ReturnMessage.cs" />

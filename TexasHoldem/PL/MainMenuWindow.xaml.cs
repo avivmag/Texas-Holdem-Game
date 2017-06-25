@@ -61,5 +61,11 @@ namespace PL
             CommClient.Logout(LoginWindow.user.id);
             Application.Current.Shutdown();
         }
+
+        private void Replay_Click(object sender, RoutedEventArgs e)
+        {
+            Hide();
+            new SelectReplayWindow(this).Show();
+        }
     }
 }

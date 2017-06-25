@@ -29,6 +29,7 @@ namespace PL
         private int systemUserId;
         private TexasHoldemGame game;
 
+        private ScrollViewer sv;
         private Button[] seatsButtons;
         private Label[] playerNames;
         private Image[] playerStateBackground;
@@ -181,7 +182,7 @@ namespace PL
             checkFoldBetCommentControlBarUg.Children.Add(checkCallFoldControlBarUg);
             checkFoldBetCommentControlBarUg.Children.Add(betControlBarUg);
 
-            ScrollViewer sv = new ScrollViewer();
+            this.sv = new ScrollViewer();
             sv.Content = messagesTextBlock;
             border = new Border();
             border.Background = Brushes.SkyBlue;
@@ -793,6 +794,7 @@ namespace PL
         public void updateChatBox(string appendedLine)
         {
             messagesTextBlock.Text += appendedLine + "\n";
+            this.sv.ScrollToBottom();
         }
 
         public void update(object obj)
