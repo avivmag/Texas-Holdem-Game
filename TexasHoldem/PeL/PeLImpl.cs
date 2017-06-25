@@ -261,7 +261,7 @@ namespace PeL
             //connection.Close();
             //return ans;
         }
-        public void EditUserLeaderBoardsById(int Id, int? highestCashInGame, int? totalGrossProfit)
+        public bool EditUserLeaderBoardsById(int Id, int? highestCashInGame, int? totalGrossProfit)
         {
             Database.Domain.SystemUser user = systemUserRepository.GetById(Id);
             if (highestCashInGame != null)
@@ -269,7 +269,7 @@ namespace PeL
             if (totalGrossProfit != null)
                 user.TotalGrossProfit += (int)totalGrossProfit;
 
-            systemUserRepository.Update(user);
+            return systemUserRepository.Update(user);
 
             //SqlConnection connection = new SqlConnection(connectionString);
             //SqlCommand cmd = new SqlCommand();
