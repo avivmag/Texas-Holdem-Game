@@ -197,7 +197,10 @@ namespace PeL
             {
                 image.Save(imagesDirectory);
             }
-            catch { }
+            catch
+            {
+                Console.WriteLine("COULDNOT SAVE IMAGE!!!!!!!!!s");
+            }
 
 
             Database.Domain.SystemUser user = systemUserRepository.GetById(Id);

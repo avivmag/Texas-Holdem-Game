@@ -35,12 +35,12 @@
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <Label Content="Curr Money:" Margin="0,10,0,0" Width="80"/>
-                        <TextBlock Margin="10,10,10,10" x:Name="MoneyCurrent" HorizontalAlignment="Left" Height="26" TextWrapping="Wrap" VerticalAlignment="Top" Width="157"/>
+                        <TextBlock Background="LightGray" Margin="10,10,10,10" x:Name="MoneyCurrent" TextAlignment="Center" Height="20" TextWrapping="Wrap" Width="157"/>
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <Label Content="Curr Rank:" Margin="0,10,0,0" Width="80"/>
-                        <TextBlock Margin="10,10,10,10" x:Name="RankCurrent" HorizontalAlignment="Left" Height="26" TextWrapping="Wrap" VerticalAlignment="Top" Width="157"/>
+                        <TextBlock Background="LightGray" Margin="10,10,10,10" x:Name="RankCurrent" TextAlignment="Center" Height="20" TextWrapping="Wrap" Width="157"/>
                     </StackPanel>
 
                 </StackPanel>

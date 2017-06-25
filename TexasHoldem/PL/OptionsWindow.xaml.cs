@@ -35,30 +35,21 @@ namespace PL
 
             using (var ms = new MemoryStream())
             {
-                user.profilePicture.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                ms.Position = 0;
+                try
+                {
+                    user.profilePicture.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                
+                    ms.Position = 0;
 
-                bi.BeginInit();
-                bi.CacheOption = BitmapCacheOption.OnLoad;
-                bi.StreamSource = ms;
-                bi.EndInit();
+                    bi.BeginInit();
+                    bi.CacheOption = BitmapCacheOption.OnLoad;
+                    bi.StreamSource = ms;
+                    bi.EndInit();
+                }
+                catch { }
             }
 
             profilePictre.Source = bi;
-
-            //string filePath = String.Join("_", Guid.NewGuid(), user.name);
-            //string imagesDirectory = Path.Combine(Environment.CurrentDirectory, "UserImages", filePath);
-
-            //// Save image to disc. (produces error but saves it anyway. we will just wrap it with a 'try' clause.
-            //try
-            //{
-            //    user.profilePicture.Save(imagesDirectory);
-            //}
-            //catch { }
-
-            //Uri u = new Uri(imagesDirectory);
-            //BitmapImage bi = new BitmapImage(u);
-            //profilePictre.Source = new BitmapImage(new Uri("pack://application:,,,/resources/profile_pic.png"));
         }
 
         private void Back_Click(object sender, RoutedEventArgs e)
