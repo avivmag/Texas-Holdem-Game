@@ -13,7 +13,7 @@ namespace TestProject
             bridge = Driver.getBridge();
           
         }
-        public object register(string username, string password, string email, string picture)
+        public object register(string username, string password, string email, System.Drawing.Image picture)
         {
            return  bridge.register(username,password, email, picture);
         }
@@ -104,9 +104,9 @@ namespace TestProject
             return bridge.isGameOver(gameId);
         }
         
-        public bool canBet(TexasHoldemGame game, SystemUser user, int amount)
+        public bool canBet(TexasHoldemGame game, int amount)
         {
-            return bridge.canBet(game, user, amount);
+            return bridge.canBet(game, amount);
         }
         public bool updatePot(int amount)
         {
@@ -116,9 +116,9 @@ namespace TestProject
         {
             return bridge.updateStatePlayer(statePlayer, amount);
         }
-        public bool canRaise(TexasHoldemGame game, SystemUser user, int amount)
+        public bool canRaise(TexasHoldemGame game, int amount)
         {
-            return bridge.canRaise(game, user, amount);
+            return bridge.canRaise(game, amount);
         }
         //public bool call(int amount)
         //{

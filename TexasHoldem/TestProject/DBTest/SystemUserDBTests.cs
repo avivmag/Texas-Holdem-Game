@@ -19,7 +19,7 @@ namespace TestProject.DBTest
         {
             for (int i = 0; i < 4; i++)
             {
-                Assert.IsTrue(db.RegisterUser("test" + i, "" + i, "email" + i, "userImage" + i));
+                Assert.IsTrue(db.RegisterUser("test" + i, "" + i, "email" + i, null));
             }
         }
 
@@ -28,7 +28,7 @@ namespace TestProject.DBTest
         {
             for (int i = 0; i < 4; i++)
             {
-                db.RegisterUser("test" + i, "" + i, "email" + i, "userImage" + i);
+                db.RegisterUser("test" + i, "" + i, "email" + i, null);
             }
             Assert.IsTrue(db.EditUserById(db.getUserByName("test0").id, null, null, null, null, 1000, 10, false));
             Assert.IsTrue(db.EditUserById(db.getUserByName("test1").id, null, null, null, null, 0, 15, false));
@@ -40,7 +40,7 @@ namespace TestProject.DBTest
         public void removeUserInDB()
         {
             for (int i = 0; i < 4; i++)
-                Assert.IsTrue(db.RegisterUser("test" + i, "" + i, "email" + i, "userImage" + i));
+                Assert.IsTrue(db.RegisterUser("test" + i, "" + i, "email" + i, null));
             
             Assert.IsTrue(db.EditUserById(db.getUserByName("test0").id, null, null, null, null, 1000, 10, false));
             Assert.IsTrue(db.EditUserById(db.getUserByName("test1").id, null, null, null, null, 0, 15, false));
@@ -55,7 +55,7 @@ namespace TestProject.DBTest
         public void removeAllUsersInDB()
         {
             for (int i = 0; i < 4; i++)
-                Assert.IsTrue(db.RegisterUser("test" + i, "" + i, "email" + i, "userImage" + i));
+                Assert.IsTrue(db.RegisterUser("test" + i, "" + i, "email" + i, null));
 
             Assert.IsTrue(db.EditUserById(db.getUserByName("test0").id, null, null, null, null, 1000, 10, false));
             Assert.IsTrue(db.EditUserById(db.getUserByName("test1").id, null, null, null, null, 0, 15, false));

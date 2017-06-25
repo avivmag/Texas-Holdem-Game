@@ -15,6 +15,7 @@ using System.Windows.Controls.Primitives;
 using CLClient;
 using CLClient.Entities;
 using static CLClient.Entities.Card;
+using System.IO;
 
 namespace PL
 {
@@ -28,6 +29,7 @@ namespace PL
         private int systemUserId;
         private TexasHoldemGame game;
 
+        private ScrollViewer sv;
         private Button[] seatsButtons;
         private Label[] playerNames;
         private Image[] playerStateBackground;
@@ -180,7 +182,7 @@ namespace PL
             checkFoldBetCommentControlBarUg.Children.Add(checkCallFoldControlBarUg);
             checkFoldBetCommentControlBarUg.Children.Add(betControlBarUg);
 
-            ScrollViewer sv = new ScrollViewer();
+            this.sv = new ScrollViewer();
             sv.Content = messagesTextBlock;
             border = new Border();
             border.Background = Brushes.SkyBlue;
@@ -402,7 +404,7 @@ namespace PL
         //    changeSeat(i, true, "gray", "free_seat_icon", "free seat", 0, 0);
         //}
 
-        private void changeSeat(int i, Boolean addMouseEvents, string playerStateImageUrl, string playerImageUrl, string playerName, int playerCoinsNumber, int playerCoinsNumberGambled)
+        private void changeSeat(int i, Boolean addMouseEvents, string playerStateImageUrl, System.Drawing.Image playerImage, string playerName, int playerCoinsNumber, int playerCoinsNumberGambled)
         {
             if (addMouseEvents && !alreadyAddedMouseEvents[i])
             {
@@ -420,13 +422,34 @@ namespace PL
             }
 
             playerStateBackground[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/" + playerStateImageUrl + ".png"));
-            try
+            if (playerImage != null)
             {
-                playersImage[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/" + playerImageUrl + ".png"));
+                try
+                {
+                    // Converting system.drawing.image to imageSource.
+                    var bi = new BitmapImage();
+
+                    using (var ms = new MemoryStream())
+                    {
+                        playerImage.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                        ms.Position = 0;
+
+                        bi.BeginInit();
+                        bi.CacheOption = BitmapCacheOption.OnLoad;
+                        bi.StreamSource = ms;
+                        bi.EndInit();
+                    }
+
+                    playersImage[i].Source = bi;
+                }
+                catch (Exception e)
+                {
+                    playersImage[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/profile_pic.png"));
+                }
             }
-            catch (Exception e)
+            else
             {
-                playersImage[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/profile_pic.png"));
+                playersImage[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/" + "free_seat_icon.png"));
             }
 
             playerNames[i].Content = playerName;
@@ -522,53 +545,6 @@ namespace PL
             LowerMiddleRow.Children.Add(bigUg);
         }
 
-        //// change the dealer, big and small
-        //public void SetDealerBigSmallIcons(int dealerIndex, int bigIndex, int smallIndex)
-        //{
-        //    for (int i = 0; i < 9; i++)
-        //    {
-        //        if (i == dealerIndex)
-        //            dealerIcons[i].Visibility = Visibility.Visible;
-        //        else
-        //            dealerIcons[i].Visibility = Visibility.Hidden;
-
-        //        if (i == bigIndex)
-        //            bigIcons[i].Visibility = Visibility.Visible;
-        //        else
-        //            bigIcons[i].Visibility = Visibility.Hidden;
-
-        //        if (i == smallIndex)
-        //            smallIcons[i].Visibility = Visibility.Visible;
-        //        else
-        //            smallIcons[i].Visibility = Visibility.Hidden;
-        //    }
-        //}
-
-        //// move all players bet to the heap
-        //public void movePlayersCoinsToHeap(int heapIndex)
-        //{
-        //    int sum, temp;
-        //    int.TryParse(coinsSumInHeap[heapIndex].Content.ToString(), out sum);
-        //    for (int i = 0; i < 9; i++)
-        //    {
-        //        int.TryParse(playerCoinsGambled[i].Content.ToString(), out temp);
-        //        sum += temp;
-        //        playerCoinsGambled[i].Content = 0;
-        //    }
-        //    coinsSumInHeap[heapIndex].Content = sum;
-        //}
-
-        //// mov heap coins to specific player
-        //public void moveHeapToPlayerCoins(int heapIndex, int playerIndex)
-        //{
-        //    int sum, temp;
-        //    int.TryParse(coinsSumInHeap[heapIndex].Content.ToString(), out sum);
-        //    coinsSumInHeap[heapIndex].Content = 0;
-
-        //    int.TryParse(playerCoins[playerIndex].Content.ToString(), out temp);
-        //    temp += sum;
-        //    playerCoins[playerIndex].Content = temp;
-        //}
 
         // raise bet of some player
         private void BetButton_Click(object sender, RoutedEventArgs e)
@@ -584,17 +560,7 @@ namespace PL
             }
 
             ReturnMessage returnMessage = CommClient.Bet(game.gameId, playerSeatIndex, coins);
-            //if (returnMessage.success)
-            //{
-            //    playerCoinsNum -= coins;
-            //    playerCoinsGambledNum += coins;
 
-            //    playerCoins[playerSeatIndex].Content = playerCoinsNum;
-            //    playerCoinsGambled[playerSeatIndex].Content = playerCoinsGambledNum;
-
-            //    if (playerCoinsNum <= 0)
-            //        allInIcons[playerSeatIndex].Visibility = Visibility.Visible;
-            //}
             if (!returnMessage.success)
                 MessageBox.Show(returnMessage.description);
         }
@@ -609,7 +575,10 @@ namespace PL
                 if (i == playerSeatIndex)
                     myCoins = temp;
             }
-            return ans - myCoins;
+            int t = ans - myCoins;
+            ans = 0;
+            myCoins = 0;
+            return t;
         }
 
         // send a comment
@@ -752,30 +721,30 @@ namespace PL
             for (int i = 0; i < game.players.Length; i++)
             {
                 if (playerSeatIndex == -1 && game.players[i] == null)
-                    changeSeat(i, true, "gray", "free_seat_icon", "free seat", 0, 0);
+                    changeSeat(i, true, "gray", null, "free seat", 0, 0);
                 else if (playerSeatIndex != -1 && game.players[i] == null)
-                    changeSeat(i, false, "gray", "free_seat_icon", "free seat", 0, 0);
+                    changeSeat(i, false, "gray", null, "free seat", 0, 0);
                 else //if (game.players[i] != null)
                 {
                     switch (game.players[i].playerState)
                     {
                         case Player.PlayerState.folded:
-                            changeSeat(i, false, "red", game.players[i].imageUrl, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
+                            changeSeat(i, false, "red", game.players[i].profilePic, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
                             break;
                         case Player.PlayerState.in_round:
-                            changeSeat(i, false, "green", game.players[i].imageUrl, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
+                            changeSeat(i, false, "green", game.players[i].profilePic, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
                             break;
                         case Player.PlayerState.not_in_round:
-                            changeSeat(i, false, "gray", game.players[i].imageUrl, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
+                            changeSeat(i, false, "gray", game.players[i].profilePic, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
                             break;
                         case Player.PlayerState.my_turn:
-                            changeSeat(i, false, "blue", game.players[i].imageUrl, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
+                            changeSeat(i, false, "blue", game.players[i].profilePic, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
                             playButton.IsEnabled = false;
                             if (systemUserId == game.players[i].systemUserID)
                             {
                                 betButton.IsEnabled = true;
                                 foldButton.IsEnabled = true;
-                                //MessageBox.Show("minimalBet: " + getMinimumBet());
+                                MessageBox.Show("minimalBet: " + getMinimumBet());
                                 if (getMinimumBet() == 0)
                                 {
                                     checkButton.IsEnabled = true;
@@ -796,8 +765,12 @@ namespace PL
                             }
                             break;
                         case Player.PlayerState.winner:
-                            changeSeat(i, false, "yellow", game.players[i].imageUrl, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
+                            changeSeat(i, false, "yellow", game.players[i].profilePic, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
                             playButton.IsEnabled = true;
+                            betButton.IsEnabled = false;
+                            foldButton.IsEnabled = false;
+                            checkButton.IsEnabled = false;
+                            callButton.IsEnabled = false;
                             break;
                     }
                 }
@@ -816,9 +789,12 @@ namespace PL
             }
         }
 
+
+
         public void updateChatBox(string appendedLine)
         {
             messagesTextBlock.Text += appendedLine + "\n";
+            this.sv.ScrollToBottom();
         }
 
         public void update(object obj)

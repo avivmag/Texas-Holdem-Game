@@ -11,8 +11,8 @@ namespace Backend.Game.DecoratorPreferences
             nextDecPref = nextPref;
         }
 
-        public abstract ReturnMessage canPerformGameActions(TexasHoldemGame game, SystemUser user, int amount, string action);
         public abstract ReturnMessage canPerformUserActions(TexasHoldemGame game, SystemUser user, string action);
+        public abstract ReturnMessage canPerformGameActions(TexasHoldemGame game, int amount, string action);
         public abstract bool isContain(DecoratorPreferencesInterface pref);
 
         public OptionalPreferences getMatchingOptionalPref(OptionalPreferences toGet)

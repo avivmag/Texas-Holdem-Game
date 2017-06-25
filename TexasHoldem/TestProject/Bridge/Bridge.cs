@@ -6,7 +6,7 @@ namespace TestProject
 {
     interface IBridge
     {
-        object register(string username, string password, string email, string picture);
+        object register(string username, string password, string email, System.Drawing.Image picture);
         object login(string username, string password);
         object logout(int userId);
         object editProfile(int userId, string username, string password, string email, string picture, int moneyAmount);
@@ -31,9 +31,9 @@ namespace TestProject
         object findAllActive();
         string filterByCriteria(string criteria);
 
-        bool canBet(TexasHoldemGame game, SystemUser user, int amount);
-        bool canRaise(TexasHoldemGame game, SystemUser user, int amount);
-        bool canCall(TexasHoldemGame game, SystemUser user,int  amount);
+        bool canBet(TexasHoldemGame game, int amount);
+        bool canRaise(TexasHoldemGame game, int amount);
+        bool canCall(TexasHoldemGame game ,int  amount);
         bool fold();
         bool check();
         bool updatePot(int amount);

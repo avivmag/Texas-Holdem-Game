@@ -16,14 +16,14 @@ namespace TestProject.AcceptanceTests
         [TestInitialize]
         public void SetUp()
         {
-            object objUser = register("hadas", "1", "shidlhad", "1");
+            object objUser = register("hadas", "1", "shidlhad", null);
             Assert.IsNotNull(objUser);
             Assert.IsInstanceOfType(objUser, typeof(SystemUser));
             hadas = (SystemUser)objUser;
             hadas.money = 100000;
             editProfile(hadas.id, hadas.name, hadas.password, hadas.email, hadas.userImage, 100000);
 
-            object objOtherUser = register("other", "2", "other", "2");
+            object objOtherUser = register("other", "2", "other", null);
             Assert.IsNotNull(objOtherUser);
             Assert.IsInstanceOfType(objOtherUser, typeof(SystemUser));
             other = (SystemUser)objOtherUser;

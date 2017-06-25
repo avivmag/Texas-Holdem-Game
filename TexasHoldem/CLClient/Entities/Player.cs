@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +15,8 @@ namespace CLClient.Entities
         //public int userRank { get; set; }
         public bool spectator { get; set; }
         public enum PlayerState { folded, in_round, not_in_round, my_turn, winner }
-        public string imageUrl { get; set; }
+        public byte[] userImage { get; set; }
+        public Image profilePic { get; set; }
         public PlayerState playerState { get; set; }
         public string name { get; set; }
         public bool newPlayer { get; set; }

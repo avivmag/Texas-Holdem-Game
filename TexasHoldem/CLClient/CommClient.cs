@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CLClient.Entities;
 using System.Threading;
+using System.Drawing;
 
 namespace CLClient
 {
@@ -67,6 +68,18 @@ namespace CLClient
             var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
             return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        /// <summary>
+        ///  Converts an image to byte array in order to send over through TCP stream.
+        /// </summary>
+        /// <param name="image">The image to convert to byte array.</param>
+        /// <returns>The image's data as byte array.</returns>
+        public static byte[] imageToByteArray(Image image)
+        {
+            ImageConverter _imageConverter = new ImageConverter();
+            byte[] byteArray = (byte[])_imageConverter.ConvertTo(image, typeof(byte[]));
+            return byteArray;
         }
 
         /// <summary>
@@ -140,7 +153,7 @@ namespace CLClient
         /// <returns>Server message as JSON object.</returns>
         private static JObject getJsonObjectFromStream(TcpClient client, string passPhrase, bool isInitial = false)
         {
-            var message = new byte[1024 * 10];
+            var message = new byte[1024 * 1024 * 10];
 
             try
             {
@@ -249,6 +262,16 @@ namespace CLClient
                     if (responseStringToken != null)
                     {
                         var gameResponse = gameResponseToken.ToObject<TexasHoldemGame>();
+
+                        foreach (var p in gameResponse.players)
+                        {
+                            if (p != null && p.userImage != null)
+                            {
+                                p.profilePic = (Bitmap)(new ImageConverter()).ConvertFrom(p.userImage);
+
+                            }
+                        }
+
                         toUpdate.update(gameResponse);
                     }
                 }
@@ -344,6 +367,15 @@ namespace CLClient
 
             response.gamePreferences.flatten();
 
+            foreach (var p in response.players)
+            {
+                if (p != null && p.userImage != null)
+                {
+                    p.profilePic = (Bitmap)(new ImageConverter()).ConvertFrom(p.userImage);
+
+                }
+            }
+
             addClientStream(response.gameId);
 
             subscribeStreamToServer(response.gameId, SUBSCRIBE_TO_GAME, response.gameId);
@@ -371,6 +403,15 @@ namespace CLClient
 
             response.gamePreferences.flatten();
 
+            foreach (var p in response.players)
+            {
+                if (p != null && p.userImage != null)
+                {
+                    p.profilePic = (Bitmap)(new ImageConverter()).ConvertFrom(p.userImage);
+
+                }
+            }
+
             return response;
         }
 
@@ -389,6 +430,15 @@ namespace CLClient
 
             response.gamePreferences.flatten();
 
+            foreach (var p in response.players)
+            {
+                if (p != null && p.userImage != null)
+                {
+                    p.profilePic = (Bitmap)(new ImageConverter()).ConvertFrom(p.userImage);
+
+                }
+            }
+
             addClientStream(response.gameId);
 
             subscribeStreamToServer(response.gameId, SUBSCRIBE_TO_SPECTATE, response.gameId);
@@ -398,6 +448,21 @@ namespace CLClient
             Thread listenThread = new Thread(Listen);
 
             listenThread.Start(serverListener);
+
+            return response;
+        }
+
+        public static List<string[]> getGameLogs()
+        {
+            var message = new { action = "GetGameLogs" };
+            var jsonMessage = sendMessage(message);
+            var responseJson = getResponse(jsonMessage);
+            if (responseJson == null)
+            {
+                return null;
+            }
+
+            var response = responseJson.ToObject<List<string[]>>();
 
             return response;
         }
@@ -417,6 +482,15 @@ namespace CLClient
             foreach (var thg in response)
             {
                 thg.gamePreferences.flatten();
+
+                foreach (var p in thg.players)
+                {
+                    if (p != null && p.userImage != null)
+                    {
+                        p.profilePic = (Bitmap)(new ImageConverter()).ConvertFrom(p.userImage);
+
+                    }
+                }
             }
 
             return response;
@@ -450,6 +524,15 @@ namespace CLClient
             foreach (var thg in response)
             {
                 thg.gamePreferences.flatten();
+
+                foreach (var p in thg.players)
+                {
+                    if (p != null && p.userImage != null)
+                    {
+                        p.profilePic = (Bitmap)(new ImageConverter()).ConvertFrom(p.userImage);
+
+                    }
+                }
             }
 
             return response;
@@ -471,6 +554,15 @@ namespace CLClient
             foreach (var thg in response)
             {
                 thg.gamePreferences.flatten();
+
+                foreach (var p in thg.players)
+                {
+                    if (p != null && p.userImage != null)
+                    {
+                        p.profilePic = (Bitmap)(new ImageConverter()).ConvertFrom(p.userImage);
+
+                    }
+                }
             }
 
             return response;
@@ -492,14 +584,25 @@ namespace CLClient
             foreach (var thg in response)
             {
                 thg.gamePreferences.flatten();
+
+                foreach (var p in thg.players)
+                {
+                    if (p != null && p.userImage != null)
+                    {
+                        p.profilePic = (Bitmap)(new ImageConverter()).ConvertFrom(p.userImage);
+
+                    }
+                }
             }
 
             return response;
         }
 
-        public static SystemUser Register(string username, string password, string email, string userImage)
+        public static SystemUser Register(string username, string password, string email, Image userImage)
         {
             addClientStream(MAIN_CLIENT);
+
+            var imageByteArray = imageToByteArray(userImage);
 
             var message         = new
             {
@@ -507,7 +610,7 @@ namespace CLClient
                 username,
                 password,
                 email,
-                userImage,
+                userImage = imageByteArray,
                 passPhrase
             };
 
@@ -520,6 +623,8 @@ namespace CLClient
                 return null;
             }
             var response = responseJson.ToObject<SystemUser>();
+
+            response.profilePicture = (Bitmap)(new ImageConverter()).ConvertFrom(response.userImageByteArray);
 
             // Add a stream to the message system.
             addClientStream(MESSAGE_CLIENT);
@@ -672,6 +777,15 @@ namespace CLClient
             }
             var response = responseJson.ToObject<TexasHoldemGame>();
 
+            foreach (var p in response.players)
+            {
+                if (p != null && p.userImage != null)
+                {
+                    p.profilePic = (Bitmap)(new ImageConverter()).ConvertFrom(p.userImage);
+
+                }
+            }
+
             response.gamePreferences.flatten();
 
             return response;
@@ -704,6 +818,15 @@ namespace CLClient
             var response = responseJson.ToObject<TexasHoldemGame>();
 
             response.gamePreferences.flatten();
+
+            foreach (var p in response.players)
+            {
+                if (p != null && p.userImage != null)
+                {
+                    p.profilePic = (Bitmap)(new ImageConverter()).ConvertFrom(p.userImage);
+
+                }
+            }
 
             addClientStream(response.gameId);
 

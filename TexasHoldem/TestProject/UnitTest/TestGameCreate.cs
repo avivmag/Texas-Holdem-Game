@@ -35,7 +35,7 @@ namespace TestProject.UnitTest
             db = new DBImpl();
             for (int i = 0; i < 4; i++)
             {
-                db.RegisterUser("test" + i, "" + i, "email" + i, "userImage" + i);
+                db.RegisterUser("test" + i, "" + i, "email" + i, null);
             }
 
             db.EditUserById(db.getUserByName("test0").id, null, null, null, null, 1000, 10, false);
@@ -120,7 +120,7 @@ namespace TestProject.UnitTest
             for (int i = 0; i < gamesList.Count; i++)
             {
                 gamesList[i].gameId = i;
-                center.texasHoldemGames.Add(gamesList[i]);
+                center.TexasHoldemGames.Add(gamesList[i]);
             }
 
             sl = new SLImpl();

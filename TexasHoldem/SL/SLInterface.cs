@@ -1,5 +1,6 @@
 ﻿using Backend.User;
 using Obser;
+using System.Drawing;
 using System.Net.Sockets;
 
 namespace SL
@@ -9,7 +10,7 @@ namespace SL
         object spectateActiveGame(int userId, int gameID);
         object GetGameForPlayers(int userId, int gameID);
         object joinGame(int userId, int gameID, int seatIndex);
-        
+        object getGameLogs();
         object editUserProfile(int userId, string name, string password, string email, string avatar, int amount);
         void sendSystemMessage(string message);
         object findAllActiveAvailableGames();
@@ -26,7 +27,7 @@ namespace SL
         object createGame(int gameCreator, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague);
 
         object Login(string user, string password);
-		object Register(string user, string password, string email, string userImage);
+        object Register(string user, string password, string email, Image userImage);
 		object Logout(int userId);
 
         object getUserByName(string name);

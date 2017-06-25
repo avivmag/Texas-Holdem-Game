@@ -7,20 +7,32 @@ using Backend.User;
 using Backend.Messages;
 using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
 using Database;
-using Database;
+using System.Net.Sockets;
+using System.Drawing;
+using System.IO;
 
 namespace ApplicationFacade
 {
 	public class GameCenter
 	{
-		public List<TexasHoldemGame> texasHoldemGames { get; set; }
+        private List<TexasHoldemGame> texasHoldemGames;
+
+        public List<TexasHoldemGame> TexasHoldemGames
+        {
+            get { //foreach (TexasHoldemGame t in texasHoldemGames)
+                    //if (numberOfPlayersInGame(t) == 0)
+                        //texasHoldemGames.Remove(t);
+                  return texasHoldemGames;
+                }
+            set => texasHoldemGames = value;
+        }
+
         public List<League> leagues { get; set; }
         //public List<SystemUser> loggedInUsers { get; set; }
         //public List<SystemUser> userList { get; set; }
         private static GameCenter center;
         private IDB db;
         public MessageObserver messageObserver = new MessageObserver();
-
 
         private GameCenter()
         {
@@ -124,6 +136,22 @@ namespace ApplicationFacade
             return db.deleteUser(userId);
         }
 
+        public List<string[]> getGameLogs()
+        {
+            List<string[]> gameLogs = new List<string[]>();
+
+            // Get all logs seperated by different lines.
+            string[] filePaths = Directory.GetFiles(Path.Combine(Environment.CurrentDirectory, "logs"));
+
+            // Add logs to the returning list.
+            foreach (var p in filePaths)
+            {
+                gameLogs.Add(File.ReadAllLines(p));
+            }
+
+            return gameLogs;
+        }
+
         public void sendSystemMessage(string message)
         {
             messageObserver.Update(message);
@@ -142,10 +170,10 @@ namespace ApplicationFacade
             return false;
         }
 
-        public SystemUser register(string userName, string password, string email, string userImage)
+        public SystemUser register(string userName, string password, string email, Image userImage)
         {
-            if (userName == null || password == null || email == null || userImage == null || userName.Equals("") || password.Equals("") || email.Equals("") || userImage.Equals(""))
-                throw new ArgumentException("Not all parameters were given.");
+            if (userName == null || password == null || email == null || userName.Equals("") || password.Equals("") || email.Equals(""))
+                throw new ArgumentException("Not all parameters were given.", "Register");
 
             SystemUser user = db.getUserByName(userName);
             if (user != null)
@@ -156,21 +184,22 @@ namespace ApplicationFacade
             //loggedInUsers.Add(user);
             
             //userList.Add(user);
+            // Get the specified user from the db.
             return db.getUserByName(userName);
         }
 
         public SystemUser login(string user, string password)
         {
             if (user == null || password == null || user.Equals("") || password.Equals(""))
-                throw new ArgumentException("No such user.");
+                throw new ArgumentException("No such user.", "Login");
 
             SystemUser systemUser = db.getUserByName(user);
             if (systemUser == null)
-                throw new ArgumentException("No such user.");
+                throw new ArgumentException("No such user.", "Login");
 
             int id = db.Login(user, password);
             if (id == -1)
-                throw new InvalidOperationException("Incorrect password");
+                throw new ArgumentException("Incorrect password", "Login");
 
             return db.getUserById(id);
         }
@@ -355,6 +384,17 @@ namespace ApplicationFacade
                 if (game.gameId == gameId)
                     return game;
             return null;
+        }
+
+        public int numberOfPlayersInGame(TexasHoldemGame thg)
+        {
+            int counter = 0;
+            for (int i = 0; i < thg.players.Length; i++)
+            {
+                if (thg.players[i] != null)
+                    counter++;
+            }
+            return counter;
         }
 
         public SystemUser getUserByName(string name)

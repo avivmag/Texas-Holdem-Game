@@ -9,6 +9,8 @@ using System.Configuration;
 using System.Security.Cryptography;
 using Backend.User;
 using Database.Repositories;
+using System.Drawing;
+using System.IO;
 
 namespace Database 
 {
@@ -138,13 +140,24 @@ namespace Database
         /// <param name="email"></param>
         /// <param name="image"></param>
         /// <returns>true if the user has been added</returns>
-        public void RegisterUser(string UserName, string password, string email, string image)
+        public void RegisterUser(string UserName, string password, string email, Image image)
         {
+            string filePath = String.Join("_", Guid.NewGuid(), UserName);
+            string imagesDirectory = Path.Combine(Environment.CurrentDirectory, "Images", filePath);
+
+            // Save image to disc. (produces error but saves it anyway. we will just wrap it with a 'try' clause.
+            try
+            {
+                image.Save(imagesDirectory);
+            }
+            catch { }
+
+
             Domain.SystemUser user = new Domain.SystemUser();
             user.Salt = generateSalt();
             user.Password = GetMd5Hash(password + user.Salt);
             user.Email = email;
-            user.Image = image;
+            user.Image = imagesDirectory;
 
             systemUserRepository.Add(user);
             
@@ -404,8 +417,20 @@ namespace Database
             if (!reader.HasRows || !reader.Read())
                 return null;
             SystemUser su = new SystemUser(Id, reader["UserName"].ToString(), reader["email"].ToString(), reader["image"].ToString(), int.Parse(reader["money"].ToString()), int.Parse(reader["rank"].ToString()), int.Parse(reader["gamesPlayed"].ToString()));
-
+            
             connection.Close();
+
+            // Try to get the image from the database.
+            try
+            {
+                // Get the user's profile picture file from memory.
+                var returnedImage = Image.FromFile(su.userImage);
+
+                // Convert user's profile picture into byte array in order to send over TCP 
+                su.userImageByteArray = imageToByteArray(returnedImage);
+            }
+            catch { }
+
             return su;
         }
         public SystemUser getUserByName(string name)
@@ -428,6 +453,18 @@ namespace Database
             SystemUser su = new SystemUser(int.Parse(reader["Id"].ToString()), name, reader["email"].ToString(), reader["image"].ToString(), int.Parse(reader["money"].ToString()), int.Parse(reader["rank"].ToString()), int.Parse(reader["gamesPlayed"].ToString()));
 
             connection.Close();
+
+            // Try to get the image from the database.
+            try
+            {
+                // Get the user's profile picture file from memory.
+                var returnedImage = Image.FromFile(su.userImage);
+
+                // Convert user's profile picture into byte array in order to send over TCP 
+                su.userImageByteArray = imageToByteArray(returnedImage);
+            }
+            catch { }
+            
             return su;
         }
         public SystemUser getUserByEmail(string email)
@@ -448,6 +485,16 @@ namespace Database
             SystemUser su = new SystemUser(int.Parse(reader["Id"].ToString()), reader["UserName"].ToString(), email, reader["image"].ToString(), int.Parse(reader["money"].ToString()), int.Parse(reader["rank"].ToString()), int.Parse(reader["gamesPlayed"].ToString()));
 
             connection.Close();
+            // Try to get the image from the database.
+            try
+            {
+                // Get the user's profile picture file from memory.
+                var returnedImage = Image.FromFile(su.userImage);
+
+                // Convert user's profile picture into byte array in order to send over TCP 
+                su.userImageByteArray = imageToByteArray(returnedImage);
+            }
+            catch { }
             return su;
         }
         public bool deleteUser(int Id)
@@ -521,6 +568,30 @@ namespace Database
         //    //I think it should all presented in messageBox.Show
         //    return ans;
         //}
+
+        public string getEnterMessage(string stringCommand)
+        {
+            string ans;
+            DataTable messagesTableEnter = new DataTable();
+            connection = new SqlConnection(connectionString);
+            string queryMessage = "SELECT M.MessageEnter FROM MessageEnter M" +
+                                    "WHERE M.command = @command ";
+            SqlCommand command = new SqlCommand(queryMessage, connection);
+            adapter = new SqlDataAdapter(command);
+
+            using (connection)
+            using (command)
+            using (adapter)
+            {
+                //connection.open();
+                command.Parameters.AddWithValue("@command", stringCommand);
+                //command.ExecuteNonQuery();
+                adapter.Fill(messagesTableEnter);
+                ans = messagesTableEnter.ToString();
+            }
+            //I think it should all presented in messageBox.Show
+            return ans;
+        }
 
         private string GetMd5Hash(string input)
         {

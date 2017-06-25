@@ -7,6 +7,7 @@ using Backend.Game.DecoratorPreferences;
 using Obser;
 using System.Net.Sockets;
 using System.Collections.Generic;
+using System.Drawing;
 
 public class SLImpl : SLInterface
 {
@@ -85,13 +86,18 @@ public class SLImpl : SLInterface
         return gameCenter.editUserProfile(userId,name,password,email,avatar, money);
     }
 
+    public object getGameLogs()
+    {
+        return gameCenter.getGameLogs();
+    }
+
     public object findAllActiveAvailableGames()
     {
-        if (gameCenter.texasHoldemGames.Count == 0)
+        if (gameCenter.TexasHoldemGames.Count == 0)
         {
             return null;
         }
-        return gameCenter.texasHoldemGames;
+        return gameCenter.TexasHoldemGames;
     }
 
     public object filterActiveGamesByPlayerName(string name)
@@ -221,7 +227,7 @@ public class SLImpl : SLInterface
         return gameCenter.login(user, password);
     }
 
-    public object Register(string user, string password, string email, string userImage)
+    public object Register(string user, string password, string email, Image userImage)
     {
         return gameCenter.register(user, password, email, userImage);
     }
