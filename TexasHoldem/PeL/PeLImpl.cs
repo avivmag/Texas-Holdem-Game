@@ -16,6 +16,8 @@ namespace PeL
 {
     public class PeLImpl : IPeL
     {
+        const int MAX_USERS_IN_CACHE = 80;
+
         //int SALT_SIZE = 16;
         //string connectionString;
 
@@ -28,8 +30,9 @@ namespace PeL
         //    }
         //    return salt; 
         //}
-
         ISystemUserRepository systemUserRepository;
+        private static SystemUserCache systemUserCache = new SystemUserCache(MAX_USERS_IN_CACHE);
+
         public PeLImpl()
         {
             //this.connectionString = Properties.Settings.Default.TablesConnectionString;
@@ -151,7 +154,7 @@ namespace PeL
             user.Password = GetMd5Hash(password + user.Salt);
             user.Email = email;
             user.Image = imagesDirectory;
-
+            
             return systemUserRepository.Add(user);
             
 
@@ -208,7 +211,12 @@ namespace PeL
             if (playedAnotherGame)
                 user.GamesPlayed++;
 
-            return systemUserRepository.Update(user);
+            if (!systemUserRepository.Update(user))
+                return false;
+
+            systemUserCache.addOrUpdate(databaseSystemUserToBackendSystemUser(systemUserRepository.GetById(Id)));
+
+            return true;
 
             //SqlConnection connection = new SqlConnection(connectionString);
             //SqlCommand cmd = new SqlCommand();
@@ -247,7 +255,7 @@ namespace PeL
             //connection.Close();
             //return ans;
         }
-        public void EditUserLeaderBoardsById(int Id, int? highestCashInGame, int? totalGrossProfit)
+        public bool EditUserLeaderBoardsById(int Id, int? highestCashInGame, int? totalGrossProfit)
         {
             Database.Domain.SystemUser user = systemUserRepository.GetById(Id);
             if (highestCashInGame != null)
@@ -255,7 +263,12 @@ namespace PeL
             if (totalGrossProfit != null)
                 user.TotalGrossProfit += (int)totalGrossProfit;
 
-            systemUserRepository.Update(user);
+            if (!systemUserRepository.Update(user))
+                return false;
+            
+            systemUserCache.addOrUpdate(databaseSystemUserToBackendSystemUser(systemUserRepository.GetById(Id)));
+
+            return true;
 
             //SqlConnection connection = new SqlConnection(connectionString);
             //SqlCommand cmd = new SqlCommand();
@@ -295,7 +308,12 @@ namespace PeL
                 return -1;
 
             if (VerifyMd5Hash(password + user.Salt, user.Password))
+            {
+                // triggers the cache so it would be in it.
+                systemUserRepository.GetById(user.Id);
+
                 return user.Id;
+            }
 
             return -1;
 
@@ -373,7 +391,8 @@ namespace PeL
             List<SystemUser> users = new List<SystemUser>();
 
             foreach (Database.Domain.SystemUser user in list)
-                users.Add(new SystemUser(user.Id, user.UserName, user.Email, user.Image, user.Money, user.Rank, user.GamesPlayed));
+                users.Add(new SystemUser(user.Id, user.UserName, user.Email, user.Image, 
+                    user.Money, user.Rank, user.GamesPlayed));
 
             return users;
 
@@ -396,10 +415,14 @@ namespace PeL
         }
         public SystemUser getUserById(int Id)
         {
+            SystemUser systemUser = systemUserCache.getById(Id);
+            if (systemUser != null)
+                return systemUser;
+
             Database.Domain.SystemUser DatabaseUser = systemUserRepository.GetById(Id);
             if (DatabaseUser == null)
                 return null;
-            SystemUser systemUser = new SystemUser(DatabaseUser.Id, DatabaseUser.UserName, DatabaseUser.Email,
+            systemUser = new SystemUser(DatabaseUser.Id, DatabaseUser.UserName, DatabaseUser.Email,
                 DatabaseUser.Image, DatabaseUser.Money, DatabaseUser.Rank, DatabaseUser.GamesPlayed);
 
             // Try to get the image from the database.
@@ -412,6 +435,8 @@ namespace PeL
                 systemUser.userImageByteArray = imageToByteArray(returnedImage);
             }
             catch { }
+
+            systemUserCache.addOrUpdate(systemUser);
 
             return systemUser;
 
@@ -447,10 +472,14 @@ namespace PeL
         }
         public SystemUser getUserByName(string name)
         {
+            SystemUser systemUser = systemUserCache.getByName(name);
+            if (systemUser != null)
+                return systemUser;
+
             Database.Domain.SystemUser DatabaseUser = systemUserRepository.GetByName(name);
             if (DatabaseUser == null)
                 return null;
-            SystemUser systemUser = new SystemUser(DatabaseUser.Id, DatabaseUser.UserName, DatabaseUser.Email,
+            systemUser = new SystemUser(DatabaseUser.Id, DatabaseUser.UserName, DatabaseUser.Email,
                 DatabaseUser.Image, DatabaseUser.Money, DatabaseUser.Rank, DatabaseUser.GamesPlayed);
 
             // Try to get the image from the database.
@@ -463,6 +492,8 @@ namespace PeL
                 systemUser.userImageByteArray = imageToByteArray(returnedImage);
             }
             catch { }
+
+            systemUserCache.addOrUpdate(systemUser);
 
             return systemUser;
 
@@ -500,10 +531,14 @@ namespace PeL
         }
         public SystemUser getUserByEmail(string email)
         {
+            SystemUser systemUser = systemUserCache.getByEmail(email);
+            if (systemUser != null)
+                return systemUser;
+
             Database.Domain.SystemUser DatabaseUser = systemUserRepository.GetByEmail(email);
             if (DatabaseUser == null)
                 return null;
-            SystemUser systemUser = new SystemUser(DatabaseUser.Id, DatabaseUser.UserName, DatabaseUser.Email,
+            systemUser = new SystemUser(DatabaseUser.Id, DatabaseUser.UserName, DatabaseUser.Email,
                 DatabaseUser.Image, DatabaseUser.Money, DatabaseUser.Rank, DatabaseUser.GamesPlayed);
 
             // Try to get the image from the database.
@@ -516,6 +551,8 @@ namespace PeL
                 systemUser.userImageByteArray = imageToByteArray(returnedImage);
             }
             catch { }
+
+            systemUserCache.addOrUpdate(systemUser);
 
             return systemUser;
 
@@ -549,7 +586,17 @@ namespace PeL
         }
         public bool deleteUser(int Id)
         {
-            return systemUserRepository.Remove(systemUserRepository.GetById(Id));
+            Database.Domain.SystemUser systemUser = systemUserRepository.GetById(Id);
+            if (systemUser == null)
+                return false;
+
+            if(systemUserRepository.Remove(systemUser))
+            {
+                systemUserCache.remove(Id);
+                return true;
+            }
+
+            return false;
 
             //SqlConnection connection = new SqlConnection(connectionString);
             //SqlCommand cmd = new SqlCommand();
@@ -720,5 +767,10 @@ namespace PeL
         //    }
         //    return salt;
         //}
+
+        private SystemUser databaseSystemUserToBackendSystemUser(Database.Domain.SystemUser dbUser)
+        {
+            return new SystemUser(dbUser.Id, dbUser.UserName, dbUser.Email, dbUser.Image, dbUser.Money, dbUser.Rank, dbUser.GamesPlayed);
+        }
     }
 }

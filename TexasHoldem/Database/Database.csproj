@@ -71,10 +71,10 @@
     <EmbeddedResource Include="Mappings\SystemUser.hbm.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="hibernate.cfg.xml">
+    <EmbeddedResource Include="hibernate.cfg.xml">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </EmbeddedResource>
     <Content Include="Tables.mdf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -1053,7 +1053,7 @@ namespace CLServer
 
         static void Main()
         {
-            var realIP = false;
+            var realIP = true;
 
             var IP = LOCAL_IP;
 

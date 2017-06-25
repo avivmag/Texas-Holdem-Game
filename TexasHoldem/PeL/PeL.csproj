@@ -80,6 +80,7 @@
     </Compile>
     <Compile Include="PeLImpl.cs" />
     <Compile Include="IPeL.cs" />
+    <Compile Include="SystemUserCache.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

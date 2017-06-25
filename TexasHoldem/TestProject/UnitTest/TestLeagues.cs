@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SL;
-//using DAL;
 using Moq;
 using Backend.User;
 using System.Collections.Generic;
@@ -49,19 +48,8 @@ namespace TestProject.UnitTest
                 db.getUserByName("test1"),
                 db.getUserByName("test2"),
                 db.getUserByName("test3")
-                //new SystemUser("Hadas", "email0", "image0", 1000),
-                //new SystemUser("Gili", "email1", "image1", 0),
-                //new SystemUser("Or", "email2", "image2", 700),
-                //new SystemUser("Aviv", "email3", "image3", 1500)
             };
 
-            //var userDummies = new List<SystemUser>
-            //{
-            //    new SystemUser("Hadas", "Aa123456", "email0", "image0", 1000),
-            //    new SystemUser("Gili", "123123", "email1", "image1", 0),
-            //    new SystemUser("Or", "111111", "email2", "image2", 700),
-            //    new SystemUser("Aviv", "Aa123456", "email3", "image3", 1500)
-            //};
             Random rnd = new Random();
             foreach(SystemUser u in userDummies)
             {
@@ -69,14 +57,6 @@ namespace TestProject.UnitTest
             }
             center = GameCenter.getGameCenter();
             center.maintainLeagues(userDummies);
-            //Mock <DALInterface> dalMock = new Mock<DALInterface>();
-            //dalMock.Setup(x => x.addLeague(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>())).Returns(new ReturnMessage(true,null));
-            //dalMock.Setup(x => x.getAllLeagues()).Returns(leagues);
-            //dalMock.Setup(x => x.removeLeague(It.IsAny<Guid>())).Returns(new ReturnMessage(true,null));
-            //dalMock.Setup(x => x.setLeagueCriteria(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<int>())).Returns(new ReturnMessage(true, null));
-            //dalMock.Setup(x => x.getUserById(It.IsAny<int>())).Returns(userDummies[0]);
-            //dalMock.Setup(x => x.getHighestUserId()).Returns(userDummies[3].id);
-            //this.sl = new SLImpl(dalMock.Object);
             sl = new SLImpl();
             
         }

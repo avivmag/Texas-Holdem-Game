@@ -55,7 +55,7 @@ namespace Backend.User
         {
             if (obj.GetType() != typeof(SystemUser))
                 return false;
-            return name.Equals(((SystemUser)obj).name);
+            return name.Equals(((SystemUser)obj).name) || id == ((SystemUser)obj).id;
         }
 
         //public void updateRank(int rankToUpdate)
