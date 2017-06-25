@@ -15,7 +15,18 @@ namespace ApplicationFacade
 {
 	public class GameCenter
 	{
-		public List<TexasHoldemGame> texasHoldemGames { get; set; }
+        private List<TexasHoldemGame> texasHoldemGames;
+
+        public List<TexasHoldemGame> TexasHoldemGames
+        {
+            get { foreach (TexasHoldemGame t in texasHoldemGames)
+                    if (numberOfPlayersInGame(t) == 0)
+                        texasHoldemGames.Remove(t);
+                  return texasHoldemGames;
+                }
+            set => texasHoldemGames = value;
+        }
+
         public List<League> leagues { get; set; }
         //public List<SystemUser> loggedInUsers { get; set; }
         //public List<SystemUser> userList { get; set; }
@@ -357,6 +368,17 @@ namespace ApplicationFacade
                 if (game.gameId == gameId)
                     return game;
             return null;
+        }
+
+        public int numberOfPlayersInGame(TexasHoldemGame thg)
+        {
+            int counter = 0;
+            for (int i = 0; i < thg.players.Length; i++)
+            {
+                if (thg.players[i] != null)
+                    counter++;
+            }
+            return counter;
         }
 
         public SystemUser getUserByName(string name)
