@@ -19,9 +19,9 @@ namespace ApplicationFacade
 
         public List<TexasHoldemGame> TexasHoldemGames
         {
-            get { foreach (TexasHoldemGame t in texasHoldemGames)
-                    if (numberOfPlayersInGame(t) == 0)
-                        texasHoldemGames.Remove(t);
+            get { //foreach (TexasHoldemGame t in texasHoldemGames)
+                    //if (numberOfPlayersInGame(t) == 0)
+                        //texasHoldemGames.Remove(t);
                   return texasHoldemGames;
                 }
             set => texasHoldemGames = value;
