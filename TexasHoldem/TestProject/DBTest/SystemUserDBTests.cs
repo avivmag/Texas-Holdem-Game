@@ -103,6 +103,9 @@ namespace TestProject.DBTest
 
             for (int i = 0; i < 4; i++)
                 Assert.IsTrue(db.deleteUser(db.getUserByName("test" + i).id));
+
+            for (int i = 0; i < 4; i++)
+                Assert.IsTrue(db.RegisterUser("test" + i, "" + i, "email" + i, null));
         }
         
         

@@ -49,7 +49,8 @@ namespace TestProject
         public void TestLogoutFail()
         {
             db.EditUserById(db.getUserByName("Hadas").id,null,null,null,null,100000,null,true);
-            Assert.IsNotNull(addPlayerToGame(db.getUserByName("Hadas").id, game.gameId,1));
+            int id = db.getUserByName("Hadas").id;
+            Assert.IsNotNull(addPlayerToGame(id, game.gameId,1));
             Assert.IsFalse(((ReturnMessage)logout(db.getUserByName("Hadas").id)).success);
         }
         
