@@ -190,8 +190,21 @@ namespace PeL
         /// <param name="rankToAdd">a delta, can also be negative</param>
         /// <param name="playedAnotherGame"></param>
         /// <returns>true if user has been edited succesfully</returns>
-        public bool EditUserById(int Id, string UserName, string password, string email, string image, int? moneyToAdd, int? rankToAdd, bool playedAnotherGame)
+        public bool EditUserById(int Id, string UserName, string password, string email, Image image, int? moneyToAdd, int? rankToAdd, bool playedAnotherGame)
         {
+            string filePath = String.Join("_", Guid.NewGuid(), UserName);
+            string imagesDirectory = Path.Combine(Environment.CurrentDirectory, "Images", filePath);
+
+            // Save image to disc. (produces error but saves it anyway. we will just wrap it with a 'try' clause.
+            try
+            {
+                image.Save(imagesDirectory);
+            }
+            catch
+            {
+                Console.WriteLine("COULDNOT SAVE IMAGE!!!!!!!!!s");
+            }
+
             Database.Domain.SystemUser user = systemUserRepository.GetById(Id);
             if (UserName != null)
                 user.UserName = UserName;
@@ -204,6 +217,8 @@ namespace PeL
                 user.Email = email;
             if (image != null)
                 user.Email = email;
+            if (image != null)
+                user.Image = imagesDirectory;
             if (moneyToAdd != null)
                 user.Money = Math.Max(0, user.Money + (int)moneyToAdd);
             if (rankToAdd != null)

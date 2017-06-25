@@ -25,29 +25,50 @@ namespace Database.Repositories
         public SystemUser GetById(int systemUserId)
         {
             using (ISession session = NHibernateHelper.OpenSession())
-                return session.Get<SystemUser>(systemUserId);
+            {
+                try {
+                    return session.Get<SystemUser>(systemUserId);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
         }
 
         public SystemUser GetByName(string name)
         {
             using (ISession session = NHibernateHelper.OpenSession())
             {
-                SystemUser systemUser = session
-                    .CreateCriteria(typeof(SystemUser))
-                    .Add(Restrictions.Eq("UserName", name))
-                    .UniqueResult<SystemUser>();
-                return systemUser;
+                try
+                {
+                    SystemUser systemUser = session
+                        .CreateCriteria(typeof(SystemUser))
+                        .Add(Restrictions.Eq("UserName", name))
+                        .UniqueResult<SystemUser>();
+                    return systemUser;
+                }
+                catch
+                {
+                    return null;
+                }
             }
         }
         public SystemUser GetByEmail(string email)
         {
             using (ISession session = NHibernateHelper.OpenSession())
             {
+                try {
                 SystemUser systemUser = session
                     .CreateCriteria(typeof(SystemUser))
                     .Add(Restrictions.Eq("Email", email))
                     .UniqueResult<SystemUser>();
                 return systemUser;
+                }
+                catch
+                {
+                    return null;
+                }
             }
         }
 

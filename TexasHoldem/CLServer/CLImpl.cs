@@ -735,7 +735,6 @@ namespace CLServer
             var userImageToken  = jsonObject["userImage"];
             var passPhraseToken = jsonObject["passPhrase"];
 
-
             if ((usernameToken == null) || (usernameToken.Type != JTokenType.String) ||
                 (String.IsNullOrWhiteSpace(usernameToken.ToString())) ||
 
@@ -919,10 +918,16 @@ namespace CLServer
             var emailToken      = jsonObject["email"];
             var avatarToken     = jsonObject["avatar"];
             var amountToken     = jsonObject["amount"];
-
+            
             if (userIdToken == null || userIdToken.Type != JTokenType.Integer)
             {
-                throw new ArgumentException("Error: Parameters Mismatch at Edit User Profile");
+                throw new ArgumentException("User Id Error: Parameters Mismatch at Edit User Profile");
+            }
+
+            if ((avatarToken == null) || (avatarToken.Type != JTokenType.String) ||
+                ((((byte[])avatarToken).Length) == 0))
+            {
+                throw new ArgumentException("Picture Error: Parameters Mismatch at Edit User Profile");
             }
 
             var editUserProfileResponse = sl.editUserProfile(
@@ -930,7 +935,7 @@ namespace CLServer
                 (string)nameToken,
                 (string)passwordToken,
                 (string)emailToken,
-                (string)avatarToken,
+                (Bitmap)((new ImageConverter()).ConvertFrom((byte[])avatarToken)),
                 (int)amountToken);
                 
 

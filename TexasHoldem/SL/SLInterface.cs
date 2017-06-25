@@ -11,7 +11,7 @@ namespace SL
         object GetGameForPlayers(int userId, int gameID);
         object joinGame(int userId, int gameID, int seatIndex);
         object getGameLogs();
-        object editUserProfile(int userId, string name, string password, string email, string avatar, int amount);
+        object editUserProfile(int userId, string name, string password, string email, Image avatar, int amount);
         void sendSystemMessage(string message);
         object findAllActiveAvailableGames();
         object filterActiveGamesByPlayerName(string name);

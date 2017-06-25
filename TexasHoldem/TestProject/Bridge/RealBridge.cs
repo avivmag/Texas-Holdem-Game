@@ -7,6 +7,7 @@ using ApplicationFacade;
 using Backend.Game;
 using Backend.User;
 using SL;
+using System.Drawing;
 
 namespace TestProject.Bridge
 {
@@ -34,7 +35,7 @@ namespace TestProject.Bridge
             return sl.Logout(userId);
         }
 
-        public object editProfile(int userId, string username, string password, string email, string picture, int moneyAmount)
+        public object editProfile(int userId, string username, string password, string email, Image picture, int moneyAmount)
         {
             return sl.editUserProfile(userId, username, password, email, picture, moneyAmount);
         }

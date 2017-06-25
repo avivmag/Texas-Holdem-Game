@@ -223,7 +223,11 @@ namespace ApplicationFacade
 
 
             //this is the callback that is there for when we want to update user rank
-            TexasHoldemGame game = new TexasHoldemGame(user, mustPref, userIdDeltaRankMoney => db.EditUserById(userIdDeltaRankMoney[0], null, null, null, null, userIdDeltaRankMoney[2], userIdDeltaRankMoney[1], false), userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2]));
+            TexasHoldemGame game = new TexasHoldemGame(user, mustPref,
+                userIdDeltaRankMoney => 
+                    db.EditUserById(userIdDeltaRankMoney[0], null, null, null, null, userIdDeltaRankMoney[2], userIdDeltaRankMoney[1], false), 
+                userIdLeaderB => 
+                    db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2]));
             texasHoldemGames.Add(game);
             return game;
         }
@@ -306,7 +310,7 @@ namespace ApplicationFacade
             return ans;
         }
 
-        public ReturnMessage editUserProfile(int userId, string name, string password, string email, string avatar, int money, int rank)
+        public ReturnMessage editUserProfile(int userId, string name, string password, string email, Image avatar, int money, int rank)
         {
             SystemUser user = db.getUserById(userId);
             if (user == null)
@@ -329,7 +333,7 @@ namespace ApplicationFacade
             return new ReturnMessage(db.EditUserById(userId, name, password, email, avatar, money, rank, false), "");
         }
 
-        public ReturnMessage editUserProfile(int userId, string name, string password, string email, string avatar, int money)
+        public ReturnMessage editUserProfile(int userId, string name, string password, string email, Image avatar, int money)
         {
             SystemUser user = db.getUserById(userId);
             if (user == null)

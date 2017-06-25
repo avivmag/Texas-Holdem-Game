@@ -641,9 +641,18 @@ namespace CLClient
             return response;
         }
 
-        public static bool? editUserProfile(int userId, string name, string password, string email, string avatar, int amount)
+        public static bool? editUserProfile(int userId, string name, string password, string email, Image avatar, int amount)
         {
-            var message = new { action = "EditUserProfile", userId, name, password, email, avatar, amount};
+            var imageByteArray = imageToByteArray(avatar);
+            var message = new {
+                action = "EditUserProfile",
+                userId,
+                name,
+                password,
+                email,
+                avatar = imageByteArray,
+                amount };
+
             var jsonMessage = sendMessage(message);
             var responseJson = getResponse(jsonMessage);
 

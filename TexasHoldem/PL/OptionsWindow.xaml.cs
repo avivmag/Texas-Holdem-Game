@@ -5,6 +5,8 @@ using CLClient.Entities;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
 using System.Drawing;
+using System.IO;
+using System.Windows.Controls;
 
 namespace PL
 {
@@ -14,6 +16,7 @@ namespace PL
     public partial class OptionsWindow : Window
     {
         private Window MainMenuWindow;
+        private System.Drawing.Image tempImage = LoginWindow.user.profilePicture;
 
         public OptionsWindow(Window MainMenuWindow)
         {
@@ -25,6 +28,28 @@ namespace PL
             email.Text = user.email;
             MoneyDeposit.Text = "0";
             MoneyCurrent.Text = user.money.ToString();
+            RankCurrent.Text = user.rank.ToString();
+
+            // Converting system.drawing.image to imageSource.
+            var bi = new BitmapImage();
+
+            using (var ms = new MemoryStream())
+            {
+                try
+                {
+                    user.profilePicture.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                
+                    ms.Position = 0;
+
+                    bi.BeginInit();
+                    bi.CacheOption = BitmapCacheOption.OnLoad;
+                    bi.StreamSource = ms;
+                    bi.EndInit();
+                }
+                catch { }
+            }
+
+            profilePictre.Source = bi;
         }
 
         private void Back_Click(object sender, RoutedEventArgs e)
@@ -41,7 +66,7 @@ namespace PL
             }
             else
             {
-                bool? m = CommClient.editUserProfile(LoginWindow.user.id, username.Text, password.Text, email.Text, null, money);
+                bool? m = CommClient.editUserProfile(LoginWindow.user.id, username.Text, password.Text, email.Text, tempImage, money);
 
                 if (m.HasValue && m.Value)
                 {
@@ -50,7 +75,8 @@ namespace PL
                     LoginWindow.user.password = password.Text;
                     LoginWindow.user.email = email.Text;
                     LoginWindow.user.money += money;
-                    //TODO: add a profile picture
+                    LoginWindow.user.profilePicture = tempImage;
+                    LoginWindow.user.userImageByteArray = imageToByteArray(tempImage);
                     MainMenuWindow.Show();
                 }
                 else
@@ -81,8 +107,15 @@ namespace PL
                 bitmap.UriSource = new Uri(filename);
                 bitmap.EndInit();
                 profilePictre.Source = bitmap;
-                Image img = Image.FromFile(filename);
+                tempImage = System.Drawing.Image.FromFile(filename);
             }
+        }
+
+        private static byte[] imageToByteArray(System.Drawing.Image image)
+        {
+            ImageConverter _imageConverter = new ImageConverter();
+            byte[] byteArray = (byte[])_imageConverter.ConvertTo(image, typeof(byte[]));
+            return byteArray;
         }
     }
 }

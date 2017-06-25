@@ -81,7 +81,7 @@ public class SLImpl : SLInterface
         return game.removeUser(userId);
     }
 
-    public object editUserProfile(int userId, string name, string password, string email, string avatar, int money)
+    public object editUserProfile(int userId, string name, string password, string email, Image avatar, int money)
     {
         return gameCenter.editUserProfile(userId,name,password,email,avatar, money);
     }

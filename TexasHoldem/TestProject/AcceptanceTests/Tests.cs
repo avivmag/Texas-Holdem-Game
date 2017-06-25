@@ -57,7 +57,7 @@ namespace TestProject
         [TestMethod]
         public void TestLeaveGame()
         {
-            editProfile(db.getUserByName("Hadas").id, "Hadas", "123", "shilhad", "1", 10000);
+            editProfile(db.getUserByName("Hadas").id, "Hadas", "123", "shilhad", null, 10000);
             Assert.IsNotNull(addPlayerToGame(db.getUserByName("Hadas").id, game.gameId, 1));
             Assert.IsFalse(((ReturnMessage)logout(db.getUserByName("Hadas").id)).success);
             Assert.IsNotNull(removeUserFromGame(db.getUserByName("Hadas"), game.gameId));

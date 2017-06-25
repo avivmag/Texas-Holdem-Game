@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
 using Backend.Game;
 using Backend.User;
+using System.Drawing;
 
 namespace TestProject
 {
     interface IBridge
     {
-        object register(string username, string password, string email, System.Drawing.Image picture);
+        object register(string username, string password, string email, Image picture);
         object login(string username, string password);
         object logout(int userId);
-        object editProfile(int userId, string username, string password, string email, string picture, int moneyAmount);
+        object editProfile(int userId, string username, string password, string email, Image picture, int moneyAmount);
         //bool editImage(string img);
         //bool editName(string name);
         //bool editEmail(string email);

@@ -26,8 +26,7 @@ namespace Backend.Game
         public int currentBet { get; set; }
         private int gameCreatorUserId;
         private int availableSeats;
-
-        //public GamePreferences GamePreferences { get; }
+        
         public MustPreferences gamePreferences { get; set; }
         public Deck deck { get; }
         private int maxPlayers = 9;
@@ -47,8 +46,9 @@ namespace Backend.Game
         private LeaderboardsStats[] playersStats;
 
         private int minNumberOfPlayerRounds;
+        
+        private int moneyInGame = 0;
 
-        // TODO: Gili - notice Gil decorator pattern and Aviv player.TokensInBet - you should use them in your logic
         static int currentId;
         static int getNextId()
         {
@@ -77,8 +77,10 @@ namespace Backend.Game
             this.rankMoneyUpdateCallback = rankMoneyUpdateCallback;
             flop = null;
             currentBlindBet = 20;
+
+
             
-            this.gameId = TexasHoldemGame.getNextId();
+            gameId = getNextId();
             GameLog.setLog(gameId, DateTime.Now);
             GameLog.logLine(gameId, GameLog.Actions.Game_Create, gameId.ToString(), user.name, DateTime.Now.ToString());
             for (int i = 1; i < maxPlayers; i++)
@@ -95,16 +97,34 @@ namespace Backend.Game
             {
                 if (players[i] != null && players[i].systemUserID == userId)
                 {
-                    //get the game policy if exist to the rank update
-                    int buyIn = 0;
+                    // Buy in handle
+                    int buyIn = 50;
                     BuyInPolicyDecPref buyInPref = (BuyInPolicyDecPref)gamePreferences.getOptionalPref(new BuyInPolicyDecPref(0, null));
                     if (buyInPref != null)
+                    {
                         buyIn = buyInPref.buyInPolicy;
-                    // updates the money and rank of the user.
-                    //user.money += players[i].Tokens;
+                    }
 
-                    //user.updateRank(players[i].Tokens - buyIn);
-                    rankMoneyUpdateCallback(new int[] { userId, players[i].Tokens - buyIn, players[i].Tokens });
+                    // Starting chips amount policy
+                    int moneyToAdd = 0;
+                    int startingChips = 1000;
+                    StartingAmountChipsCedPref startingChipsPref = (StartingAmountChipsCedPref)gamePreferences.getOptionalPref(new StartingAmountChipsCedPref(0, null));
+                    if (startingChipsPref != null)
+                    {
+                        int policy = startingChipsPref.startingChipsPolicy;
+                        if (policy == 0)
+                        {
+                            startingChips = buyIn;
+                            moneyToAdd += players[i].Tokens;
+                        }
+                        else
+                        {
+                            startingChips = policy;
+                        }    
+                    }
+
+                    // updates the rank and money of the user.
+                    rankMoneyUpdateCallback(new int[] { userId, players[i].Tokens - startingChips, moneyToAdd});
 
                     GameLog.logLine(gameId, GameLog.Actions.Player_Left, players[i].name, i.ToString());
 
@@ -125,8 +145,6 @@ namespace Backend.Game
                 }
             }
             return new ReturnMessage(true, "");
-            // Aviv - I've changed it to true because there can be players who are standing
-            //return new ReturnMessage(false, "");
         }
 
         public ReturnMessage getGameForPlayer(SystemUser user)
@@ -149,7 +167,6 @@ namespace Backend.Game
 
             return new ReturnMessage(true, "");
         }
- 
         public ReturnMessage joinGame(SystemUser user, int seatIndex)
         {
             ReturnMessage m = gamePreferences.canPerformUserActions(this, user, "join");
@@ -161,15 +178,28 @@ namespace Backend.Game
             if (players[seatIndex] != null)
                 return new ReturnMessage(false, "seat is taken");
 
-            //getting the buy in policy if exists to pay for the chips else getting 1000 for free.
-            int startingChips = 1000;
+            // Buy in handle
+            int buyIn = 50;
             BuyInPolicyDecPref buyInPref = (BuyInPolicyDecPref)gamePreferences.getOptionalPref(new BuyInPolicyDecPref(0, null));
             if (buyInPref != null)
             {
-                startingChips = buyInPref.buyInPolicy;
+                buyIn = buyInPref.buyInPolicy;
             }
-            if (buyInPref != null)
-                user.money -= buyInPref.buyInPolicy;
+
+            // Starting chips amount policy
+            int startingChips = 1000;
+            StartingAmountChipsCedPref startingChipsPref = (StartingAmountChipsCedPref)gamePreferences.getOptionalPref(new StartingAmountChipsCedPref(0, null));
+            if (startingChipsPref != null)
+            {
+                int policy = startingChipsPref.startingChipsPolicy;
+                if (policy == 0)
+                    startingChips = buyIn;
+                else
+                    startingChips = policy;
+            }
+
+            // The user pay to enter the game.
+            user.money -= buyIn;
 
             Player p = new Player(user.id, user.name, startingChips, user.rank, user.userImageByteArray);
             players[seatIndex] = p;
@@ -186,6 +216,7 @@ namespace Backend.Game
 
             spectateObserver.Update(this);
             gameStatesObserver.Update(this);
+            moneyInGame += buyIn;
             return new ReturnMessage(true, "");
         }
 
@@ -512,8 +543,16 @@ namespace Backend.Game
                     Player p = decideWhoWon();
                     isGameIsOver = true;
                     p.Tokens += pot;
-                    Console.WriteLine("############" + pot + "############");
                     p.playerState = PlayerState.winner;
+                    for (int i = 0; i < players.Length; i++)
+                    {
+                        if (players[i] != null && players[i].Tokens <= 0)
+                            removeUser(players[i].systemUserID);
+                    }
+                    if (numbersOfPlayersInRound() == 1)
+                    {
+                        rankMoneyUpdateCallback(new int[] { p.systemUserID, p.Tokens, moneyInGame });
+                    }
                     gameStatesObserver.Update(this);
                     spectateObserver.Update(this);
                     break;
@@ -561,7 +600,7 @@ namespace Backend.Game
         public ReturnMessage bet(Player p, int amount)
         {
             ReturnMessage ans;
-            ans = gamePreferences.canPerformGameActions(this, amount, "bet");
+            ans = gamePreferences.canPerformGameActions(this, amount, "Bet");
             if (!ans.success)
                 return ans;
             if (p.Tokens - amount < 0)
