@@ -77,16 +77,16 @@ namespace TestProject
         [TestMethod]
         public void successEditUserTest()
         {
-            object obj = sl.editUserProfile(db.getUserByName("test0").id, "Hadas123", "12345", "email7", "image5", 100);
+            object obj = sl.editUserProfile(db.getUserByName("test0").id, "Hadas123", "12345", "email7", null, 100);
             Assert.IsInstanceOfType(obj, typeof(ReturnMessage));
             Assert.IsTrue(((ReturnMessage)obj).success);
-            sl.editUserProfile(db.getUserByName("Hadas123").id, "test0", "12345", "email7", "image5", 100);
+            sl.editUserProfile(db.getUserByName("Hadas123").id, "test0", "12345", "email7", null, 100);
         }
 
         [TestMethod]
         public void alreadyExistsUserNameTest()
         {
-            object obj = sl.editUserProfile(db.getUserByName("test0").id, "test3", "12345", "email7", "image5", 100);
+            object obj = sl.editUserProfile(db.getUserByName("test0").id, "test3", "12345", "email7", null, 100);
             Assert.IsInstanceOfType(obj, typeof(ReturnMessage));
             Assert.IsFalse(((ReturnMessage)obj).success);
         }
@@ -94,7 +94,7 @@ namespace TestProject
         [TestMethod]
         public void editUserEmptyUserNameTest()
         {
-            object obj = sl.editUserProfile(db.getUserByName("test0").id, "", "12345", "email7", "image5", 100);
+            object obj = sl.editUserProfile(db.getUserByName("test0").id, "", "12345", "email7", null, 100);
             Assert.IsInstanceOfType(obj, typeof(ReturnMessage));
             Assert.IsFalse(((ReturnMessage)obj).success);
         }
@@ -102,7 +102,7 @@ namespace TestProject
         [TestMethod]
         public void alreadyExistsEmailTest()
         {
-            object obj = sl.editUserProfile(db.getUserByName("test0").id, "gil", "1111", "email3", "image5", 100);
+            object obj = sl.editUserProfile(db.getUserByName("test0").id, "gil", "1111", "email3", null, 100);
             Assert.IsInstanceOfType(obj, typeof(ReturnMessage));
             Assert.IsFalse(((ReturnMessage)obj).success);
         }
@@ -110,7 +110,7 @@ namespace TestProject
         [TestMethod]
         public void negativeMoneyTest()
         {
-            object obj = sl.editUserProfile(db.getUserByName("test0").id, "gil", "1111", "email100", "image5", -100);
+            object obj = sl.editUserProfile(db.getUserByName("test0").id, "gil", "1111", "email100", null, -100);
             Assert.IsInstanceOfType(obj, typeof(ReturnMessage));
             Assert.IsFalse(((ReturnMessage)obj).success);
         }

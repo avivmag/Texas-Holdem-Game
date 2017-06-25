@@ -96,7 +96,7 @@ namespace Database
         public DBImpl(){
             //var connectionString = ConfigurationManager.ConnectionStrings["TablesConnectionString"].ConnectionString;
             this.connectionString = Properties.Settings.Default.TablesConnectionString;
-            Console.WriteLine("Database path: " + this.connectionString);
+            //Console.WriteLine("Database path: " + this.connectionString);
             //md5Hash = MD5.Create();
         }
 
@@ -227,8 +227,17 @@ namespace Database
         /// <param name="rankToAdd"></param>
         /// <param name="playedAnotherGame"></param>
         /// <returns>true if user has been edited succesfully</returns>
-        public bool EditUserById(int? Id, string UserName, string password, string email, string image, int? money, int? rankToAdd, bool playedAnotherGame)
+        public bool EditUserById(int? Id, string UserName, string password, string email, Image image, int? money, int? rankToAdd, bool playedAnotherGame)
         {
+            string filePath = String.Join("_", Guid.NewGuid(), UserName);
+            string imagesDirectory = Path.Combine(Environment.CurrentDirectory, "Images", filePath);
+
+            // Save image to disc. (produces error but saves it anyway. we will just wrap it with a 'try' clause.
+            try
+            {
+                image.Save(imagesDirectory);
+            }
+            catch { }
             SqlConnection connection = new SqlConnection(connectionString);
             SqlCommand cmd = new SqlCommand();
             int psikCount = -1 +
@@ -432,17 +441,18 @@ namespace Database
             SystemUser su = new SystemUser(int.Parse(reader["Id"].ToString()), name, reader["email"].ToString(), reader["image"].ToString(), int.Parse(reader["money"].ToString()), int.Parse(reader["rank"].ToString()), int.Parse(reader["gamesPlayed"].ToString()));
 
             connection.Close();
-
             // Try to get the image from the database.
             try
             {
                 // Get the user's profile picture file from memory.
                 var returnedImage = Image.FromFile(su.userImage);
-
+                
                 // Convert user's profile picture into byte array in order to send over TCP 
                 su.userImageByteArray = imageToByteArray(returnedImage);
             }
-            catch { }
+            catch
+            {
+            }
 
             return su;
         }

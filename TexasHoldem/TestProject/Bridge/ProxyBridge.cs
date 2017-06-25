@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Backend.Game;
 using Backend.User;
+using System.Drawing;
 
 namespace TestProject
 {
@@ -17,7 +18,7 @@ namespace TestProject
             if (real == null)
                 real = implementation;
         }
-        public object register(string username, string password, string email, System.Drawing.Image picture)
+        public object register(string username, string password, string email, Image picture)
         {
             if (real != null)
                 return real.register(username, password, email, picture);
@@ -61,7 +62,7 @@ namespace TestProject
                 return real.checkActiveGame(statusGame);
             return (statusGame.Equals("Active"));
         }
-        public object editProfile(int userId, string username, string password, string email, string picture, int amount)
+        public object editProfile(int userId, string username, string password, string email, Image picture, int amount)
         {
             if (real != null)
                 return real.editProfile(userId, username, password, email, picture, amount);

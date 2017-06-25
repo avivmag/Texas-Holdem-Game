@@ -222,5 +222,6 @@
   <ItemGroup>
     <Resource Include="resources\replay.jpg" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

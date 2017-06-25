@@ -305,7 +305,7 @@ namespace ApplicationFacade
             return ans;
         }
 
-        public ReturnMessage editUserProfile(int userId, string name, string password, string email, string avatar, int money, int rank)
+        public ReturnMessage editUserProfile(int userId, string name, string password, string email, Image avatar, int money, int rank)
         {
             SystemUser user = db.getUserById(userId);
             if (user == null)
@@ -328,7 +328,7 @@ namespace ApplicationFacade
             return new ReturnMessage(db.EditUserById(userId, name, password, email, avatar, money, rank, false), "");
         }
 
-        public ReturnMessage editUserProfile(int userId, string name, string password, string email, string avatar, int money)
+        public ReturnMessage editUserProfile(int userId, string name, string password, string email, Image avatar, int money)
         {
             SystemUser user = db.getUserById(userId);
             if (user == null)
