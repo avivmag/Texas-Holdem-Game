@@ -6,7 +6,7 @@ using Moq;
 using Backend.User;
 using System.Collections.Generic;
 using ApplicationFacade;
-using Database;
+using PeL;
 
 namespace TestProject.UnitTest
 {
@@ -16,7 +16,7 @@ namespace TestProject.UnitTest
         GameCenter center;
         Random rnd = new Random();
         SLInterface sl = new SLImpl();
-        private IDB db;
+        private IPeL db;
 
         [TestCleanup]
         public void Cleanup()
@@ -32,7 +32,7 @@ namespace TestProject.UnitTest
             //var leagues = new System.Collections.Generic.List<League>();
             //leagues.Add(new League(0, 1000, "Starter League"));
             //leagues.Add(new League(1000, 2000, "Experienced League"));
-            db = new DBImpl();
+            db = new PeLImpl();
             for (int i = 0; i < 4; i++)
             {
                 db.RegisterUser("test" + i, "" + i, "email" + i, null);

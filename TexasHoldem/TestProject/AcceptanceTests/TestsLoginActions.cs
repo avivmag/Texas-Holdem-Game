@@ -1,21 +1,21 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Backend.User;
 using Backend.Game;
-using Database;
+using PeL;
 
 namespace TestProject.AcceptanceTests
 {
     [TestClass]
     public class TestsLoginActions :ProjectTest
     {
-        IDB db;
+        IPeL db;
         TexasHoldemGame gameSpectate;
         TexasHoldemGame gameCantSpectate;
 
         [TestInitialize]
         public void SetUp()
         {
-            db = new DBImpl();
+            db = new PeLImpl();
 
             bool objUser = db.RegisterUser("Hadas", "1234", "shidlhad", null);
             Assert.IsTrue(objUser);

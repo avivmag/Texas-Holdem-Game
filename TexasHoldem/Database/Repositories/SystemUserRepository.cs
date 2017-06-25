@@ -11,28 +11,17 @@ namespace Database.Repositories
 {
     public class SystemUserRepository : ISystemUserRepository
     {
-        public void Add(SystemUser systemUser)
+        public bool Add(SystemUser systemUser)
         {
             using (ISession session = NHibernateHelper.OpenSession())
                 using (ITransaction transaction = session.BeginTransaction())
                 {
                     session.Save(systemUser);
                     transaction.Commit();
+                    return transaction.WasCommitted;
                 }
         }
-
-        //public ICollection<SystemUser> GetByCategory(string category)
-        //{
-        //    using (ISession session = NHibernateHelper.OpenSession())
-        //    {
-        //        var systemUser = session
-        //            .CreateCriteria(typeof(SystemUser))
-        //            .Add(Restrictions.Eq("Category", category))
-        //            .List<SystemUser>();
-        //        return systemUser;
-        //    }
-        //}
-
+        
         public SystemUser GetById(int systemUserId)
         {
             using (ISession session = NHibernateHelper.OpenSession())
@@ -50,7 +39,17 @@ namespace Database.Repositories
                 return systemUser;
             }
         }
-
+        public SystemUser GetByEmail(string email)
+        {
+            using (ISession session = NHibernateHelper.OpenSession())
+            {
+                SystemUser systemUser = session
+                    .CreateCriteria(typeof(SystemUser))
+                    .Add(Restrictions.Eq("Email", email))
+                    .UniqueResult<SystemUser>();
+                return systemUser;
+            }
+        }
 
         public IList<SystemUser> GetByRestrictions(IDictionary<string, string> restrictions, string orderBy, bool ascending, int? limit)
         {
@@ -71,24 +70,26 @@ namespace Database.Repositories
             }
         }
 
-        public void Remove(SystemUser systemUser)
+        public bool Remove(SystemUser systemUser)
         {
             using (ISession session = NHibernateHelper.OpenSession())
             using (ITransaction transaction = session.BeginTransaction())
             {
                 session.Delete(systemUser);
                 transaction.Commit();
+                return transaction.WasCommitted;
             }
         }
 
-        public void Update(SystemUser systemUser)
+        public bool Update(SystemUser systemUser)
         {
             using (ISession session = NHibernateHelper.OpenSession())
-                using (ITransaction transaction = session.BeginTransaction())
-                {
-                    session.Update(systemUser);
-                    transaction.Commit();
-                }
+            using (ITransaction transaction = session.BeginTransaction())
+            {
+                session.Update(systemUser);
+                transaction.Commit();
+                return transaction.WasCommitted;
+            }
         }
     }
 }

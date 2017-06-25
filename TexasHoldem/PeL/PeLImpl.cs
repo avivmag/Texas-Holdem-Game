@@ -9,34 +9,35 @@ using System.Configuration;
 using System.Security.Cryptography;
 using Backend.User;
 using Database.Repositories;
-using System.Drawing;
 using System.IO;
+using System.Drawing;
 
-namespace Database 
+namespace PeL
 {
-    public class DBImpl : IDB
+    public class PeLImpl : IPeL
     {
-        int SALT_SIZE = 16;
-        string connectionString;
-        
-        private byte[] getRandomSalt()
-        {
-            var salt = new byte[SALT_SIZE];
-            using (var random = new RNGCryptoServiceProvider())
-            {
-                random.GetNonZeroBytes(salt);
-            }
-            return salt; 
-        }
+        //int SALT_SIZE = 16;
+        //string connectionString;
+
+        //private byte[] getRandomSalt()
+        //{
+        //    var salt = new byte[SALT_SIZE];
+        //    using (var random = new RNGCryptoServiceProvider())
+        //    {
+        //        random.GetNonZeroBytes(salt);
+        //    }
+        //    return salt; 
+        //}
 
         ISystemUserRepository systemUserRepository;
-        public DBImpl(){
+        public PeLImpl()
+        {
             //this.connectionString = Properties.Settings.Default.TablesConnectionString;
             //Console.WriteLine("Database path: " + this.connectionString);
 
             systemUserRepository = new SystemUserRepository();
         }
-        
+
         //public DataTable uploadSystemUser()
         //{
         //    Console.WriteLine("Database path: " + this.connectionString);
@@ -76,21 +77,12 @@ namespace Database
         //    return ans;
         //}
 
-        //var systemUser = new Database.Domain.SystemUser { UserName = "Apple", Image = "Fruits", Email = "cookie", Password = Encoding.UTF8.GetBytes("Password"), Salt = Encoding.UTF8.GetBytes("Salt") };
-        //ISystemUserRepository repository = new SystemUserRepository();
-        //repository.Add(systemUser);
-        //    Database.Domain.SystemUser user = repository.GetByName("Apple");
-        //user.Email = "notACookie";
-        //    repository.Update(user);
-        //    Database.Domain.SystemUser user2 = repository.GetById(user.Id);
-        //repository.Remove(user2);
-
         public List<object> getLeaderboardsByParam(string param)
         {
-            IList<Database.Domain.SystemUser> list = systemUserRepository.GetByRestrictions(new Dictionary<string,string>(), param, false, 20);
+            IList<Database.Domain.SystemUser> list = systemUserRepository.GetByRestrictions(new Dictionary<string, string>(), param, false, 20);
 
             var leaderBoardInfo = new List<object>();
-            foreach(Database.Domain.SystemUser user in list)
+            foreach (Database.Domain.SystemUser user in list)
             {
                 var newRow = new
                 {
@@ -140,7 +132,7 @@ namespace Database
         /// <param name="email"></param>
         /// <param name="image"></param>
         /// <returns>true if the user has been added</returns>
-        public void RegisterUser(string UserName, string password, string email, Image image)
+        public bool RegisterUser(string UserName, string password, string email, Image image)
         {
             string filePath = String.Join("_", Guid.NewGuid(), UserName);
             string imagesDirectory = Path.Combine(Environment.CurrentDirectory, "Images", filePath);
@@ -153,15 +145,16 @@ namespace Database
             catch { }
 
 
-            Domain.SystemUser user = new Domain.SystemUser();
+            Database.Domain.SystemUser user = new Database.Domain.SystemUser();
+            user.UserName = UserName;
             user.Salt = generateSalt();
             user.Password = GetMd5Hash(password + user.Salt);
             user.Email = email;
             user.Image = imagesDirectory;
 
-            systemUserRepository.Add(user);
+            return systemUserRepository.Add(user);
             
-            
+
             ////password = GetMd5Hash(string.Concat(new string[] { password, salt }));
             //SqlConnection connection = new SqlConnection(connectionString);
             //SqlCommand cmd = new SqlCommand();
@@ -194,12 +187,12 @@ namespace Database
         /// <param name="rankToAdd">a delta, can also be negative</param>
         /// <param name="playedAnotherGame"></param>
         /// <returns>true if user has been edited succesfully</returns>
-        public void EditUserById(int Id, string UserName, string password, string email, string image, int? moneyToAdd, int? rankToAdd, bool playedAnotherGame)
+        public bool EditUserById(int Id, string UserName, string password, string email, string image, int? moneyToAdd, int? rankToAdd, bool playedAnotherGame)
         {
             Database.Domain.SystemUser user = systemUserRepository.GetById(Id);
             if (UserName != null)
                 user.UserName = UserName;
-            if(password != null)
+            if (password != null)
             {
                 user.Salt = generateSalt();
                 user.Password = GetMd5Hash(password + user.Salt);
@@ -209,13 +202,13 @@ namespace Database
             if (image != null)
                 user.Email = email;
             if (moneyToAdd != null)
-                user.Money = Math.Max(0, user.Money + (int) moneyToAdd);
-            if(rankToAdd != null)
+                user.Money = Math.Max(0, user.Money + (int)moneyToAdd);
+            if (rankToAdd != null)
                 user.Rank = Math.Max(0, user.Rank + (int)rankToAdd);
             if (playedAnotherGame)
                 user.GamesPlayed++;
 
-            systemUserRepository.Update(user);
+            return systemUserRepository.Update(user);
 
             //SqlConnection connection = new SqlConnection(connectionString);
             //SqlCommand cmd = new SqlCommand();
@@ -258,10 +251,10 @@ namespace Database
         {
             Database.Domain.SystemUser user = systemUserRepository.GetById(Id);
             if (highestCashInGame != null)
-                user.HighestCashInGame = Math.Max(user.HighestCashInGame, (int) highestCashInGame);
+                user.HighestCashInGame = Math.Max(user.HighestCashInGame, (int)highestCashInGame);
             if (totalGrossProfit != null)
-                user.TotalGrossProfit += (int) totalGrossProfit;
-            
+                user.TotalGrossProfit += (int)totalGrossProfit;
+
             systemUserRepository.Update(user);
 
             //SqlConnection connection = new SqlConnection(connectionString);
@@ -305,7 +298,7 @@ namespace Database
                 return user.Id;
 
             return -1;
-            
+
             //SqlConnection connection = new SqlConnection(connectionString);
             //SqlCommand cmd = new SqlCommand();
             //SqlDataReader reader;
@@ -332,29 +325,18 @@ namespace Database
                 systemUserRepository.GetByRestrictions(new Dictionary<string, string>(), null, false, null);
 
             List<object> userDetails = new List<object>();
-            SqlConnection connection = new SqlConnection(connectionString);
-            SqlCommand cmd = new SqlCommand();
-            SqlDataReader reader;
 
-            cmd.CommandText = "SELECT highetsCashInAGame, userName, totalGrossProfit FROM SystemUsers";
-            cmd.CommandType = CommandType.Text;
-            cmd.Connection = connection;
-
-            connection.Open();
-            reader = cmd.ExecuteReader();
-            while (reader.Read())
+            foreach (Database.Domain.SystemUser user in list)
             {
                 var details = new
                 {
-                    HighestCash = (int)reader["highetsCashInAGame"],
-                    playerName = (string)reader["userName"],
-                    grossProfit = (int)reader["totalGrossProfit"]
+                    HighestCash = user.HighestCashInGame,
+                    playerName = user.UserName,
+                    grossProfit = user.TotalGrossProfit
                 };
                 userDetails.Add(details);
             }
-            connection.Close();
             return userDetails;
-
 
             //List<object> userDetails = new List<object>();
             //SqlConnection connection = new SqlConnection(connectionString);
@@ -379,153 +361,225 @@ namespace Database
             //}
             //connection.Close();
             //return userDetails;
+
         }
 
 
         public List<SystemUser> getAllSystemUsers()
         {
+            IList<Database.Domain.SystemUser> list =
+                systemUserRepository.GetByRestrictions(new Dictionary<string, string>(), null, false, null);
+
             List<SystemUser> users = new List<SystemUser>();
-            SqlConnection connection = new SqlConnection(connectionString);
-            SqlCommand cmd = new SqlCommand();
-            SqlDataReader reader;
 
-            cmd.CommandText = "SELECT Id,UserName,email,image,money,rank,gamesPlayed FROM SystemUsers";
-            cmd.CommandType = CommandType.Text;
-            cmd.Connection = connection;
+            foreach (Database.Domain.SystemUser user in list)
+                users.Add(new SystemUser(user.Id, user.UserName, user.Email, user.Image, user.Money, user.Rank, user.GamesPlayed));
 
-            connection.Open();
-            reader = cmd.ExecuteReader();
-            while (reader.Read())
-                users.Add(new SystemUser(int.Parse(reader["Id"].ToString()), reader["UserName"].ToString(), reader["email"].ToString(), reader["image"].ToString(), int.Parse(reader["money"].ToString()), int.Parse(reader["rank"].ToString()), int.Parse(reader["gamesPlayed"].ToString())));
-            
-            connection.Close();
             return users;
+
+            //List<SystemUser> users = new List<SystemUser>();
+            //SqlConnection connection = new SqlConnection(connectionString);
+            //SqlCommand cmd = new SqlCommand();
+            //SqlDataReader reader;
+
+            //cmd.CommandText = "SELECT Id,UserName,email,image,money,rank,gamesPlayed FROM SystemUsers";
+            //cmd.CommandType = CommandType.Text;
+            //cmd.Connection = connection;
+
+            //connection.Open();
+            //reader = cmd.ExecuteReader();
+            //while (reader.Read())
+            //    users.Add(new SystemUser(int.Parse(reader["Id"].ToString()), reader["UserName"].ToString(), reader["email"].ToString(), reader["image"].ToString(), int.Parse(reader["money"].ToString()), int.Parse(reader["rank"].ToString()), int.Parse(reader["gamesPlayed"].ToString())));
+
+            //connection.Close();
+            //return users;
         }
         public SystemUser getUserById(int Id)
         {
-            SqlConnection connection = new SqlConnection(connectionString);
-            SqlCommand cmd = new SqlCommand();
-            SqlDataReader reader;
-
-            cmd.CommandText = "SELECT UserName,email,image,money,rank,gamesPlayed FROM SystemUsers WHERE Id=@Id";
-            cmd.CommandType = CommandType.Text;
-            cmd.Connection = connection;
-            cmd.Parameters.AddWithValue("@Id", Id);
-
-            connection.Open();
-            reader = cmd.ExecuteReader();
-            if (!reader.HasRows || !reader.Read())
+            Database.Domain.SystemUser DatabaseUser = systemUserRepository.GetById(Id);
+            if (DatabaseUser == null)
                 return null;
-            SystemUser su = new SystemUser(Id, reader["UserName"].ToString(), reader["email"].ToString(), reader["image"].ToString(), int.Parse(reader["money"].ToString()), int.Parse(reader["rank"].ToString()), int.Parse(reader["gamesPlayed"].ToString()));
-            
-            connection.Close();
+            SystemUser systemUser = new SystemUser(DatabaseUser.Id, DatabaseUser.UserName, DatabaseUser.Email,
+                DatabaseUser.Image, DatabaseUser.Money, DatabaseUser.Rank, DatabaseUser.GamesPlayed);
 
             // Try to get the image from the database.
             try
             {
                 // Get the user's profile picture file from memory.
-                var returnedImage = Image.FromFile(su.userImage);
+                var returnedImage = Image.FromFile(systemUser.userImage);
 
                 // Convert user's profile picture into byte array in order to send over TCP 
-                su.userImageByteArray = imageToByteArray(returnedImage);
+                systemUser.userImageByteArray = imageToByteArray(returnedImage);
             }
             catch { }
 
-            return su;
+            return systemUser;
+
+            //SqlConnection connection = new SqlConnection(connectionString);
+            //SqlCommand cmd = new SqlCommand();
+            //SqlDataReader reader;
+
+            //cmd.CommandText = "SELECT UserName,email,image,money,rank,gamesPlayed FROM SystemUsers WHERE Id=@Id";
+            //cmd.CommandType = CommandType.Text;
+            //cmd.Connection = connection;
+            //cmd.Parameters.AddWithValue("@Id", Id);
+
+            //connection.Open();
+            //reader = cmd.ExecuteReader();
+            //if (!reader.HasRows || !reader.Read())
+            //    return null;
+            //SystemUser su = new SystemUser(Id, reader["UserName"].ToString(), reader["email"].ToString(), reader["image"].ToString(), int.Parse(reader["money"].ToString()), int.Parse(reader["rank"].ToString()), int.Parse(reader["gamesPlayed"].ToString()));
+
+            //connection.Close();
+
+            //// Try to get the image from the database.
+            //try
+            //{
+            //    // Get the user's profile picture file from memory.
+            //    var returnedImage = Image.FromFile(su.userImage);
+
+            //    // Convert user's profile picture into byte array in order to send over TCP 
+            //    su.userImageByteArray = imageToByteArray(returnedImage);
+            //}
+            //catch { }
+
+            //return su;
         }
         public SystemUser getUserByName(string name)
         {
-            SqlConnection connection = new SqlConnection(connectionString);
-            SqlCommand cmd = new SqlCommand();
-            SqlDataReader reader;
-
-            cmd.CommandText = "SELECT Id,email,image,money,rank,gamesPlayed FROM SystemUsers WHERE UserName=@UserName";
-            cmd.CommandType = CommandType.Text;
-            cmd.Connection = connection;
-            cmd.Parameters.AddWithValue("@UserName", name);
-
-            connection.Open();
-
-            reader = cmd.ExecuteReader();
-            if (!reader.HasRows || !reader.Read())
+            Database.Domain.SystemUser DatabaseUser = systemUserRepository.GetByName(name);
+            if (DatabaseUser == null)
                 return null;
-            //            string s = reader["email"].ToString();
-            SystemUser su = new SystemUser(int.Parse(reader["Id"].ToString()), name, reader["email"].ToString(), reader["image"].ToString(), int.Parse(reader["money"].ToString()), int.Parse(reader["rank"].ToString()), int.Parse(reader["gamesPlayed"].ToString()));
-
-            connection.Close();
+            SystemUser systemUser = new SystemUser(DatabaseUser.Id, DatabaseUser.UserName, DatabaseUser.Email,
+                DatabaseUser.Image, DatabaseUser.Money, DatabaseUser.Rank, DatabaseUser.GamesPlayed);
 
             // Try to get the image from the database.
             try
             {
                 // Get the user's profile picture file from memory.
-                var returnedImage = Image.FromFile(su.userImage);
+                var returnedImage = Image.FromFile(systemUser.userImage);
 
                 // Convert user's profile picture into byte array in order to send over TCP 
-                su.userImageByteArray = imageToByteArray(returnedImage);
+                systemUser.userImageByteArray = imageToByteArray(returnedImage);
             }
             catch { }
-            
-            return su;
+
+            return systemUser;
+
+            //SqlConnection connection = new SqlConnection(connectionString);
+            //SqlCommand cmd = new SqlCommand();
+            //SqlDataReader reader;
+
+            //cmd.CommandText = "SELECT Id,email,image,money,rank,gamesPlayed FROM SystemUsers WHERE UserName=@UserName";
+            //cmd.CommandType = CommandType.Text;
+            //cmd.Connection = connection;
+            //cmd.Parameters.AddWithValue("@UserName", name);
+
+            //connection.Open();
+
+            //reader = cmd.ExecuteReader();
+            //if (!reader.HasRows || !reader.Read())
+            //    return null;
+            ////            string s = reader["email"].ToString();
+            //SystemUser su = new SystemUser(int.Parse(reader["Id"].ToString()), name, reader["email"].ToString(), reader["image"].ToString(), int.Parse(reader["money"].ToString()), int.Parse(reader["rank"].ToString()), int.Parse(reader["gamesPlayed"].ToString()));
+
+            //connection.Close();
+
+            //// Try to get the image from the database.
+            //try
+            //{
+            //    // Get the user's profile picture file from memory.
+            //    var returnedImage = Image.FromFile(su.userImage);
+
+            //    // Convert user's profile picture into byte array in order to send over TCP 
+            //    su.userImageByteArray = imageToByteArray(returnedImage);
+            //}
+            //catch { }
+
+            //return su;
         }
         public SystemUser getUserByEmail(string email)
         {
-            SqlConnection connection = new SqlConnection(connectionString);
-            SqlCommand cmd = new SqlCommand();
-            SqlDataReader reader;
-
-            cmd.CommandText = "SELECT Id,UserName,image,money,rank,gamesPlayed FROM SystemUsers WHERE email=@email";
-            cmd.CommandType = CommandType.Text;
-            cmd.Connection = connection;
-            cmd.Parameters.AddWithValue("@email", email);
-
-            connection.Open();
-            reader = cmd.ExecuteReader();
-            if (!reader.HasRows || !reader.Read())
+            Database.Domain.SystemUser DatabaseUser = systemUserRepository.GetByEmail(email);
+            if (DatabaseUser == null)
                 return null;
-            SystemUser su = new SystemUser(int.Parse(reader["Id"].ToString()), reader["UserName"].ToString(), email, reader["image"].ToString(), int.Parse(reader["money"].ToString()), int.Parse(reader["rank"].ToString()), int.Parse(reader["gamesPlayed"].ToString()));
+            SystemUser systemUser = new SystemUser(DatabaseUser.Id, DatabaseUser.UserName, DatabaseUser.Email,
+                DatabaseUser.Image, DatabaseUser.Money, DatabaseUser.Rank, DatabaseUser.GamesPlayed);
 
-            connection.Close();
             // Try to get the image from the database.
             try
             {
                 // Get the user's profile picture file from memory.
-                var returnedImage = Image.FromFile(su.userImage);
+                var returnedImage = Image.FromFile(systemUser.userImage);
 
                 // Convert user's profile picture into byte array in order to send over TCP 
-                su.userImageByteArray = imageToByteArray(returnedImage);
+                systemUser.userImageByteArray = imageToByteArray(returnedImage);
             }
             catch { }
-            return su;
+
+            return systemUser;
+
+            //SqlConnection connection = new SqlConnection(connectionString);
+            //SqlCommand cmd = new SqlCommand();
+            //SqlDataReader reader;
+
+            //cmd.CommandText = "SELECT Id,UserName,image,money,rank,gamesPlayed FROM SystemUsers WHERE email=@email";
+            //cmd.CommandType = CommandType.Text;
+            //cmd.Connection = connection;
+            //cmd.Parameters.AddWithValue("@email", email);
+
+            //connection.Open();
+            //reader = cmd.ExecuteReader();
+            //if (!reader.HasRows || !reader.Read())
+            //    return null;
+            //SystemUser su = new SystemUser(int.Parse(reader["Id"].ToString()), reader["UserName"].ToString(), email, reader["image"].ToString(), int.Parse(reader["money"].ToString()), int.Parse(reader["rank"].ToString()), int.Parse(reader["gamesPlayed"].ToString()));
+
+            //connection.Close();
+            //// Try to get the image from the database.
+            //try
+            //{
+            //    // Get the user's profile picture file from memory.
+            //    var returnedImage = Image.FromFile(su.userImage);
+
+            //    // Convert user's profile picture into byte array in order to send over TCP 
+            //    su.userImageByteArray = imageToByteArray(returnedImage);
+            //}
+            //catch { }
+            //return su;
         }
         public bool deleteUser(int Id)
         {
-            SqlConnection connection = new SqlConnection(connectionString);
-            SqlCommand cmd = new SqlCommand();
+            return systemUserRepository.Remove(systemUserRepository.GetById(Id));
 
-            cmd.CommandText = "DELETE FROM SystemUsers WHERE Id=@Id";
-            cmd.CommandType = CommandType.Text;
-            cmd.Connection = connection;
-            cmd.Parameters.AddWithValue("@Id", Id);
+            //SqlConnection connection = new SqlConnection(connectionString);
+            //SqlCommand cmd = new SqlCommand();
 
-            connection.Open();
-            bool ans = cmd.ExecuteNonQuery() > 0;
-            connection.Close();
-            return ans;
+            //cmd.CommandText = "DELETE FROM SystemUsers WHERE Id=@Id";
+            //cmd.CommandType = CommandType.Text;
+            //cmd.Connection = connection;
+            //cmd.Parameters.AddWithValue("@Id", Id);
+
+            //connection.Open();
+            //bool ans = cmd.ExecuteNonQuery() > 0;
+            //connection.Close();
+            //return ans;
         }
-        public bool deleteUsers()
-        {
-            SqlConnection connection = new SqlConnection(connectionString);
-            SqlCommand cmd = new SqlCommand();
+        //public bool deleteUsers()
+        //{
 
-            cmd.CommandText = "DELETE FROM SystemUsers";
-            cmd.CommandType = CommandType.Text;
-            cmd.Connection = connection;
 
-            connection.Open();
-            bool ans = cmd.ExecuteNonQuery() > 0;
-            connection.Close();
-            return ans;
-        }
+        //    SqlConnection connection = new SqlConnection(connectionString);
+        //    SqlCommand cmd = new SqlCommand();
+
+        //    cmd.CommandText = "DELETE FROM SystemUsers";
+        //    cmd.CommandType = CommandType.Text;
+        //    cmd.Connection = connection;
+
+        //    connection.Open();
+        //    bool ans = cmd.ExecuteNonQuery() > 0;
+        //    connection.Close();
+        //    return ans;
+        //}
         //public void editUserName(int userID, string userName)
         //{
         //    string queryUpdate = "UPDATE SystemUsers SET UserName = @UserName " +
@@ -569,29 +623,29 @@ namespace Database
         //    return ans;
         //}
 
-        public string getEnterMessage(string stringCommand)
-        {
-            string ans;
-            DataTable messagesTableEnter = new DataTable();
-            connection = new SqlConnection(connectionString);
-            string queryMessage = "SELECT M.MessageEnter FROM MessageEnter M" +
-                                    "WHERE M.command = @command ";
-            SqlCommand command = new SqlCommand(queryMessage, connection);
-            adapter = new SqlDataAdapter(command);
+        //public string getEnterMessage(string stringCommand)
+        //{
+        //    string ans;
+        //    DataTable messagesTableEnter = new DataTable();
+        //    connection = new SqlConnection(connectionString);
+        //    string queryMessage = "SELECT M.MessageEnter FROM MessageEnter M" +
+        //                            "WHERE M.command = @command ";
+        //    SqlCommand command = new SqlCommand(queryMessage, connection);
+        //    adapter = new SqlDataAdapter(command);
 
-            using (connection)
-            using (command)
-            using (adapter)
-            {
-                //connection.open();
-                command.Parameters.AddWithValue("@command", stringCommand);
-                //command.ExecuteNonQuery();
-                adapter.Fill(messagesTableEnter);
-                ans = messagesTableEnter.ToString();
-            }
-            //I think it should all presented in messageBox.Show
-            return ans;
-        }
+        //    using (connection)
+        //    using (command)
+        //    using (adapter)
+        //    {
+        //        //connection.open();
+        //        command.Parameters.AddWithValue("@command", stringCommand);
+        //        //command.ExecuteNonQuery();
+        //        adapter.Fill(messagesTableEnter);
+        //        ans = messagesTableEnter.ToString();
+        //    }
+        //    //I think it should all presented in messageBox.Show
+        //    return ans;
+        //}
 
         private string GetMd5Hash(string input)
         {
@@ -644,5 +698,27 @@ namespace Database
             return new string(Enumerable.Repeat(chars, 32)
               .Select(s => s[random.Next(s.Length)]).ToArray());
         }
+
+        /// <summary>
+        ///  Converts an image to byte array in order to send over through TCP stream.
+        /// </summary>
+        /// <param name="image">The image to convert to byte array.</param>
+        /// <returns>The image's data as byte array.</returns>
+        public static byte[] imageToByteArray(Image image)
+        {
+            ImageConverter _imageConverter = new ImageConverter();
+            byte[] byteArray = (byte[])_imageConverter.ConvertTo(image, typeof(byte[]));
+            return byteArray;
+        }
+
+        //private byte[] getRandomSalt()
+        //{
+        //    var salt = new byte[SALT_SIZE];
+        //    using (var random = new RNGCryptoServiceProvider())
+        //    {
+        //        random.GetNonZeroBytes(salt);
+        //    }
+        //    return salt;
+        //}
     }
 }
