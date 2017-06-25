@@ -8,26 +8,27 @@ using System.Configuration;
 using System.Data;
 using Backend.User;
 using System.Drawing;
+using System.IO;
 
-namespace Database
+namespace PeL
 {
-    public interface IDB
+    public interface IPeL
     {
 
-        DataTable uploadSystemUser();
-        string getEnterMessage(string stringCommand);
+        //DataTable uploadSystemUser();
+        //string getEnterMessage(string stringCommand);
         //void editUserName(int userID, string newData);
-        bool isUserExist(string name);
+        //bool isUserExist(string name);
         bool RegisterUser(string UserName, string password, string email, Image image);
-        bool EditUserById(int? Id, string UserName, string password, string email, Image image, int? money, int? rank, bool playedAnotherGame);
-        bool EditUserLeaderBoardsById(int? Id, int? highetsCashInAGame, int? totalGrossProfit);
+        bool EditUserById(int Id, string UserName, string password, string email, Image image, int? money, int? rank, bool playedAnotherGame);
+        void EditUserLeaderBoardsById(int Id, int? highetsCashInAGame, int? totalGrossProfit);
         int Login(string UserName, string password);
         List<SystemUser> getAllSystemUsers();
         SystemUser getUserById(int Id);
         SystemUser getUserByName(string name);
         SystemUser getUserByEmail(string email);
         bool deleteUser(int Id);
-        bool deleteUsers();
+        //void deleteUsers();
         List<object> getLeaderboardsByParam(string param);
         List<object> getUsersDetails();
     }

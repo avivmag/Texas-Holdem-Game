@@ -10,6 +10,7 @@ using Database;
 using System.Net.Sockets;
 using System.Drawing;
 using System.IO;
+using PeL;
 
 namespace ApplicationFacade
 {
@@ -31,7 +32,7 @@ namespace ApplicationFacade
         //public List<SystemUser> loggedInUsers { get; set; }
         //public List<SystemUser> userList { get; set; }
         private static GameCenter center;
-        private IDB db;
+        private IPeL db;
         public MessageObserver messageObserver = new MessageObserver();
 
         private GameCenter()
@@ -40,7 +41,7 @@ namespace ApplicationFacade
             leagues = new List<League>();
             //userList = new List<SystemUser>();
             //loggedInUsers = new List<SystemUser>();
-            db = new DBImpl();
+            db = new PeLImpl();
         }
 
         public static GameCenter getGameCenter()

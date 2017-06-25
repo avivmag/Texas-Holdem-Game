@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" 
+                   assembly="Database" 
+                   namespace="Database.Domain">
+
+  <class name="SystemUser">
+    <id name="Id" column="Id" type="int">
+      <generator class="native"></generator>
+    </id>
+    <property name="UserName" />
+    <property name="Password" />
+    <property name="Salt" />
+    <property name="Email" />
+    <property name="Image" />
+    <property name="Money" />
+    <property name="Rank" />
+    <property name="GamesPlayed" />
+    <property name="HighestCashInGame" />
+    <property name="TotalGrossProfit" />
+  </class>  
+  
+</hibernate-mapping>

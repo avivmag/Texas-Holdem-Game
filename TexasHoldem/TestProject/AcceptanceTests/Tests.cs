@@ -4,20 +4,20 @@ using System.Collections.Generic;
 using Backend.User;
 using Backend.Game;
 using Backend;
-using Database;
+using PeL;
 
 namespace TestProject
 {
     [TestClass]
     public class Tests : ProjectTest    {
 
-        IDB db;
+        IPeL db;
         TexasHoldemGame game;
         
         [TestInitialize]
         public void SetUp()
         {
-            db = new DBImpl();
+            db = new PeLImpl();
 
             bool objUser = db.RegisterUser("Hadas","1234","shidlhad", null);
             Assert.IsTrue(objUser);

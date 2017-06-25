@@ -8,7 +8,7 @@ using Moq;
 using Backend.Game.DecoratorPreferences;
 using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
 using ApplicationFacade;
-using Database;
+using PeL;
 
 namespace TestProject
 {
@@ -17,7 +17,7 @@ namespace TestProject
     public class FindActiveAvailableGamesTest
     {
         private SLInterface sl;
-        private IDB db;
+        private IPeL db;
         private GameCenter center = GameCenter.getGameCenter();
         private List<TexasHoldemGame> gamesList;
 
@@ -32,7 +32,7 @@ namespace TestProject
         [TestInitialize]
         public void SetUp()
         {
-            db = new DBImpl();
+            db = new PeLImpl();
             for (int i = 0; i < 4; i++)
             {
                 db.RegisterUser("test" + i, "" + i, "email" + i, null);

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Backend.User;
 using SL;
 using ApplicationFacade;
-using Database;
+using PeL;
 
 namespace TestProject.UnitTest
 {
@@ -14,7 +14,7 @@ namespace TestProject.UnitTest
     public class PlayPoker
     {
         private SLInterface sl;
-        private IDB db;
+        private IPeL db;
         private GameCenter center;
         private TexasHoldemGame game;
 
@@ -29,7 +29,7 @@ namespace TestProject.UnitTest
         [TestInitialize]
         public void SetUp()
         {
-            db = new DBImpl();
+            db = new PeLImpl();
             for (int i = 0; i < 4; i++)
             {
                 db.RegisterUser("test" + i, "" + i, "email" + i, null);

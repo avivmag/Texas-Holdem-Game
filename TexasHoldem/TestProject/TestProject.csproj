@@ -47,6 +47,9 @@
     <Reference Include="FluentAssertions.Core, Version=4.19.2.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
       <HintPath>..\packages\FluentAssertions.4.19.2\lib\net45\FluentAssertions.Core.dll</HintPath>
     </Reference>
+    <Reference Include="Iesi.Collections, Version=4.0.0.0, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Iesi.Collections.4.0.0.4000\lib\net40\Iesi.Collections.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\MSTest.TestFramework.1.1.14\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.dll</HintPath>
     </Reference>
@@ -102,8 +105,12 @@
       <Name>CLClient</Name>
     </ProjectReference>
     <ProjectReference Include="..\Database\Database.csproj">
-      <Project>{f62d010b-41a2-4a9f-9583-b7157fdfda21}</Project>
+      <Project>{f4944157-f2c7-4063-ba70-393a59a5dcd0}</Project>
       <Name>Database</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PeL\PeL.csproj">
+      <Project>{f62d010b-41a2-4a9f-9583-b7157fdfda21}</Project>
+      <Name>PeL</Name>
     </ProjectReference>
     <ProjectReference Include="..\SL\SL.csproj">
       <Project>{009cacb2-4448-4d7d-932c-5e73790c9139}</Project>

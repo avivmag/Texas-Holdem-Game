@@ -9,7 +9,7 @@ using ApplicationFacade;
 using Backend.Game.DecoratorPreferences;
 using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
 using Backend;
-using Database;
+using PeL;
 
 namespace TestProject
 {
@@ -19,7 +19,7 @@ namespace TestProject
     public class LeaveGameGameTest
     {
         SLInterface sl;
-        private IDB db;
+        private IPeL db;
         GameCenter center;
 
         [TestCleanup]
@@ -33,7 +33,7 @@ namespace TestProject
         [TestInitialize]
         public void SetUp()
         {
-            db = new DBImpl();
+            db = new PeLImpl();
             for (int i = 0; i < 4; i++)
             {
                 db.RegisterUser("test" + i, "" + i, "email" + i, null);
