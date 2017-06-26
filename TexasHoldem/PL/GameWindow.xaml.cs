@@ -64,6 +64,10 @@ namespace PL
             this.systemUserId = systemUserId;
             initializeScreen();
             updateGame(game);
+            betButton.IsEnabled = false;
+            foldButton.IsEnabled = false;
+            checkButton.IsEnabled = false;
+            callButton.IsEnabled = false;
         }
 
         /// <summary>
