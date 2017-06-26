@@ -744,7 +744,7 @@ namespace PL
                             {
                                 betButton.IsEnabled = true;
                                 foldButton.IsEnabled = true;
-                                MessageBox.Show("minimalBet: " + getMinimumBet());
+                               // MessageBox.Show("minimalBet: " + getMinimumBet());
                                 if (getMinimumBet() == 0)
                                 {
                                     checkButton.IsEnabled = true;

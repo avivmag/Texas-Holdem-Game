@@ -348,7 +348,6 @@ namespace Backend.Game
         {
             int highRank = -1;
             int winnerIndex = -1;
-
             for (int i = 0; i < players.Length - 1; i++)
             {
                 if (players[i].playerState.Equals(Player.PlayerState.in_round) || players[i].playerState.Equals(Player.PlayerState.my_turn))
@@ -588,6 +587,9 @@ namespace Backend.Game
                 {
                     if ((int)players[i].handRank == maxHandPlayer)
                     {
+                        if (players[i].handRankCards == 1)
+                            players[i].handRankCards = 14;
+
                         if (players[i].handRankCards > maxHandPlayerCards)
                         {
                             maxHandPlayer = (int)players[i].handRank;
