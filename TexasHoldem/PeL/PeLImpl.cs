@@ -192,17 +192,20 @@ namespace PeL
         /// <returns>true if user has been edited succesfully</returns>
         public bool EditUserById(int Id, string UserName, string password, string email, Image image, int? moneyToAdd, int? rankToAdd, bool playedAnotherGame)
         {
-            string filePath = String.Join("_", Guid.NewGuid(), UserName);
-            string imagesDirectory = Path.Combine(Environment.CurrentDirectory, "Images", filePath);
+            string imagesDirectory = String.Empty;
+            if (image != null)
+            {
+                string filePath = String.Join("_", Guid.NewGuid(), UserName, "updated");
+                imagesDirectory = Path.Combine(Environment.CurrentDirectory, "images", filePath);
 
-            // Save image to disc. (produces error but saves it anyway. we will just wrap it with a 'try' clause.
-            try
-            {
-                image.Save(imagesDirectory);
-            }
-            catch
-            {
-                Console.WriteLine("COULDNOT SAVE IMAGE!!!!!!!!!s");
+                // Save image to disc. (produces error but saves it anyway. we will just wrap it with a 'try' clause.
+                try
+                {
+                    image.Save(imagesDirectory);
+                }
+                catch
+                {
+                }
             }
 
             Database.Domain.SystemUser user = systemUserRepository.GetById(Id);
@@ -229,7 +232,13 @@ namespace PeL
             if (!systemUserRepository.Update(user))
                 return false;
 
-            systemUserCache.addOrUpdate(databaseSystemUserToBackendSystemUser(systemUserRepository.GetById(Id)));
+            var updatedUser = databaseSystemUserToBackendSystemUser(systemUserRepository.GetById(Id));
+
+            if (image != null)
+            {
+                updatedUser.userImageByteArray = imageToByteArray(image);
+            }
+            systemUserCache.addOrUpdate(updatedUser);
 
             return true;
 
@@ -432,8 +441,9 @@ namespace PeL
         {
             SystemUser systemUser = systemUserCache.getById(Id);
             if (systemUser != null)
+            {
                 return systemUser;
-
+            }
             Database.Domain.SystemUser DatabaseUser = systemUserRepository.GetById(Id);
             if (DatabaseUser == null)
                 return null;
@@ -445,11 +455,14 @@ namespace PeL
             {
                 // Get the user's profile picture file from memory.
                 var returnedImage = Image.FromFile(systemUser.userImage);
-
+                
                 // Convert user's profile picture into byte array in order to send over TCP 
                 systemUser.userImageByteArray = imageToByteArray(returnedImage);
             }
-            catch { }
+            catch
+            {
+                
+            }
 
             systemUserCache.addOrUpdate(systemUser);
 
@@ -502,11 +515,14 @@ namespace PeL
             {
                 // Get the user's profile picture file from memory.
                 var returnedImage = Image.FromFile(systemUser.userImage);
-
+                
                 // Convert user's profile picture into byte array in order to send over TCP 
                 systemUser.userImageByteArray = imageToByteArray(returnedImage);
             }
-            catch { }
+            catch
+            {
+                
+            }
 
             systemUserCache.addOrUpdate(systemUser);
 
@@ -561,7 +577,7 @@ namespace PeL
             {
                 // Get the user's profile picture file from memory.
                 var returnedImage = Image.FromFile(systemUser.userImage);
-
+                
                 // Convert user's profile picture into byte array in order to send over TCP 
                 systemUser.userImageByteArray = imageToByteArray(returnedImage);
             }

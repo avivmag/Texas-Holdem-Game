@@ -71,12 +71,12 @@ namespace PL
                 if (m.HasValue && m.Value)
                 {
                     Hide();
-                    LoginWindow.user.name = username.Text;
-                    LoginWindow.user.password = password.Text;
-                    LoginWindow.user.email = email.Text;
-                    LoginWindow.user.money += money;
-                    LoginWindow.user.profilePicture = tempImage;
-                    LoginWindow.user.userImageByteArray = imageToByteArray(tempImage);
+                    LoginWindow.user.name                   = username.Text;
+                    LoginWindow.user.password               = password.Text;
+                    LoginWindow.user.email                  = email.Text;
+                    LoginWindow.user.money                  += money;
+                    LoginWindow.user.profilePicture         = tempImage;
+                    LoginWindow.user.userImageByteArray     = imageToByteArray(tempImage);
                     MainMenuWindow.Show();
                 }
                 else
