@@ -27,7 +27,7 @@ namespace Backend.Game
         public int currentBet { get; set; }
         private int gameCreatorUserId;
         private int availableSeats;
-        
+
         public MustPreferences gamePreferences { get; set; }
         public Deck deck { get; }
         private int maxPlayers = 9;
