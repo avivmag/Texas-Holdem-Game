@@ -20,6 +20,7 @@ namespace CLClient.Entities
         public int pot { get; set; }
         public int tempPot { get; set; }
         public int currentBet { get; set; }
+        public bool gameOnChips { get; set; }
 
         public Preference gamePreferences { get; set; }
         public Player[] players { get; set; }

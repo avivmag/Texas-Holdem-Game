@@ -16,6 +16,7 @@ namespace Backend.Game
         private Action<int[]> leaderBoardUpdateCallback;
 
         private bool isGameIsOver;
+        public bool gameOnChips { get; set; }
 
         public int gameId { get; set; }
         public int currentDealer { get; set; }
@@ -26,7 +27,7 @@ namespace Backend.Game
         public int currentBet { get; set; }
         private int gameCreatorUserId;
         private int availableSeats;
-        
+
         public MustPreferences gamePreferences { get; set; }
         public Deck deck { get; }
         private int maxPlayers = 9;
