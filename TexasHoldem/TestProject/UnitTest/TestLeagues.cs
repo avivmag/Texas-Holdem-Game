@@ -28,9 +28,6 @@ namespace TestProject.UnitTest
         [TestInitialize]
         public void setUp()
         {
-            //var leagues = new System.Collections.Generic.List<League>();
-            //leagues.Add(new League(0, 1000, "Starter League"));
-            //leagues.Add(new League(1000, 2000, "Experienced League"));
             db = new PeLImpl();
             for (int i = 0; i < 4; i++)
             {
@@ -63,38 +60,24 @@ namespace TestProject.UnitTest
         [TestMethod]
         public void TestMaintainLeagueCount()
         {
-            //var addMessage = sl.addLeague(3000, 4000, "Test League for experienced Players.");
             Assert.IsTrue(center.leagues.Count==2);
         }
 
         [TestMethod]
         public void TestMaintainLeagueNumPlayers()
         {
-            //var leagueToRemove = sl.getLeagueByName("Experienced League");
-
-            //var removeMessage = sl.removeLeague(leagueToRemove);
-
-            //Assert.IsTrue(removeMessage.success);
             Assert.IsTrue(center.leagues[0].Users.Count - center.leagues[1].Users.Count <= 1);
         }
 
         [TestMethod]
         public void TestMaintainLeagueMaxRank()
         {
-
-            //var duplicateRemoveMessage = sl.addLeague(300, 400, "Starter League");
-
-            //Assert.IsFalse(duplicateRemoveMessage.success);
             Assert.IsTrue(center.leagues[0].maxRank > center.leagues[1].maxRank);
         }
 
         [TestMethod]
         public void TestMaintainLeagueMinRank()
         {
-
-            //var duplicateRemoveMessage = sl.addLeague(300, 400, "Starter League");
-
-            //Assert.IsFalse(duplicateRemoveMessage.success);
             Assert.IsTrue(center.leagues[0].minRank >= center.leagues[1].maxRank);
         }
 
@@ -105,7 +88,6 @@ namespace TestProject.UnitTest
             for (int i = 0; i < 9; i++)
             {
                 SystemUser u = new SystemUser("", "", "", 100, rnd.Next(0, 999999));
-                //u.rank = rnd.Next(0, 999999);
                 allUsers.Add(u);
             }
             center.maintainLeagues(allUsers);
@@ -139,7 +121,6 @@ namespace TestProject.UnitTest
             for (int i = 0; i < 50; i++)
             {
                 SystemUser u = new SystemUser("", "", "", 100, rnd.Next(0, 999999));
-                //u.rank = rnd.Next(0, 999999);
                 allUsers.Add(u);
             }
             center.maintainLeagues(allUsers);
@@ -173,7 +154,6 @@ namespace TestProject.UnitTest
             for(int i = 0; i<128; i++)
             {
                 SystemUser u = new SystemUser("", "", "", 100, rnd.Next(0, 999999));
-                //u.rank = rnd.Next(0, 999999);
                 allUsers.Add(u);
             }
             center.maintainLeagues(allUsers);

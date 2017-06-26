@@ -66,7 +66,6 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AcceptanceTests\TestSupportGame.cs" />
     <Compile Include="AcceptanceTests\TestsLoginActions.cs" />
     <Compile Include="Bridge\Bridge.cs" />
     <Compile Include="Bridge\Driver.cs" />

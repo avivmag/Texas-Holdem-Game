@@ -40,21 +40,6 @@ namespace TestProject.Bridge
             return sl.editUserProfile(userId, username, password, email, picture, moneyAmount);
         }
 
-        //public bool editEmail(string email)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public bool editImage(string img)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public bool editName(string name)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
         public object getUserbyName(string username)
         {
             return sl.getUserByName(username);
@@ -76,13 +61,6 @@ namespace TestProject.Bridge
                 return false;
             return true;
         }
-        
-
-        
-
-
-
-
 
         public object creatGame(int gameCreator, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague)
         {

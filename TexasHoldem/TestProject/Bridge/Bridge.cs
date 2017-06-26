@@ -11,9 +11,6 @@ namespace TestProject
         object login(string username, string password);
         object logout(int userId);
         object editProfile(int userId, string username, string password, string email, Image picture, int moneyAmount);
-        //bool editImage(string img);
-        //bool editName(string name);
-        //bool editEmail(string email);
         object getUserbyName(string username);
         bool isLogin(string username);
         bool isUserExist(string username, string password);
