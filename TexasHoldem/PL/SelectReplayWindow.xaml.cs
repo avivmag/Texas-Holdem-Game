@@ -30,6 +30,7 @@ namespace PL
 
             else
             {
+                int i = 0;
                 foreach (string[] logData in gameLogStrings)
                 {
                     // Create a new game log instance.
@@ -39,7 +40,8 @@ namespace PL
                     gameLogs.Add(gl);
 
                     // Pour game log meta data into view grid list.
-                    selectGameGrid.Items.Add(gl.getMetaData());
+                    selectGameGrid.Items.Add(gl.getMetaData(i));
+                    i++;
                 }
             }
         }

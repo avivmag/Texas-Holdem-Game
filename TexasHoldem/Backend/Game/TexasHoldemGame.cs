@@ -360,6 +360,7 @@ namespace Backend.Game
             }
 
             players[winnerIndex].playerState = PlayerState.winner;
+            GameLog.logLine(gameId, GameLog.Actions.Player_Winner, players[winnerIndex].name);
             players[winnerIndex].Tokens += pot;
             playersStats[winnerIndex].totalGrossProfit += pot;
             if (playersStats[winnerIndex].highetsCashInAGame < players[winnerIndex].Tokens)
@@ -447,8 +448,9 @@ namespace Backend.Game
                 if (players[index] != null)
                 {
                     Card newCard = deck.Top();
+                    var cardIndex = players[index].playerCards.Count;
                     players[index].playerCards.Add(newCard);
-                    GameLog.logLine(gameId, GameLog.Actions.Deal_Card, newCard.Type.ToString(), newCard.Value.ToString(), players[index].name);
+                    GameLog.logLine(gameId, GameLog.Actions.Deal_Card, cardIndex.ToString(), newCard.Type.ToString(), newCard.Value.ToString(), players[index].name, index.ToString());
                 }
                 index = (index + 1) % maxPlayers;
             }
@@ -495,7 +497,9 @@ namespace Backend.Game
 
             players[currentBig].TokensInBet = currentBlindBet;
 
-            pot += ((currentBlindBet + (currentBlindBet / 2)));
+            var sum = ((currentBlindBet + (currentBlindBet / 2)));
+            pot += sum;
+            GameLog.logLine(gameId, GameLog.Actions.Pot_Changed, sum.ToString(), pot.ToString());
         }
 
         private void continueGame()
@@ -553,6 +557,7 @@ namespace Backend.Game
                     isGameIsOver = true;
                     p.Tokens += pot;
                     p.playerState = PlayerState.winner;
+
                     for (int i = 0; i < players.Length; i++)
                     {
                         if (players[i] != null && players[i].Tokens <= 0)
@@ -629,6 +634,7 @@ namespace Backend.Game
                 amount.ToString());
 
             pot += amount;
+            GameLog.logLine(gameId, GameLog.Actions.Pot_Changed, amount.ToString(), pot.ToString());
             int turn = checkWhosTurnIs();
             players[turn].TokensInBet += amount;
             int bet = -1;
