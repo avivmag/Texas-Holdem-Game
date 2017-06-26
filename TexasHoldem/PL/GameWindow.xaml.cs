@@ -28,6 +28,7 @@ namespace PL
         private int playerSeatIndex;
         private int systemUserId;
         private TexasHoldemGame game;
+        private bool isSpectator;
         
         private ScrollViewer sv;
         private Button[] seatsButtons;
@@ -56,14 +57,25 @@ namespace PL
         Button callButton;
         Button foldButton;
         Button playButton;
-        
-        public GameWindow(TexasHoldemGame game, int systemUserId)
+
+        public GameWindow(TexasHoldemGame game, int systemUserId, bool isSpectator)
         {
             InitializeComponent();
             this.game = game;
             this.systemUserId = systemUserId;
+            this.isSpectator = isSpectator;
             initializeScreen();
             updateGame(game);
+            betButton.IsEnabled = false;
+            foldButton.IsEnabled = false;
+            checkButton.IsEnabled = false;
+            callButton.IsEnabled = false;
+
+            playButton.IsEnabled = !isSpectator;
+            betButton.IsEnabled = false;
+            foldButton.IsEnabled = false;
+            checkButton.IsEnabled = false;
+            callButton.IsEnabled = false;
         }
 
         /// <summary>
@@ -796,7 +808,7 @@ namespace PL
             for (int i = 0; i < game.players.Length; i++)
             {
                 if (playerSeatIndex == -1 && game.players[i] == null)
-                    changeSeat(i, true, "gray", null, "free seat", 0, 0);
+                    changeSeat(i, !isSpectator, "gray", null, "free seat", 0, 0);
                 else if (playerSeatIndex != -1 && game.players[i] == null)
                     changeSeat(i, false, "gray", null, "free seat", 0, 0);
                 else //if (game.players[i] != null)
@@ -819,7 +831,7 @@ namespace PL
                             break;
                         case Player.PlayerState.winner:
                             changeSeat(i, false, "yellow", game.players[i].profilePic, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
-                            playButton.IsEnabled = true;
+                            playButton.IsEnabled = !isSpectator;
                             betButton.IsEnabled = false;
                             foldButton.IsEnabled = false;
                             checkButton.IsEnabled = false;
@@ -848,11 +860,10 @@ namespace PL
                 {
                     changeSeat(i, false, "blue", game.players[i].profilePic, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
                     playButton.IsEnabled = false;
-                    if (systemUserId == game.players[i].systemUserID)
+                    if (systemUserId == game.players[i].systemUserID && !isSpectator)
                     {
                         betButton.IsEnabled = true;
                         foldButton.IsEnabled = true;
-                        //MessageBox.Show("minimalBet: " + getMinimumBet());
                         if (getMinimumBet() == 0)
                         {
                             checkButton.IsEnabled = true;

@@ -290,7 +290,7 @@ namespace PL
             {
                 Close();
                 mainMenuWindow.Show();
-                new GameWindow(game,LoginWindow.user.id).Show();
+                new GameWindow(game,LoginWindow.user.id, false).Show();
             }
             else
             {
@@ -308,7 +308,7 @@ namespace PL
             {
                 this.Close();
                 mainMenuWindow.Show();
-                new GameWindow(game, LoginWindow.user.id).Show();
+                new GameWindow(game, LoginWindow.user.id, true).Show();
             }
             else
             {
