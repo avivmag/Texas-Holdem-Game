@@ -1,16 +1,12 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SL;
 using Backend.Game;
-//using DAL;
-using Moq;
 using Backend.User;
-using Backend;
 using System.Collections.Generic;
 using ApplicationFacade;
 using Backend.Game.DecoratorPreferences;
 using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
-using Database;
+using PeL;
 
 namespace TestProject.UnitTest
 {
@@ -18,7 +14,7 @@ namespace TestProject.UnitTest
     public class TestGameCreate
     {
         private SLInterface sl;
-        private IDB db;
+        private IPeL db;
         private GameCenter center;
 
         [TestCleanup]
@@ -32,10 +28,10 @@ namespace TestProject.UnitTest
         [TestInitialize]
         public void SetUp()
         {
-            db = new DBImpl();
+            db = new PeLImpl();
             for (int i = 0; i < 4; i++)
             {
-                db.RegisterUser("test" + i, "" + i, "email" + i, "userImage" + i);
+                db.RegisterUser("test" + i, "" + i, "email" + i, null);
             }
 
             db.EditUserById(db.getUserByName("test0").id, null, null, null, null, 1000, 10, false);
@@ -120,7 +116,7 @@ namespace TestProject.UnitTest
             for (int i = 0; i < gamesList.Count; i++)
             {
                 gamesList[i].gameId = i;
-                center.texasHoldemGames.Add(gamesList[i]);
+                center.TexasHoldemGames.Add(gamesList[i]);
             }
 
             sl = new SLImpl();
@@ -143,6 +139,94 @@ namespace TestProject.UnitTest
             object game = sl.createGame(40, "Limit", 100, 100, 15000, 120, 4, 8, true, false);
 
             Assert.IsNotInstanceOfType(game, typeof(TexasHoldemGame));
+        }
+
+        [TestMethod]
+        public void TestCreateGameWithLimit()
+        {
+            object objUser = db.getUserByName("test0");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user = (SystemUser)objUser;
+
+            object objGame = sl.createGame(user.id, "Limit", 1000, 100, 15000, 120, 4, 8, true, false);
+            Assert.IsInstanceOfType(objGame, typeof(TexasHoldemGame));
+            TexasHoldemGame game = (TexasHoldemGame)objGame;
+
+            Assert.IsTrue(game.gamePreferences.isContain(new MustPreferences(new GamePolicyDecPref(GameTypePolicy.Limit,1000,null),true)));
+        }
+
+        [TestMethod]
+        public void TestCreateGameWithNoLimit()
+        {
+            object objUser = db.getUserByName("test0");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user = (SystemUser)objUser;
+
+            object objGame = sl.createGame(user.id, "No_Limit", 1000, 100, 15000, 120, 4, 8, true, false);
+            Assert.IsInstanceOfType(objGame, typeof(TexasHoldemGame));
+            TexasHoldemGame game = (TexasHoldemGame)objGame;
+
+            Assert.IsTrue(game.gamePreferences.isContain(new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit, 1000, null), true)));
+        }
+
+        [TestMethod]
+        public void TestCreateGameWithNoLimitNone()
+        {
+            object objUser = db.getUserByName("test0");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user = (SystemUser)objUser;
+
+            object objGame = sl.createGame(user.id, "none", 1000, 100, 15000, 120, 4, 8, true, false);
+            Assert.IsInstanceOfType(objGame, typeof(TexasHoldemGame));
+            TexasHoldemGame game = (TexasHoldemGame)objGame;
+
+            Assert.IsTrue(game.gamePreferences.isContain(new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit, 1000, null), true)));
+        }
+
+        [TestMethod]
+        public void TestCreateGameWithPotLimit()
+        {
+            object objUser = db.getUserByName("test0");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user = (SystemUser)objUser;
+
+            object objGame = sl.createGame(user.id, "Pot_Limit", 1000, 100, 15000, 120, 4, 8, true, false);
+            Assert.IsInstanceOfType(objGame, typeof(TexasHoldemGame));
+            TexasHoldemGame game = (TexasHoldemGame)objGame;
+
+            Assert.IsTrue(game.gamePreferences.isContain(new MustPreferences(new GamePolicyDecPref(GameTypePolicy.Pot_Limit, 1000, null), true)));
+        }
+
+        [TestMethod]
+        public void TestCreateGameIsOnChipsTrue()
+        {
+            object objUser = db.getUserByName("test0");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user = (SystemUser)objUser;
+
+            object objGame = sl.createGame(user.id, "Pot_Limit", 1000, 100, 15000, 120, 4, 8, true, false);
+            Assert.IsInstanceOfType(objGame, typeof(TexasHoldemGame));
+            TexasHoldemGame game = (TexasHoldemGame)objGame;
+
+            Assert.IsTrue(game.gamePreferences.isContain(new MustPreferences(new GamePolicyDecPref(GameTypePolicy.Pot_Limit, 1000, null), true)));
+
+            Assert.IsTrue(game.gameOnChips);
+        }
+
+        [TestMethod]
+        public void TestCreateGameIsOnChipsFalse()
+        {
+            object objUser = db.getUserByName("test0");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user = (SystemUser)objUser;
+
+            object objGame = sl.createGame(user.id, "Pot_Limit", 1000, 100, 0, 120, 4, 8, true, false);
+            Assert.IsInstanceOfType(objGame, typeof(TexasHoldemGame));
+            TexasHoldemGame game = (TexasHoldemGame)objGame;
+
+            Assert.IsTrue(game.gamePreferences.isContain(new MustPreferences(new GamePolicyDecPref(GameTypePolicy.Pot_Limit, 1000, null), true)));
+
+            Assert.IsFalse(game.gameOnChips);
         }
     }
 }

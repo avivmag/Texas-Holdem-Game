@@ -13,32 +13,10 @@ namespace Backend.User
 		public String password { get; set; }
         public String email { get; set; }
 		public String userImage { get; set; }
+        public byte[] userImageByteArray { get; set; }
         public List<TexasHoldemGame> spectatingGame;
 
-        //private int tempRank;
-        //private int tempGames ;
         public bool newPlayer { get; set; }
-
-        //static int currentId = 0;
-        //static int getNextId()
-        //{
-        //    return ++currentId;
-        //}
-
-        //public SystemUser(String name, String password, String email, String userImage, int money)
-        //{
-        //    this.name = name;
-        //    this.password = password;
-        //    this.email = email;
-        //    this.userImage = userImage;
-        //    this.money = money;
-        //    spectatingGame = new List<TexasHoldemGame> { };
-        //    rank = -1;
-
-        //    tempRank = 0;
-        //    tempGames = 0;
-        //    newPlayer = true;
-        //}
 
         public SystemUser(int id, String name, String email, String userImage, int money, int rank, int gamesPlayed)
         {
@@ -50,18 +28,11 @@ namespace Backend.User
             this.rank = rank;
             spectatingGame = new List<TexasHoldemGame> { };
             
-            //tempRank = 0;
-            //tempGames = 0;
             newPlayer = gamesPlayed < 10;
         }
 
         public SystemUser(String name, String email, String userImage, int money, int rank, int gamesPlayed) : this(-1, name, email, userImage, money, rank, gamesPlayed) { }
         public SystemUser(String name, String email, String userImage, int money, int rank) : this(name, email, userImage, money, rank, 0){}
-
-        public void update(String str)
-        {
-            // writeln(str);
-        }
 
         //public void addSpectatingGame(TexasHoldemGame game)
         //{
@@ -84,7 +55,7 @@ namespace Backend.User
         {
             if (obj.GetType() != typeof(SystemUser))
                 return false;
-            return name.Equals(((SystemUser)obj).name);
+            return name.Equals(((SystemUser)obj).name) || id == ((SystemUser)obj).id;
         }
 
         //public void updateRank(int rankToUpdate)

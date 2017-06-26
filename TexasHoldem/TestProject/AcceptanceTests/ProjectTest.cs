@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Backend.Game;
 using Backend.User;
+using System.Drawing;
 
 namespace TestProject
 {
@@ -13,7 +14,7 @@ namespace TestProject
             bridge = Driver.getBridge();
           
         }
-        public object register(string username, string password, string email, string picture)
+        public object register(string username, string password, string email, System.Drawing.Image picture)
         {
            return  bridge.register(username,password, email, picture);
         }
@@ -37,7 +38,7 @@ namespace TestProject
         {
             return bridge.logout(userId);
         }
-        public object editProfile(int userId, string username, string password, string email, string picture, int moneyAmount)
+        public object editProfile(int userId, string username, string password, string email, Image picture, int moneyAmount)
         {
             return bridge.editProfile(userId, username, password, email, picture, moneyAmount);
         }
@@ -104,9 +105,9 @@ namespace TestProject
             return bridge.isGameOver(gameId);
         }
         
-        public bool canBet(TexasHoldemGame game, SystemUser user, int amount)
+        public bool canBet(TexasHoldemGame game, int amount)
         {
-            return bridge.canBet(game, user, amount);
+            return bridge.canBet(game, amount);
         }
         public bool updatePot(int amount)
         {
@@ -116,9 +117,9 @@ namespace TestProject
         {
             return bridge.updateStatePlayer(statePlayer, amount);
         }
-        public bool canRaise(TexasHoldemGame game, SystemUser user, int amount)
+        public bool canRaise(TexasHoldemGame game, int amount)
         {
-            return bridge.canRaise(game, user, amount);
+            return bridge.canRaise(game, amount);
         }
         //public bool call(int amount)
         //{

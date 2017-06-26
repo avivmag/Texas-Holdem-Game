@@ -6,7 +6,7 @@ using Backend.User;
 using System.Collections.Generic;
 using Backend;
 using ApplicationFacade;
-using Database;
+using PeL;
 
 namespace TestProject
 {
@@ -14,7 +14,7 @@ namespace TestProject
     public class EditUserProfileTest
     {
         SLInterface sl;
-        private IDB db;
+        private IPeL db;
         GameCenter center = GameCenter.getGameCenter();
 
         [TestCleanup]
@@ -29,10 +29,10 @@ namespace TestProject
         [TestInitialize]
         public void SetUp()
         {
-            db = new DBImpl();
+            db = new PeLImpl();
             for (int i = 0; i < 4; i++)
             {
-                db.RegisterUser("test" + i, "" + i, "email" + i, "userImage" + i);
+                db.RegisterUser("test" + i, "" + i, "email" + i, null);
             }
             db.EditUserById(db.getUserByName("test0").id, null, null, null, null, 1000, 10, false);
             db.EditUserById(db.getUserByName("test1").id, null, null, null, null, 0, 15, false);
@@ -77,16 +77,16 @@ namespace TestProject
         [TestMethod]
         public void successEditUserTest()
         {
-            object obj = sl.editUserProfile(db.getUserByName("test0").id, "Hadas123", "12345", "email7", "image5", 100);
+            object obj = sl.editUserProfile(db.getUserByName("test0").id, "Hadas123", "12345", "email7", null, 100);
             Assert.IsInstanceOfType(obj, typeof(ReturnMessage));
             Assert.IsTrue(((ReturnMessage)obj).success);
-            sl.editUserProfile(db.getUserByName("Hadas123").id, "test0", "12345", "email7", "image5", 100);
+            sl.editUserProfile(db.getUserByName("Hadas123").id, "test0", "12345", "email7", null, 100);
         }
 
         [TestMethod]
         public void alreadyExistsUserNameTest()
         {
-            object obj = sl.editUserProfile(db.getUserByName("test0").id, "test3", "12345", "email7", "image5", 100);
+            object obj = sl.editUserProfile(db.getUserByName("test0").id, "test3", "12345", "email7", null, 100);
             Assert.IsInstanceOfType(obj, typeof(ReturnMessage));
             Assert.IsFalse(((ReturnMessage)obj).success);
         }
@@ -94,7 +94,7 @@ namespace TestProject
         [TestMethod]
         public void editUserEmptyUserNameTest()
         {
-            object obj = sl.editUserProfile(db.getUserByName("test0").id, "", "12345", "email7", "image5", 100);
+            object obj = sl.editUserProfile(db.getUserByName("test0").id, "", "12345", "email7", null, 100);
             Assert.IsInstanceOfType(obj, typeof(ReturnMessage));
             Assert.IsFalse(((ReturnMessage)obj).success);
         }
@@ -102,7 +102,7 @@ namespace TestProject
         [TestMethod]
         public void alreadyExistsEmailTest()
         {
-            object obj = sl.editUserProfile(db.getUserByName("test0").id, "gil", "1111", "email3", "image5", 100);
+            object obj = sl.editUserProfile(db.getUserByName("test0").id, "gil", "1111", "email3", null, 100);
             Assert.IsInstanceOfType(obj, typeof(ReturnMessage));
             Assert.IsFalse(((ReturnMessage)obj).success);
         }
@@ -110,7 +110,7 @@ namespace TestProject
         [TestMethod]
         public void negativeMoneyTest()
         {
-            object obj = sl.editUserProfile(db.getUserByName("test0").id, "gil", "1111", "email100", "image5", -100);
+            object obj = sl.editUserProfile(db.getUserByName("test0").id, "gil", "1111", "email100", null, -100);
             Assert.IsInstanceOfType(obj, typeof(ReturnMessage));
             Assert.IsFalse(((ReturnMessage)obj).success);
         }

@@ -4,31 +4,44 @@ using Backend;
 using Backend.Game;
 using Backend.Game.DecoratorPreferences;
 using Backend.User;
+using Backend.Messages;
 using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
 using Database;
+using System.Net.Sockets;
+using System.Drawing;
+using System.IO;
+using PeL;
 
 namespace ApplicationFacade
 {
-	public class GameCenter : Backend.Messages.Notification
+	public class GameCenter
 	{
-		public List<TexasHoldemGame> texasHoldemGames { get; set; }
+        private List<TexasHoldemGame> texasHoldemGames;
+
+        public List<TexasHoldemGame> TexasHoldemGames
+        {
+            get { //foreach (TexasHoldemGame t in texasHoldemGames)
+                    //if (numberOfPlayersInGame(t) == 0)
+                        //texasHoldemGames.Remove(t);
+                  return texasHoldemGames;
+                }
+            set => texasHoldemGames = value;
+        }
+
         public List<League> leagues { get; set; }
         //public List<SystemUser> loggedInUsers { get; set; }
         //public List<SystemUser> userList { get; set; }
-        //private DALDummy dal;
         private static GameCenter center;
-        private IDB db;
+        private IPeL db;
+        public MessageObserver messageObserver = new MessageObserver();
 
         private GameCenter()
         {
-            //dal = new DALDummy();
             texasHoldemGames = new List<TexasHoldemGame>();
-            //texasHoldemGames = dal.getAllGames();
             leagues = new List<League>();
             //userList = new List<SystemUser>();
             //loggedInUsers = new List<SystemUser>();
-            //Action<int[]> rankCallback = ;
-            db = new DBImpl();
+            db = new PeLImpl();
         }
 
         public static GameCenter getGameCenter()
@@ -36,24 +49,6 @@ namespace ApplicationFacade
             if (center == null)
             {
                 center = new GameCenter();
-
-                // aviv - for testing purposes only
-                //center.register("aviv", "1", "1", "profile_pic");
-                //center.register("avivImaginaryFriend", "1", "2", "profile_pic");
-                //int userId = center.getUserByName("aviv").id;
-                //int friendId = center.getUserByName("avivImaginaryFriend").id;
-                ////Console.WriteLine(userId);
-                //ReturnMessage rm;
-                //rm = center.editUserProfile(userId, "aviv", "1", "1", "profile_pic", 2000000);
-                //if (!rm.success)
-                //    Console.WriteLine("00000000000000000 " + rm.description);
-                //rm = center.editUserProfile(friendId, "avivImaginaryFriend", "1", "2", "profile_pic", 2000000);
-                //if (!rm.success)
-                //    Console.WriteLine("00000000000000000 " + rm.description);
-                //rm = center.logout(userId);
-                //if (!rm.success)
-                //    Console.WriteLine("11111111111111111 " + rm.description);
-                //center.createGame(friendId, "no_limit", 100, 10, 10, 10, 2, 9, false, false);
             }
             return center;
         }
@@ -106,7 +101,7 @@ namespace ApplicationFacade
                 }
             }
         }
-
+        
         public ReturnMessage logout(int userId)
         {
             SystemUser systemUser = db.getUserById(userId);
@@ -127,24 +122,42 @@ namespace ApplicationFacade
             //return new ReturnMessage(false, "you are not logged in.");
         }
 
+        public List<Object> getUsersDetails()
+        {
+            return db.getUsersDetails();
+        }
+
         public List<SystemUser> getAllUsers()
         {
-            //return dal.getAllUsers();
-            //return userList;
             return db.getAllSystemUsers();
         }
 
         public bool removeUser(int userId)
         {
-            //foreach (SystemUser u in userList)
-            //    if (u.id == userId)
-            //    {
-            //        userList.Remove(u);
-            //        return true;
-            //    }
-            //return false;
             return db.deleteUser(userId);
         }
+
+        public List<string[]> getGameLogs()
+        {
+            List<string[]> gameLogs = new List<string[]>();
+
+            // Get all logs seperated by different lines.
+            string[] filePaths = Directory.GetFiles(Path.Combine(Environment.CurrentDirectory, "logs"));
+
+            // Add logs to the returning list.
+            foreach (var p in filePaths)
+            {
+                gameLogs.Add(File.ReadAllLines(p));
+            }
+
+            return gameLogs;
+        }
+
+        public void sendSystemMessage(string message)
+        {
+            messageObserver.Update(message);
+        }
+
         public bool removeGame(int gameId)
         {
             foreach (TexasHoldemGame game in texasHoldemGames)
@@ -158,69 +171,39 @@ namespace ApplicationFacade
             return false;
         }
 
-        public SystemUser register(string userName, string password, string email, string userImage)
+        public SystemUser register(string userName, string password, string email, Image userImage)
         {
-            if (userName == null || password == null || email == null || userImage == null || userName.Equals("") || password.Equals("") || email.Equals("") || userImage.Equals(""))
-                throw new ArgumentException("Not all parameters were given.");
+            if (userName == null || password == null || email == null || userName.Equals("") || password.Equals("") || email.Equals(""))
+                throw new ArgumentException("Not all parameters were given.", "Register");
 
             SystemUser user = db.getUserByName(userName);
             if (user != null)
                 return null;// throw new ArgumentException("User already exists.");
-
-            //creating the user.
-            //user = new SystemUser(userName, password, email, userImage, 0);
+            
             //after a registeration the user stay login
             db.RegisterUser(userName, password, email, userImage);
             //loggedInUsers.Add(user);
             
-            //foreach (SystemUser systemUser in userList)
-            //    if (systemUser.name.Equals(user.name))
-            //        throw new InvalidOperationException("This user name is already taken.");
-
             //userList.Add(user);
+            // Get the specified user from the db.
             return db.getUserByName(userName);
         }
 
         public SystemUser login(string user, string password)
         {
             if (user == null || password == null || user.Equals("") || password.Equals(""))
-                throw new ArgumentException("No such user.");
+                throw new ArgumentException("No such user.", "Login");
 
             SystemUser systemUser = db.getUserByName(user);
             if (systemUser == null)
-                throw new ArgumentException("No such user.");
+                throw new ArgumentException("No such user.", "Login");
 
-            //foreach (SystemUser u in loggedInUsers)
-            //    if (systemUser.id == u.id)
-            //        throw new ArgumentException("The user is already logged in");
-
-            //if (systemUser.password.Equals(password))
-            //{
-            //    loggedInUsers.Add(systemUser);
-            //    return systemUser;
-            //}
-            //else
-            //    throw new InvalidOperationException("Incorrect password");
             int id = db.Login(user, password);
             if (id == -1)
-                throw new InvalidOperationException("Incorrect password");
+                throw new ArgumentException("Incorrect password", "Login");
 
             return db.getUserById(id);
         }
-
-        //public TexasHoldemGame createGame(int gameCreatorId, MustPreferences pref)
-        //{
-        //    SystemUser user = getUserById(gameCreatorId);
-        //    if (user == null)
-        //        return null;
-            
-        //    TexasHoldemGame game = new TexasHoldemGame(user, pref);
-        //    ReturnMessage m = game.gamePreferences.canPerformUserActions(game, user, "create");
-            
-        //    if (m.success)
-        //        dal.addGame(game);
-        //    return game;
-        //}
 
         public TexasHoldemGame createGame(int gameCreator, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? minimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague)
         {
@@ -239,10 +222,13 @@ namespace ApplicationFacade
                 mustPref = getMustPref(gamePolicy, gamePolicyLimit, buyInPolicy, startingChipsAmount, minimalBet, minPlayers, maxPlayers, isSpectatingAllowed, isLeague);
 
 
-            //                                                          this is the callback that is there for when we want to update user rank
-            TexasHoldemGame game = new TexasHoldemGame(user, mustPref, userIdDeltaRankMoney => db.EditUserById(userIdDeltaRankMoney[0], null, null, null, null, userIdDeltaRankMoney[2], userIdDeltaRankMoney[1], false), userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2]));
+            //this is the callback that is there for when we want to update user rank
+            TexasHoldemGame game = new TexasHoldemGame(user, mustPref,
+                userIdDeltaRankMoney => 
+                    db.EditUserById(userIdDeltaRankMoney[0], null, null, null, null, userIdDeltaRankMoney[2], userIdDeltaRankMoney[1], false), 
+                userIdLeaderB => 
+                    db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2]));
             texasHoldemGames.Add(game);
-            //dal.addGame(game);
             return game;
         }
 
@@ -324,12 +310,11 @@ namespace ApplicationFacade
             return ans;
         }
 
-        public ReturnMessage editUserProfile(int userId, string name, string password, string email, string avatar, int money, int rank)
+        public ReturnMessage editUserProfile(int userId, string name, string password, string email, Image avatar, int money, int rank)
         {
             SystemUser user = db.getUserById(userId);
             if (user == null)
                 return new ReturnMessage(false, "Could not find the logged user.");
-            //List<SystemUser> allUsers = getAllUsers();
 
             //Validates attributes.
             if (name.Equals("") || password.Equals(""))
@@ -345,30 +330,14 @@ namespace ApplicationFacade
             if (user != null && user.id != userId)
                 return new ReturnMessage(false, "email already exists.");
 
-
-            ////Check that attributes are not already exists.
-            //foreach (SystemUser u in userList)
-            //    if (u.id != userId && (u.name.Equals(name, StringComparison.OrdinalIgnoreCase) || u.email.Equals(email, StringComparison.OrdinalIgnoreCase))) //comparing two passwords including cases i.e AbC = aBc
-            //        return new ReturnMessage(false, "Username or email already exists." + u.id + " " + userId + " " + user.id);
-
-            //changes the attributes
-            //user.name = name;
-            //user.password = password;
-            //user.email = email;
-            //user.userImage = avatar;
-            //user.money += money;
-            //dal.editUser(user);
-            // (userList[user.id]) - it is a bug and pretty much unnecessary - you are changing the reference
-            //if (user.id < userList.Count)
-            //    userList[user.id] = user;
             return new ReturnMessage(db.EditUserById(userId, name, password, email, avatar, money, rank, false), "");
         }
-        public ReturnMessage editUserProfile(int userId, string name, string password, string email, string avatar, int money)
+
+        public ReturnMessage editUserProfile(int userId, string name, string password, string email, Image avatar, int money)
         {
             SystemUser user = db.getUserById(userId);
             if (user == null)
                 return new ReturnMessage(false, "Could not find the logged user.");
-            //List<SystemUser> allUsers = getAllUsers();
 
             //Validates attributes.
             if (name.Equals(""))
@@ -422,35 +391,33 @@ namespace ApplicationFacade
             return null;
         }
 
+        public int numberOfPlayersInGame(TexasHoldemGame thg)
+        {
+            int counter = 0;
+            for (int i = 0; i < thg.players.Length; i++)
+            {
+                if (thg.players[i] != null)
+                    counter++;
+            }
+            return counter;
+        }
+
         public SystemUser getUserByName(string name)
         {
-            ////return dal.getUserByName(name);
-            //for (int i = 0; i < userList.Count; i++)
-            //    if (userList[i].name.Equals(name))
-            //        return userList[i];
-            //return null;
             return db.getUserByName(name);
         }
 
         public SystemUser getUserById(int userId)
         {
-            //foreach (SystemUser user in loggedInUsers)
-            //    if (user.id == userId)
-            //        return user;
-            //return null;
             return db.getUserById(userId);
         }
 
         #region game
+
         public ReturnMessage bet(int gameId, int playerIndex, int coins)
         {
             TexasHoldemGame game = getGameById(gameId);
-            //Player player = null;
-            //foreach (Player p in game.players)
-            //    if (p.systemUserID == playerUserId)
-            //        player = p;
-            //if (player == null)
-            //    return new ReturnMessage(false, "could not find the player");
+
             return game.bet(game.players[playerIndex], coins);
         }
         public ReturnMessage fold(int gameId, int playerIndex)
@@ -463,10 +430,10 @@ namespace ApplicationFacade
             TexasHoldemGame game = getGameById(gameId);
             return game.check(game.players[playerIndex]);
         }
-        public ReturnMessage call(int gameId, int playerIndex)
+        public ReturnMessage call(int gameId, int playerIndex, int minBet)
         {
             TexasHoldemGame game = getGameById(gameId);
-            return game.call(game.players[playerIndex]);
+            return game.call(game.players[playerIndex], minBet);
         }
         public ReturnMessage playGame(int gameId)
         {
@@ -489,11 +456,7 @@ namespace ApplicationFacade
             TexasHoldemGame game = getGameById(gameId);
             return game.GetPlayerCards(userId);
         }
-        //public IDictionary<int, Card[]> GetShowOff(int gameId)
-        //{
-        //    TexasHoldemGame game = getGameById(gameId);
-        //    return game.GetShowOff();
-        //}
+
         #endregion
 
         private SystemUser getHighest(List<SystemUser> users)
@@ -538,11 +501,17 @@ namespace ApplicationFacade
             MaxPlayersDecPref maximalPlayerPref = maxPlayers.HasValue ? new MaxPlayersDecPref(maxPlayers.Value, null) : null;
             if (gamePolicy != null)
             {
+                if (gamePolicy == "none")
+                    gamePolicy = "No_Limit";
                 GameTypePolicy policy;
                 Enum.TryParse(gamePolicy, out policy);
                 if (gamePolicyLimit.HasValue)
                 {
                     gamePolicyDec = new GamePolicyDecPref(policy, gamePolicyLimit.Value, null);
+                }
+                else
+                {
+                    gamePolicyDec = new GamePolicyDecPref(policy, 0, null);
                 }
             }
             if (gamePolicyDec != null)
@@ -629,22 +598,37 @@ namespace ApplicationFacade
             return mustPref;
         }
 
-        public object addMessage(int gameId, int playerIndex, string messageText)
+        public List<object> getLeaderboardsByParam(string param)
+        {
+            return db.getLeaderboardsByParam(param);
+        }
+
+        public object addMessage(int gameId, int userId, string messageText)
         {
             var game = getGameById(gameId);
+            
+            var user = getUserById(userId);
+            if (game == null || user == null)
+            {
+                return null;
+            }
+            
+            var playerName = String.Empty;
+            /*
+            // If a player tries to send a message before sitting down, send the message as anonymous.
+            if (playerIndex == -1)
+            {
+                var rand = new Random();
+                playerName = "Anonymous" + rand.Next(1, 9999);
+            }
+            else
+            {
+                playerName = game.players[playerIndex].name;
+            }*/
 
-            var player = game.players[playerIndex];
-
-            game.addMessage(String.Format("{0}: {1}", player.name, messageText));
+            game.addMessage(user, messageText);
 
             return null;
         }
-
-        //public TexasHoldemGame createRegularGame(SystemUser user, GamePreferences preferences)
-        //{
-        //	var game = new Game.TexasHoldemGame(user, preferences);
-        //          texasHoldemGames.Add(game);
-        //          return game;
-        //      }
     }
 }

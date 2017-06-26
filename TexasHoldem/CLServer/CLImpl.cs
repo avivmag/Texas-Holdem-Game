@@ -11,6 +11,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Reflection;
 using System.Web.Script.Serialization;
+using System.Drawing;
 
 namespace CLServer
 {
@@ -22,6 +23,7 @@ namespace CLServer
 
         private const string SUBSCRIBE_TO_MESSAGE   = "Messages";
         private const string SUBSCRIBE_TO_GAME      = "Game";
+        private const string SUBSCRIBE_TO_SPECTATE  = "Spectate";
         private const string LOCAL_IP               = "127.0.0.1";
         private const int DESKTOP_PORT              = 2345;
         private const int WEB_PORT                  = 4343;
@@ -88,7 +90,7 @@ namespace CLServer
         /// <param name="client">The client to send to.</param>
         /// <param name="message">The message to send. (Optional)</param>
         /// <param name="response">The response type, (Optional - only refers to HTTP responses.)</param>
-        public static void SendMessage(ClientInfo clientInfo, object message = null, int response = 200)
+        public static void SendMessage(ClientInfo clientInfo, object message = null, int response = 200, bool isInitial = false)
         {
             if (clientInfo == null)
             {
@@ -97,7 +99,7 @@ namespace CLServer
 
             if (clientInfo.type == ClientInfo.CLIENT_TYPE.TCP)
             {
-                SendTcpMessage((TcpClient)clientInfo.client, message);
+                SendTcpMessage((TcpClient)clientInfo.client, clientInfo.passPhrase, isInitial, message);
             }
             else if (clientInfo.type == ClientInfo.CLIENT_TYPE.HTTP)
             {
@@ -112,6 +114,21 @@ namespace CLServer
         #endregion
 
         #region TCP-Server Functions
+        
+        /// <summary>
+        /// Task to send System Messages to clients.
+        /// </summary>
+        private static void startCli()
+        {
+            var message = String.Empty;
+            while (message != "q")
+            {
+                message = Console.ReadLine();
+                sl.sendSystemMessage(message);
+            }
+
+            Console.WriteLine("Terminating CLI.");
+        }
 
         /// <summary>
         /// Starts up the desktop client listener.
@@ -176,7 +193,7 @@ namespace CLServer
                 var jsonObject = new JObject();
                 try
                 {
-                    jsonObject = getJsonObjectFromDesktopStream(client);
+                    jsonObject = getJsonObjectFromDesktopStream(client, clientInfo.passPhrase);
                 }
                 catch
                 {
@@ -190,7 +207,20 @@ namespace CLServer
                 catch (TargetInvocationException tie)
                 {
                     Console.WriteLine(tie.InnerException);
-                    SendMessage(clientInfo, new { exception = "An Error Has Occured" });
+
+                    // Get inner exception param name. If either register or login, this means no encryption yet.
+                    var optionalParam = ((ArgumentException)tie.InnerException).ParamName;
+
+                    Console.WriteLine("Optional exception parameter: {0}", optionalParam);
+
+                    if (optionalParam == "Login" || optionalParam == "Register")
+                    {
+                        SendMessage(clientInfo, new { exception = "An Error Has Occured" }, 200, true);
+                    }
+                    else
+                    {
+                        SendMessage(clientInfo, new { exception = "An Error Has Occured" }, 200, false);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -205,12 +235,20 @@ namespace CLServer
         /// </summary>
         /// <param name="client">The tcp client</param>
         /// <returns>The JObject</returns>
-        private static JObject getJsonObjectFromDesktopStream(TcpClient client)
+        private static JObject getJsonObjectFromDesktopStream(TcpClient client, string passPhrase)
         {
-            var message                 = new byte[1024 * 10];
+            var message                 = new byte[1024 * 1024];
 
             var bytesRead               = client.GetStream().Read(message, 0, message.Length);
+
             string myObject             = Encoding.ASCII.GetString(message);
+
+            if (passPhrase != "undefined")
+            {
+                var trimmedObject = myObject.Trim('\0');
+                myObject = Cryptography.Decrypt(trimmedObject, passPhrase);
+            }
+
             Object deserializedProduct  = JsonConvert.DeserializeObject(myObject);
 
             return JObject.FromObject(deserializedProduct);
@@ -221,7 +259,7 @@ namespace CLServer
         /// </summary>
         /// <param name="client">The client to send to.</param>
         /// <param name="message">The message to send.</param>
-        private static void SendTcpMessage(TcpClient client, object message = null)
+        private static void SendTcpMessage(TcpClient client, string passPhrase, bool isInitial, object message = null)
         {
             JObject messageJObject = new JObject();
             if (message != null)
@@ -241,6 +279,10 @@ namespace CLServer
                                                                       NullValueHandling = NullValueHandling.Ignore
                                                                   });
 
+            if (!isInitial)
+            {
+                serializedMessage = Cryptography.Encrypt(serializedMessage, passPhrase);
+            }
             var messageByteArray = Encoding.ASCII.GetBytes(serializedMessage);
 
             try
@@ -425,7 +467,7 @@ namespace CLServer
                 ((playerIndexToken == null) || (playerIndexToken.Type != JTokenType.Integer)) ||
                 ((coinsToken == null) || (coinsToken.Type != JTokenType.Integer)))
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Raise."));
+                throw new ArgumentException("Error: Parameters Mismatch at Raise.");
             }
 
             var gameId = (int)gameIdToken;
@@ -440,23 +482,23 @@ namespace CLServer
         private static void AddMessage(ClientInfo client, JObject jsonObject)
         {
             var gameIdToken = jsonObject["gameId"];
-            var playerIndexToken = jsonObject["playerIndex"];
+            var userIdToken = jsonObject["userId"];
             var messageTextToken = jsonObject["messageText"];
 
             if (((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer)) ||
-                ((playerIndexToken == null) || (playerIndexToken.Type != JTokenType.Integer)) ||
+                ((userIdToken == null) || (userIdToken.Type != JTokenType.Integer)) ||
                 ((messageTextToken == null) || (messageTextToken.Type != JTokenType.String)))
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Add Message."));
+                throw new ArgumentException("Error: Parameters Mismatch at Add Message.");
             }
 
             var gameId = (int)gameIdToken;
-            var playerIndex = (int)playerIndexToken;
+            var userId = (int)userIdToken;
             var messageText = (string)messageTextToken;
 
-            Console.WriteLine("Message added. parameters are: gameId: {0}, playerIndex: {1}, messageText: {2}", gameId, playerIndex, messageText);
+            Console.WriteLine("Message added. parameters are: gameId: {0}, userId: {1}, messageText: {2}", gameId, userId, messageText);
             
-            SendMessage(client, new { response = sl.AddMessage(gameId, playerIndex, messageText) });
+            SendMessage(client, new { response = sl.AddMessage(gameId, userId, messageText) });
         }
 
         private static void Fold(ClientInfo client, JObject jsonObject)
@@ -467,7 +509,7 @@ namespace CLServer
             if (((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer)) ||
                 ((playerIndexToken == null) || (playerIndexToken.Type != JTokenType.Integer)))
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Fold."));
+                throw new ArgumentException("Error: Parameters Mismatch at Fold.");
             }
 
             var gameId = (int)gameIdToken;
@@ -486,7 +528,7 @@ namespace CLServer
             if (((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer)) ||
                 ((playerIndexToken == null) || (playerIndexToken.Type != JTokenType.Integer)))
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Check."));
+                throw new ArgumentException("Error: Parameters Mismatch at Check.");
             }
 
             var gameId = (int)gameIdToken;
@@ -501,19 +543,22 @@ namespace CLServer
         {
             var gameIdToken = jsonObject["gameId"];
             var playerIndexToken = jsonObject["playerIndex"];
+            var minBet = jsonObject["minBet"];
 
             if (((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer)) ||
-                ((playerIndexToken == null) || (playerIndexToken.Type != JTokenType.Integer)))
+                ((playerIndexToken == null) || (playerIndexToken.Type != JTokenType.Integer)) ||
+                ((minBet == null) || (minBet.Type != JTokenType.Integer)))
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Check."));
+                throw new ArgumentException("Error: Parameters Mismatch at Check.");
             }
 
             var gameId = (int)gameIdToken;
             var playerIndex = (int)playerIndexToken;
+            var minimumBet = (int)minBet;
 
             Console.WriteLine("Call. parameters are: gameId: {0}, playerIndex: {1}", gameId, playerIndex);
 
-            SendMessage(client, new { response = sl.Call(gameId, playerIndex) });
+            SendMessage(client, new { response = sl.Call(gameId, playerIndex, minimumBet) });
         }
 
         private static void removeUser(ClientInfo client, JObject jsonObject)
@@ -524,7 +569,7 @@ namespace CLServer
             if (((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer)) ||
                 ((userIdToken == null) || (userIdToken.Type != JTokenType.Integer)))
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Check."));
+                throw new ArgumentException("Error: Parameters Mismatch at Check.");
             }
 
             var gameId = (int)gameIdToken;
@@ -541,7 +586,7 @@ namespace CLServer
 
             if (((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer)))
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Check."));
+                throw new ArgumentException("Error: Parameters Mismatch at Check.");
             }
             
             var response = sl.playGame((int)gameIdToken);
@@ -555,7 +600,7 @@ namespace CLServer
 
             if ((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer))
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Get Game State."));
+                throw new ArgumentException("Error: Parameters Mismatch at Get Game State.");
             }
             
             var response = sl.GetGameState((int)gameIdToken);
@@ -571,7 +616,7 @@ namespace CLServer
             if ((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer) ||
                 (playerSeatIndexToken == null) || (playerSeatIndexToken.Type != JTokenType.Integer))
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Get Player."));
+                throw new ArgumentException("Error: Parameters Mismatch at Get Player.");
             }
 
             var gameId = (int)gameIdToken;
@@ -588,7 +633,7 @@ namespace CLServer
             if ((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer) ||
                 (userId == null) || (userId.Type != JTokenType.Integer))
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Get Player Cards."));
+                throw new ArgumentException("Error: Parameters Mismatch at Get Player Cards.");
             }
 
             var gameId = (int)gameIdToken;
@@ -605,8 +650,9 @@ namespace CLServer
 
         private static void Login(ClientInfo clientInfo, JObject jsonObject)
         {
-            var usernameToken = jsonObject["username"];
-            var passwordToken = jsonObject["password"];
+            var usernameToken       = jsonObject["username"];
+            var passwordToken       = jsonObject["password"];
+            var passPhraseToken     = jsonObject["passPhrase"];
 
             if ((usernameToken == null) || (usernameToken.Type != JTokenType.String) || 
                 (String.IsNullOrWhiteSpace(usernameToken.ToString())) ||
@@ -614,12 +660,21 @@ namespace CLServer
                 (passwordToken == null) || (passwordToken.Type != JTokenType.String) ||
                 (String.IsNullOrWhiteSpace(passwordToken.ToString())))
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Login."));
+                throw new ArgumentException("Error: Parameters Mismatch at Login.", "Login");
+            }
+
+            if ((passPhraseToken != null) && (passPhraseToken.Type == JTokenType.String) &&
+                (!String.IsNullOrWhiteSpace(passPhraseToken.ToString())))
+            {
+                if (clientInfo.type == ClientInfo.CLIENT_TYPE.TCP)
+                {
+                    clientInfo.passPhrase = (string)passPhraseToken;
+                }
             }
 
             var loginResponse = sl.Login((string)usernameToken, (string)passwordToken);
 
-            SendMessage(clientInfo, loginResponse);
+            SendMessage(clientInfo, loginResponse, 200, true);
         }
 
         private static void CreateGame(ClientInfo clientInfo, JObject jsonObject) {
@@ -639,9 +694,9 @@ namespace CLServer
                 (gamePolicyToken == null) || (gamePolicyToken.Type != JTokenType.String) ||
                 String.IsNullOrWhiteSpace((string)(gamePolicyToken))*/)
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Create Game."));
+                throw new ArgumentException("Error: Parameters Mismatch at Create Game.");
             }
-            
+
             var createGameResponse = sl.createGame(
                 (int)gameCreatorIdToken, 
                 (string)gamePolicyToken,
@@ -663,7 +718,7 @@ namespace CLServer
 
             if (gameIdToken == null || gameIdToken.Type != JTokenType.Integer)
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Get Game"));
+                throw new ArgumentException("Error: Parameters Mismatch at Get Game");
             }
 
             var getGameResponse = sl.getGameById((int)gameIdToken);
@@ -678,6 +733,8 @@ namespace CLServer
             var passwordToken   = jsonObject["password"];
             var emailToken      = jsonObject["email"];
             var userImageToken  = jsonObject["userImage"];
+            var passPhraseToken = jsonObject["passPhrase"];
+
             if ((usernameToken == null) || (usernameToken.Type != JTokenType.String) ||
                 (String.IsNullOrWhiteSpace(usernameToken.ToString())) ||
 
@@ -686,20 +743,29 @@ namespace CLServer
 
                 (emailToken == null) || (emailToken.Type != JTokenType.String) ||
                 (String.IsNullOrWhiteSpace(emailToken.ToString())) ||
-
+                
                 (userImageToken == null) || (userImageToken.Type != JTokenType.String) ||
-                (String.IsNullOrWhiteSpace(userImageToken.ToString())))
+                ((((byte[])userImageToken).Length) == 0))
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Register"));
+                throw new ArgumentException("Error: Parameters Mismatch at Register", "Register");
+            }
+
+            if ((passPhraseToken != null) && (passPhraseToken.Type == JTokenType.String) &&
+                (!String.IsNullOrWhiteSpace(passPhraseToken.ToString())))
+            {
+                if (clientInfo.type == ClientInfo.CLIENT_TYPE.TCP)
+                {
+                    clientInfo.passPhrase = (string)passPhraseToken;
+                }
             }
 
             var registerResponse = sl.Register(
                 (string)usernameToken, 
                 (string)passwordToken, 
-                (string)emailToken, 
-                (string)userImageToken);
+                (string)emailToken,
+                (Bitmap)((new ImageConverter()).ConvertFrom((byte[])userImageToken)));
             
-            SendMessage(clientInfo, registerResponse);
+            SendMessage(clientInfo, registerResponse, 200, true);
             return;
         }
 
@@ -709,7 +775,7 @@ namespace CLServer
 
             if (userIdToken == null || userIdToken.Type != JTokenType.Integer)
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Logout"));
+                throw new ArgumentException("Error: Parameters Mismatch at Logout");
             }
 
             var logoutResponse = sl.Logout((int)userIdToken);
@@ -728,11 +794,11 @@ namespace CLServer
                 (userIdToken == null) || (userIdToken.Type != JTokenType.Integer) ||
                 (playerSeatIndexToken == null) || (playerSeatIndexToken.Type != JTokenType.Integer))
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Join Active Game"));
+                throw new ArgumentException("Error: Parameters Mismatch at Join Active Game");
             }
 
             var joinGameResponse = sl.joinGame((int)userIdToken, (int)gameIdToken, (int) playerSeatIndexToken);
-            
+
             SendMessage(clientInfo, joinGameResponse);
         }
 
@@ -744,7 +810,7 @@ namespace CLServer
             if ((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer) ||
                 (userIdToken == null) || (userIdToken.Type != JTokenType.Integer))
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at get Game for player"));
+                throw new ArgumentException("Error: Parameters Mismatch at get Game for player");
             }
             
             var getGameForPlayersResponse = sl.GetGameForPlayers((int)userIdToken, (int)gameIdToken);
@@ -761,7 +827,7 @@ namespace CLServer
             if ((gameIdToken == null) || (gameIdToken.Type != JTokenType.Integer) ||
                 (userIdToken == null) || (userIdToken.Type != JTokenType.Integer))
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Spectate Active Game"));
+                throw new ArgumentException("Error: Parameters Mismatch at Spectate Active Game");
             }
 
             var spectateActiveGameResponse = sl.spectateActiveGame((int)userIdToken, (int)gameIdToken);
@@ -769,6 +835,13 @@ namespace CLServer
             SendMessage(clientInfo, spectateActiveGameResponse);
             return;
         }
+
+        private static void GetGameLogs(ClientInfo clientInfo, JObject jsonObject)
+        {
+
+            SendMessage(clientInfo, sl.getGameLogs());
+        }
+
 
         private static void FindAllActiveAvailableGames(ClientInfo clientInfo, JObject jsonObject)
         {
@@ -812,8 +885,7 @@ namespace CLServer
 
             if ((potSizeToken == null) || (potSizeToken.Type != JTokenType.Integer))
             {
-                throw new TargetInvocationException(
-                    new ArgumentException("Error: Parameters Mismatch at Filter Active Games By Pot Size"));
+                throw new ArgumentException("Error: Parameters Mismatch at Filter Active Games By Pot Size");
             }
 
             var filterActiveGamesByPotSizeResponse = sl.filterActiveGamesByPotSize((int?)potSizeToken);
@@ -829,8 +901,7 @@ namespace CLServer
             if ((playerNameToken == null) || (playerNameToken.Type != JTokenType.String) ||
                 (String.IsNullOrWhiteSpace(playerNameToken.ToString())))
             {
-                throw new TargetInvocationException(
-                    new ArgumentException("Error: Parameters Mismatch at Filter Active Games By Player Name"));
+                throw new ArgumentException("Error: Parameters Mismatch at Filter Active Games By Player Name");
             }
 
             var filterActiveGamesByPotSizeResponse = sl.filterActiveGamesByPlayerName((string)playerNameToken);
@@ -847,13 +918,16 @@ namespace CLServer
             var emailToken      = jsonObject["email"];
             var avatarToken     = jsonObject["avatar"];
             var amountToken     = jsonObject["amount"];
-
-            Console.WriteLine("trying");
-            Console.WriteLine(passwordToken);
-
+            
             if (userIdToken == null || userIdToken.Type != JTokenType.Integer)
             {
-                throw new TargetInvocationException(new ArgumentException("Error: Parameters Mismatch at Edit User Profile"));
+                throw new ArgumentException("User Id Error: Parameters Mismatch at Edit User Profile");
+            }
+
+            if ((avatarToken == null) || (avatarToken.Type != JTokenType.String) ||
+                ((((byte[])avatarToken).Length) == 0))
+            {
+                throw new ArgumentException("Picture Error: Parameters Mismatch at Edit User Profile");
             }
 
             var editUserProfileResponse = sl.editUserProfile(
@@ -861,7 +935,7 @@ namespace CLServer
                 (string)nameToken,
                 (string)passwordToken,
                 (string)emailToken,
-                (string)avatarToken,
+                (Bitmap)((new ImageConverter()).ConvertFrom((byte[])avatarToken)),
                 (int)amountToken);
                 
 
@@ -872,6 +946,16 @@ namespace CLServer
         private static void Subscribe(ClientInfo clientInfo, JObject jsonObject)
         {
             var subscribeToToken = jsonObject["to"];
+            var passPhraseToken  = jsonObject["passPhrase"];
+
+            if ((passPhraseToken != null) && (passPhraseToken.Type == JTokenType.String) &&
+                (!String.IsNullOrWhiteSpace(passPhraseToken.ToString())))
+            {
+                if (clientInfo.type == ClientInfo.CLIENT_TYPE.TCP)
+                {
+                    clientInfo.passPhrase = (string)passPhraseToken;
+                }
+            }
 
             if ((subscribeToToken == null) ||
                 (subscribeToToken.Type != JTokenType.String) ||
@@ -886,18 +970,24 @@ namespace CLServer
 
             if (subscribeTo == SUBSCRIBE_TO_GAME)
             {
-                SubscribeToGame(clientInfo, jsonObject);
+                SubscribeToGame(clientInfo, jsonObject, false);
+                return;
+            }
+
+            if (subscribeTo == SUBSCRIBE_TO_SPECTATE)
+            {
+                SubscribeToGame(clientInfo, jsonObject, true);
                 return;
             }
 
             if (subscribeTo == SUBSCRIBE_TO_MESSAGE)
             {
-                // TODO:: MESSAGE SYSTEM!! ^^
+                SubscribeToMessage(clientInfo, jsonObject);
+                return;
             }
-
         }
 
-        private static void SubscribeToGame(ClientInfo clientInfo, JObject jsonObject)
+        private static void SubscribeToGame(ClientInfo clientInfo, JObject jsonObject, Boolean isSpectator)
         {
             var optionalToken = jsonObject["optional"];
 
@@ -914,8 +1004,13 @@ namespace CLServer
             if (sl.getGameById(optional) != null)
             {
                 // Subscribe this channel to game.
-                sl.SubscribeToGameState(new ServerObserver((TcpClient)clientInfo.client), (int)optionalToken);
+                sl.SubscribeToGameState(new ServerObserver(clientInfo), (int)optionalToken, isSpectator);
             }
+        }
+
+        private static void SubscribeToMessage(ClientInfo clientInfo, JObject jsonObject)
+        {
+            sl.SubscribeToMessages(new ServerObserver(clientInfo));
         }
 
         #endregion
@@ -925,8 +1020,8 @@ namespace CLServer
         /// <summary>
         /// Just a dummy leaderboard function and how it has to be, in order to build web client on top of it.
         /// </summary>
-        /// <param name="clientInfo"></param>
-        /// <param name="jsonObject"></param>
+        /// <param name="clientInfo">The client's connection info.</param>
+        /// <param name="jsonObject">The json object.</param>
         private static void LeaderBoard(ClientInfo clientInfo, JObject jsonObject)
         {
             var rand = new Random();
@@ -935,14 +1030,30 @@ namespace CLServer
             {
                 dummyList.Add(new
                 {
-                    name = "abuya",
-                    tokens = rand.Next(5000, 50000)
+                    playerName          = "abuya",
+                    highestCash         = rand.Next(5000, 50000),
+                    totalGrossProfit    = rand.Next(100000, 1000000),
+                    gamesPlayed         = rand.Next(10, 120)
                 });
             }
+
+            //var param = (string)jsonObject["param"];
+            //var leaderBoards = sl.getLeaderboardsByParam(param);
 
             SendMessage(clientInfo, dummyList);
         }
 
+        /// <summary>
+        /// Gets the details of all the users in the system.
+        /// </summary>
+        /// <param name="clientInfo">The client's connection info.</param>
+        /// <param name="jsonObject">The json object.</param>
+        private static void GetUsersDetails(ClientInfo clientInfo, JObject jsonObject)
+        {
+            var userList = sl.getUsersDetails();
+
+            SendMessage(clientInfo, userList);
+        }
         #endregion
 
         static void Main()
@@ -976,6 +1087,10 @@ namespace CLServer
                 startWebListen(address, WEB_PORT);
             });
 
+            Task.Factory.StartNew(() =>
+            {
+                startCli();
+            });
             ManualResetEvent manualResetEvent = new ManualResetEvent(false);
 
             manualResetEvent.WaitOne();

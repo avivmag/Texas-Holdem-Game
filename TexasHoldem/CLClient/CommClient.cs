@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CLClient.Entities;
 using System.Threading;
+using System.Drawing;
 
 namespace CLClient
 {
@@ -16,13 +17,14 @@ namespace CLClient
     {
 
         #region Constants
-
-        private const string SERVER_IP              = "127.0.0.1";
-        private const int SERVER_PORT               = 2345;
-        private const int MAIN_CLIENT               = 305278202;
-        private const int MESSAGE_CLIENT            = 9440990;
-        private const string SUBSCRIBE_TO_MESSAGE   = "Messages";
-        private const string SUBSCRIBE_TO_GAME      = "Game";
+        
+        private const string SERVER_IP                  = "132.73.195.223";
+        private const int SERVER_PORT                   = 2345;
+        private const int MAIN_CLIENT                   = 305278202;
+        private const int MESSAGE_CLIENT                = 9440990;
+        private const string SUBSCRIBE_TO_MESSAGE       = "Messages";
+        private const string SUBSCRIBE_TO_GAME          = "Game";
+        private const string SUBSCRIBE_TO_SPECTATE      = "Spectate";
 
         #endregion
 
@@ -32,14 +34,19 @@ namespace CLClient
         private static Dictionary<int, TcpClient> clients = new Dictionary<int, TcpClient>();
 
         /// <summary>
+        /// Pass phrase for encryption and decryption of messages. 
+        /// </summary>
+        private static string passPhrase = generateBlob();
+
+        /// <summary>
         /// Private server listener class to wrap paremeters for listen threads.
         /// </summary>
-        private class serverListener
+        private class ServerListener
         {
             public TcpClient client;
             public IObservable toUpdate;
 
-            public serverListener(TcpClient client, IObservable toUpdate)
+            public ServerListener(TcpClient client, IObservable toUpdate)
             {
                 this.client     = client;
                 this.toUpdate   = toUpdate;
@@ -47,6 +54,33 @@ namespace CLClient
         }
 
         #region Static functionality
+
+        /// <summary>
+        /// Generates a random blob-string.
+        /// </summary>
+        /// <returns>A 12-length-string of randomly generated alphanumeric characters.</returns>
+        public static string generateBlob()
+        {
+            var random = new Random();
+
+            var length = 12;
+
+            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+            return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        /// <summary>
+        ///  Converts an image to byte array in order to send over through TCP stream.
+        /// </summary>
+        /// <param name="image">The image to convert to byte array.</param>
+        /// <returns>The image's data as byte array.</returns>
+        public static byte[] imageToByteArray(Image image)
+        {
+            ImageConverter _imageConverter = new ImageConverter();
+            byte[] byteArray = (byte[])_imageConverter.ConvertTo(image, typeof(byte[]));
+            return byteArray;
+        }
 
         /// <summary>
         /// Closes a connection to the server. If none given, closes all connections.
@@ -77,7 +111,7 @@ namespace CLClient
         /// </summary>
         /// <param name="obj">An anonymous object. MUST have action property.</param>
         /// <returns></returns>
-        public static JObject sendMessage(object obj, TcpClient client = null, bool isResponseNeeded = true)
+        public static JObject sendMessage(object obj, TcpClient client = null, bool isResponseNeeded = true, bool isInitial = false)
         {
             // If no client was explicitly assigned, get default TcpClient to send message to.
             if (client == null)
@@ -87,6 +121,11 @@ namespace CLClient
 
             var jsonObj             = JObject.FromObject(obj);
             var serializedJsonObj   = JsonConvert.SerializeObject(jsonObj);
+
+            if (!isInitial)
+            {
+                serializedJsonObj = Cryptography.Encrypt(serializedJsonObj, passPhrase);
+            }
 
             var networkStream = client.GetStream();
 
@@ -99,7 +138,7 @@ namespace CLClient
 
             if (isResponseNeeded)
             {
-                return getJsonObjectFromStream(client);
+                return getJsonObjectFromStream(client, passPhrase, isInitial);
             }
             else
             {
@@ -112,9 +151,9 @@ namespace CLClient
         /// </summary>
         /// <param name="client">The Client stream that holds a message.</param>
         /// <returns>Server message as JSON object.</returns>
-        private static JObject getJsonObjectFromStream(TcpClient client)
+        private static JObject getJsonObjectFromStream(TcpClient client, string passPhrase, bool isInitial = false)
         {
-            var message = new byte[1024 * 10];
+            var message = new byte[1024 * 1024 * 10];
 
             try
             {
@@ -126,6 +165,12 @@ namespace CLClient
             }
 
             string myObject = Encoding.ASCII.GetString(message);
+
+            if (!isInitial)
+            {
+                var trimmedObject = myObject.Trim('\0');
+                myObject = Cryptography.Decrypt(trimmedObject, passPhrase);
+            }
 
             Object deserializedProduct = JsonConvert.DeserializeObject(myObject);
 
@@ -161,7 +206,7 @@ namespace CLClient
                 return responseJson;
             }
         }
-
+        
         /// <summary>
         /// Adds the client stream to the client pool.
         /// </summary>
@@ -177,10 +222,10 @@ namespace CLClient
         /// <param name="messageStreamId">The stream's client id to subscribe.</param>
         private static void subscribeStreamToServer(int clientId, string to, object optional = null)
         {
-            var subscribeMessage = new { action = "Subscribe", to, optional };
-            sendMessage(subscribeMessage, clients[clientId], false);
+            var subscribeMessage = new { action = "Subscribe", to, optional, passPhrase };
+            sendMessage(subscribeMessage, clients[clientId], false, true);
         }
-
+        
         /// <summary>
         /// Listens to client's stream in the background, and updates a given object by the server's request.
         /// </summary>
@@ -188,12 +233,12 @@ namespace CLClient
         /// <param name="toUpdate">The object to update.</param>
         private static void Listen(Object obj)
         {
-            var client      = ((serverListener)obj).client;
-            var toUpdate    = ((serverListener)obj).toUpdate;
+            var client      = ((ServerListener)obj).client;
+            var toUpdate    = ((ServerListener)obj).toUpdate;
 
             while (true)
             {
-                var response = getJsonObjectFromStream(client);
+                var response = getJsonObjectFromStream(client, passPhrase);
 
                 var jsonResponse = getResponse(response);
 
@@ -217,6 +262,16 @@ namespace CLClient
                     if (responseStringToken != null)
                     {
                         var gameResponse = gameResponseToken.ToObject<TexasHoldemGame>();
+
+                        foreach (var p in gameResponse.players)
+                        {
+                            if (p != null && p.userImage != null)
+                            {
+                                p.profilePic = (Bitmap)(new ImageConverter()).ConvertFrom(p.userImage);
+
+                            }
+                        }
+
                         toUpdate.update(gameResponse);
                     }
                 }
@@ -241,8 +296,8 @@ namespace CLClient
         {
             addClientStream(MAIN_CLIENT);
 
-            var message         = new { action = "Login", username, password };
-            var jsonMessage     = sendMessage(message);
+            var message         = new { action = "Login", username, password, passPhrase };
+            var jsonMessage = sendMessage(message, null, true, true);
             var responseJson    = getResponse(jsonMessage);
             
             if (responseJson == null)
@@ -257,10 +312,9 @@ namespace CLClient
             // Open a different channel to recieve system messages from the server.
             subscribeStreamToServer(MESSAGE_CLIENT, SUBSCRIBE_TO_MESSAGE);
 
-            // Null needs to change to message observer.
             Thread listenThread = new Thread(Listen);
 
-            var listener = new serverListener(clients[MESSAGE_CLIENT], null);
+            var listener = new ServerListener(clients[MESSAGE_CLIENT], response);
 
             listenThread.Start(listener);
 
@@ -313,11 +367,20 @@ namespace CLClient
 
             response.gamePreferences.flatten();
 
+            foreach (var p in response.players)
+            {
+                if (p != null && p.userImage != null)
+                {
+                    p.profilePic = (Bitmap)(new ImageConverter()).ConvertFrom(p.userImage);
+
+                }
+            }
+
             addClientStream(response.gameId);
 
             subscribeStreamToServer(response.gameId, SUBSCRIBE_TO_GAME, response.gameId);
 
-            var serverListener = new serverListener(clients[response.gameId], response);
+            var serverListener = new ServerListener(clients[response.gameId], response);
 
             Thread listenThread = new Thread(Listen);
 
@@ -340,6 +403,15 @@ namespace CLClient
 
             response.gamePreferences.flatten();
 
+            foreach (var p in response.players)
+            {
+                if (p != null && p.userImage != null)
+                {
+                    p.profilePic = (Bitmap)(new ImageConverter()).ConvertFrom(p.userImage);
+
+                }
+            }
+
             return response;
         }
 
@@ -357,6 +429,40 @@ namespace CLClient
             var response    = responseJson.ToObject<TexasHoldemGame>();
 
             response.gamePreferences.flatten();
+
+            foreach (var p in response.players)
+            {
+                if (p != null && p.userImage != null)
+                {
+                    p.profilePic = (Bitmap)(new ImageConverter()).ConvertFrom(p.userImage);
+
+                }
+            }
+
+            addClientStream(response.gameId);
+
+            subscribeStreamToServer(response.gameId, SUBSCRIBE_TO_SPECTATE, response.gameId);
+
+            var serverListener = new ServerListener(clients[response.gameId], response);
+
+            Thread listenThread = new Thread(Listen);
+
+            listenThread.Start(serverListener);
+
+            return response;
+        }
+
+        public static List<string[]> getGameLogs()
+        {
+            var message = new { action = "GetGameLogs" };
+            var jsonMessage = sendMessage(message);
+            var responseJson = getResponse(jsonMessage);
+            if (responseJson == null)
+            {
+                return null;
+            }
+
+            var response = responseJson.ToObject<List<string[]>>();
 
             return response;
         }
@@ -376,6 +482,15 @@ namespace CLClient
             foreach (var thg in response)
             {
                 thg.gamePreferences.flatten();
+
+                foreach (var p in thg.players)
+                {
+                    if (p != null && p.userImage != null)
+                    {
+                        p.profilePic = (Bitmap)(new ImageConverter()).ConvertFrom(p.userImage);
+
+                    }
+                }
             }
 
             return response;
@@ -409,6 +524,15 @@ namespace CLClient
             foreach (var thg in response)
             {
                 thg.gamePreferences.flatten();
+
+                foreach (var p in thg.players)
+                {
+                    if (p != null && p.userImage != null)
+                    {
+                        p.profilePic = (Bitmap)(new ImageConverter()).ConvertFrom(p.userImage);
+
+                    }
+                }
             }
 
             return response;
@@ -430,6 +554,15 @@ namespace CLClient
             foreach (var thg in response)
             {
                 thg.gamePreferences.flatten();
+
+                foreach (var p in thg.players)
+                {
+                    if (p != null && p.userImage != null)
+                    {
+                        p.profilePic = (Bitmap)(new ImageConverter()).ConvertFrom(p.userImage);
+
+                    }
+                }
             }
 
             return response;
@@ -451,14 +584,25 @@ namespace CLClient
             foreach (var thg in response)
             {
                 thg.gamePreferences.flatten();
+
+                foreach (var p in thg.players)
+                {
+                    if (p != null && p.userImage != null)
+                    {
+                        p.profilePic = (Bitmap)(new ImageConverter()).ConvertFrom(p.userImage);
+
+                    }
+                }
             }
 
             return response;
         }
 
-        public static SystemUser Register(string username, string password, string email, string userImage)
+        public static SystemUser Register(string username, string password, string email, Image userImage)
         {
             addClientStream(MAIN_CLIENT);
+
+            var imageByteArray = imageToByteArray(userImage);
 
             var message         = new
             {
@@ -466,10 +610,11 @@ namespace CLClient
                 username,
                 password,
                 email,
-                userImage
+                userImage = imageByteArray,
+                passPhrase
             };
 
-            var jsonMessage     = sendMessage(message);
+            var jsonMessage     = sendMessage(message, null, true, true);
             var responseJson    = getResponse(jsonMessage);
 
             if (responseJson == null)
@@ -479,25 +624,35 @@ namespace CLClient
             }
             var response = responseJson.ToObject<SystemUser>();
 
+            response.profilePicture = (Bitmap)(new ImageConverter()).ConvertFrom(response.userImageByteArray);
+
             // Add a stream to the message system.
             addClientStream(MESSAGE_CLIENT);
 
             // Open a different channel to recieve system messages from the server.
             subscribeStreamToServer(MESSAGE_CLIENT, SUBSCRIBE_TO_MESSAGE);
 
-            // Null needs to change to some list of messages.
             Thread listenThread = new Thread(Listen);
 
-            var listener = new serverListener(clients[MESSAGE_CLIENT], null);
+            var listener = new ServerListener(clients[MESSAGE_CLIENT], response);
 
             listenThread.Start(listener);
 
             return response;
         }
 
-        public static bool? editUserProfile(int userId, string name, string password, string email, string avatar, int amount)
+        public static bool? editUserProfile(int userId, string name, string password, string email, Image avatar, int amount)
         {
-            var message = new { action = "EditUserProfile", userId, name, password, email, avatar, amount};
+            var imageByteArray = imageToByteArray(avatar);
+            var message = new {
+                action = "EditUserProfile",
+                userId,
+                name,
+                password,
+                email,
+                avatar = imageByteArray,
+                amount };
+
             var jsonMessage = sendMessage(message);
             var responseJson = getResponse(jsonMessage);
 
@@ -529,9 +684,9 @@ namespace CLClient
             return response;
         }
 
-        public static ReturnMessage AddMessage(int gameId, int playerIndex, string messageText)
+        public static ReturnMessage AddMessage(int gameId, int userId, string messageText)
         {
-            var message = new { action = "AddMessage", gameId, playerIndex, messageText };
+            var message = new { action = "AddMessage", gameId, userId, messageText };
             var jsonMessage = sendMessage(message);
             var responseJson = getResponse(jsonMessage);
 
@@ -574,9 +729,9 @@ namespace CLClient
             return response;
         }
 
-        public static ReturnMessage Call(int gameId, int playerIndex)
+        public static ReturnMessage Call(int gameId, int playerIndex, int minBet)
         {
-            var message = new { action = "Call", gameId, playerIndex };
+            var message = new { action = "Call", gameId, playerIndex, minBet };
             var jsonMessage = sendMessage(message);
             var responseJson = getResponse(jsonMessage);
 
@@ -631,6 +786,15 @@ namespace CLClient
             }
             var response = responseJson.ToObject<TexasHoldemGame>();
 
+            foreach (var p in response.players)
+            {
+                if (p != null && p.userImage != null)
+                {
+                    p.profilePic = (Bitmap)(new ImageConverter()).ConvertFrom(p.userImage);
+
+                }
+            }
+
             response.gamePreferences.flatten();
 
             return response;
@@ -664,11 +828,20 @@ namespace CLClient
 
             response.gamePreferences.flatten();
 
+            foreach (var p in response.players)
+            {
+                if (p != null && p.userImage != null)
+                {
+                    p.profilePic = (Bitmap)(new ImageConverter()).ConvertFrom(p.userImage);
+
+                }
+            }
+
             addClientStream(response.gameId);
 
             subscribeStreamToServer(response.gameId, SUBSCRIBE_TO_GAME, response.gameId);
 
-            var serverListener = new serverListener(clients[response.gameId], response);
+            var serverListener = new ServerListener(clients[response.gameId], response);
 
             Thread listenThread = new Thread(Listen);
 

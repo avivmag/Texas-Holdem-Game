@@ -10,7 +10,7 @@ using Backend.Game;
 using Backend.Game.DecoratorPreferences;
 using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
 using System;
-using Database;
+using PeL;
 
 namespace TestProject.UnitTest
 {
@@ -19,7 +19,7 @@ namespace TestProject.UnitTest
     {
 
         private SLInterface sl;
-        private IDB db;
+        private IPeL db;
         private GameCenter center;
 
         [TestCleanup]
@@ -33,10 +33,10 @@ namespace TestProject.UnitTest
         [TestInitialize]
         public void SetUp()
         {
-            db = new DBImpl();
+            db = new PeLImpl();
             for (int i = 0; i < 4; i++)
             {
-                db.RegisterUser("test" + i, "" + i, "email" + i, "userImage" + i);
+                db.RegisterUser("test" + i, "" + i, "email" + i, null);
             }
             db.EditUserById(db.getUserByName("test0").id, null, null, null, null, 1000, 10, false);
             db.EditUserById(db.getUserByName("test1").id, null, null, null, null, 0, 15, false);
@@ -152,7 +152,7 @@ namespace TestProject.UnitTest
             for (int i = 0; i < gamesList.Count; i++)
             {
                 gamesList[i].gameId = i;
-                center.texasHoldemGames.Add(gamesList[i]);
+                center.TexasHoldemGames.Add(gamesList[i]);
             }
 
             //Mock<DALInterface> dalMock = new Mock<DALInterface>();
@@ -165,7 +165,7 @@ namespace TestProject.UnitTest
         [TestMethod]
         public void successTest()
         {
-            object m = sl.Register("Scorpion", "GET OVER HERE!!", "scorpy@winnig.tournament.mk", "deadly skull behind a mask");
+            object m = sl.Register("Scorpion", "GET OVER HERE!!", "scorpy@winnig.tournament.mk", null);
             Assert.IsInstanceOfType(m, typeof(SystemUser));
             Assert.AreEqual(((SystemUser)m).name, "Scorpion");
             db.deleteUser(db.getUserByName("Scorpion").id);
@@ -175,21 +175,21 @@ namespace TestProject.UnitTest
         [ExpectedException(typeof(ArgumentException), "Not all parameters were given.")]
         public void emptyUserNameTest()
         {
-            sl.Register("", "P@SSW0RD", "gmail@gmail.com", "none");
+            sl.Register("", "P@SSW0RD", "gmail@gmail.com", null);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException), "Not all parameters were given.")]
         public void emptyPasswordTest()
         {
-            sl.Register("NeverPassworded", "", "no@password.com", "ying yang photo");
+            sl.Register("NeverPassworded", "", "no@password.com", null);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException), "Not all parameters were given.")]
         public void alreadyExistsEmailTest()
         {
-            object m = sl.Register("NeverPassworded", "", "email0", "ying yang photo");
+            object m = sl.Register("NeverPassworded", "", "email0", null);
         }
     }
 

@@ -9,7 +9,7 @@ using ApplicationFacade;
 using Backend.Game.DecoratorPreferences;
 using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
 using Backend;
-using Database;
+using PeL;
 
 namespace TestProject
 {
@@ -19,7 +19,7 @@ namespace TestProject
     public class LeaveGameGameTest
     {
         SLInterface sl;
-        private IDB db;
+        private IPeL db;
         GameCenter center;
 
         [TestCleanup]
@@ -33,10 +33,10 @@ namespace TestProject
         [TestInitialize]
         public void SetUp()
         {
-            db = new DBImpl();
+            db = new PeLImpl();
             for (int i = 0; i < 4; i++)
             {
-                db.RegisterUser("test" + i, "" + i, "email" + i, "userImage" + i);
+                db.RegisterUser("test" + i, "" + i, "email" + i, null);
             }
             db.EditUserById(db.getUserByName("test0").id, null, null, null, null, 1000, 10, false);
             db.EditUserById(db.getUserByName("test1").id, null, null, null, null, 0, 15, false);
@@ -144,7 +144,7 @@ namespace TestProject
             for (int i = 0; i < gamesList.Count; i++)
             {
                 gamesList[i].gameId = i;
-                center.texasHoldemGames.Add(gamesList[i]);
+                center.TexasHoldemGames.Add(gamesList[i]);
             }
 
             //Mock<DALInterface> dalMock = new Mock<DALInterface>();

@@ -26,10 +26,6 @@ namespace Backend.Game.DecoratorPreferences
                             new ReturnMessage(false, "max players must be between 2 and 9");
 
                 case "join":
-                    // AVIV: this is now redundant because if he does not have a seat he could not seat and thats it 
-                    //if (game.AvailableSeats == 0)
-                    //    return new ReturnMessage(false, "There are no available seats.");
-                    //else 
                     if (nextDecPref != null)
                         return nextDecPref.canPerformUserActions(game, user, action);
                     else
@@ -46,10 +42,10 @@ namespace Backend.Game.DecoratorPreferences
             }
         }
 
-        public override ReturnMessage canPerformGameActions(TexasHoldemGame game, SystemUser user, int amount, string action)
+        public override ReturnMessage canPerformGameActions(TexasHoldemGame game, int amount, string action)
         {
             if (nextDecPref != null)
-                return nextDecPref.canPerformGameActions(game, user, amount, action);
+                return nextDecPref.canPerformGameActions(game, amount, action);
             else
                 return new ReturnMessage(true, "");
         }

@@ -7,6 +7,7 @@ using Backend.Game.DecoratorPreferences;
 using Obser;
 using System.Net.Sockets;
 using System.Collections.Generic;
+using System.Drawing;
 
 public class SLImpl : SLInterface
 {
@@ -80,18 +81,23 @@ public class SLImpl : SLInterface
         return game.removeUser(userId);
     }
 
-    public object editUserProfile(int userId, string name, string password, string email, string avatar, int money)
+    public object editUserProfile(int userId, string name, string password, string email, Image avatar, int money)
     {
         return gameCenter.editUserProfile(userId,name,password,email,avatar, money);
     }
 
+    public object getGameLogs()
+    {
+        return gameCenter.getGameLogs();
+    }
+
     public object findAllActiveAvailableGames()
     {
-        if (gameCenter.texasHoldemGames.Count == 0)
+        if (gameCenter.TexasHoldemGames.Count == 0)
         {
             return null;
         }
-        return gameCenter.texasHoldemGames;
+        return gameCenter.TexasHoldemGames;
     }
 
     public object filterActiveGamesByPlayerName(string name)
@@ -156,6 +162,11 @@ public class SLImpl : SLInterface
         return game;
     }
 
+    public void sendSystemMessage(string message)
+    {
+        gameCenter.sendSystemMessage(message);
+    }
+
     public object getAllGames()
     {
         var games = gameCenter.getAllGames();
@@ -170,6 +181,16 @@ public class SLImpl : SLInterface
     public object getAllUsers()
     {
         var users = gameCenter.getAllUsers();
+        if (users.Count == 0)
+        {
+            return null;
+        }
+        return users;
+    }
+
+    public object getUsersDetails()
+    {
+        var users = gameCenter.getUsersDetails();
         if (users.Count == 0)
         {
             return null;
@@ -206,7 +227,7 @@ public class SLImpl : SLInterface
         return gameCenter.login(user, password);
     }
 
-    public object Register(string user, string password, string email, string userImage)
+    public object Register(string user, string password, string email, Image userImage)
     {
         return gameCenter.register(user, password, email, userImage);
     }
@@ -236,9 +257,9 @@ public class SLImpl : SLInterface
     {
         return gameCenter.bet(gameId, playerIndex, coins);
     }
-    public object AddMessage(int gameId, int playerIndex, string messageText)
+    public object AddMessage(int gameId, int userId, string messageText)
     {
-        return gameCenter.addMessage(gameId, playerIndex, messageText);
+        return gameCenter.addMessage(gameId, userId, messageText);
     }
 
     public object Fold(int gameId, int playerIndex)
@@ -249,9 +270,9 @@ public class SLImpl : SLInterface
     {
         return gameCenter.check(gameId, playerIndex);
     }
-    public object Call(int gameId, int playerIndex)
+    public object Call(int gameId, int playerIndex, int minBet)
     {
-        return gameCenter.call(gameId, playerIndex);
+        return gameCenter.call(gameId, playerIndex, minBet);
     }
     public object playGame(int gameId)
     {
@@ -290,22 +311,34 @@ public class SLImpl : SLInterface
 
     #endregion
 
-    public void SubscribeToGameState(ObserverAbstract<TcpClient> client, int gameID)
+    public void SubscribeToGameState(ObserverAbstract<TcpClient> client, int gameID, bool isSpectator)
     {
         TexasHoldemGame game = gameCenter.getGameById(gameID);
-        game.gameStatesObserver.Subscribe(client);
+        if (!isSpectator)
+        {
+            game.gameStatesObserver.Subscribe(client);
+        }
+        else
+        {
+            game.spectateObserver.Subscribe(client);
+        }
     }
 
-    public void SubscribeToGameChatPlayers(ObserverAbstract<TcpClient> client, int gameID)
+    public void SubscribeToMessages(ObserverAbstract<TcpClient> client)
     {
-        TexasHoldemGame game = gameCenter.getGameById(gameID);
-        game.gameStatesObserver.Subscribe(client);
+        gameCenter.messageObserver.Subscribe(client);
     }
-    
-    public void SubscribeToGameChatSpectators(ObserverAbstract<TcpClient> client, int gameID)
+
+    public object getLeaderboardsByParam(string param)
     {
-        TexasHoldemGame game = gameCenter.getGameById(gameID);
-        game.gameStatesObserver.Subscribe(client);
+        var leaderBoards = gameCenter.getLeaderboardsByParam(param);
+
+        if (leaderBoards.Count == 0)
+        {
+            return null;
+        }
+
+        return leaderBoards;
     }
     
     //public List<TexasHoldemGame> filterActiveGamesByGamePreferences(GameTypePolicy gamePolicy, int buyInPolicy, int startingChipsAmount, int MinimalBet, int minPlayers, int maxPlayers, bool? isSpectatingAllowed)

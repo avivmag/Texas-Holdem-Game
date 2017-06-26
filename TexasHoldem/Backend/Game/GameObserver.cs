@@ -24,6 +24,11 @@ namespace Backend.Game
             playersList.Add(p);
         }
 
+        public int Count()
+        {
+            return playersList.Count();
+        }
+
         public void Unsubscribe(ObserverAbstract<TcpClient> p)
         {
             playersList.Remove(p);

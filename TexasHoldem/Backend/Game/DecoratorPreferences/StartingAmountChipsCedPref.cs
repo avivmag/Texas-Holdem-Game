@@ -31,10 +31,10 @@ namespace Backend.Game.DecoratorPreferences
             }
         }
 
-        public override ReturnMessage canPerformGameActions(TexasHoldemGame game, SystemUser user, int amount, string action)
+        public override ReturnMessage canPerformGameActions(TexasHoldemGame game, int amount, string action)
         {
             if (nextDecPref != null)
-                return nextDecPref.canPerformGameActions(game, user, amount, action);
+                return nextDecPref.canPerformGameActions(game, amount, action);
             return new ReturnMessage(true, "");
         }
 
@@ -59,6 +59,7 @@ namespace Backend.Game.DecoratorPreferences
             else
                 return false;
         }
+
         public override string ToString()
         {
             return string.Format("startingChips: {0}, {1}", startingChipsPolicy, nextDecPref);

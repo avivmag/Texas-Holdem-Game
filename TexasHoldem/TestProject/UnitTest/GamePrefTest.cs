@@ -1,0 +1,390 @@
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SL;
+using Backend.Game;
+using Backend.User;
+using System.Collections.Generic;
+using ApplicationFacade;
+using Backend.Game.DecoratorPreferences;
+using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
+using PeL;
+using Backend;
+
+namespace TestProject.UnitTest
+{
+    [TestClass]
+    public class GamePrefTest
+    {
+        private SLInterface sl;
+        private IPeL db;
+        private GameCenter center;
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            for (int i = 0; i < 4; i++)
+                db.deleteUser(db.getUserByName("test" + i).id);
+            center.shutDown();
+        }
+
+        [TestInitialize]
+        public void SetUp()
+        {
+            db = new PeLImpl();
+            for (int i = 0; i < 4; i++)
+            {
+                db.RegisterUser("test" + i, "" + i, "email" + i, null);
+            }
+
+            db.EditUserById(db.getUserByName("test0").id, null, null, null, null, 1000, 10, false);
+            db.EditUserById(db.getUserByName("test1").id, null, null, null, null, 0, 15, false);
+            db.EditUserById(db.getUserByName("test2").id, null, null, null, null, 700, 20, false);
+            db.EditUserById(db.getUserByName("test3").id, null, null, null, null, 1500, 25, false);
+
+
+            var userList = new List<SystemUser>
+            {
+                db.getUserByName("test0"),
+                db.getUserByName("test1"),
+                db.getUserByName("test2"),
+                db.getUserByName("test3")
+            };
+
+
+            center = GameCenter.getGameCenter();
+
+            //set the leagues
+            center.maintainLeagues(userList);
+
+            //get the league of user 3
+            League l = center.getUserLeague(userList[3]);
+
+            //setting the games
+            //pref order: mustpref(spectate,league)->game type , buy in policy, starting chips, minimal bet, minimum players, maximum players.
+            var gamesList = new List<TexasHoldemGame>
+            {
+                //regular games
+                new TexasHoldemGame(userList[0],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
+                                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                                                                    new MinBetDecPref(20,new MinPlayersDecPref(2,
+                                                                    new MaxPlayersDecPref (9,null) ))))),true),
+                                                                    userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false),
+                                                                    userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2])),
+                new TexasHoldemGame(userList[0],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
+                                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                                                                    new MinBetDecPref(20,new MinPlayersDecPref(2,
+                                                                    new MaxPlayersDecPref (9,null) ))))),false),
+                                                                    userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false),
+                                                                    userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2])),
+                new TexasHoldemGame(userList[1],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
+                                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                                                                    new MinBetDecPref(20,new MinPlayersDecPref(2,
+                                                                    new MaxPlayersDecPref (2,null) ))))),true),
+                                                                    userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false),
+                                                                    userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2])),
+                new TexasHoldemGame(userList[1],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
+                                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                                                                    new MinBetDecPref(20,new MinPlayersDecPref(2,
+                                                                    new MaxPlayersDecPref (2,null) ))))),false),
+                                                                    userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false),
+                                                                    userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2])),
+                new TexasHoldemGame(userList[2],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
+                                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                                                                    new MinBetDecPref(20,new MinPlayersDecPref(2,
+                                                                    new MaxPlayersDecPref (2,null) ))))),false),
+                                                                    userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false),
+                                                                    userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2])),
+                new TexasHoldemGame(userList[2],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
+                                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                                                                    new MinBetDecPref(20,new MinPlayersDecPref(2,
+                                                                    new MaxPlayersDecPref (2,null) ))))),false),
+                                                                    userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false),
+                                                                    userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2])),
+                //league games
+                new TexasHoldemGame(userList[3],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
+                                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                                                                    new MinBetDecPref(20,new MinPlayersDecPref(2,
+                                                                    new MaxPlayersDecPref (2,null) ))))),false,l.minRank,l.maxRank),
+                                                                    userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false),
+                                                                    userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2])),
+                new TexasHoldemGame(userList[3],new MustPreferences(new GamePolicyDecPref(GameTypePolicy.No_Limit,0,
+                                                                    new BuyInPolicyDecPref(100,new StartingAmountChipsCedPref(500,
+                                                                    new MinBetDecPref(20,new MinPlayersDecPref(2,
+                                                                    new MaxPlayersDecPref (2,null) ))))),false,l.minRank,l.maxRank),
+                                                                    userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false),
+                                                                    userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2]))
+            };
+
+            for (int i = 0; i < gamesList.Count; i++)
+            {
+                gamesList[i].gameId = i;
+                center.TexasHoldemGames.Add(gamesList[i]);
+            }
+
+            sl = new SLImpl();
+        }
+
+        [TestMethod]
+        public void TestCreateGameWithNonExistantUser()
+        {
+            object game = sl.createGame(40, "Limit", 100, 100, 15000, 120, 4, 8, true, false);
+
+            Assert.IsNotInstanceOfType(game, typeof(TexasHoldemGame));
+        }
+
+        [TestMethod]
+        public void TestCreateGameWithLimitPrefFail()
+        {
+            object objUser = db.getUserByName("test0");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user = (SystemUser)objUser;
+
+            object objGame = sl.createGame(user.id, "Limit", 1000, 100, 15000, 120, 4, 8, true, false);
+            Assert.IsInstanceOfType(objGame, typeof(TexasHoldemGame));
+            TexasHoldemGame game = (TexasHoldemGame)objGame;
+
+            Assert.IsTrue(game.gamePreferences.isContain(new MustPreferences(new GamePolicyDecPref(GameTypePolicy.Limit, 1000, null), true)));
+
+            object objUser1 = db.getUserByName("test1");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user1 = (SystemUser)objUser;
+
+            ReturnMessage m = null;
+            game.joinGame(user1, 3);
+            for (int i = 0; i < game.players.Length; i++)
+            {
+                if (game.players[i] != null && game.players[i].systemUserID == user1.id)
+                {
+                    m = game.bet(game.players[i],1500);
+                    break;
+                }
+            }
+            Assert.IsFalse(m.success);
+        }
+
+        [TestMethod]
+        public void TestCreateGameWithPotLimitFail()
+        {
+            object objUser = db.getUserByName("test0");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user = (SystemUser)objUser;
+
+            object objGame = sl.createGame(user.id, "Pot_Limit", 1000, 100, 15000, 120, 4, 8, true, false);
+            Assert.IsInstanceOfType(objGame, typeof(TexasHoldemGame));
+            TexasHoldemGame game = (TexasHoldemGame)objGame;
+
+            Assert.IsTrue(game.gamePreferences.isContain(new MustPreferences(new GamePolicyDecPref(GameTypePolicy.Pot_Limit, 1000, null), true)));
+
+            object objUser1 = db.getUserByName("test1");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user1 = (SystemUser)objUser;
+
+            ReturnMessage m = null;
+            game.joinGame(user1, 3);
+            game.pot = 1000;
+            for (int i = 0; i < game.players.Length; i++)
+            {
+                if (game.players[i] != null && game.players[i].systemUserID == user1.id)
+                {
+                    m = game.bet(game.players[i], 1500);
+                    break;
+                }
+            }
+            Assert.IsFalse(m.success);
+        }
+
+        [TestMethod]
+        public void TestCreateGameWithNoPolicy()
+        {
+            object objUser = db.getUserByName("test0");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user = (SystemUser)objUser;
+
+            object objGame = sl.createGame(user.id, null, 1000, 100, 15000, 120, 4, 8, true, false);
+            Assert.IsInstanceOfType(objGame, typeof(TexasHoldemGame));
+            TexasHoldemGame game = (TexasHoldemGame)objGame;
+
+            Assert.IsFalse(game.gamePreferences.isContain(new MustPreferences(new GamePolicyDecPref(GameTypePolicy.Limit, 1000, null), true)));
+        }
+
+        [TestMethod]
+        public void TestCreateGameWithStartingChips0()
+        {
+            object objUser = db.getUserByName("test0");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user = (SystemUser)objUser;
+
+            object objGame = sl.createGame(user.id, "Pot_Limit", 1000, 100, 0, 120, 4, 8, true, false);
+            Assert.IsInstanceOfType(objGame, typeof(TexasHoldemGame));
+            TexasHoldemGame game = (TexasHoldemGame)objGame;
+
+            Assert.IsTrue(game.gamePreferences.isContain(new MustPreferences(new StartingAmountChipsCedPref(0, null), true)));
+            StartingAmountChipsCedPref startingChipsPref = (StartingAmountChipsCedPref)game.gamePreferences.getOptionalPref(new StartingAmountChipsCedPref(0, null));
+            Assert.AreEqual(0, startingChipsPref.startingChipsPolicy);
+        }
+
+        [TestMethod]
+        public void TestCreateGameWithStartingChipsMoreThan0()
+        {
+            object objUser = db.getUserByName("test0");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user = (SystemUser)objUser;
+
+            object objGame = sl.createGame(user.id, "Pot_Limit", 1000, 100, 200, 120, 4, 8, true, false);
+            Assert.IsInstanceOfType(objGame, typeof(TexasHoldemGame));
+            TexasHoldemGame game = (TexasHoldemGame)objGame;
+
+            Assert.IsTrue(game.gamePreferences.isContain(new MustPreferences(new StartingAmountChipsCedPref(200, null), true)));
+            StartingAmountChipsCedPref startingChipsPref = (StartingAmountChipsCedPref)game.gamePreferences.getOptionalPref(new StartingAmountChipsCedPref(0, null));
+            Assert.AreEqual(200, startingChipsPref.startingChipsPolicy);
+        }
+
+        [TestMethod]
+        public void TestCreateGameWithStartingChipsCheckTokens0()
+        {
+            object objUser = db.getUserByName("test0");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user = (SystemUser)objUser;
+
+            object objGame = sl.createGame(user.id, "Pot_Limit", 1000, 100, 0, 120, 4, 8, true, false);
+            Assert.IsInstanceOfType(objGame, typeof(TexasHoldemGame));
+            TexasHoldemGame game = (TexasHoldemGame)objGame;
+
+            Assert.IsTrue(game.gamePreferences.isContain(new MustPreferences(new StartingAmountChipsCedPref(0, null), true)));
+            StartingAmountChipsCedPref startingChipsPref = (StartingAmountChipsCedPref)game.gamePreferences.getOptionalPref(new StartingAmountChipsCedPref(0, null));
+            Assert.AreEqual(0, startingChipsPref.startingChipsPolicy);
+
+            object objUser1 = db.getUserByName("test1");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user1 = (SystemUser)objUser;
+
+            int user1Tokens = -1;
+            game.joinGame(user1, 3);
+            for (int i = 0; i < game.players.Length; i++)
+            {
+                if (game.players[i] != null && game.players[i].systemUserID == user1.id)
+                    user1Tokens = game.players[i].Tokens;
+            }
+
+            Assert.AreEqual(100, user1Tokens);
+        }
+
+        [TestMethod]
+        public void TestCreateGameWithStartingChipsCheckTokensMoreThen0()
+        {
+            object objUser = db.getUserByName("test0");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user = (SystemUser)objUser;
+
+            object objGame = sl.createGame(user.id, "Pot_Limit", 1000, 100, 500, 120, 4, 8, true, false);
+            Assert.IsInstanceOfType(objGame, typeof(TexasHoldemGame));
+            TexasHoldemGame game = (TexasHoldemGame)objGame;
+
+            Assert.IsTrue(game.gamePreferences.isContain(new MustPreferences(new StartingAmountChipsCedPref(500, null), true)));
+            StartingAmountChipsCedPref startingChipsPref = (StartingAmountChipsCedPref)game.gamePreferences.getOptionalPref(new StartingAmountChipsCedPref(0, null));
+            Assert.AreEqual(500, startingChipsPref.startingChipsPolicy);
+
+            object objUser1 = db.getUserByName("test1");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user1 = (SystemUser)objUser;
+
+            int user1Tokens = -1;
+            game.joinGame(user1, 3);
+            for (int i = 0; i < game.players.Length; i++)
+            {
+                if (game.players[i] != null && game.players[i].systemUserID == user1.id)
+                    user1Tokens = game.players[i].Tokens;
+            }
+
+            Assert.AreEqual(500, user1Tokens);
+        }
+
+        [TestMethod]
+        public void TestCreateGameNoBuyinWithStartingChipsCheckTokensMoreThen0()
+        {
+            
+            object objUser = db.getUserByName("test0");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user = (SystemUser)objUser;
+
+            object objGame = sl.createGame(user.id, "Pot_Limit", 1000, null, 0, 120, 4, 8, true, false);
+            Assert.IsInstanceOfType(objGame, typeof(TexasHoldemGame));
+            TexasHoldemGame game = (TexasHoldemGame)objGame;
+
+            Assert.IsTrue(game.gamePreferences.isContain(new MustPreferences(new StartingAmountChipsCedPref(0, null), true)));
+            StartingAmountChipsCedPref startingChipsPref = (StartingAmountChipsCedPref)game.gamePreferences.getOptionalPref(new StartingAmountChipsCedPref(0, null));
+            Assert.AreEqual(0, startingChipsPref.startingChipsPolicy);
+
+            object objUser1 = db.getUserByName("test1");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user1 = (SystemUser)objUser;
+
+            int user1Tokens = -1;
+            game.joinGame(user1, 3);
+            for (int i = 0; i < game.players.Length; i++)
+            {
+                if (game.players[i] != null && game.players[i].systemUserID == user1.id)
+                    user1Tokens = game.players[i].Tokens;
+            }
+
+            Assert.AreEqual(50, user1Tokens);
+        }
+
+        [TestMethod]
+        public void TestCreateGameNoStartingChips()
+        {
+            object objUser = db.getUserByName("test0");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user = (SystemUser)objUser;
+
+            object objGame = sl.createGame(user.id, "Pot_Limit", 1000, 100, null, 120, 4, 8, true, false);
+            Assert.IsInstanceOfType(objGame, typeof(TexasHoldemGame));
+            TexasHoldemGame game = (TexasHoldemGame)objGame;
+
+            Assert.IsFalse(game.gamePreferences.isContain(new MustPreferences(new StartingAmountChipsCedPref(0, null), true)));
+
+            object objUser1 = db.getUserByName("test1");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user1 = (SystemUser)objUser;
+
+            int user1Tokens = -1;
+            game.joinGame(user1, 3);
+            for (int i = 0; i < game.players.Length; i++)
+            {
+                if (game.players[i] != null && game.players[i].systemUserID == user1.id)
+                    user1Tokens = game.players[i].Tokens;
+            }
+
+            Assert.AreEqual(1000, user1Tokens);
+        }
+
+        [TestMethod]
+        public void GamePrefLessMinimalBet()
+        {
+            object objUser = db.getUserByName("test0");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user = (SystemUser)objUser;
+
+            object objGame = sl.createGame(user.id, "Pot_Limit", 1000, 100, 0, 120, 4, 8, true, false);
+            Assert.IsInstanceOfType(objGame, typeof(TexasHoldemGame));
+            TexasHoldemGame game = (TexasHoldemGame)objGame;
+
+            Assert.IsTrue(game.gamePreferences.isContain(new MustPreferences(new StartingAmountChipsCedPref(0, null), true)));
+            StartingAmountChipsCedPref startingChipsPref = (StartingAmountChipsCedPref)game.gamePreferences.getOptionalPref(new StartingAmountChipsCedPref(0, null));
+            Assert.AreEqual(0, startingChipsPref.startingChipsPolicy);
+
+            object objUser1 = db.getUserByName("test1");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user1 = (SystemUser)objUser;
+
+            ReturnMessage m = null;
+            game.joinGame(user1, 3);
+            for (int i = 0; i < game.players.Length; i++)
+            {
+                if (game.players[i] != null && game.players[i].systemUserID == user1.id)
+                    m = game.bet(game.players[i],100);
+            }
+
+            Assert.IsFalse(m.success);
+        }
+    }
+}

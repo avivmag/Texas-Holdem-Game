@@ -40,6 +40,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -49,8 +50,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommClient.cs" />
+    <Compile Include="Cryptography.cs" />
     <Compile Include="Entities\Card.cs" />
     <Compile Include="Entities\DecoratorPreferences\Preference.cs" />
+    <Compile Include="Entities\GameLog.cs" />
     <Compile Include="Entities\Notification.cs" />
     <Compile Include="Entities\Player.cs" />
     <Compile Include="Entities\ReturnMessage.cs" />

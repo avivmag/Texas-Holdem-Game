@@ -15,6 +15,7 @@ using System.Windows.Controls.Primitives;
 using CLClient;
 using CLClient.Entities;
 using static CLClient.Entities.Card;
+using System.IO;
 
 namespace PL
 {
@@ -27,7 +28,8 @@ namespace PL
         private int playerSeatIndex;
         private int systemUserId;
         private TexasHoldemGame game;
-
+        
+        private ScrollViewer sv;
         private Button[] seatsButtons;
         private Label[] playerNames;
         private Image[] playerStateBackground;
@@ -42,8 +44,10 @@ namespace PL
         private Image[] dealerIcons;
         private Image[] bigIcons;
         private Image[] smallIcons;
-        private Label[] playerCoins;
-        private Label[] playerCoinsGambled;
+        private Label[] playerCash;
+        private Label[][] playerChipsTitles;
+        private Label[][] playerChips;
+        private Label[] playerAmountGambled;
         private TextBox betTextBox;
         private TextBlock messagesTextBlock;
         private TextBox messagesTextBox;
@@ -52,25 +56,7 @@ namespace PL
         Button callButton;
         Button foldButton;
         Button playButton;
-
-        //// for testing
-        //public GameWindow()
-        //{
-        //    InitializeComponent();
-
-        //    game = new TexasHoldemGame();
-        //    game.players = new Player[9];
-        //    playerSeatIndex = 3;
-
-        //    initializeScreen();
-        //    placePlayer(playerSeatIndex, "profile_pic", "gil", 1000);
-        //    placePlayer(4, "profile_pic", "aviv", 100);
-        //    removePlayer(4);
-        //    SetDealerBigSmallIcons(0, 8, 7);
-        //    SetDealerBigSmallIcons(1, 2, 3);
-        //    movePlayersCoinsToHeap(0);
-        //}
-
+        
         public GameWindow(TexasHoldemGame game, int systemUserId)
         {
             InitializeComponent();
@@ -78,6 +64,10 @@ namespace PL
             this.systemUserId = systemUserId;
             initializeScreen();
             updateGame(game);
+            betButton.IsEnabled = false;
+            foldButton.IsEnabled = false;
+            checkButton.IsEnabled = false;
+            callButton.IsEnabled = false;
         }
 
         /// <summary>
@@ -97,8 +87,10 @@ namespace PL
             dealerIcons = new Image[9];
             bigIcons = new Image[9];
             smallIcons = new Image[9];
-            playerCoins = new Label[9];
-            playerCoinsGambled = new Label[9];
+            playerCash = new Label[9];
+            playerChipsTitles = new Label[9][];
+            playerChips = new Label[9][];
+            playerAmountGambled = new Label[9];
             alreadyAddedMouseEvents = new bool[9];
             for (int i = 0; i < alreadyAddedMouseEvents.Length; i++)
                 alreadyAddedMouseEvents[i] = false;
@@ -180,7 +172,7 @@ namespace PL
             checkFoldBetCommentControlBarUg.Children.Add(checkCallFoldControlBarUg);
             checkFoldBetCommentControlBarUg.Children.Add(betControlBarUg);
 
-            ScrollViewer sv = new ScrollViewer();
+            this.sv = new ScrollViewer();
             sv.Content = messagesTextBlock;
             border = new Border();
             border.Background = Brushes.SkyBlue;
@@ -233,19 +225,53 @@ namespace PL
             playerNames[i].HorizontalContentAlignment = HorizontalAlignment.Center;
             playerNames[i].VerticalContentAlignment = VerticalAlignment.Center;
 
-            playerCoins[i].Content = 0;
-            playerCoins[i].HorizontalAlignment = HorizontalAlignment.Center;
-            playerCoins[i].VerticalAlignment = VerticalAlignment.Center;
-            playerCoins[i].HorizontalContentAlignment = HorizontalAlignment.Center;
-            playerCoins[i].VerticalContentAlignment = VerticalAlignment.Center;
-            playerCoins[i].Foreground = Brushes.White;
+            if(game.gameOnChips)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    playerChipsTitles[i][j].HorizontalAlignment = HorizontalAlignment.Center;
+                    playerChipsTitles[i][j].VerticalAlignment = VerticalAlignment.Center;
+                    playerChipsTitles[i][j].HorizontalContentAlignment = HorizontalAlignment.Center;
+                    playerChipsTitles[i][j].VerticalContentAlignment = VerticalAlignment.Center;
+                }
+                playerChipsTitles[i][3].Content = 20;
+                playerChipsTitles[i][2].Content = 10;
+                playerChipsTitles[i][1].Content = 5;
+                playerChipsTitles[i][0].Content = 1;
+                playerChipsTitles[i][3].Foreground = Brushes.White;
+                playerChipsTitles[i][2].Foreground = Brushes.Red;
+                playerChipsTitles[i][1].Foreground = Brushes.Blue;
+                playerChipsTitles[i][0].Foreground = Brushes.Green;
+                
+                for (int j = 0; j < 4; j++)
+                {
+                    playerChips[i][j].Content = 0;
+                    playerChips[i][j].HorizontalAlignment = HorizontalAlignment.Center;
+                    playerChips[i][j].VerticalAlignment = VerticalAlignment.Center;
+                    playerChips[i][j].HorizontalContentAlignment = HorizontalAlignment.Center;
+                    playerChips[i][j].VerticalContentAlignment = VerticalAlignment.Center;
+                }
+                playerChips[i][3].Foreground = Brushes.White;
+                playerChips[i][2].Foreground = Brushes.Red;
+                playerChips[i][1].Foreground = Brushes.Blue;
+                playerChips[i][0].Foreground = Brushes.Green;
+            }
+            else
+            {
+                playerCash[i].Content = 0;
+                playerCash[i].HorizontalAlignment = HorizontalAlignment.Center;
+                playerCash[i].VerticalAlignment = VerticalAlignment.Center;
+                playerCash[i].HorizontalContentAlignment = HorizontalAlignment.Center;
+                playerCash[i].VerticalContentAlignment = VerticalAlignment.Center;
+                playerCash[i].Foreground = Brushes.White;
+            }
 
-            playerCoinsGambled[i].Content = 0;
-            playerCoinsGambled[i].HorizontalAlignment = HorizontalAlignment.Center;
-            playerCoinsGambled[i].VerticalAlignment = VerticalAlignment.Center;
-            playerCoinsGambled[i].HorizontalContentAlignment = HorizontalAlignment.Center;
-            playerCoinsGambled[i].VerticalContentAlignment = VerticalAlignment.Center;
-            playerCoinsGambled[i].Foreground = Brushes.Yellow;
+            playerAmountGambled[i].Content = 0;
+            playerAmountGambled[i].HorizontalAlignment = HorizontalAlignment.Center;
+            playerAmountGambled[i].VerticalAlignment = VerticalAlignment.Center;
+            playerAmountGambled[i].HorizontalContentAlignment = HorizontalAlignment.Center;
+            playerAmountGambled[i].VerticalContentAlignment = VerticalAlignment.Center;
+            playerAmountGambled[i].Foreground = Brushes.Yellow;
 
             UniformGrid cardsUg = new UniformGrid();
             cardsUg.HorizontalAlignment = HorizontalAlignment.Center;
@@ -270,8 +296,29 @@ namespace PL
             UniformGrid playerInfoUg = new UniformGrid();
             playerInfoUg.Columns = 1;
             playerInfoUg.Children.Add(playerNames[i]);
-            playerInfoUg.Children.Add(playerCoins[i]);
-            playerInfoUg.Children.Add(playerCoinsGambled[i]);
+            playerInfoUg.Children.Add(playerAmountGambled[i]);
+            if(game.gameOnChips)
+            {
+                UniformGrid playerInfoChipsTitlesUg = new UniformGrid();
+                playerInfoChipsTitlesUg.Rows = 1;
+                playerInfoChipsTitlesUg.Children.Add(playerChipsTitles[i][0]);
+                playerInfoChipsTitlesUg.Children.Add(playerChipsTitles[i][1]);
+                playerInfoChipsTitlesUg.Children.Add(playerChipsTitles[i][2]);
+                playerInfoChipsTitlesUg.Children.Add(playerChipsTitles[i][3]);
+                playerInfoUg.Children.Add(playerInfoChipsTitlesUg);
+
+                UniformGrid playerInfoChipsUg = new UniformGrid();
+                playerInfoChipsUg.Rows = 1;
+                playerInfoChipsUg.Children.Add(playerChips[i][0]);
+                playerInfoChipsUg.Children.Add(playerChips[i][1]);
+                playerInfoChipsUg.Children.Add(playerChips[i][2]);
+                playerInfoChipsUg.Children.Add(playerChips[i][3]);
+                playerInfoUg.Children.Add(playerInfoChipsUg);
+            }
+            else
+            {
+                playerInfoUg.Children.Add(playerCash[i]);
+            }
 
             playerIconsUg.Children.Add(dealerAllInIconsUg);
             playerIconsUg.Children.Add(seatsButtons[i]);
@@ -313,8 +360,23 @@ namespace PL
             bigIcons[i].Visibility = Visibility.Hidden;
             smallIcons[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/small_icon.png"));
             smallIcons[i].Visibility = Visibility.Hidden;
-            playerCoins[i] = new Label();
-            playerCoinsGambled[i] = new Label();
+            if(game.gameOnChips)
+            {
+                playerChips[i] = new Label[4];
+                playerChips[i][0] = new Label();
+                playerChips[i][1] = new Label();
+                playerChips[i][2] = new Label();
+                playerChips[i][3] = new Label();
+                
+                playerChipsTitles[i] = new Label[4];
+                playerChipsTitles[i][0] = new Label();
+                playerChipsTitles[i][1] = new Label();
+                playerChipsTitles[i][2] = new Label();
+                playerChipsTitles[i][3] = new Label();
+            }
+            else
+                playerCash[i] = new Label();
+            playerAmountGambled[i] = new Label();
             playerStateBackground[i] = new Image();
             playersImage[i] = new Image();
 
@@ -402,7 +464,7 @@ namespace PL
         //    changeSeat(i, true, "gray", "free_seat_icon", "free seat", 0, 0);
         //}
 
-        private void changeSeat(int i, Boolean addMouseEvents, string playerStateImageUrl, string playerImageUrl, string playerName, int playerCoinsNumber, int playerCoinsNumberGambled)
+        private void changeSeat(int i, Boolean addMouseEvents, string playerStateImageUrl, System.Drawing.Image playerImage, string playerName, int playerCoinsNumber, int playerCoinsNumberGambled)
         {
             if (addMouseEvents && !alreadyAddedMouseEvents[i])
             {
@@ -420,18 +482,47 @@ namespace PL
             }
 
             playerStateBackground[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/" + playerStateImageUrl + ".png"));
-            try
+            if (playerImage != null)
             {
-                playersImage[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/" + playerImageUrl + ".png"));
+                try
+                {
+                    // Converting system.drawing.image to imageSource.
+                    var bi = new BitmapImage();
+
+                    using (var ms = new MemoryStream())
+                    {
+                        playerImage.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                        ms.Position = 0;
+
+                        bi.BeginInit();
+                        bi.CacheOption = BitmapCacheOption.OnLoad;
+                        bi.StreamSource = ms;
+                        bi.EndInit();
+                    }
+
+                    playersImage[i].Source = bi;
+                }
+                catch (Exception e)
+                {
+                    playersImage[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/profile_pic.png"));
+                }
             }
-            catch (Exception e)
+            else
             {
-                playersImage[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/profile_pic.png"));
+                playersImage[i].Source = new BitmapImage(new Uri("pack://application:,,,/resources/" + "free_seat_icon.png"));
             }
 
             playerNames[i].Content = playerName;
-            playerCoins[i].Content = playerCoinsNumber;
-            playerCoinsGambled[i].Content = playerCoinsNumberGambled;
+            if(game.gameOnChips)
+            {
+                playerChips[i][3].Content = playerCoinsNumber / 20;
+                playerChips[i][2].Content = (playerCoinsNumber % 20) / 10;
+                playerChips[i][1].Content = (playerCoinsNumber % 10) / 5;
+                playerChips[i][0].Content = (playerCoinsNumber % 5) / 1;
+            }
+            else
+                playerCash[i].Content = playerCoinsNumber;
+            playerAmountGambled[i].Content = playerCoinsNumberGambled;
         }
 
         private CroppedBitmap DrawCard(cardType type, int cardNumber)
@@ -522,60 +613,26 @@ namespace PL
             LowerMiddleRow.Children.Add(bigUg);
         }
 
-        //// change the dealer, big and small
-        //public void SetDealerBigSmallIcons(int dealerIndex, int bigIndex, int smallIndex)
-        //{
-        //    for (int i = 0; i < 9; i++)
-        //    {
-        //        if (i == dealerIndex)
-        //            dealerIcons[i].Visibility = Visibility.Visible;
-        //        else
-        //            dealerIcons[i].Visibility = Visibility.Hidden;
-
-        //        if (i == bigIndex)
-        //            bigIcons[i].Visibility = Visibility.Visible;
-        //        else
-        //            bigIcons[i].Visibility = Visibility.Hidden;
-
-        //        if (i == smallIndex)
-        //            smallIcons[i].Visibility = Visibility.Visible;
-        //        else
-        //            smallIcons[i].Visibility = Visibility.Hidden;
-        //    }
-        //}
-
-        //// move all players bet to the heap
-        //public void movePlayersCoinsToHeap(int heapIndex)
-        //{
-        //    int sum, temp;
-        //    int.TryParse(coinsSumInHeap[heapIndex].Content.ToString(), out sum);
-        //    for (int i = 0; i < 9; i++)
-        //    {
-        //        int.TryParse(playerCoinsGambled[i].Content.ToString(), out temp);
-        //        sum += temp;
-        //        playerCoinsGambled[i].Content = 0;
-        //    }
-        //    coinsSumInHeap[heapIndex].Content = sum;
-        //}
-
-        //// mov heap coins to specific player
-        //public void moveHeapToPlayerCoins(int heapIndex, int playerIndex)
-        //{
-        //    int sum, temp;
-        //    int.TryParse(coinsSumInHeap[heapIndex].Content.ToString(), out sum);
-        //    coinsSumInHeap[heapIndex].Content = 0;
-
-        //    int.TryParse(playerCoins[playerIndex].Content.ToString(), out temp);
-        //    temp += sum;
-        //    playerCoins[playerIndex].Content = temp;
-        //}
 
         // raise bet of some player
         private void BetButton_Click(object sender, RoutedEventArgs e)
         {
-            int playerCoinsNum, playerCoinsGambledNum, coins;
-            int.TryParse(playerCoins[playerSeatIndex].Content.ToString(), out playerCoinsNum);
-            int.TryParse(playerCoinsGambled[playerSeatIndex].Content.ToString(), out playerCoinsGambledNum);
+            int playerCoinsNum = 0, playerCoinsGambledNum, coins;
+            if(game.gameOnChips)
+            {
+                int temp = 0;
+                int.TryParse(playerChips[playerSeatIndex][3].Content.ToString(), out temp);
+                playerCoinsNum += (temp * 20);
+                int.TryParse(playerChips[playerSeatIndex][2].Content.ToString(), out temp);
+                playerCoinsNum += (temp * 10);
+                int.TryParse(playerChips[playerSeatIndex][1].Content.ToString(), out temp);
+                playerCoinsNum += (temp * 5);
+                int.TryParse(playerChips[playerSeatIndex][0].Content.ToString(), out temp);
+                playerCoinsNum += (temp * 1);
+            }
+            else
+                int.TryParse(playerCash[playerSeatIndex].Content.ToString(), out playerCoinsNum);
+            int.TryParse(playerAmountGambled[playerSeatIndex].Content.ToString(), out playerCoinsGambledNum);
             //          int inserted                           put the minimal bet at least and not all in              tried to put more coins that he had
             if (!Int32.TryParse(betTextBox.Text, out coins) || coins < getMinimumBet() || playerCoinsNum < coins)
             {
@@ -584,17 +641,7 @@ namespace PL
             }
 
             ReturnMessage returnMessage = CommClient.Bet(game.gameId, playerSeatIndex, coins);
-            //if (returnMessage.success)
-            //{
-            //    playerCoinsNum -= coins;
-            //    playerCoinsGambledNum += coins;
 
-            //    playerCoins[playerSeatIndex].Content = playerCoinsNum;
-            //    playerCoinsGambled[playerSeatIndex].Content = playerCoinsGambledNum;
-
-            //    if (playerCoinsNum <= 0)
-            //        allInIcons[playerSeatIndex].Visibility = Visibility.Visible;
-            //}
             if (!returnMessage.success)
                 MessageBox.Show(returnMessage.description);
         }
@@ -604,21 +651,23 @@ namespace PL
             int temp, ans = 0, myCoins = 0;
             for (int i = 0; i < seatsButtons.Length; i++)
             {
-                int.TryParse(playerCoinsGambled[i].Content.ToString(), out temp);
-                ans = Math.Max(temp, ans);
-                if (i == playerSeatIndex)
+                temp = 0;
+                int.TryParse(playerAmountGambled[i].Content.ToString(), out temp);
+                if (i != playerSeatIndex)
+                    ans = Math.Max(temp, ans);
+                else
                     myCoins = temp;
             }
-            return ans - myCoins;
+            return Math.Max(0, ans - myCoins);
         }
 
         // send a comment
         private void CommentButton_Click(object sender, RoutedEventArgs e)
         {
-            ReturnMessage returnMessage = CommClient.AddMessage(game.gameId, playerSeatIndex, messagesTextBox.Text);
-            if (returnMessage.success)
+            ReturnMessage returnMessage = CommClient.AddMessage(game.gameId, systemUserId, messagesTextBox.Text);
+            if ((returnMessage != null) && (returnMessage.success))
                 messagesTextBox.Text = "";
-            if (!returnMessage.success)
+            if ((returnMessage != null) && (!returnMessage.success))
                 MessageBox.Show(returnMessage.description);
         }
 
@@ -628,7 +677,7 @@ namespace PL
 
             //if (returnMessage.success)
             //    seatButtonToImageDictionary[seatsButtons[playerSeatIndex]].Source = new BitmapImage(new Uri("pack://application:,,,/resources/red.png"));
-            if (!returnMessage.success)
+           if (!returnMessage.success)
                 MessageBox.Show(returnMessage.description);
         }
 
@@ -644,7 +693,7 @@ namespace PL
 
         private void CallButton_Click(object sender, RoutedEventArgs e)
         {
-            ReturnMessage returnMessage = CommClient.Call(game.gameId, playerSeatIndex);
+            ReturnMessage returnMessage = CommClient.Call(game.gameId, playerSeatIndex, getMinimumBet());
             
             if (!returnMessage.success)
                 MessageBox.Show(returnMessage.description);
@@ -676,7 +725,6 @@ namespace PL
         //    mePlayer = CommClient.GetPlayer(this.game.gameId, playerSeatIndex);
         //}
 
-        // TODO: Gili or Or, this is the function that needs to be called when updating the cards of the player
         public void updatePlayerCards()
         {
             Dictionary<int, List<Card>> cards = CommClient.GetPlayerCards(this.game.gameId, systemUserId);
@@ -752,50 +800,36 @@ namespace PL
             for (int i = 0; i < game.players.Length; i++)
             {
                 if (playerSeatIndex == -1 && game.players[i] == null)
-                    changeSeat(i, true, "gray", "free_seat_icon", "free seat", 0, 0);
+                    changeSeat(i, true, "gray", null, "free seat", 0, 0);
                 else if (playerSeatIndex != -1 && game.players[i] == null)
-                    changeSeat(i, false, "gray", "free_seat_icon", "free seat", 0, 0);
+                    changeSeat(i, false, "gray", null, "free seat", 0, 0);
                 else //if (game.players[i] != null)
                 {
+                    if (game.players[i].Tokens == 0)
+                        allInIcons[i].Visibility = Visibility.Visible;
+                    else
+                        allInIcons[i].Visibility = Visibility.Hidden;
+                    
                     switch (game.players[i].playerState)
                     {
                         case Player.PlayerState.folded:
-                            changeSeat(i, false, "red", game.players[i].imageUrl, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
+                            changeSeat(i, false, "red", game.players[i].profilePic, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
                             break;
                         case Player.PlayerState.in_round:
-                            changeSeat(i, false, "green", game.players[i].imageUrl, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
+                            changeSeat(i, false, "green", game.players[i].profilePic, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
                             break;
                         case Player.PlayerState.not_in_round:
-                            changeSeat(i, false, "gray", game.players[i].imageUrl, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
-                            break;
-                        case Player.PlayerState.my_turn:
-                            changeSeat(i, false, "blue", game.players[i].imageUrl, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
-                            playButton.IsEnabled = false;
-                            if (systemUserId == game.players[i].systemUserID)
-                            {
-                                betButton.IsEnabled = true;
-                                foldButton.IsEnabled = true;
-                                if (getMinimumBet() == 0)
-                                {
-                                    checkButton.IsEnabled = true;
-                                    callButton.IsEnabled = false;
-                                }
-                                else
-                                {
-                                    checkButton.IsEnabled = false;
-                                    callButton.IsEnabled = true;
-                                }
-                            }
-                            else
-                            {
-                                betButton.IsEnabled = false;
-                                foldButton.IsEnabled = false;
-                                checkButton.IsEnabled = false;
-                                callButton.IsEnabled = false;
-                            }
+                            changeSeat(i, false, "gray", game.players[i].profilePic, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
                             break;
                         case Player.PlayerState.winner:
-                            changeSeat(i, false, "yellow", game.players[i].imageUrl, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
+                            changeSeat(i, false, "yellow", game.players[i].profilePic, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
+                            playButton.IsEnabled = true;
+                            betButton.IsEnabled = false;
+                            foldButton.IsEnabled = false;
+                            checkButton.IsEnabled = false;
+                            callButton.IsEnabled = false;
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -812,11 +846,45 @@ namespace PL
                 else
                     smallIcons[i].Visibility = Visibility.Hidden;
             }
+            for (int i = 0; i < game.players.Length; i++)
+            {
+                if (game.players[i] != null && game.players[i].playerState == Player.PlayerState.my_turn)
+                {
+                    changeSeat(i, false, "blue", game.players[i].profilePic, game.players[i].name, game.players[i].Tokens, game.players[i].TokensInBet);
+                    playButton.IsEnabled = false;
+                    if (systemUserId == game.players[i].systemUserID)
+                    {
+                        betButton.IsEnabled = true;
+                        foldButton.IsEnabled = true;
+                        //MessageBox.Show("minimalBet: " + getMinimumBet());
+                        if (getMinimumBet() == 0)
+                        {
+                            checkButton.IsEnabled = true;
+                            callButton.IsEnabled = false;
+                        }
+                        else
+                        {
+                            checkButton.IsEnabled = false;
+                            callButton.IsEnabled = true;
+                        }
+                    }
+                    else
+                    {
+                        betButton.IsEnabled = false;
+                        foldButton.IsEnabled = false;
+                        checkButton.IsEnabled = false;
+                        callButton.IsEnabled = false;
+                    }
+                }
+            }
         }
+
+
 
         public void updateChatBox(string appendedLine)
         {
             messagesTextBlock.Text += appendedLine + "\n";
+            this.sv.ScrollToBottom();
         }
 
         public void update(object obj)

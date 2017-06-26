@@ -7,6 +7,7 @@ using ApplicationFacade;
 using Backend.Game;
 using Backend.User;
 using SL;
+using System.Drawing;
 
 namespace TestProject.Bridge
 {
@@ -19,7 +20,7 @@ namespace TestProject.Bridge
             sl = new SLImpl();
         }
 
-        public object register(string username, string password, string email, string picture)
+        public object register(string username, string password, string email, System.Drawing.Image picture)
         {
             return sl.Register(username, password, email, picture);
         }
@@ -34,7 +35,7 @@ namespace TestProject.Bridge
             return sl.Logout(userId);
         }
 
-        public object editProfile(int userId, string username, string password, string email, string picture, int moneyAmount)
+        public object editProfile(int userId, string username, string password, string email, Image picture, int moneyAmount)
         {
             return sl.editUserProfile(userId, username, password, email, picture, moneyAmount);
         }
@@ -152,19 +153,19 @@ namespace TestProject.Bridge
 
 
 
-        public bool canBet(TexasHoldemGame game, SystemUser user, int amount)
+        public bool canBet(TexasHoldemGame game, int amount)
         {
-            return game.gamePreferences.canPerformGameActions(game,user, amount, "Bet").success;
+            return game.gamePreferences.canPerformGameActions(game, amount, "Bet").success;
         }
 
-        public bool canRaise(TexasHoldemGame game, SystemUser user, int amount)
+        public bool canRaise(TexasHoldemGame game, int amount)
         {
-            return game.gamePreferences.canPerformGameActions(game, user, amount, "Raise").success;
+            return game.gamePreferences.canPerformGameActions(game, amount, "Raise").success;
         }
 
-        public bool canCall(TexasHoldemGame game, SystemUser user, int amount)
+        public bool canCall(TexasHoldemGame game, int amount)
         {
-            return game.gamePreferences.canPerformGameActions(game, user, amount, "Call").success;
+            return game.gamePreferences.canPerformGameActions(game, amount, "Call").success;
         }
 
         public bool fold()
