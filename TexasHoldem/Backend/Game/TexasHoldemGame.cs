@@ -101,6 +101,7 @@ namespace Backend.Game
 
         public ReturnMessage removeUser(int userId)
         {
+
             for (int i = 0; i < players.Length; i++)
             {
                 if (players[i] != null && players[i].systemUserID == userId)
@@ -139,6 +140,7 @@ namespace Backend.Game
                     players[i] = null;
 
                     gameStatesObserver.Update(this);
+                    spectateObserver.Update(this);
                     return new ReturnMessage(true, "");
                 }
             }
@@ -148,7 +150,6 @@ namespace Backend.Game
                 {
                     spectators.Remove(u);
                     u.spectatingGame.Remove(this);
-                    spectateObserver.Update(this);
                     return new ReturnMessage(true, "");
                 }
             }
@@ -207,7 +208,8 @@ namespace Backend.Game
             }
 
             // The user pay to enter the game.
-            user.money -= buyIn;
+            //user.money -= buyIn;
+            rankMoneyUpdateCallback(new int[] { user.id, 0, -buyIn });
 
             Player p = new Player(user.id, user.name, startingChips, user.rank, user.userImageByteArray);
             players[seatIndex] = p;
@@ -632,17 +634,16 @@ namespace Backend.Game
             int bet = -1;
             for (int i = 0; i < players.Length; i++)
             {
-                if (players[i] != null && (players[i].playerState.Equals(PlayerState.in_round) || players[i].playerState.Equals(Player.PlayerState.my_turn)) && players[i].Tokens != 0)
+                if (players[i] != null && (players[i].playerState == PlayerState.in_round || players[i].playerState.Equals(Player.PlayerState.my_turn)) && players[i].Tokens != 0)
                 {
                     bet = players[i].TokensInBet;
                     break;
                 }
             }
             bool isBetOver = true;
-
             for (int i = 0; i < players.Length; i++)
             {
-                if (players[i] != null && (players[i].playerState.Equals(PlayerState.in_round) || players[i].playerState.Equals(Player.PlayerState.my_turn)) && players[i].TokensInBet != bet)
+                if (players[i] != null && (players[i].playerState == PlayerState.in_round || players[i].playerState.Equals(Player.PlayerState.my_turn)) && players[i].TokensInBet != bet)// && players[i].Tokens != 0)
                 {
                     isBetOver = false;
                 }
