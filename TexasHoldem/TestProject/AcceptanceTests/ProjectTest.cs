@@ -42,18 +42,6 @@ namespace TestProject
         {
             return bridge.editProfile(userId, username, password, email, picture, moneyAmount);
         }
-        //public bool editImage(string img)
-        //{
-        //    return bridge.editImage(img);
-        //}
-        //public bool editName(string name)
-        //{
-        //    return bridge.editName(name);
-        //}
-        //public bool editEmail(string email)
-        //{
-        //    return bridge.editEmail(email);
-        //}
 
         public object creatGame(int gameCreator, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague)
         {
@@ -121,10 +109,6 @@ namespace TestProject
         {
             return bridge.canRaise(game, amount);
         }
-        //public bool call(int amount)
-        //{
-        //    return bridge.canCall(amount);
-        //}
         public bool fold()
         {
             return bridge.fold();
@@ -150,10 +134,6 @@ namespace TestProject
         {
             return bridge.removeGame(gameId);
         }
-        //public bool PlayersWithCriteria(string criteria, string players)
-        //{
-        //    return this.bridge.PlayersWithCriteria(criteria, players);
-        //}
     }   
 
 }

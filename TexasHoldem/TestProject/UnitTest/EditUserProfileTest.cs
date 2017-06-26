@@ -1,7 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SL;
-using Moq;
-//using DAL;
 using Backend.User;
 using System.Collections.Generic;
 using Backend;
@@ -46,31 +44,10 @@ namespace TestProject
                 db.getUserByName("test1"),
                 db.getUserByName("test2"),
                 db.getUserByName("test3")
-                //new SystemUser("Hadas", "email0", "image0", 1000),
-                //new SystemUser("Gili", "email1", "image1", 0),
-                //new SystemUser("Or", "email2", "image2", 700),
-                //new SystemUser("Aviv", "email3", "image3", 1500)
             };
 
             center = GameCenter.getGameCenter();
 
-            ////set users ranks.
-            //userList[0].rank = 10;
-            //userList[1].rank = 15;
-            //userList[2].rank = 20;
-            //userList[3].rank = 25;
-
-            //for (int i = 0; i < 4; i++)
-            //{
-            //    userList[i].id = i;
-            //    center.loggedInUsers.Add(userList[i]);
-            //    //center.login(userList[i].name, userList[i].password);
-            //}
-
-
-            //Mock<DALInterface> dalMock = new Mock<DALInterface>();
-            //dalMock.Setup(x => x.getAllUsers()).Returns(userList);
-            //dalMock.Setup(x => x.getUserById(It.IsAny<int>())).Returns((int i) => userList[i]);
             sl = new SLImpl();
         }
 

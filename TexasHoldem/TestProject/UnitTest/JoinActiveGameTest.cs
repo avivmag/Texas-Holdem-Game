@@ -2,14 +2,10 @@
 using SL;
 using Backend.User;
 using System.Collections.Generic;
-using Moq;
-//using DAL;
 using Backend.Game;
 using ApplicationFacade;
 using Backend.Game.DecoratorPreferences;
 using static Backend.Game.DecoratorPreferences.GamePolicyDecPref;
-using Backend;
-using System;
 using PeL;
 
 namespace TestProject
@@ -130,12 +126,6 @@ namespace TestProject
                                                                     new MaxPlayersDecPref (2,null) ))))),false,l.minRank,l.maxRank),
                                                                     userIdDeltaRank => db.EditUserById(userIdDeltaRank[0], null, null, null, null, null, userIdDeltaRank[1], false),
                                                                     userIdLeaderB => db.EditUserLeaderBoardsById(userIdLeaderB[0], userIdLeaderB[1], userIdLeaderB[2]))
-                //new TexasHoldemGame(userList[0], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, true)),
-                //new TexasHoldemGame(userList[0], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 9, false)),
-                //new TexasHoldemGame(userList[1], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, true)),
-                //new TexasHoldemGame(userList[1], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false)),
-                //new TexasHoldemGame(userList[3], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 0, 1000)),
-                //new TexasHoldemGame(userList[3], new GamePreferences(GamePreferences.GameTypePolicy.no_limit, 100, 500, 20, 2, 2, false, 1000, 2000))
             };
 
             for (int i = 0; i < gamesList.Count; i++)
@@ -144,11 +134,6 @@ namespace TestProject
                 center.TexasHoldemGames.Add(gamesList[i]);
             }
 
-            //Mock<DALInterface> dalMock = new Mock<DALInterface>();
-            //dalMock.Setup(x => x.getAllUsers()).Returns(userList);
-            //dalMock.Setup(x => x.getUserById(It.IsAny<int>())).Returns((int i) => userList[i]);
-            //dalMock.Setup(x => x.getGameById(It.IsAny<int>())).Returns((int i) => gamesList.Find(g => (g.gameId == i)));
-            //dalMock.Setup(x => x.getAllGames()).Returns(gamesList);
             sl = new SLImpl();
         }
 
@@ -180,7 +165,6 @@ namespace TestProject
             Assert.IsInstanceOfType(m, typeof(TexasHoldemGame));
 
             m = sl.joinGame(db.getUserByName("test0").id, 7, 0);
-            //Assert.IsInstanceOfType(m, typeof(TexasHoldemGame));
 
             Assert.AreEqual(m, null);
         }

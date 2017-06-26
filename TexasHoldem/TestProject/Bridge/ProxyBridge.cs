@@ -70,22 +70,6 @@ namespace TestProject
                 return username;
             return null;
         }
-        //public bool editImage(string img)
-        //{
-        //    return (img.Equals("img"));
-        //}
-        //public bool editName(string name)
-        //{
-        //    if (real != null)
-        //        return real.betSmallBlind(amount);
-        //    return (name.Equals("Hadas"));
-        //}
-        //public bool editEmail(string email)
-        //{
-        //    if (real != null)
-        //        return real.editEmail(email);
-        //    return (email.Equals("gmail@gmail.com"));          
-        //}
         public object creatGame(int gameCreator, string gamePolicy, int? gamePolicyLimit, int? buyInPolicy, int? startingChipsAmount, int? MinimalBet, int? minPlayers, int? maxPlayers, bool? isSpectatingAllowed, bool? isLeague)
         {
             if (real != null)
@@ -111,7 +95,6 @@ namespace TestProject
             if (real != null)
                 return real.addPlayerToGame(userId, gameId,seat);
             return true;
-            // return (username.Equals("Hadas") && game.Equals("Texas1"));
         }
         public object selectGametoJoin(string game)
         {
@@ -132,7 +115,6 @@ namespace TestProject
             if (real != null)
                 return real.spectateActiveGame(userId, gameId);
             return true;
-            //return (game.Equals("Texas1"));
         }
         public bool exitGame(string game)
         {
@@ -162,24 +144,12 @@ namespace TestProject
                 return criteria;
                return "";
         }
-        //public bool storeGameData()
-        //{
-        //    return true;
-        //}
         public bool isGameOver(int gameId)
         {
             if (real != null)
                 return real.isGameOver(gameId);
             return true;
-            //return (game.Equals("Texas1"));
         }
-
-        //public object joinLeaguePerPoints(int points)
-        //{
-        //    if (points == 100)
-        //        return "league #1";
-        //    return "league #10";
-        //}
 
         public bool updatePot(int amount)
         {
@@ -249,18 +219,5 @@ namespace TestProject
                 return real.removeGame(gameId);
             return true;
         }
-        //public bool isLeagueExist(string criteria)
-        //{
-        //    return (criteria.Equals("Points"));
-        //}
-
-        //public bool setCriteriaForNewLeague(string criteria)
-        //{
-        //    return (criteria.Equals("new league"));
-        //}
-        //public bool PlayersWithCriteria(string criteria, string players)
-        //{
-        //    return (!criteria.Equals("Points") && players.Equals("Alufim"));
-        //}
     }
 }
