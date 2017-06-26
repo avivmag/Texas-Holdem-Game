@@ -51,9 +51,9 @@ namespace CLClient.Entities
             this.data = data;
         }
 
-        public GameLogMetaData getMetaData()
+        public GameLogMetaData getMetaData(int index)
         {
-            return new GameLogMetaData(0, this.data[0]);
+            return new GameLogMetaData(index, this.data[0]);
         }
 
         public string[] peekNextMoveAction()
