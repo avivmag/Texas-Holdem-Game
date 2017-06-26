@@ -666,7 +666,7 @@ namespace PL
                 else
                     myCoins = temp;
             }
-            return Math.Max(0, ans - myCoins);
+            return Math.Min(myCoins, Math.Max(0, ans - myCoins));
         }
 
         // send a comment
