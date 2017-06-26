@@ -318,6 +318,8 @@ namespace CLClient
 
             listenThread.Start(listener);
 
+            response.profilePicture = (Bitmap)(new ImageConverter()).ConvertFrom(response.userImageByteArray);
+
             return response;
         }
 
@@ -653,8 +655,8 @@ namespace CLClient
                 avatar = imageByteArray,
                 amount };
 
-            var jsonMessage = sendMessage(message);
-            var responseJson = getResponse(jsonMessage);
+            var jsonMessage     = sendMessage(message);
+            var responseJson    = getResponse(jsonMessage);
 
             if (responseJson == null)
             {

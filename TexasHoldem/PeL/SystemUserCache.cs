@@ -28,9 +28,16 @@ namespace PeL
         public void addOrUpdate(SystemUser user)
         {
             List<SystemUser> filtered = list.Where(su => su.id == user.id).ToList();
+            Byte[] oldPic = null;
             if (filtered.Count != 0)
+            {
+                oldPic = filtered[0].userImageByteArray;
                 list.Remove(filtered[0]);
-
+            }
+            if (user.userImageByteArray == null)
+            {
+                user.userImageByteArray = oldPic;
+            }
             list.Add(user);
 
             if (list.Count >= max)
