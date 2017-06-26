@@ -697,6 +697,15 @@ namespace Backend.Game
                 players[nextPlayer].playerState = PlayerState.winner;
                 GameLog.logLine(gameId, GameLog.Actions.Player_Winner, players[nextPlayer].name);
                 players[nextPlayer].Tokens += pot;
+                for (int i = 0; i < players.Length; i++)
+                {
+                    if (players[i] != null && players[i].Tokens <= 0)
+                        removeUser(players[i].systemUserID);
+                }
+                if (numbersOfPlayersInRound() == 1)
+                {
+                    rankMoneyUpdateCallback(new int[] { p.systemUserID, p.Tokens, moneyInGame });
+                }
                 gameStatesObserver.Update(this);
                 spectateObserver.Update(this);
                 return new ReturnMessage(true, "");
