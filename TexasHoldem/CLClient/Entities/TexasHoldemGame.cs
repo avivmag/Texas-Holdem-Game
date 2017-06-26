@@ -26,6 +26,7 @@ namespace CLClient.Entities
         public Player[] players { get; set; }
         public List<SystemUser> spectators;
 
+        public bool gameOnChips { get; set; }
         public bool active { get; set; }
 
         public List<Card> flop { get; set; }

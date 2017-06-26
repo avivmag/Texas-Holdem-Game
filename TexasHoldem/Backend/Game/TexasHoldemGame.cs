@@ -79,8 +79,16 @@ namespace Backend.Game
             flop = null;
             currentBlindBet = 20;
 
+            gameOnChips = true;
+            StartingAmountChipsCedPref startingChipsPref = (StartingAmountChipsCedPref)gamePreferences.getOptionalPref(new StartingAmountChipsCedPref(0, null));
+            if (startingChipsPref != null)
+            {
+                if (startingChipsPref.startingChipsPolicy == 0)
+                {
+                    gameOnChips = false;
+                }
+            }
 
-            
             gameId = getNextId();
             GameLog.setLog(gameId, DateTime.Now);
             GameLog.logLine(gameId, GameLog.Actions.Game_Create, gameId.ToString(), user.name, DateTime.Now.ToString());

@@ -1058,7 +1058,7 @@ namespace CLServer
 
         static void Main()
         {
-            var realIP = true;
+            var realIP = false;
 
             var IP = LOCAL_IP;
 

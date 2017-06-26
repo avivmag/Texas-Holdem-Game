@@ -196,5 +196,37 @@ namespace TestProject.UnitTest
 
             Assert.IsTrue(game.gamePreferences.isContain(new MustPreferences(new GamePolicyDecPref(GameTypePolicy.Pot_Limit, 1000, null), true)));
         }
+
+        [TestMethod]
+        public void TestCreateGameIsOnChipsTrue()
+        {
+            object objUser = db.getUserByName("test0");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user = (SystemUser)objUser;
+
+            object objGame = sl.createGame(user.id, "Pot_Limit", 1000, 100, 15000, 120, 4, 8, true, false);
+            Assert.IsInstanceOfType(objGame, typeof(TexasHoldemGame));
+            TexasHoldemGame game = (TexasHoldemGame)objGame;
+
+            Assert.IsTrue(game.gamePreferences.isContain(new MustPreferences(new GamePolicyDecPref(GameTypePolicy.Pot_Limit, 1000, null), true)));
+
+            Assert.IsTrue(game.gameOnChips);
+        }
+
+        [TestMethod]
+        public void TestCreateGameIsOnChipsFalse()
+        {
+            object objUser = db.getUserByName("test0");
+            Assert.IsInstanceOfType(objUser, typeof(SystemUser));
+            SystemUser user = (SystemUser)objUser;
+
+            object objGame = sl.createGame(user.id, "Pot_Limit", 1000, 100, 0, 120, 4, 8, true, false);
+            Assert.IsInstanceOfType(objGame, typeof(TexasHoldemGame));
+            TexasHoldemGame game = (TexasHoldemGame)objGame;
+
+            Assert.IsTrue(game.gamePreferences.isContain(new MustPreferences(new GamePolicyDecPref(GameTypePolicy.Pot_Limit, 1000, null), true)));
+
+            Assert.IsFalse(game.gameOnChips);
+        }
     }
 }
