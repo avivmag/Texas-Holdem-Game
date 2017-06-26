@@ -18,6 +18,7 @@ namespace PL
 
         public SelectGameWindow(Window mainMenuWindow, string joinOperation)
         {
+
             InitializeComponent();
             this.mainMenuWindow = mainMenuWindow;
             actionBtn.Content = joinOperation;
@@ -63,7 +64,7 @@ namespace PL
                 {
                     Close();
                     mainMenuWindow.Show();
-                    var gw = new GameWindow(game, LoginWindow.user.id);
+                    var gw = new GameWindow(game, LoginWindow.user.id, true);
                     game.Subscribe(gw);
                     gw.Show();
                 }
@@ -82,7 +83,7 @@ namespace PL
                 {
                     Close();
                     mainMenuWindow.Show();
-                    var gameWindow = new GameWindow(game, LoginWindow.user.id);
+                    var gameWindow = new GameWindow(game, LoginWindow.user.id,false);
                     game.Subscribe(gameWindow);
                     gameWindow.Show();
                 }
