@@ -37,7 +37,7 @@ namespace PL
             {
                 Close();
                 mainMenuWindow.Show();
-                GameWindow gw = new GameWindow(game, LoginWindow.user.id);
+                GameWindow gw = new GameWindow(game, LoginWindow.user.id,false);
                 game.Subscribe(gw);
                 gw.Show();
 
