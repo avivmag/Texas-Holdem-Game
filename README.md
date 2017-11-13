@@ -14,7 +14,7 @@ You can read much more on this project in the assigment descriptions and the doc
 1. Microsoft windows OS.
 2. .NET</br>
 	can be downloaded and installed from https://www.microsoft.com/net/download/windows/
-* The project has been uploaded in the clean version without bin files, so it is needed to be compiled to run. Compiling the game can be done with Visual studio (which can be found here: https://www.visualstudio.com/). 
+* The project has been uploaded in a cleaned version (without bin files), so it is needed to be compiled to run. Compiling the game can be done with Visual studio (which can be found here: https://www.visualstudio.com/). 
 
 ## Useful links
 
