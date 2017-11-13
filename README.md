@@ -2,7 +2,7 @@
 
 An online texas holdem. Suitable for 2-8 players in each game room.
 
-The development of this game was done in quartet as part of multiple assignments in "Software Engineering Project" workshop (course) at Ben-Gurion University in the spring of 2017.
+The development of this game was done in quintet as part of multiple assignments in "Software Engineering Project" workshop (course) at Ben-Gurion University in the spring of 2017.
 
 This project is well documented and stands at a high software engineering standards.</br>
 It is built from multiple layers. Every layer serves its on purpose.</br>
